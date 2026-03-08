@@ -298,13 +298,14 @@ const COMP_RATES = {
 
 // ── CARRIER META: logo domain (Clearbit) + eApp link ──
 const CARRIER_META = {
-  acc:  { logo:'aetna.com',            eapp:'https://www.cvs.com/insurance/health-insurance/agent-portal' },
-  ahl:  { logo:'americanhomelife.com', eapp:'https://www.americanhomelife.com/agents' },
-  cont: { logo:'aetna.com',            eapp:'https://producers.aetna.com' },
-  rn:   { logo:'royalneighbors.org',   eapp:'https://rnaagent.royalneighbors.org' },
-  ta:   { logo:'transamerica.com',     eapp:'https://www.transamerica.com/financial-professionals/' },
-  fid:  { logo:'fidelitylife.com',     eapp:'https://agents.fidelitylifeassociation.com' },
-  cbg:  { logo:'corebridgefinancial.com', eapp:'https://www.corebridgefinancial.com/agents' },
+  acc:  { img:'/logos/accaetna.png',   imgBg:'white', eapp:'https://www.aetnaseniorproducts.com/ssi/index.html' },
+  ahl:  { img:'/logos/ahl.png',        imgBg:'black', eapp:'https://ahlpatriotseries.com/' },
+  cont: { img:'/logos/accaetna.png',   imgBg:'white', eapp:'https://www.aetnaseniorproducts.com/ssi/index.html' },
+  rn:   { img:'/logos/rn.png',         imgBg:'black', eapp:'https://agent.royalneighbors.org/login' },
+  ta:   { img:'/logos/ta.png',         imgBg:'white', eapp:'https://www.transamerica.com/financial-professionals/' },
+  fid:  { img:'/logos/fid.png',        imgBg:'black', eapp:'https://portal.instabrain.io/App/?redirected=true' },
+  cbg:  { img:'/logos/cbg_white.png',  imgBg:'transparent', eapp:'https://www.connext.corebridgefinancial.com/life/connext-portal/public/login' },
+  uhl:  { img:'/logos/uhl.png',        imgBg:'black', eapp:'https://agentportal.unitedhomelife.com/home' },
 };
 
 function getCompBadge(carrierId, tier) {
@@ -397,24 +398,25 @@ const CompBadge = ({carrierId, tier}) => {
   );
 };
 
-// Carrier logo with Clearbit fallback
+// Carrier logo from local assets
 const CarrierLogo = ({carrierId, name}) => {
   const meta = CARRIER_META[carrierId];
   const [err,setErr] = React.useState(false);
   if(!meta || err) {
     return (
-      <div style={{width:36,height:36,borderRadius:8,background:'#0C1828',border:'1px solid #1A3050',display:'flex',alignItems:'center',justifyContent:'center',fontSize:10,fontWeight:700,color:'#64748B',letterSpacing:0.5,flexShrink:0}}>
+      <div style={{width:40,height:40,borderRadius:8,background:'#0C1828',border:'1px solid #1A3050',display:'flex',alignItems:'center',justifyContent:'center',fontSize:10,fontWeight:700,color:'#64748B',letterSpacing:0.5,flexShrink:0}}>
         {name?name.slice(0,2).toUpperCase():'??'}
       </div>
     );
   }
+  const bg = meta.imgBg==='white'?'#FFFFFF':meta.imgBg==='black'?'#111827':'transparent';
   return (
-    <div style={{width:36,height:36,borderRadius:8,background:'white',border:'1px solid #1A3050',display:'flex',alignItems:'center',justifyContent:'center',overflow:'hidden',flexShrink:0}}>
+    <div style={{width:64,height:32,borderRadius:7,background:bg,border:'1px solid #1A3050',display:'flex',alignItems:'center',justifyContent:'center',overflow:'hidden',flexShrink:0,padding:'3px 6px'}}>
       <img
-        src={`https://logo.clearbit.com/${meta.logo}`}
+        src={meta.img}
         alt={name}
         onError={()=>setErr(true)}
-        style={{width:28,height:28,objectFit:'contain'}}
+        style={{maxWidth:'100%',maxHeight:'100%',objectFit:'contain'}}
       />
     </div>
   );
@@ -446,7 +448,12 @@ const TierPill = ({tier}) => {
 };
 
 export default function QuoteMark() {
-  useEffect(()=>{ const l=document.createElement('link');l.href=FONT_LINK;l.rel='stylesheet';document.head.appendChild(l); },[]);
+  useEffect(()=>{
+    const l=document.createElement('link');l.href=FONT_LINK;l.rel='stylesheet';document.head.appendChild(l);
+    // Reset body/html to eliminate white margins/borders
+    document.documentElement.style.cssText='margin:0;padding:0;background:#05101E;overflow-x:hidden';
+    document.body.style.cssText='margin:0;padding:0;background:#05101E;overflow-x:hidden';
+  },[]);
 
   const [age,setAge]           = useState('');
   const [dob,setDob]           = useState({mm:'',dd:'',yyyy:''});
@@ -612,11 +619,30 @@ export default function QuoteMark() {
             <div style={{display:'flex',alignItems:'center',justifyContent:'space-between',marginBottom:10}}>
               <div style={lbl}>Quote Target</div>
               <button onClick={()=>{setGsbOn(p=>!p);setMode('face');}} style={{
-                padding:'4px 10px',borderRadius:6,border:`1px solid ${gsbOn?C.gold+'55':C.bd}`,
-                background:gsbOn?C.goldBg:C.bg2,color:gsbOn?C.gold:C.t3,
-                fontSize:11,fontWeight:600,cursor:'pointer',fontFamily:"'DM Sans',sans-serif"
+                display:'flex',alignItems:'center',gap:8,
+                padding:'5px 10px 5px 6px',borderRadius:20,
+                border:`1px solid ${gsbOn?C.gold+'66':C.bd}`,
+                background:gsbOn?C.goldBg:C.bg2,
+                color:gsbOn?C.gold:C.t3,
+                fontSize:11,fontWeight:600,cursor:'pointer',fontFamily:"'DM Sans',sans-serif",
+                transition:'all 0.2s'
               }}>
-                {gsbOn?'🥇 Gold/Silver/Bronze on':'🥇 Gold/Silver/Bronze off'}
+                {/* Toggle track */}
+                <span style={{
+                  position:'relative',display:'inline-block',
+                  width:28,height:16,borderRadius:8,
+                  background:gsbOn?C.gold:'#1A3050',
+                  border:`1px solid ${gsbOn?C.gold:'#243D5C'}`,
+                  transition:'all 0.2s',flexShrink:0
+                }}>
+                  <span style={{
+                    position:'absolute',top:2,
+                    left:gsbOn?12:2,width:10,height:10,
+                    borderRadius:'50%',background:'white',
+                    transition:'left 0.2s'
+                  }}/>
+                </span>
+                🥇 Gold / Silver / Bronze
               </button>
             </div>
             {!gsbOn?(
@@ -913,9 +939,8 @@ export default function QuoteMark() {
                               </div>
                               <div style={{width:1,height:32,background:C.bd,margin:'0 14px'}}/>
                               <div style={{flex:1}}>
-                                <div style={{fontSize:10,color:C.t3,marginBottom:2}}>Product</div>
+                                <div style={{fontSize:10,color:C.t3,marginBottom:2}}>Coverage</div>
                                 <div style={{display:'flex',alignItems:'center',gap:6,flexWrap:'wrap'}}>
-                                  <span style={{fontSize:11,color:C.t2,lineHeight:1.3}}>{r.productName}</span>
                                   <TierBadge tier={r.activeTier} productName={r.productName}/>
                                 </div>
                               </div>
