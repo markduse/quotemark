@@ -398,40 +398,51 @@ const CompBadge = ({carrierId, tier}) => {
   );
 };
 
-// Carrier logo from local assets
+// Carrier logo — monochrome/grayscale filter so logos don't clash with dark UI
 const CarrierLogo = ({carrierId, name}) => {
   const meta = CARRIER_META[carrierId];
   const [err,setErr] = React.useState(false);
   if(!meta || err) {
     return (
-      <div style={{width:40,height:40,borderRadius:8,background:'#0C1828',border:'1px solid #1A3050',display:'flex',alignItems:'center',justifyContent:'center',fontSize:10,fontWeight:700,color:'#64748B',letterSpacing:0.5,flexShrink:0}}>
-        {name?name.slice(0,2).toUpperCase():'??'}
+      <div style={{width:72,height:28,borderRadius:6,background:'#0C1828',border:'1px solid #1A3050',display:'flex',alignItems:'center',justifyContent:'center',fontSize:9,fontWeight:700,color:'#475569',letterSpacing:0.8,flexShrink:0}}>
+        {name?name.slice(0,3).toUpperCase():'???'}
       </div>
     );
   }
-  const bg = meta.imgBg==='white'?'#FFFFFF':meta.imgBg==='black'?'#111827':'transparent';
   return (
-    <div style={{width:64,height:32,borderRadius:7,background:bg,border:'1px solid #1A3050',display:'flex',alignItems:'center',justifyContent:'center',overflow:'hidden',flexShrink:0,padding:'3px 6px'}}>
+    <div style={{width:72,height:28,borderRadius:6,background:'transparent',display:'flex',alignItems:'center',justifyContent:'center',overflow:'hidden',flexShrink:0}}>
       <img
         src={meta.img}
         alt={name}
         onError={()=>setErr(true)}
-        style={{maxWidth:'100%',maxHeight:'100%',objectFit:'contain'}}
+        style={{width:'100%',height:'100%',objectFit:'contain',filter:'grayscale(100%) brightness(220%) contrast(90%)',opacity:0.85}}
       />
     </div>
   );
 };
 
-// eApp button
+// eApp button — full-width, anchored to card bottom
 const EAppBtn = ({carrierId}) => {
   const meta = CARRIER_META[carrierId];
+  const [hov,setHov] = React.useState(false);
   if(!meta?.eapp) return null;
   return (
     <a href={meta.eapp} target="_blank" rel="noopener noreferrer"
-      style={{display:'inline-flex',alignItems:'center',gap:5,padding:'6px 12px',borderRadius:7,border:'1px solid rgba(59,130,246,0.35)',background:'rgba(59,130,246,0.1)',color:'#93C5FD',fontSize:11,fontWeight:600,textDecoration:'none',letterSpacing:0.3,whiteSpace:'nowrap',transition:'all 0.15s'}}
-      onMouseEnter={e=>{e.currentTarget.style.background='rgba(59,130,246,0.2)';e.currentTarget.style.borderColor='rgba(59,130,246,0.6)';}}
-      onMouseLeave={e=>{e.currentTarget.style.background='rgba(59,130,246,0.1)';e.currentTarget.style.borderColor='rgba(59,130,246,0.35)';}}>
-      ✏️ e-App
+      onMouseEnter={()=>setHov(true)} onMouseLeave={()=>setHov(false)}
+      style={{
+        display:'flex',alignItems:'center',justifyContent:'center',gap:7,
+        width:'100%',padding:'10px 0',marginTop:14,
+        borderRadius:'0 0 10px 10px',
+        border:'none',
+        borderTop:`1px solid ${hov?'rgba(59,130,246,0.4)':'rgba(255,255,255,0.06)'}`,
+        background:hov?'rgba(59,130,246,0.18)':'rgba(255,255,255,0.03)',
+        color:hov?'#93C5FD':'#64748B',
+        fontSize:12,fontWeight:600,textDecoration:'none',
+        letterSpacing:0.4,transition:'all 0.18s',
+        marginLeft:-18,marginRight:-18,marginBottom:-18,
+        width:'calc(100% + 36px)'
+      }}>
+      📋 e-App
     </a>
   );
 };
@@ -770,9 +781,23 @@ export default function QuoteMark() {
             <div style={{maxHeight:250,overflowY:'auto',paddingRight:2}}>
               {Object.entries(cats).map(([cat,conds])=>(
                 <div key={cat} style={{marginBottom:3}}>
-                  <div onClick={()=>setOpenCat(openCat===cat?null:cat)} style={{fontSize:10,fontWeight:700,color:C.t3,textTransform:'uppercase',letterSpacing:0.9,padding:'5px 3px',cursor:'pointer',display:'flex',justifyContent:'space-between',userSelect:'none'}}>
-                    {cat}<span style={{color:C.t4,fontSize:8}}>{openCat===cat?'▲':'▼'}</span>
-                  </div>
+                  {(()=>{
+                    const catHasActive=conds.some(c=>selected.includes(c.id));
+                    // Split emoji prefix from text
+                    const emojiMatch=cat.match(/^(\S+\s)/);
+                    const icon=emojiMatch?emojiMatch[1]:'';
+                    const label=emojiMatch?cat.slice(icon.length):cat;
+                    return(
+                      <div onClick={()=>setOpenCat(openCat===cat?null:cat)} style={{fontSize:10,fontWeight:700,textTransform:'uppercase',letterSpacing:0.9,padding:'5px 3px',cursor:'pointer',display:'flex',justifyContent:'space-between',userSelect:'none',alignItems:'center'}}>
+                        <span>
+                          <span style={{filter:catHasActive?'none':'grayscale(1) opacity(0.45)',transition:'filter 0.2s'}}>{icon}</span>
+                          <span style={{color:catHasActive?C.t1:C.t3}}>{label}</span>
+                          {catHasActive&&<span style={{marginLeft:5,display:'inline-block',width:5,height:5,borderRadius:'50%',background:'#EF4444',verticalAlign:'middle'}}/>}
+                        </span>
+                        <span style={{color:C.t4,fontSize:8}}>{openCat===cat?'▲':'▼'}</span>
+                      </div>
+                    );
+                  })()}
                   {(openCat===cat||search.length>0)&&conds.map(c=>{
                     const active=selected.includes(c.id),tc=TIER_INFO[c.tier].dot;
                     return(
@@ -889,12 +914,13 @@ export default function QuoteMark() {
                     // Single mode
                     return(
                       <div key={r.id} style={{
-                        background:isGhost?C.bg2:C.bg3,
-                        border:`1px solid ${isBest?C.gold+'55':isGhost?C.bd:C.bd2}`,
+                        background:isGhost?C.bg2:isBest?'rgba(245,158,11,0.04)':C.bg3,
+                        border:`1px solid ${isBest?C.gold:isGhost?C.bd:C.bd2}`,
                         borderRadius:12,padding:18,
                         opacity:isGhost?0.3:1,
                         position:'relative',
-                        transition:'opacity 0.15s'
+                        transition:'opacity 0.15s',
+                        overflow:'hidden'
                       }}>
                         {isBest&&(
                           <div style={{position:'absolute',top:-1,left:16,background:C.gold,color:C.bg0,fontSize:10,fontWeight:700,padding:'2px 10px',borderRadius:'0 0 7px 7px',letterSpacing:0.5}}>
@@ -903,8 +929,8 @@ export default function QuoteMark() {
                         )}
                         <div style={{display:'flex',justifyContent:'space-between',alignItems:'flex-start',marginBottom:isGhost?0:14,marginTop:isBest?10:0}}>
                           <div style={{flex:1,minWidth:0}}>
-                            <div style={{fontSize:14,fontWeight:700,color:C.t0}}>{r.name}</div>
-                            <div style={{fontSize:11,color:C.t3,marginTop:1}}>{r.sub}</div>
+                            <div style={{fontSize:16,fontWeight:600,color:C.t0,letterSpacing:'-0.2px'}}>{r.name}</div>
+                            <div style={{fontSize:11,color:C.t3,marginTop:2}}>{r.sub}</div>
                           </div>
                           <div style={{display:'flex',flexDirection:'column',alignItems:'flex-end',gap:5,marginLeft:10,flexShrink:0}}>
                             <CarrierLogo carrierId={r.id} name={r.name}/>
@@ -922,11 +948,11 @@ export default function QuoteMark() {
                                 <span style={{fontFamily:"'DM Mono',monospace",fontSize:30,fontWeight:500,color:isBest?C.gold:C.t0,letterSpacing:'-1px',lineHeight:1}}>
                                   {fmt$(r.prem)}
                                 </span>
-                                <span style={{fontSize:11,color:C.t3}}>/mo EFT</span>
+                                <span style={{fontSize:11,color:C.t2}}>/mo EFT</span>
                               </div>
-                              <div style={{fontSize:12,color:C.t2,marginTop:4}}>
+                              <div style={{fontSize:12,color:C.t1,marginTop:4}}>
                                 <span style={{fontFamily:"'DM Mono',monospace"}}>${(r.prem*12).toFixed(0)}</span>
-                                <span style={{color:C.t3}}> / year</span>
+                                <span style={{color:C.t2}}> / year</span>
                               </div>
                             </div>
                             {/* Face + product — clean horizontal row, no nested boxes */}
@@ -945,10 +971,7 @@ export default function QuoteMark() {
                                 </div>
                               </div>
                             </div>
-                            {/* e-App button */}
-                            <div style={{marginTop:12,display:'flex',justifyContent:'flex-end'}}>
-                              <EAppBtn carrierId={r.id}/>
-                            </div>
+                            <EAppBtn carrierId={r.id}/>
                           </>
                         )}
                       </div>
@@ -965,7 +988,7 @@ export default function QuoteMark() {
                   const mostExp=avail.reduce((a,b)=>a.prem>b.prem?a:b);
                   const maxCov=mode==='budget'?avail.reduce((a,b)=>(a.face||0)>(b.face||0)?a:b):null;
                   return(
-                    <div style={{background:C.bg3,border:`1px solid ${C.bd}`,borderRadius:12,padding:'14px 18px',display:'flex',gap:24,flexWrap:'wrap',alignItems:'center'}}>
+                    <div style={{background:C.bg3,border:`1px solid ${C.bd}`,borderRadius:12,padding:'14px 18px',display:'flex',gap:18,flexWrap:'wrap',alignItems:'center'}}>
                       <div>
                         <div style={{fontSize:10,color:C.t4,fontWeight:600,letterSpacing:1.2,textTransform:'uppercase',marginBottom:3}}>Price range</div>
                         <div style={{display:'flex',alignItems:'baseline',gap:6}}>
@@ -981,7 +1004,7 @@ export default function QuoteMark() {
                         <div style={{fontFamily:"'DM Mono',monospace",fontSize:18,fontWeight:500,color:C.gold}}>{fmtF(maxCov.face)}</div>
                         <div style={{fontSize:11,color:C.t4,marginTop:1}}>{maxCov.name}</div>
                       </div>}
-                      <div style={{borderLeft:`1px solid ${C.bd}`,paddingLeft:24,marginLeft:'auto'}}>
+                      <div style={{borderLeft:`1px solid ${C.bd}`,paddingLeft:20}}>
                         <div style={{fontSize:10,color:C.t4,fontWeight:600,letterSpacing:1.2,textTransform:'uppercase',marginBottom:3}}>Available</div>
                         <div style={{fontSize:18,fontWeight:600,color:C.t0}}>{avail.length}<span style={{fontSize:12,color:C.t3,fontWeight:400}}> of {results.length}</span></div>
                         <div style={{fontSize:11,color:C.t4,marginTop:1}}>UW: {TIER_INFO[uwTier].short}</div>
