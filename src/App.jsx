@@ -282,6 +282,41 @@ const CARRIERS = [
    fn:(age,male,smoker,tier,face)=>{if(tier!=='B'&&tier!=='C')return null;return csvLookup(PF2,PF_M,age,male,smoker,face);}},
 ];
 
+
+// ── COMP RATES (% of premium, from agency grid) ──
+// Used purely for badge display — no numbers shown to agents
+// B=Preferred C=Level/Standard D=Modified E=GI
+const COMP_RATES = {
+  acc:  { B:115, C:115, D:89,  E:null },
+  ahl:  { B:115, C:115, D:115, E:null },
+  cont: { B:115, C:115, D:null,E:null },
+  rn:   { B:110, C:110, D:null,E:23   },
+  ta:   { B:110, C:110, D:null,E:null },
+  fid:  { B:null,C:null,D:null,E:55   },
+  cbg:  { B:null,C:null,D:null,E:55   },
+};
+
+// ── CARRIER META: logo domain (Clearbit) + eApp link ──
+const CARRIER_META = {
+  acc:  { logo:'aetna.com',            eapp:'https://www.cvs.com/insurance/health-insurance/agent-portal' },
+  ahl:  { logo:'americanhomelife.com', eapp:'https://www.americanhomelife.com/agents' },
+  cont: { logo:'aetna.com',            eapp:'https://producers.aetna.com' },
+  rn:   { logo:'royalneighbors.org',   eapp:'https://rnaagent.royalneighbors.org' },
+  ta:   { logo:'transamerica.com',     eapp:'https://www.transamerica.com/financial-professionals/' },
+  fid:  { logo:'fidelitylife.com',     eapp:'https://agents.fidelitylifeassociation.com' },
+  cbg:  { logo:'corebridgefinancial.com', eapp:'https://www.corebridgefinancial.com/agents' },
+};
+
+function getCompBadge(carrierId, tier) {
+  const rates = COMP_RATES[carrierId];
+  if(!rates) return null;
+  const pct = rates[tier];
+  if(pct == null) return null;
+  if(pct >= 110) return 'high';
+  if(pct < 90)   return 'low';
+  return 'mid';
+}
+
 function getAutoTier(sel){const active=sel.filter(id=>id!=='none');if(!active.length)return 'B';const order=['E','D','C','B'],tiers=active.map(id=>CONDITIONS.find(c=>c.id===id)?.tier||'B');for(const t of order)if(tiers.includes(t))return t;return 'B';}
 function solveForFace(budget,age,male,smoker,tier,fn){let lo=1000,hi=50000,best=0;for(let i=0;i<50;i++){const mid=Math.round((lo+hi)/2/1000)*1000;if(lo>hi)break;const p=fn(age,male,smoker,tier,mid);if(p!==null&&p<=budget+0.001){best=mid;lo=mid+1000;}else hi=mid-1000;}return best>0?best:null;}
 function calcAge(mm,dd,yyyy){if(!mm||!dd||!yyyy||yyyy.length<4)return null;const b=new Date(+yyyy,+mm-1,+dd),t=new Date();let a=t.getFullYear()-b.getFullYear();if(t.getMonth()-b.getMonth()<0||(t.getMonth()===b.getMonth()&&t.getDate()<b.getDate()))a--;return isNaN(a)?null:a;}
@@ -330,6 +365,72 @@ const TierBadge = ({tier, productName}) => {
         </span>
       )}
     </span>
+  );
+};
+
+
+// Comp badge — green 💰 for high comp (≥110%), red 📉 for low (<90%)
+const CompBadge = ({carrierId, tier}) => {
+  const [hov,setHov] = React.useState(false);
+  const level = getCompBadge(carrierId, tier);
+  if(!level || level==='mid') return null;
+  const isHigh = level==='high';
+  const emoji = isHigh ? '💰' : '📉';
+  const color = isHigh ? '#4ADE80' : '#F87171';
+  const bg    = isHigh ? 'rgba(34,197,94,0.12)' : 'rgba(239,68,68,0.12)';
+  const bd    = isHigh ? 'rgba(34,197,94,0.35)' : 'rgba(239,68,68,0.35)';
+  const tip   = isHigh
+    ? 'Strong commission contract. One of the better-compensated products in this tier.'
+    : 'Below-average commission for this tier. Consider alternatives when available.';
+  return (
+    <span style={{position:'relative',display:'inline-flex'}}
+      onMouseEnter={()=>setHov(true)} onMouseLeave={()=>setHov(false)}>
+      <span style={{display:'inline-flex',alignItems:'center',gap:4,background:bg,border:`1px solid ${bd}`,color,borderRadius:5,padding:'2px 7px',fontSize:10,fontWeight:700,cursor:'default',whiteSpace:'nowrap'}}>
+        {emoji}
+      </span>
+      {hov&&(
+        <span style={{position:'absolute',bottom:'calc(100% + 6px)',left:0,background:'#1E3A5A',border:'1px solid #2A4F78',color:'#CBD5E1',fontSize:10,borderRadius:6,padding:'7px 10px',width:190,lineHeight:1.5,zIndex:50,pointerEvents:'none',boxShadow:'0 4px 16px rgba(0,0,0,0.5)'}}>
+          {tip}
+        </span>
+      )}
+    </span>
+  );
+};
+
+// Carrier logo with Clearbit fallback
+const CarrierLogo = ({carrierId, name}) => {
+  const meta = CARRIER_META[carrierId];
+  const [err,setErr] = React.useState(false);
+  if(!meta || err) {
+    return (
+      <div style={{width:36,height:36,borderRadius:8,background:'#0C1828',border:'1px solid #1A3050',display:'flex',alignItems:'center',justifyContent:'center',fontSize:10,fontWeight:700,color:'#64748B',letterSpacing:0.5,flexShrink:0}}>
+        {name?name.slice(0,2).toUpperCase():'??'}
+      </div>
+    );
+  }
+  return (
+    <div style={{width:36,height:36,borderRadius:8,background:'white',border:'1px solid #1A3050',display:'flex',alignItems:'center',justifyContent:'center',overflow:'hidden',flexShrink:0}}>
+      <img
+        src={`https://logo.clearbit.com/${meta.logo}`}
+        alt={name}
+        onError={()=>setErr(true)}
+        style={{width:28,height:28,objectFit:'contain'}}
+      />
+    </div>
+  );
+};
+
+// eApp button
+const EAppBtn = ({carrierId}) => {
+  const meta = CARRIER_META[carrierId];
+  if(!meta?.eapp) return null;
+  return (
+    <a href={meta.eapp} target="_blank" rel="noopener noreferrer"
+      style={{display:'inline-flex',alignItems:'center',gap:5,padding:'6px 12px',borderRadius:7,border:'1px solid rgba(59,130,246,0.35)',background:'rgba(59,130,246,0.1)',color:'#93C5FD',fontSize:11,fontWeight:600,textDecoration:'none',letterSpacing:0.3,whiteSpace:'nowrap',transition:'all 0.15s'}}
+      onMouseEnter={e=>{e.currentTarget.style.background='rgba(59,130,246,0.2)';e.currentTarget.style.borderColor='rgba(59,130,246,0.6)';}}
+      onMouseLeave={e=>{e.currentTarget.style.background='rgba(59,130,246,0.1)';e.currentTarget.style.borderColor='rgba(59,130,246,0.35)';}}>
+      ✏️ e-App
+    </a>
   );
 };
 
@@ -775,11 +876,14 @@ export default function QuoteMark() {
                           </div>
                         )}
                         <div style={{display:'flex',justifyContent:'space-between',alignItems:'flex-start',marginBottom:isGhost?0:14,marginTop:isBest?10:0}}>
-                          <div>
+                          <div style={{flex:1,minWidth:0}}>
                             <div style={{fontSize:14,fontWeight:700,color:C.t0}}>{r.name}</div>
                             <div style={{fontSize:11,color:C.t3,marginTop:1}}>{r.sub}</div>
                           </div>
-
+                          <div style={{display:'flex',flexDirection:'column',alignItems:'flex-end',gap:5,marginLeft:10,flexShrink:0}}>
+                            <CarrierLogo carrierId={r.id} name={r.name}/>
+                            {!isGhost&&<CompBadge carrierId={r.id} tier={r.activeTier}/>}
+                          </div>
                         </div>
                         {isGhost?(
                           <div style={{fontSize:12,color:C.t4,fontStyle:'italic'}}>{r.reason}</div>
@@ -815,6 +919,10 @@ export default function QuoteMark() {
                                   <TierBadge tier={r.activeTier} productName={r.productName}/>
                                 </div>
                               </div>
+                            </div>
+                            {/* e-App button */}
+                            <div style={{marginTop:12,display:'flex',justifyContent:'flex-end'}}>
+                              <EAppBtn carrierId={r.id}/>
                             </div>
                           </>
                         )}
