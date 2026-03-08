@@ -298,14 +298,14 @@ const COMP_RATES = {
 
 // ── CARRIER META: logo domain (Clearbit) + eApp link ──
 const CARRIER_META = {
-  acc:  { img:'/logos/accaetna.png',   imgBg:'white', eapp:'https://www.aetnaseniorproducts.com/ssi/index.html' },
-  ahl:  { img:'/logos/ahl.png',        imgBg:'black', eapp:'https://ahlpatriotseries.com/' },
-  cont: { img:'/logos/accaetna.png',   imgBg:'white', eapp:'https://www.aetnaseniorproducts.com/ssi/index.html' },
-  rn:   { img:'/logos/rn.png',         imgBg:'black', eapp:'https://agent.royalneighbors.org/login' },
-  ta:   { img:'/logos/ta.png',         imgBg:'white', eapp:'https://www.transamerica.com/financial-professionals/' },
-  fid:  { img:'/logos/fid.png',        imgBg:'black', eapp:'https://portal.instabrain.io/App/?redirected=true' },
-  cbg:  { img:'/logos/cbg_white.png',  imgBg:'transparent', eapp:'https://www.connext.corebridgefinancial.com/life/connext-portal/public/login' },
-  uhl:  { img:'/logos/uhl.png',        imgBg:'black', eapp:'https://agentportal.unitedhomelife.com/home' },
+  acc:  { img:'/logos/accaetna.png',   imgBg:'white', eapp:'https://www.aetnaseniorproducts.com/ssi/index.html', brand:'#7C3AED' }, // Aetna purple
+  ahl:  { img:'/logos/ahl.png',        imgBg:'black', eapp:'https://ahlpatriotseries.com/',                       brand:'#1D4ED8' }, // AHL blue
+  cont: { img:'/logos/accaetna.png',   imgBg:'white', eapp:'https://www.aetnaseniorproducts.com/ssi/index.html', brand:'#7C3AED' }, // Aetna purple
+  rn:   { img:'/logos/rn.png',         imgBg:'black', eapp:'https://agent.royalneighbors.org/login',              brand:'#059669' }, // Royal green
+  ta:   { img:'/logos/ta.png',         imgBg:'white', eapp:'https://www.transamerica.com/financial-professionals/', brand:'#0EA5E9' }, // Transamerica blue
+  fid:  { img:'/logos/fid.png',        imgBg:'black', eapp:'https://portal.instabrain.io/App/?redirected=true',   brand:'#0369A1' }, // Fidelity navy-blue
+  cbg:  { img:'/logos/cbg_white.png',  imgBg:'transparent', eapp:'https://www.connext.corebridgefinancial.com/life/connext-portal/public/login', brand:'#D97706' }, // Corebridge amber
+  uhl:  { img:'/logos/uhl.png',        imgBg:'black', eapp:'https://agentportal.unitedhomelife.com/home',          brand:'#BE123C' }, // UHL red
 };
 
 function getCompBadge(carrierId, tier) {
@@ -390,7 +390,7 @@ const CompBadge = ({carrierId, tier}) => {
         {emoji}
       </span>
       {hov&&(
-        <span style={{position:'absolute',bottom:'calc(100% + 6px)',left:0,background:'#1E3A5A',border:'1px solid #2A4F78',color:'#CBD5E1',fontSize:10,borderRadius:6,padding:'7px 10px',width:190,lineHeight:1.5,zIndex:50,pointerEvents:'none',boxShadow:'0 4px 16px rgba(0,0,0,0.5)'}}>
+        <span style={{position:'fixed',transform:'translateY(-100%) translateY(-8px)',background:'#0F2035',border:'1px solid #2A4F78',color:'#CBD5E1',fontSize:10,borderRadius:7,padding:'8px 11px',width:200,lineHeight:1.6,zIndex:9999,pointerEvents:'none',boxShadow:'0 8px 24px rgba(0,0,0,0.7)',left:'auto'}}>
           {tip}
         </span>
       )}
@@ -421,29 +421,32 @@ const CarrierLogo = ({carrierId, name}) => {
   );
 };
 
-// eApp button — full-width, anchored to card bottom
+// eApp button — full-width distinct button at card bottom
 const EAppBtn = ({carrierId}) => {
   const meta = CARRIER_META[carrierId];
   const [hov,setHov] = React.useState(false);
   if(!meta?.eapp) return null;
+  const brand = meta.brand || '#3B82F6';
   return (
-    <a href={meta.eapp} target="_blank" rel="noopener noreferrer"
-      onMouseEnter={()=>setHov(true)} onMouseLeave={()=>setHov(false)}
-      style={{
-        display:'flex',alignItems:'center',justifyContent:'center',gap:7,
-        width:'100%',padding:'10px 0',marginTop:14,
-        borderRadius:'0 0 10px 10px',
-        border:'none',
-        borderTop:`1px solid ${hov?'rgba(59,130,246,0.4)':'rgba(255,255,255,0.06)'}`,
-        background:hov?'rgba(59,130,246,0.18)':'rgba(255,255,255,0.03)',
-        color:hov?'#93C5FD':'#64748B',
-        fontSize:12,fontWeight:600,textDecoration:'none',
-        letterSpacing:0.4,transition:'all 0.18s',
-        marginLeft:-18,marginRight:-18,marginBottom:-18,
-        width:'calc(100% + 36px)'
-      }}>
-      📋 e-App
-    </a>
+    <div style={{marginTop:14,paddingTop:12,borderTop:'1px solid rgba(255,255,255,0.06)'}}>
+      <a href={meta.eapp} target="_blank" rel="noopener noreferrer"
+        onMouseEnter={()=>setHov(true)} onMouseLeave={()=>setHov(false)}
+        style={{
+          display:'flex',alignItems:'center',justifyContent:'center',gap:7,
+          width:'100%',padding:'9px 0',
+          borderRadius:8,
+          border:`1px solid ${hov?brand+'88':brand+'44'}`,
+          background:hov?brand+'22':brand+'0F',
+          color:hov?'#F1F5F9':brand+'DD',
+          fontSize:12,fontWeight:600,textDecoration:'none',
+          letterSpacing:0.4,
+          transition:'all 0.18s',
+          transform:hov?'translateY(-1px)':'translateY(0)',
+          boxShadow:hov?`0 4px 12px ${brand}33`:'none',
+        }}>
+        📋 e-App
+      </a>
+    </div>
   );
 };
 
@@ -912,15 +915,18 @@ export default function QuoteMark() {
                       );
                     }
                     // Single mode
+                    const brandColor = (!isGhost&&!isBest) ? (CARRIER_META[r.id]?.brand||C.bd2) : null;
+                    const premColor  = isBest ? C.gold : (CARRIER_META[r.id]?.brand || C.t0);
                     return(
                       <div key={r.id} style={{
                         background:isGhost?C.bg2:isBest?'rgba(245,158,11,0.04)':C.bg3,
                         border:`1px solid ${isBest?C.gold:isGhost?C.bd:C.bd2}`,
+                        borderTop: isBest?`2px solid ${C.gold}`:isGhost?`1px solid ${C.bd}`:`2px solid ${brandColor||C.bd2}`,
                         borderRadius:12,padding:18,
                         opacity:isGhost?0.3:1,
                         position:'relative',
                         transition:'opacity 0.15s',
-                        overflow:'hidden'
+                        overflow:'visible'
                       }}>
                         {isBest&&(
                           <div style={{position:'absolute',top:-1,left:16,background:C.gold,color:C.bg0,fontSize:10,fontWeight:700,padding:'2px 10px',borderRadius:'0 0 7px 7px',letterSpacing:0.5}}>
@@ -945,7 +951,7 @@ export default function QuoteMark() {
                             <div style={{marginBottom:14}}>
                               <div style={{fontSize:10,color:C.t3,marginBottom:3,letterSpacing:0.3}}>Monthly premium</div>
                               <div style={{display:'flex',alignItems:'baseline',gap:8}}>
-                                <span style={{fontFamily:"'DM Mono',monospace",fontSize:30,fontWeight:500,color:isBest?C.gold:C.t0,letterSpacing:'-1px',lineHeight:1}}>
+                                <span style={{fontFamily:"'DM Mono',monospace",fontSize:30,fontWeight:500,color:premColor,letterSpacing:'-1px',lineHeight:1}}>
                                   {fmt$(r.prem)}
                                 </span>
                                 <span style={{fontSize:11,color:C.t2}}>/mo EFT</span>
