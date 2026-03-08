@@ -1,4 +1,5 @@
 import React, { useState, useMemo, useEffect, useRef } from "react";
+import { useAuth } from "./AuthContext";
 
 // ── FONTS ──
 const FONT_LINK = "https://fonts.googleapis.com/css2?family=DM+Mono:wght@400;500&family=DM+Sans:wght@400;500;600;700&family=Barlow+Condensed:wght@700;800&display=swap";
@@ -482,6 +483,7 @@ const TierPill = ({tier}) => {
 };
 
 export default function QuoteMark() {
+  const { session, signOut } = useAuth();
   useEffect(()=>{
     const l=document.createElement('link');l.href=FONT_LINK;l.rel='stylesheet';document.head.appendChild(l);
     // Reset body/html to eliminate white margins/borders
@@ -588,6 +590,13 @@ export default function QuoteMark() {
           <button onClick={()=>setCarrierPanel(true)} style={{display:'flex',alignItems:'center',gap:7,padding:'7px 14px',borderRadius:8,border:`1px solid ${C.bd2}`,background:C.bg3,color:C.t2,fontSize:12,fontWeight:500,cursor:'pointer',fontFamily:"'DM Sans',sans-serif"}}>
             <span style={{fontSize:14}}>⊞</span> Carriers
           </button>
+          {/* Account menu */}
+          <div style={{display:'flex',alignItems:'center',gap:8,paddingLeft:10,borderLeft:`1px solid ${C.bd}`}}>
+            <span style={{fontSize:12,color:C.t4,maxWidth:140,overflow:'hidden',textOverflow:'ellipsis',whiteSpace:'nowrap'}}>{session?.user?.email}</span>
+            <button onClick={signOut} style={{padding:'6px 12px',borderRadius:7,border:`1px solid ${C.bd2}`,background:'transparent',color:C.t3,fontSize:11,fontWeight:500,cursor:'pointer',fontFamily:"'DM Sans',sans-serif",whiteSpace:'nowrap'}}>
+              Sign out
+            </button>
+          </div>
         </div>
       </div>
 
