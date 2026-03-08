@@ -298,14 +298,14 @@ const COMP_RATES = {
 
 // ── CARRIER META: logo domain (Clearbit) + eApp link ──
 const CARRIER_META = {
-  acc:  { img:'/logos/accaetna.png',   imgBg:'white', eapp:'https://www.aetnaseniorproducts.com/ssi/index.html', brand:'#7C3AED' }, // Aetna purple
-  ahl:  { img:'/logos/ahl.png',        imgBg:'black', eapp:'https://ahlpatriotseries.com/',                       brand:'#1D4ED8' }, // AHL blue
-  cont: { img:'/logos/accaetna.png',   imgBg:'white', eapp:'https://www.aetnaseniorproducts.com/ssi/index.html', brand:'#7C3AED' }, // Aetna purple
-  rn:   { img:'/logos/rn.png',         imgBg:'black', eapp:'https://agent.royalneighbors.org/login',              brand:'#059669' }, // Royal green
-  ta:   { img:'/logos/ta.png',         imgBg:'white', eapp:'https://www.transamerica.com/financial-professionals/', brand:'#0EA5E9' }, // Transamerica blue
-  fid:  { img:'/logos/fid.png',        imgBg:'black', eapp:'https://portal.instabrain.io/App/?redirected=true',   brand:'#0369A1' }, // Fidelity navy-blue
-  cbg:  { img:'/logos/cbg_white.png',  imgBg:'transparent', eapp:'https://www.connext.corebridgefinancial.com/life/connext-portal/public/login', brand:'#D97706' }, // Corebridge amber
-  uhl:  { img:'/logos/uhl.png',        imgBg:'black', eapp:'https://agentportal.unitedhomelife.com/home',          brand:'#BE123C' }, // UHL red
+  acc:  { img:'/logos/cvs2.jpg',   eapp:'https://www.aetnaseniorproducts.com/ssi/index.html', brand:'#7C3AED' }, // CVS/Aetna — acc uses CVS brand
+  ahl:  { img:'/logos/ahl2.png',   eapp:'https://ahlpatriotseries.com/',                       brand:'#1D4ED8' }, // AHL blue
+  cont: { img:'/logos/aetna2.png', eapp:'https://www.aetnaseniorproducts.com/ssi/index.html', brand:'#7C3AED' }, // Aetna purple
+  rn:   { img:'/logos/rn2.png',    eapp:'https://agent.royalneighbors.org/login',              brand:'#059669' }, // Royal green
+  ta:   { img:'/logos/ta.png',     eapp:'https://www.transamerica.com/financial-professionals/', brand:'#0EA5E9' }, // Transamerica (keep existing)
+  fid:  { img:'/logos/fid2.png',   eapp:'https://portal.instabrain.io/App/?redirected=true',   brand:'#0369A1' }, // Fidelity navy
+  cbg:  { img:'/logos/cbg2.png',   eapp:'https://www.connext.corebridgefinancial.com/life/connext-portal/public/login', brand:'#D97706' }, // Corebridge amber
+  uhl:  { img:'/logos/uhl2.png',   eapp:'https://agentportal.unitedhomelife.com/home',          brand:'#BE123C' }, // UHL red
 };
 
 function getCompBadge(carrierId, tier) {
@@ -410,12 +410,12 @@ const CarrierLogo = ({carrierId, name}) => {
     );
   }
   return (
-    <div style={{width:72,height:28,borderRadius:6,background:'transparent',display:'flex',alignItems:'center',justifyContent:'center',overflow:'hidden',flexShrink:0}}>
+    <div style={{width:90,height:34,borderRadius:6,background:'transparent',display:'flex',alignItems:'center',justifyContent:'center',overflow:'hidden',flexShrink:0}}>
       <img
         src={meta.img}
         alt={name}
         onError={()=>setErr(true)}
-        style={{width:'100%',height:'100%',objectFit:'contain',filter:'grayscale(100%) brightness(220%) contrast(90%)',opacity:0.85}}
+        style={{width:'100%',height:'100%',objectFit:'contain',opacity:0.92}}
       />
     </div>
   );
