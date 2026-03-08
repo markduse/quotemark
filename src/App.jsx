@@ -1,4 +1,4 @@
-import { useState, useMemo, useEffect, useRef } from "react";
+import React, { useState, useMemo, useEffect, useRef } from "react";
 
 // ── FONTS ──
 const FONT_LINK = "https://fonts.googleapis.com/css2?family=DM+Mono:wght@400;500&family=DM+Sans:wght@400;500;600;700&family=Barlow+Condensed:wght@700;800&display=swap";
@@ -37,7 +37,7 @@ const FACE_CAPS = {
 const AGE_MAX = {
   acc:89, ahl:85, cont:89, rn:85,
   ra:79, ls:79, amam:79, moo:79, cbg:80,
-  ta:79, lb:79, pf:79, amr:79, for:79,
+  ta:85, lb:79, pf:79, amr:79, for:79,
   afl:79, laf:79, uhl:79, fid:85,
 };
 
@@ -88,13 +88,12 @@ const MOO={45:[[2.391,3.2],n,n,n],46:[[2.447,3.21],n,n,n],47:[[2.513,3.21],n,n,n
 const CBGG={50:[70.56,70.56,47.81,50.83],51:[71.69,71.69,49.01,54.64],52:[72.98,75.44,50.86,57.9],53:[74.11,79.82,53.61,60.87],54:[75.42,83.64,56.07,63.56],55:[77.6,87.04,58.28,65.96],56:[79.92,89.58,60.75,68.65],57:[81.98,91.84,62.66,70.76],58:[83.82,93.83,64.62,72.9],59:[85.09,95.24,66.42,74.87],60:[86.44,96.23,67.87,76.43],61:[92.62,103.44,72.14,81.1],62:[98.85,110.23,76.04,85.34],63:[104.8,116.74,79.41,89.02],64:[110.53,122.96,81.98,91.84],65:[116.1,129.05,84.19,94.25],66:[121.02,134.42,88.74,99.19],67:[125.3,139.08,92.5,103.3],68:[129.3,143.47,95.99,107.11],69:[132.82,147.28,99.38,110.8],70:[135.92,150.69,102.48,114.19],71:[148.63,164.55,112.85,125.5],72:[161.08,178.13,122.71,136.26],73:[172.75,190.86,132.16,146.58],74:[183.65,202.74,140.86,156.06],75:[192.98,212.92,148.63,164.55],76:[226.02,248.99,170.66,188.59],77:[257.8,269.5,191.44,211.22],78:[265.95,269.78,210.87,232.44],79:[266.49,270.05,229.02,252.24],80:[267.04,270.32,245.1,267.03]};
 function cbgGiwlQuote(age,male,face){const row=CBGG[age];if(!row)return null;const isHigh=face>15000;const ri=male?(isHigh?1:0):(isHigh?3:2);return Math.round((row[ri]*face/1000+24)*0.0834*100)/100;}
 
-// Transamerica | Immediate Solution Preferred | modal=0.086012
-const TASP_M=0.086012;
-const TASP={45:[[2.405,3.62],n,n,n],46:[[2.463,3.61],n,n,n],47:[[2.521,3.61],n,n,n],48:[[2.578,3.62],n,n,n],49:[[2.636,3.61],n,n,n],50:[[2.693,3.62],n,[2.062,3.62],n],51:[[2.797,3.62],n,[2.129,3.62],n],52:[[2.902,3.61],n,[2.196,3.62],n],53:[[3.006,3.62],n,[2.264,3.62],n],54:[[3.11,3.62],n,[2.331,3.62],n],55:[[3.215,3.61],n,[2.398,3.62],n],56:[[3.369,3.62],n,[2.501,3.61],n],57:[[3.524,3.62],n,[2.604,3.6],n],58:[[3.679,3.6],n,[2.705,3.61],n],59:[[3.833,3.61],n,[2.807,3.61],n],60:[n,n,[2.909,3.62],n],61:[n,n,[3.071,3.61],n],62:[n,n,[3.232,3.61],n],63:[n,n,[3.393,3.62],n],64:[n,n,[3.554,3.62],n],65:[n,[8.227,3.62],n,n],66:[n,[8.83,3.62],n,n],67:[n,[9.435,3.6],n,n],68:[n,[10.039,3.61],n,n],69:[n,[10.642,3.61],n,n],70:[n,[11.245,3.62],n,n],71:[n,[12.046,3.61],n,n],72:[n,[12.847,3.62],n,n],73:[n,[13.646,3.62],n,n],74:[n,[14.448,3.6],n,n],75:[n,[15.247,3.61],n,n],76:[n,[16.57,3.62],n,n],77:[n,[17.781,3.62],n,n],78:[n,[18.993,3.61],n,n],79:[n,[20.204,3.61],n,n]};
-
-// Transamerica | Immediate Solution Standard | modal=0.085992
-const TASS_M=0.085992;
-const TASS={45:[[2.868,3.61],n,n,n],46:[[2.915,3.62],n,n,n],47:[[2.963,3.61],n,n,n],48:[[3.01,3.61],n,n,n],49:[[3.057,3.62],n,n,n],50:[[3.104,3.62],n,[2.406,3.62],n],51:[[3.282,3.62],n,[2.535,3.62],n],52:[[3.461,3.61],n,[2.664,3.62],n],53:[[3.603,3.62],n,[2.795,3.6],n],54:[[3.741,3.61],n,[2.922,3.62],n],55:[[3.876,3.61],n,[3.051,3.62],n],56:[[4.018,3.61],n,[3.157,3.61],n],57:[[4.201,3.61],n,[3.263,3.61],n],58:[[4.384,3.62],n,[3.369,3.62],n],59:[[4.567,3.62],n,[3.475,3.62],n],60:[n,n,[3.581,3.61],n],61:[n,n,[3.769,3.62],n],62:[n,n,[3.958,3.62],n],63:[n,n,[4.148,3.61],n],64:[n,n,[4.337,3.61],n],65:[n,[12.064,3.61],n,n],66:[n,[12.955,3.61],n,n],67:[n,[13.847,3.61],n,n],68:[n,[14.739,3.61],n,n],69:[n,[15.63,3.62],n,n],70:[n,[16.521,3.62],n,n],71:[n,[17.56,3.62],n,n],72:[n,[18.343,3.61],n,n],73:[n,[19.125,3.62],n,n],74:[n,[19.91,3.61],n,n],75:[n,[20.695,3.6],n,n],76:[n,[22.318,3.61],n,n],77:[n,[23.942,3.62],n,n],78:[n,[25.566,3.61],n,n],79:[n,[27.19,3.62],n,n]};
+// Transamerica | Immediate Solution | Ages 18-85
+// Row: [Male NT, Male TB, Female NT, Female TB] — annual rate per $1,000
+// Formula: ROUND((rate * face/1000 + 42) * 0.086, 2)  (fee=$60 if face<$5K)
+const TASP2={18:[14.54,21.62,11.78,14.85],19:[14.59,21.68,11.83,14.85],20:[14.7,21.84,11.88,14.96],21:[14.96,22.2,12.12,15.32],22:[15.21,22.56,12.37,15.68],23:[15.47,22.92,12.63,16.03],24:[15.72,23.3,12.88,16.38],25:[15.97,23.66,13.12,16.74],26:[16.29,24.16,13.42,17.16],27:[16.67,24.72,13.74,17.61],28:[17.03,25.31,14.07,18.08],29:[17.45,25.97,14.41,18.59],30:[17.9,26.69,14.8,19.14],31:[18.33,27.37,15.18,19.71],32:[18.82,28.18,15.62,20.35],33:[19.37,29.06,16.11,21.06],34:[20.0,30.04,16.64,21.85],35:[20.63,31.07,17.18,22.65],36:[21.39,32.18,17.8,23.42],37:[22.14,33.3,18.38,24.17],38:[22.94,34.51,19.04,24.97],39:[23.8,35.78,19.7,25.79],40:[24.71,37.14,20.38,26.62],41:[25.44,38.04,20.96,27.85],42:[26.21,38.43,21.52,29.11],43:[26.95,38.81,22.04,30.33],44:[27.69,38.94,22.53,31.54],45:[27.97,39.89,22.63,32.86],46:[28.64,40.45,22.9,33.28],47:[29.31,42.33,23.17,33.87],48:[29.98,43.14,23.44,34.47],49:[30.65,44.09,23.71,35.19],50:[31.32,44.93,23.98,35.77],51:[32.53,46.98,24.76,37.58],52:[33.74,48.94,25.54,39.28],53:[34.96,51.01,26.33,41.07],54:[36.17,53.09,27.11,42.89],55:[37.38,55.49,27.89,43.82],56:[39.18,58.21,29.08,45.38],57:[40.98,60.84,30.27,46.77],58:[42.77,63.59,31.45,48.18],59:[44.57,66.69,32.64,49.8],60:[46.37,70.35,33.83,51.76],61:[49.3,75.41,35.71,54.61],62:[52.23,80.49,37.58,57.47],63:[55.16,85.54,39.46,60.31],64:[58.09,90.6,41.33,63.16],65:[58.56,95.67,43.21,66.01],66:[62.24,102.68,46.03,70.44],67:[65.91,109.7,48.84,74.87],68:[69.59,116.73,51.66,79.3],69:[73.26,123.74,54.47,83.73],70:[76.94,130.76,57.29,88.16],71:[83.34,140.07,61.49,94.48],72:[89.74,149.39,65.69,100.82],73:[96.14,158.68,69.89,107.15],74:[102.54,167.99,74.09,113.48],75:[108.94,177.29,78.29,119.81],76:[119.82,192.68,86.61,133.04],77:[129.99,206.76,94.44,145.6],78:[140.53,220.85,102.58,158.65],79:[147.44,234.93,108.06,167.8],80:[154.34,249.01,113.55,176.95],81:[180.77,269.57,133.04,187.8],82:[198.75,290.11,146.32,201.89],83:[213.76,310.66,157.45,215.96],84:[229.05,331.2,168.73,232.18],85:[244.57,351.76,180.21,248.65]};
+const TASS2={18:[17.03,26.72,12.44,16.29],19:[17.05,26.76,12.48,16.32],20:[17.07,26.78,12.58,16.45],21:[17.26,27.03,12.88,16.85],22:[17.46,27.29,13.19,17.22],23:[17.64,27.54,13.49,17.62],24:[17.86,27.81,13.8,18.0],25:[18.04,28.06,14.1,18.37],26:[18.35,28.51,14.42,18.86],27:[18.68,29.04,14.74,19.37],28:[19.06,29.64,15.09,19.93],29:[19.49,30.31,15.47,20.53],30:[19.96,31.08,15.93,21.24],31:[20.42,31.86,16.42,21.96],32:[20.99,32.8,16.97,22.77],33:[21.63,33.86,17.59,23.69],34:[22.37,35.1,18.28,24.72],35:[23.14,36.38,19.01,25.79],36:[24.06,37.83,19.76,26.89],37:[25.0,39.32,20.52,27.98],38:[26.02,40.94,21.33,29.14],39:[27.11,42.67,22.18,30.33],40:[28.29,44.55,23.06,31.55],41:[29.3,45.87,23.87,33.21],42:[30.36,47.26,24.7,34.88],43:[31.4,48.65,25.58,36.49],44:[32.46,50.02,26.47,38.05],45:[33.35,51.69,26.72,40.11],46:[33.9,52.84,26.97,41.22],47:[34.45,54.23,27.22,42.58],48:[35.0,55.77,27.48,44.04],49:[35.55,57.5,27.73,45.7],50:[36.1,59.1,27.98,47.16],51:[38.17,62.98,29.48,50.0],52:[40.24,66.78,30.98,52.65],53:[41.9,70.83,32.49,55.44],54:[43.5,75.0,33.98,58.24],55:[45.07,78.3,35.48,59.85],56:[46.72,82.66,36.71,62.19],57:[48.85,86.9,37.94,64.28],58:[50.98,91.33,39.18,66.36],59:[53.11,96.25,40.41,68.67],60:[55.23,101.95,41.64,71.44],61:[58.79,109.62,43.83,75.27],62:[62.35,117.29,46.03,79.1],63:[65.91,124.95,48.23,82.95],64:[69.48,132.61,50.43,86.78],65:[73.04,140.28,53.18,90.61],66:[81.28,150.64,57.91,96.72],67:[89.54,161.01,62.64,102.81],68:[97.79,171.38,67.36,108.9],69:[106.04,181.75,72.09,114.99],70:[114.29,192.11,76.82,121.08],71:[121.99,204.19,82.42,130.21],72:[129.69,213.29,88.01,139.36],73:[137.38,222.39,93.61,148.48],74:[145.08,231.51,99.21,157.63],75:[152.78,240.63,104.8,166.76],76:[168.04,259.51,116.06,179.0],77:[182.36,278.4,126.73,194.73],78:[197.22,297.28,137.8,212.75],79:[207.18,316.17,145.48,225.54],80:[217.13,335.05,153.15,238.34],81:[247.61,366.88,174.37,252.95],82:[267.54,398.71,188.19,271.9],83:[287.83,430.55,202.21,290.83],84:[308.43,462.38,216.49,308.2],85:[322.08,494.22,230.97,325.58]};
+function taQuote(tbl,age,male,smoker,face){const row=tbl[age];if(!row)return null;const ri=male?(smoker?1:0):(smoker?3:2);const fee=face>=5000?42:60;return Math.round((row[ri]*face/1000+fee)*0.086*100)/100;}
 
 // Liberty Bankers | SIMPL Preferred | modal=0.092494
 const LBP_M=0.092494;
@@ -239,25 +238,25 @@ const CARRIERS = [
    product:{B:'Level',C:'Level',D:'Graded Death Benefit',E:'Guaranteed Issue'},
    fn:(age,male,smoker,tier,face)=>{const i=age-50,ri=(male?0:2)+(smoker?1:0),u=face/1000;if(i<0)return null;if(tier==='E'){if(i>30)return null;const r=RN.gi[i][male?0:1];return Math.round((Math.round(r*0.087*100)/100*u+4.35)*100)/100;}let t;if(tier==='B'||tier==='C')t=RN.siwl_st;else if(tier==='D')t=RN.gdb;else return null;if(i>35)return null;return Math.round((Math.round(t[i][ri]*0.087*100)/100*u+4.35)*100)/100;}},
   // ── NEW CARRIERS ──
-  {id:'moo',  name:'Mutual of Omaha',    sub:'Living Promise', abbr:'MO', enabled:true,
+  {id:'moo',  name:'Mutual of Omaha',    sub:'Living Promise', abbr:'MO', enabled:false,
    product:{B:'Level',C:'Level',D:null,E:null},
    fn:(age,male,smoker,tier,face)=>{if(tier!=='B'&&tier!=='C')return null;return csvLookup(MOO,MOO_M,age,male,smoker,face);}},
   {id:'ta',   name:'Transamerica',       sub:'Immediate Solution', abbr:'TA', enabled:true,
-   product:{B:'Level',C:'Level',D:null,E:null},
-   fn:(age,male,smoker,tier,face)=>{if(tier==='B')return csvLookup(TASP,TASP_M,age,male,smoker,face);if(tier==='C')return csvLookup(TASS,TASS_M,age,male,smoker,face);return null;}},
-  {id:'laf',  name:'Lafayette Life',     sub:'Whole Life', abbr:'LF', enabled:true,
+   product:{B:'Preferred',C:'Standard',D:null,E:null},
+   fn:(age,male,smoker,tier,face)=>{if(tier==='B')return taQuote(TASP2,age,male,smoker,face);if(tier==='C')return taQuote(TASS2,age,male,smoker,face);return null;}},
+  {id:'laf',  name:'Lafayette Life',     sub:'Whole Life', abbr:'LF', enabled:false,
    product:{B:'Level',C:'Level',D:null,E:null},
    fn:(age,male,smoker,tier,face)=>{if(tier!=='B'&&tier!=='C')return null;return csvLookup(LAF,LAF_M,age,male,smoker,face);}},
-  {id:'for',  name:'Foresters',          sub:'PlanRight', abbr:'FR', enabled:true,
+  {id:'for',  name:'Foresters',          sub:'PlanRight', abbr:'FR', enabled:false,
    product:{B:'Level',C:'Level',D:null,E:null},
    fn:(age,male,smoker,tier,face)=>{if(tier==='B')return csvLookup(FORP,FORP_M,age,male,smoker,face);if(tier==='C')return csvLookup(FORS,FORS_M,age,male,smoker,face);return null;}},
-  {id:'afl',  name:'Aflac',              sub:'Final Expense WL', abbr:'AF', enabled:true,
+  {id:'afl',  name:'Aflac',              sub:'Final Expense WL', abbr:'AF', enabled:false,
    product:{B:'Level',C:'Level',D:null,E:null},
    fn:(age,male,smoker,tier,face)=>{if(tier==='B')return csvLookup(AFLP,AFLP_M,age,male,smoker,face);if(tier==='C')return csvLookup(AFLS,AFLS_M,age,male,smoker,face);return null;}},
-  {id:'amr',  name:'Americo',            sub:'Eagle Select', abbr:'AM', enabled:true,
+  {id:'amr',  name:'Americo',            sub:'Eagle Select', abbr:'AM', enabled:false,
    product:{B:'Level',C:'Level',D:null,E:null},
    fn:(age,male,smoker,tier,face)=>{if(tier==='B')return csvLookup(AMRP,AMRP_M,age,male,smoker,face);if(tier==='C')return csvLookup(AMRS,AMRS_M,age,male,smoker,face);return null;}},
-  {id:'uhl',  name:'United Home Life',   sub:'Premier / Deluxe / GI', abbr:'UH', enabled:true,
+  {id:'uhl',  name:'United Home Life',   sub:'Premier / Deluxe / GI', abbr:'UH', enabled:false,
    product:{B:'Level',C:'Level',D:null,E:'Guaranteed Issue'},
    fn:(age,male,smoker,tier,face)=>{if(tier==='B')return csvLookup(UHLP,UHLP_M,age,male,smoker,face);if(tier==='C')return csvLookup(UHLD,UHLD_M,age,male,smoker,face);if(tier==='E'){if(age>75)return null;return csvLookup(UHLG,UHLG_M,age,male,smoker,face);}return null;}},
   {id:'fid',  name:'Fidelity Life',      sub:'RAPIDecision FE / GI', abbr:'FD', enabled:true,
@@ -266,19 +265,19 @@ const CARRIERS = [
   {id:'cbg',  name:'Corebridge Financial', sub:'AGL — Guaranteed Issue WL', abbr:'CB', enabled:true,
    product:{B:null,C:null,D:null,E:'Guaranteed Issue'},
    fn:(age,male,smoker,tier,face)=>{if(tier!=='E')return null;if(age<50||age>80)return null;return cbgGiwlQuote(age,male,face);}},
-  {id:'lb',   name:'Liberty Bankers',    sub:'SIMPL Whole Life', abbr:'LB', enabled:true,
+  {id:'lb',   name:'Liberty Bankers',    sub:'SIMPL Whole Life', abbr:'LB', enabled:false,
    product:{B:'Level',C:'Level',D:null,E:null},
    fn:(age,male,smoker,tier,face)=>{if(tier==='B')return csvLookup(LBP,LBP_M,age,male,smoker,face);if(tier==='C')return csvLookup(LBS,LBS_M,age,male,smoker,face);return null;}},
-  {id:'amam', name:'American Amicable',  sub:'/ Occidental Life', abbr:'AA', enabled:true,
+  {id:'amam', name:'American Amicable',  sub:'/ Occidental Life', abbr:'AA', enabled:false,
    product:{B:'Level',C:'Level',D:null,E:null},
    fn:(age,male,smoker,tier,face)=>{if(tier!=='B'&&tier!=='C')return null;return csvLookup(AMAM,AMAM_M,age,male,smoker,face);}},
-  {id:'ra',   name:'Royal Arcanum',      sub:'Whole Life Level', abbr:'RA', enabled:true,
+  {id:'ra',   name:'Royal Arcanum',      sub:'Whole Life Level', abbr:'RA', enabled:false,
    product:{B:'Level',C:'Level',D:null,E:null},
    fn:(age,male,smoker,tier,face)=>{if(tier!=='B'&&tier!=='C')return null;return csvLookup(RA,RA_M,age,male,smoker,face);}},
-  {id:'ls',   name:'Lifeshield',         sub:'Survivor Level', abbr:'LS', enabled:true,
+  {id:'ls',   name:'Lifeshield',         sub:'Survivor Level', abbr:'LS', enabled:false,
    product:{B:'Level',C:'Level',D:null,E:null},
    fn:(age,male,smoker,tier,face)=>{if(tier!=='B'&&tier!=='C')return null;return csvLookup(LS,LS_M,age,male,smoker,face);}},
-  {id:'pf',   name:'Polish Falcons',     sub:'of America', abbr:'PF', enabled:true,
+  {id:'pf',   name:'Polish Falcons',     sub:'of America', abbr:'PF', enabled:false,
    product:{B:'Level',C:'Level',D:null,E:null},
    fn:(age,male,smoker,tier,face)=>{if(tier!=='B'&&tier!=='C')return null;return csvLookup(PF2,PF_M,age,male,smoker,face);}},
 ];
@@ -298,6 +297,40 @@ const C = {
   blue:'#3B82F6', blueBg:'rgba(59,130,246,0.1)', blueBd:'rgba(59,130,246,0.25)',
   gold:'#F59E0B', goldBg:'rgba(245,158,11,0.1)', goldBd:'rgba(245,158,11,0.25)',
   green:'#22C55E',
+};
+
+
+// Hover tooltip badge for product tier on quote cards
+const BADGE_STYLES = {
+  preferred: { bg:'rgba(139,92,246,0.15)', bd:'rgba(139,92,246,0.4)', color:'#A78BFA', label:'Preferred', tip:'Full immediate benefit from day 1. Client passed simplified underwriting — best available rate class.' },
+  level:     { bg:'rgba(34,197,94,0.12)',  bd:'rgba(34,197,94,0.35)',  color:'#4ADE80', label:'Level',     tip:'Full immediate benefit from day 1. Standard underwriting class.' },
+  modified:  { bg:'rgba(245,158,11,0.13)', bd:'rgba(245,158,11,0.35)', color:'#FBBF24', label:'Modified',  tip:'Graded death benefit — 2 to 3 year waiting period before full coverage applies.' },
+  gi:        { bg:'rgba(239,68,68,0.12)',  bd:'rgba(239,68,68,0.35)',  color:'#F87171', label:'GI',        tip:'Guaranteed Issue — no health questions. Graded benefit period applies. Approved regardless of health.' },
+};
+function badgeType(tier, productName) {
+  if(tier==='E') return 'gi';
+  if(tier==='D') return 'modified';
+  const name=(productName||'').toLowerCase();
+  if(name.includes('preferred')) return 'preferred';
+  return 'level';
+}
+const TierBadge = ({tier, productName}) => {
+  const [hov,setHov] = React.useState(false);
+  const type = badgeType(tier, productName);
+  const s = BADGE_STYLES[type];
+  return (
+    <span style={{position:'relative',display:'inline-flex'}}
+      onMouseEnter={()=>setHov(true)} onMouseLeave={()=>setHov(false)}>
+      <span style={{display:'inline-flex',alignItems:'center',gap:4,background:s.bg,border:`1px solid ${s.bd}`,color:s.color,borderRadius:5,padding:'2px 8px',fontSize:9,fontWeight:700,letterSpacing:0.5,cursor:'default',whiteSpace:'nowrap'}}>
+        {s.label}
+      </span>
+      {hov&&(
+        <span style={{position:'absolute',bottom:'calc(100% + 6px)',left:0,background:'#1E3A5A',border:'1px solid #2A4F78',color:'#CBD5E1',fontSize:10,borderRadius:6,padding:'7px 10px',width:200,lineHeight:1.5,zIndex:50,pointerEvents:'none',boxShadow:'0 4px 16px rgba(0,0,0,0.5)'}}>
+          {s.tip}
+        </span>
+      )}
+    </span>
+  );
 };
 
 // Small reusable chip/pill
@@ -326,7 +359,7 @@ export default function QuoteMark() {
   const [gsbFace,setGsbFace]   = useState({gold:15000,silver:10000,bronze:5000});
   const [selected,setSelected] = useState(['none']);
   const [search,setSearch]     = useState('');
-  const [showRes,setShowRes]   = useState(false);
+  const [hasQuoted,setHasQuoted]   = useState(false);
   const [openCat,setOpenCat]   = useState(null);
   const [tierOvr,setTierOvr]   = useState(null);
   const [uwOpen,setUwOpen]     = useState(false);
@@ -342,9 +375,9 @@ export default function QuoteMark() {
   const ageNum   = parseInt(age);
   const ageOK    = age && ageNum>=50 && ageNum<=89;
 
-  const toggleOvr = (t) => { setTierOvr(p=>p===t?null:t); setShowRes(false); };
+  const toggleOvr = (t) => { setTierOvr(p=>p===t?null:t); ; };
   const toggleCond = (id) => {
-    setShowRes(false); setTierOvr(null);
+    ; setTierOvr(null);
     if(id==='none'){setSelected(['none']);return;}
     setSelected(p=>{const w=p.filter(c=>c!=='none');if(w.includes(id)){const n=w.filter(c=>c!==id);return n.length?n:['none'];}return [...w,id];});
   };
@@ -373,7 +406,7 @@ export default function QuoteMark() {
   const activeCarriers = useMemo(()=>carriers.filter(c=>c.enabled),[carriers]);
 
   const results = useMemo(()=>{
-    if(!showRes||!ageOK) return null;
+    if(!hasQuoted||!ageOK) return null;
     const a=ageNum,male=gender==='male';
     if(gsbOn){
       return activeCarriers.map(carr=>{
@@ -393,7 +426,7 @@ export default function QuoteMark() {
       });
     }
     return list.sort((a,b)=>{if(a.prem!=null&&b.prem!=null)return a.prem-b.prem;if(a.prem!=null)return-1;if(b.prem!=null)return 1;return 0;});
-  },[showRes,age,gender,smoker,uwTier,mode,faceAmt,budget,gsbOn,gsbFace,activeCarriers,usState]);
+  },[hasQuoted,age,gender,smoker,uwTier,mode,faceAmt,budget,gsbOn,gsbFace,activeCarriers,usState]);
 
   // ── INPUT STYLES ──
   const inp = {background:C.bg2,border:`1px solid ${C.bd}`,color:C.t1,borderRadius:8,padding:'9px 12px',fontSize:13,width:'100%',outline:'none',fontFamily:"'DM Sans',sans-serif"};
@@ -409,11 +442,7 @@ export default function QuoteMark() {
           Quote<span style={{color:C.gold}}>Mark</span>
         </div>
         <div style={{display:'flex',alignItems:'center',gap:10}}>
-          <div style={{fontSize:11,color:C.t4,display:'flex',gap:8}}>
-            {carriers.filter(c=>c.enabled).map(c=>(
-              <span key={c.id} style={{color:C.t3}}>{c.abbr}</span>
-            ))}
-          </div>
+
           <button onClick={()=>setCarrierPanel(true)} style={{display:'flex',alignItems:'center',gap:7,padding:'7px 14px',borderRadius:8,border:`1px solid ${C.bd2}`,background:C.bg3,color:C.t2,fontSize:12,fontWeight:500,cursor:'pointer',fontFamily:"'DM Sans',sans-serif"}}>
             <span style={{fontSize:14}}>⊞</span> Carriers
           </button>
@@ -433,19 +462,19 @@ export default function QuoteMark() {
               <div style={{fontSize:11,color:C.t3,marginBottom:6}}>Date of birth <span style={{color:C.t4}}>· or enter age below</span></div>
               <div style={{display:'flex',gap:5,alignItems:'center',marginBottom:8}}>
                 <input type="text" maxLength="2" placeholder="mm" value={dob.mm}
-                  onChange={e=>{setDob(p=>({...p,mm:e.target.value}));setShowRes(false);}}
+                  onChange={e=>{setDob(p=>({...p,mm:e.target.value}));}}
                   style={{...inp,width:44,textAlign:'center',padding:'8px 4px'}}/>
                 <span style={{color:C.t4,fontSize:12}}>/</span>
                 <input type="text" maxLength="2" placeholder="dd" value={dob.dd}
-                  onChange={e=>{setDob(p=>({...p,dd:e.target.value}));setShowRes(false);}}
+                  onChange={e=>{setDob(p=>({...p,dd:e.target.value}));}}
                   style={{...inp,width:44,textAlign:'center',padding:'8px 4px'}}/>
                 <span style={{color:C.t4,fontSize:12}}>/</span>
                 <input type="text" maxLength="4" placeholder="yyyy" value={dob.yyyy}
-                  onChange={e=>{setDob(p=>({...p,yyyy:e.target.value}));setShowRes(false);}}
+                  onChange={e=>{setDob(p=>({...p,yyyy:e.target.value}));}}
                   style={{...inp,width:62,textAlign:'center',padding:'8px 4px'}}/>
                 <span style={{color:C.t4,fontSize:11,flexShrink:0}}>or</span>
                 <input type="number" min="50" max="89" placeholder="age" value={age}
-                  onChange={e=>{setAge(e.target.value);setDob({mm:'',dd:'',yyyy:''});setShowRes(false);}}
+                  onChange={e=>{setAge(e.target.value);setDob({mm:'',dd:'',yyyy:''});}}
                   style={{...inp,width:52,padding:'8px 6px',borderColor:age&&!ageOK?'#EF4444':C.bd}}/>
               </div>
               {age&&ageOK&&<div style={{fontSize:10,color:C.green}}>✓ Age {age}</div>}
@@ -455,21 +484,21 @@ export default function QuoteMark() {
               <div>
                 <div style={{fontSize:11,color:C.t3,marginBottom:4}}>Tobacco</div>
                 <div style={{display:'flex',gap:5}}>
-                  <button style={togBtn(!smoker)} onClick={()=>{setSmoker(false);setShowRes(false);}}>Non-smoker</button>
-                  <button style={togBtn(smoker)}  onClick={()=>{setSmoker(true);setShowRes(false);}}>Smoker</button>
+                  <button style={togBtn(!smoker)} onClick={()=>{setSmoker(false);}}>Non-smoker</button>
+                  <button style={togBtn(smoker)}  onClick={()=>{setSmoker(true);}}>Smoker</button>
                 </div>
               </div>
               <div>
                 <div style={{fontSize:11,color:C.t3,marginBottom:4}}>Gender</div>
                 <div style={{display:'flex',gap:5}}>
-                  <button style={togBtn(gender==='male')}   onClick={()=>{setGender('male');setShowRes(false);}}>Male</button>
-                  <button style={togBtn(gender==='female')} onClick={()=>{setGender('female');setShowRes(false);}}>Female</button>
+                  <button style={togBtn(gender==='male')}   onClick={()=>{setGender('male');}}>Male</button>
+                  <button style={togBtn(gender==='female')} onClick={()=>{setGender('female');}}>Female</button>
                 </div>
               </div>
             </div>
             <div>
               <div style={{fontSize:11,color:C.t3,marginBottom:4}}>State <span style={{color:C.t4}}>· filters carrier availability</span></div>
-              <select value={usState} onChange={e=>{setUsState(e.target.value);setShowRes(false);}}
+              <select value={usState} onChange={e=>{setUsState(e.target.value);}}
                 style={{...inp,cursor:'pointer'}}>
                 <option value="">— Select state —</option>
                 {US_STATES.map(s=><option key={s} value={s}>{s} — {STATE_NAMES[s]}</option>)}
@@ -481,7 +510,7 @@ export default function QuoteMark() {
           <div style={sec}>
             <div style={{display:'flex',alignItems:'center',justifyContent:'space-between',marginBottom:10}}>
               <div style={lbl}>Quote Target</div>
-              <button onClick={()=>{setGsbOn(p=>!p);setMode('face');setShowRes(false);}} style={{
+              <button onClick={()=>{setGsbOn(p=>!p);setMode('face');}} style={{
                 padding:'4px 10px',borderRadius:6,border:`1px solid ${gsbOn?C.gold+'55':C.bd}`,
                 background:gsbOn?C.goldBg:C.bg2,color:gsbOn?C.gold:C.t3,
                 fontSize:11,fontWeight:600,cursor:'pointer',fontFamily:"'DM Sans',sans-serif"
@@ -492,8 +521,8 @@ export default function QuoteMark() {
             {!gsbOn?(
               <>
                 <div style={{display:'flex',gap:6,marginBottom:14}}>
-                  <button style={{...togBtn(mode==='face'),borderColor:mode==='face'?C.gold+'55':C.bd,background:mode==='face'?C.goldBg:C.bg2,color:mode==='face'?C.gold:C.t3}} onClick={()=>{setMode('face');setShowRes(false);}}>Face amount</button>
-                  <button style={{...togBtn(mode==='budget'),borderColor:mode==='budget'?C.gold+'55':C.bd,background:mode==='budget'?C.goldBg:C.bg2,color:mode==='budget'?C.gold:C.t3}} onClick={()=>{setMode('budget');setShowRes(false);}}>Monthly budget</button>
+                  <button style={{...togBtn(mode==='face'),borderColor:mode==='face'?C.gold+'55':C.bd,background:mode==='face'?C.goldBg:C.bg2,color:mode==='face'?C.gold:C.t3}} onClick={()=>{setMode('face');}}>Face amount</button>
+                  <button style={{...togBtn(mode==='budget'),borderColor:mode==='budget'?C.gold+'55':C.bd,background:mode==='budget'?C.goldBg:C.bg2,color:mode==='budget'?C.gold:C.t3}} onClick={()=>{setMode('budget');}}>Monthly budget</button>
                 </div>
                 {mode==='face'?(
                   <>
@@ -638,7 +667,7 @@ export default function QuoteMark() {
             </div>
           </div>
 
-          <button onClick={()=>{if(ageOK)setShowRes(true);}} style={{
+          <button onClick={()=>{if(ageOK)setHasQuoted(true);}} style={{
             width:'100%',padding:'13px 0',borderRadius:10,border:'none',
             cursor:ageOK?'pointer':'not-allowed',
             background:ageOK?C.gold:'#1A3050',
@@ -653,7 +682,7 @@ export default function QuoteMark() {
 
         {/* ── RESULTS PANEL ── */}
         <div style={{padding:'0',overflowY:'auto',display:'flex',flexDirection:'column'}}>
-          {!showRes?(
+          {!hasQuoted?(
             <div style={{display:'flex',flexDirection:'column',alignItems:'center',justifyContent:'center',height:'100%',gap:14,padding:40}}>
               <div style={{fontSize:48,opacity:0.5}}>📋</div>
               <div style={{fontFamily:"'Barlow Condensed',sans-serif",fontSize:22,fontWeight:700,color:C.t4}}>Enter client info and click Get Quotes</div>
@@ -701,7 +730,7 @@ export default function QuoteMark() {
                               <div style={{fontSize:15,fontWeight:700,color:C.t0}}>{r.name}</div>
                               <div style={{fontSize:11,color:C.t3,marginTop:1}}>{r.sub}</div>
                             </div>
-                            <div style={{width:34,height:34,borderRadius:8,background:C.bg1,border:`1px solid ${C.bd2}`,display:'flex',alignItems:'center',justifyContent:'center',fontSize:11,fontWeight:700,color:C.t3,letterSpacing:0.5}}>{r.abbr}</div>
+
                           </div>
                           <div style={{display:'grid',gridTemplateColumns:'1fr 1fr 1fr',gap:8}}>
                             {GSB.map(g=>{
@@ -750,7 +779,7 @@ export default function QuoteMark() {
                             <div style={{fontSize:14,fontWeight:700,color:C.t0}}>{r.name}</div>
                             <div style={{fontSize:11,color:C.t3,marginTop:1}}>{r.sub}</div>
                           </div>
-                          <div style={{width:34,height:34,borderRadius:8,background:C.bg1,border:`1px solid ${C.bd2}`,display:'flex',alignItems:'center',justifyContent:'center',fontSize:11,fontWeight:700,color:C.t3,letterSpacing:0.5,flexShrink:0}}>{r.abbr}</div>
+
                         </div>
                         {isGhost?(
                           <div style={{fontSize:12,color:C.t4,fontStyle:'italic'}}>{r.reason}</div>
@@ -783,8 +812,7 @@ export default function QuoteMark() {
                                 <div style={{fontSize:10,color:C.t3,marginBottom:2}}>Product</div>
                                 <div style={{display:'flex',alignItems:'center',gap:6,flexWrap:'wrap'}}>
                                   <span style={{fontSize:11,color:C.t2,lineHeight:1.3}}>{r.productName}</span>
-                                  {r.activeTier==='B'&&<span style={{fontSize:9,fontWeight:700,letterSpacing:0.4,background:'rgba(34,197,94,0.12)',border:'1px solid rgba(34,197,94,0.3)',color:'#22C55E',borderRadius:4,padding:'1px 6px',whiteSpace:'nowrap'}}>Preferred</span>}
-                                  {r.activeTier==='C'&&<span style={{fontSize:9,fontWeight:700,letterSpacing:0.4,background:'rgba(234,179,8,0.10)',border:'1px solid rgba(234,179,8,0.3)',color:'#EAB308',borderRadius:4,padding:'1px 6px',whiteSpace:'nowrap'}}>Standard</span>}
+                                  <TierBadge tier={r.activeTier} productName={r.productName}/>
                                 </div>
                               </div>
                             </div>
