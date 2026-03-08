@@ -36,7 +36,7 @@ const FACE_CAPS = {
 };
 const AGE_MAX = {
   acc:89, ahl:85, cont:89, rn:85,
-  ra:79, ls:79, amam:79, moo:79, cbg:70,
+  ra:79, ls:79, amam:79, moo:79, cbg:80,
   ta:79, lb:79, pf:79, amr:79, for:79,
   afl:79, laf:79, uhl:79, fid:79,
 };
@@ -82,9 +82,11 @@ const AMAM={50:[[2.9,2.65],n,[2.403,2.63],n],51:[[3.071,2.64],n,[2.583,2.65],n],
 const MOO_M=0.089002;
 const MOO={45:[[2.391,3.2],n,n,n],46:[[2.447,3.21],n,n,n],47:[[2.513,3.21],n,n,n],48:[[2.586,3.21],n,n,n],49:[[2.669,3.21],n,n,n],50:[[2.747,3.21],n,[2.11,3.21],n],51:[[2.824,3.2],n,[2.187,3.2],n],52:[[2.887,3.21],n,[2.261,3.21],n],53:[[2.953,3.2],n,[2.324,3.2],n],54:[[3.103,3.21],n,[2.388,3.2],n],55:[[3.274,3.21],n,[2.45,3.21],n],56:[[3.419,3.21],n,[2.538,3.21],n],57:[[3.558,3.21],n,[2.678,3.2],n],58:[[3.701,3.21],n,[2.763,3.2],n],59:[[3.863,3.21],n,[2.85,3.2],n],60:[n,n,[2.966,3.21],n],61:[n,n,[3.131,3.2],n],62:[n,n,[3.286,3.2],n],63:[n,n,[3.451,3.21],n],64:[n,n,[3.616,3.21],n],65:[n,[7.663,3.2],n,n],66:[n,[8.222,3.2],n,n],67:[n,[8.782,3.21],n,n],68:[n,[9.342,3.21],n,n],69:[n,[9.826,3.2],n,n],70:[n,[10.416,3.2],n,n],71:[n,[11.18,3.21],n,n],72:[n,[11.822,3.2],n,n],73:[n,[12.689,3.2],n,n],74:[n,[13.364,3.21],n,n],75:[n,[14.174,3.21],n,n],76:[n,[15.684,3.2],n,n],77:[n,[17.076,3.21],n,n],78:[n,[18.286,3.2],n,n],79:[n,[19.32,3.21],n,n]};
 
-// Corebridge (AIG SIWL) | SimpliNow Legacy Max | modal=0.089004
-const CBG_M=0.089004;
-const CBG={50:[[3.022,3.21],n,[2.321,3.21],n],51:[[3.106,3.21],n,[2.406,3.2],n],52:[[3.175,3.21],n,[2.488,3.2],n],53:[[3.248,3.21],n,[2.556,3.21],n],54:[[3.415,3.19],n,[2.626,3.21],n],55:[[3.602,3.2],n,[2.695,3.2],n],56:[[3.761,3.21],n,[2.792,3.2],n],57:[[3.914,3.21],n,[2.946,3.2],n],58:[[4.072,3.2],n,[3.038,3.21],n],59:[[4.25,3.2],n,[3.135,3.2],n],60:[n,n,[3.263,3.2],n],61:[n,n,[3.444,3.21],n],62:[n,n,[3.614,3.21],n],63:[n,n,[3.797,3.2],n],64:[n,n,[3.977,3.21],n],65:[n,[8.429,3.21],n,n],66:[n,[9.044,3.21],n,n],67:[n,[9.661,3.2],n,n],68:[n,[10.277,3.2],n,n],69:[n,[10.808,3.21],n,n],70:[n,[11.457,3.2],n,n]};
+// Corebridge (AGL) | GIWL — Guaranteed Issue Whole Life | Ages 50–80
+// Formula: ROUND((annual_rate/1k × face/1000 + $24) × 0.0834, 2)
+// Row: [male_≤15K, male_≥20K, female_≤15K, female_≥20K]
+const CBGG={50:[70.56,70.56,47.81,50.83],51:[71.69,71.69,49.01,54.64],52:[72.98,75.44,50.86,57.9],53:[74.11,79.82,53.61,60.87],54:[75.42,83.64,56.07,63.56],55:[77.6,87.04,58.28,65.96],56:[79.92,89.58,60.75,68.65],57:[81.98,91.84,62.66,70.76],58:[83.82,93.83,64.62,72.9],59:[85.09,95.24,66.42,74.87],60:[86.44,96.23,67.87,76.43],61:[92.62,103.44,72.14,81.1],62:[98.85,110.23,76.04,85.34],63:[104.8,116.74,79.41,89.02],64:[110.53,122.96,81.98,91.84],65:[116.1,129.05,84.19,94.25],66:[121.02,134.42,88.74,99.19],67:[125.3,139.08,92.5,103.3],68:[129.3,143.47,95.99,107.11],69:[132.82,147.28,99.38,110.8],70:[135.92,150.69,102.48,114.19],71:[148.63,164.55,112.85,125.5],72:[161.08,178.13,122.71,136.26],73:[172.75,190.86,132.16,146.58],74:[183.65,202.74,140.86,156.06],75:[192.98,212.92,148.63,164.55],76:[226.02,248.99,170.66,188.59],77:[257.8,269.5,191.44,211.22],78:[265.95,269.78,210.87,232.44],79:[266.49,270.05,229.02,252.24],80:[267.04,270.32,245.1,267.03]};
+function cbgGiwlQuote(age,male,face){const row=CBGG[age];if(!row)return null;const isHigh=face>15000;const ri=male?(isHigh?1:0):(isHigh?3:2);return Math.round((row[ri]*face/1000+24)*0.0834*100)/100;}
 
 // Transamerica | Immediate Solution Preferred | modal=0.086012
 const TASP_M=0.086012;
@@ -261,9 +263,9 @@ const CARRIERS = [
   {id:'fid',  name:'Fidelity Life',      sub:'RAPIDecision FE', abbr:'FD', enabled:true,
    product:{B:'Level',C:'Level',D:null,E:'Guaranteed Issue'},
    fn:(age,male,smoker,tier,face)=>{if(tier==='B'||tier==='C')return csvLookup(FIDL,FIDL_M,age,male,smoker,face);if(tier==='E')return csvLookup(FIDG,FIDG_M,age,male,smoker,face);return null;}},
-  {id:'cbg',  name:'Corebridge Financial', sub:'AIG — SimpliNow Legacy Max', abbr:'CB', enabled:true,
-   product:{B:'Level',C:'Level',D:null,E:null},
-   fn:(age,male,smoker,tier,face)=>{if(tier!=='B'&&tier!=='C')return null;return csvLookup(CBG,CBG_M,age,male,smoker,face);}},
+  {id:'cbg',  name:'Corebridge Financial', sub:'AGL — Guaranteed Issue WL', abbr:'CB', enabled:true,
+   product:{B:null,C:null,D:null,E:'Guaranteed Issue'},
+   fn:(age,male,smoker,tier,face)=>{if(tier!=='E')return null;if(age<50||age>80)return null;return cbgGiwlQuote(age,male,face);}},
   {id:'lb',   name:'Liberty Bankers',    sub:'SIMPL Whole Life', abbr:'LB', enabled:true,
    product:{B:'Level',C:'Level',D:null,E:null},
    fn:(age,male,smoker,tier,face)=>{if(tier==='B')return csvLookup(LBP,LBP_M,age,male,smoker,face);if(tier==='C')return csvLookup(LBS,LBS_M,age,male,smoker,face);return null;}},
