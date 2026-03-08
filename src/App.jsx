@@ -421,14 +421,34 @@ const CarrierLogo = ({carrierId, name}) => {
   );
 };
 
-// eApp button — full-width distinct button at card bottom
-const EAppBtn = ({carrierId}) => {
+// eApp button — full-width (standard) or compact (GSB footer)
+const EAppBtn = ({carrierId, compact=false}) => {
   const meta = CARRIER_META[carrierId];
   const [hov,setHov] = React.useState(false);
   if(!meta?.eapp) return null;
   const brand = meta.brand || '#3B82F6';
+  if(compact) {
+    return (
+      <a href={meta.eapp} target="_blank" rel="noopener noreferrer"
+        onMouseEnter={()=>setHov(true)} onMouseLeave={()=>setHov(false)}
+        style={{
+          display:'inline-flex',alignItems:'center',gap:5,
+          padding:'5px 12px',borderRadius:6,
+          border:`1px solid ${hov?brand+'88':brand+'44'}`,
+          background:hov?brand+'22':brand+'0F',
+          color:hov?'#F1F5F9':brand+'CC',
+          fontSize:11,fontWeight:600,textDecoration:'none',
+          letterSpacing:0.3,transition:'all 0.18s',
+          transform:hov?'translateY(-1px)':'translateY(0)',
+          boxShadow:hov?`0 3px 8px ${brand}33`:'none',
+          whiteSpace:'nowrap',flexShrink:0
+        }}>
+        📋 e-App
+      </a>
+    );
+  }
   return (
-    <div style={{marginTop:14,paddingTop:12,borderTop:'1px solid rgba(255,255,255,0.06)'}}>
+    <div style={{marginTop:'auto',paddingTop:12,borderTop:'1px solid rgba(255,255,255,0.06)'}}>
       <a href={meta.eapp} target="_blank" rel="noopener noreferrer"
         onMouseEnter={()=>setHov(true)} onMouseLeave={()=>setHov(false)}
         style={{
@@ -868,49 +888,66 @@ export default function QuoteMark() {
 
               <div style={{padding:24}}>
                 {/* ── QUOTE CARDS ── */}
-                <div style={{display:'grid',gridTemplateColumns:gsbOn?'1fr':'repeat(auto-fill,minmax(260px,1fr))',gap:12,marginBottom:20}}>
+                <div style={{display:'grid',gridTemplateColumns:gsbOn?'repeat(auto-fill,minmax(420px,1fr))':'repeat(auto-fill,minmax(270px,1fr))',gap:12,marginBottom:20}}>
                   {results&&results.map((r,idx)=>{
                     const isBest = !gsbOn && r.prem!=null && idx===0 && results.filter(x=>x.prem!=null).length>1;
                     const isGhost = !r.prem;
                     if(gsbOn){
+                      const gsbBrand = CARRIER_META[r.id]?.brand || C.bd2;
                       return(
                         <div key={r.id} style={{
                           background:r.anyPrem?C.bg3:C.bg2,
                           border:`1px solid ${r.anyPrem?C.bd2:C.bd}`,
-                          borderRadius:12,padding:18,
-                          opacity:r.anyPrem?1:0.35
+                          borderTop:`2px solid ${r.anyPrem?gsbBrand:C.bd}`,
+                          borderRadius:12,padding:'16px 16px 14px',
+                          opacity:r.anyPrem?1:0.35,
+                          overflow:'visible'
                         }}>
+                          {/* Card header: name + logo */}
                           <div style={{display:'flex',justifyContent:'space-between',alignItems:'center',marginBottom:14}}>
                             <div>
-                              <div style={{fontSize:15,fontWeight:700,color:C.t0}}>{r.name}</div>
-                              <div style={{fontSize:11,color:C.t3,marginTop:1}}>{r.sub}</div>
+                              <div style={{fontSize:16,fontWeight:600,color:C.t0,letterSpacing:'-0.2px'}}>{r.name}</div>
+                              <div style={{fontSize:11,color:C.t3,marginTop:2}}>{r.sub}</div>
                             </div>
-
+                            <CarrierLogo carrierId={r.id} name={r.name}/>
                           </div>
-                          <div style={{display:'grid',gridTemplateColumns:'1fr 1fr 1fr',gap:8}}>
+                          {/* Three tier boxes — tighter gap */}
+                          <div style={{display:'grid',gridTemplateColumns:'1fr 1fr 1fr',gap:5}}>
                             {GSB.map(g=>{
                               const tr=r.tiers[g.key];
                               return(
-                                <div key={g.key} style={{background:C.bg1,borderRadius:8,padding:'10px',border:`1px solid ${tr.prem?C.bd2:C.bd}`,textAlign:'center'}}>
-                                  <div style={{fontSize:13,marginBottom:2}}>{g.medal}</div>
-                                  <div style={{fontSize:10,color:g.color,fontWeight:600,marginBottom:3}}>{g.label}</div>
-                                  <div style={{fontSize:10,color:C.t4,marginBottom:3,fontFamily:"'DM Mono',monospace"}}>{fmtF(gsbFace[g.key])}</div>
+                                <div key={g.key} style={{
+                                  background:C.bg1,borderRadius:8,
+                                  padding:'10px 8px 10px',
+                                  border:`1px solid ${tr.prem?C.bd2:C.bd}`,
+                                  borderTop:`2px solid ${g.color}`,
+                                  textAlign:'center'
+                                }}>
+                                  <div style={{fontSize:10,color:g.color,fontWeight:700,marginBottom:4,letterSpacing:0.5}}>{g.medal} {g.label}</div>
+                                  <div style={{fontSize:14,color:C.t2,marginBottom:6,fontFamily:"'DM Mono',monospace",fontWeight:600}}>{fmtF(gsbFace[g.key])}</div>
                                   {tr.prem!=null?(
                                     <>
-                                      <div style={{fontFamily:"'DM Mono',monospace",fontSize:18,fontWeight:500,color:C.t0,letterSpacing:'-0.5px'}}>{fmt$(tr.prem)}</div>
-                                      <div style={{fontSize:9,color:C.t4,marginTop:2}}>/mo · ${(tr.prem*12).toFixed(0)}/yr</div>
+                                      <div style={{fontFamily:"'DM Mono',monospace",fontSize:24,fontWeight:600,color:g.color,letterSpacing:'-0.5px',lineHeight:1}}>{fmt$(tr.prem)}</div>
+                                      <div style={{fontSize:10,color:C.t3,marginTop:4}}>/mo EFT</div>
+                                      <div style={{fontSize:10,color:C.t4,marginTop:2,fontFamily:"'DM Mono',monospace"}}>${(tr.prem*12).toFixed(0)}<span style={{color:C.t4,fontSize:9}}>/yr</span></div>
                                     </>
                                   ):(
-                                    <div style={{fontSize:10,color:C.t4,lineHeight:1.4,marginTop:4}}>{tr.reason||'N/A'}</div>
+                                    <div style={{fontSize:10,color:C.t4,lineHeight:1.5,marginTop:4,minHeight:52}}>{tr.reason||'N/A'}</div>
                                   )}
                                 </div>
                               );
                             })}
                           </div>
-                          {r.anyPrem&&<div style={{marginTop:10,fontSize:11,color:C.t4,display:'flex',alignItems:'center',gap:5}}>
-                            <span style={{width:4,height:4,borderRadius:'50%',background:TIER_INFO[uwTier].dot,flexShrink:0}}/>
-                            {r.tiers.gold.productName||r.tiers.silver.productName||r.tiers.bronze.productName}
-                          </div>}
+                          {/* Footer: coverage badge + eApp */}
+                          {r.anyPrem&&(
+                            <div style={{marginTop:12,display:'flex',alignItems:'center',justifyContent:'space-between',gap:8}}>
+                              <div style={{display:'flex',alignItems:'center',gap:6}}>
+                                <span style={{width:4,height:4,borderRadius:'50%',background:TIER_INFO[uwTier].dot,flexShrink:0}}/>
+                                <TierBadge tier={uwTier} productName={r.tiers.gold.productName||r.tiers.silver.productName||r.tiers.bronze.productName}/>
+                              </div>
+                              <EAppBtn carrierId={r.id} compact={true}/>
+                            </div>
+                          )}
                         </div>
                       );
                     }
@@ -926,7 +963,8 @@ export default function QuoteMark() {
                         opacity:isGhost?0.3:1,
                         position:'relative',
                         transition:'opacity 0.15s',
-                        overflow:'visible'
+                        overflow:'visible',
+                        display:'flex',flexDirection:'column'
                       }}>
                         {isBest&&(
                           <div style={{position:'absolute',top:-1,left:16,background:C.gold,color:C.bg0,fontSize:10,fontWeight:700,padding:'2px 10px',borderRadius:'0 0 7px 7px',letterSpacing:0.5}}>
@@ -946,8 +984,8 @@ export default function QuoteMark() {
                         {isGhost?(
                           <div style={{fontSize:12,color:C.t4,fontStyle:'italic'}}>{r.reason}</div>
                         ):(
-                          <>
-                            {/* Premium — scaled down per feedback */}
+                          <div style={{display:'flex',flexDirection:'column',minHeight:180}}>
+                            {/* Premium */}
                             <div style={{marginBottom:14}}>
                               <div style={{fontSize:10,color:C.t3,marginBottom:3,letterSpacing:0.3}}>Monthly premium</div>
                               <div style={{display:'flex',alignItems:'baseline',gap:8}}>
@@ -962,7 +1000,7 @@ export default function QuoteMark() {
                               </div>
                             </div>
                             {/* Face + product — clean horizontal row, no nested boxes */}
-                            <div style={{display:'flex',alignItems:'center',gap:0,paddingTop:12,borderTop:`1px solid ${C.bd}`}}>
+                            <div style={{display:'flex',alignItems:'center',gap:0,paddingTop:12,borderTop:`1px solid ${C.bd}`,flexShrink:0}}>
                               <div style={{flex:1}}>
                                 <div style={{fontSize:10,color:C.t3,marginBottom:2}}>Face amount</div>
                                 <div style={{fontFamily:"'DM Mono',monospace",fontSize:14,fontWeight:500,color:C.t1}}>
@@ -977,8 +1015,9 @@ export default function QuoteMark() {
                                 </div>
                               </div>
                             </div>
+                            <div style={{flex:1}}/>
                             <EAppBtn carrierId={r.id}/>
-                          </>
+                          </div>
                         )}
                       </div>
                     );
