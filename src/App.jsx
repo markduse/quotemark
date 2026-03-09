@@ -413,7 +413,7 @@ const CARRIER_META = {
   laf:  { img:'/logos/laf.png',    eapp:'https://www.lafayettelife.com/agent-resources',        brand:'#8B5CF6' }, // Lafayette — Medium Purple
   for:  { img:'/logos/for.png',    eapp:'https://www.forestersfinancial.com/us/agent-portal',   brand:'#7E22CE' }, // Foresters — Plum
   amr:  { img:'/logos/amr.png',    eapp:'https://www.americo.com/agent-access',                brand:'#60A5FA' }, // Americo — Vivid Cobalt
-  amam: { img:'/logos/amam.png',   eapp:'https://www.insuranceapplication.com',                  brand:'#F97316' }, // American Amicable — Light Gray
+  amam: { img:'/logos/amam.png',   eapp:'https://www.insuranceapplication.com',                  brand:'#CBD5E1' }, // American Amicable — Light Gray
   ts:   { img:'/logos/ts.png',     eapp:'https://www.trustage.com/agents',                     brand:'#FDE68A' }, // TruStage — Pale Yellow
   ls:   { img:'/logos/ls.png',     eapp:'https://www.lifeshield.com/agent',                    brand:'#64748B' }, // LifeShield — Gray
 };
