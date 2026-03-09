@@ -502,12 +502,15 @@ const C_DARK = {
 };
 
 const C_LIGHT = {
-  bg0:'#F0EAE0', bg1:'#FFFBF6', bg2:'#F5EFE6', bg3:'#EDE5D8', bg4:'#E4D9C9',
-  bd:'#D4C4AE', bd2:'#BCA990',
-  t0:'#1C1410', t1:'#2D1F16', t2:'#4A3728', t3:'#7A6355', t4:'#A08878',
-  blue:'#2563EB', blueBg:'rgba(37,99,235,0.08)', blueBd:'rgba(37,99,235,0.2)',
-  gold:'#C2760A', goldBg:'rgba(194,118,10,0.1)', goldBd:'rgba(194,118,10,0.25)',
+  bg0:'#F0F4F8', bg1:'#F8FAFC', bg2:'#FFFFFF', bg3:'#F1F5F9', bg4:'#E2E8F0',
+  bd:'#E2E8F0', bd2:'#CBD5E1',
+  t0:'#0F172A', t1:'#1E293B', t2:'#334155', t3:'#64748B', t4:'#94A3B8',
+  blue:'#2563EB', blueBg:'rgba(37,99,235,0.07)', blueBd:'rgba(37,99,235,0.2)',
+  gold:'#D97706', goldBg:'rgba(217,119,6,0.08)', goldBd:'rgba(217,119,6,0.25)',
   green:'#16A34A',
+  // Light-mode specific overrides used in card logic
+  cardBg:'#FFFFFF', cardShadow:'0 4px 6px -1px rgba(0,0,0,0.07),0 2px 4px -2px rgba(0,0,0,0.05)',
+  selActive:'#0F172A', selActiveTxt:'#FFFFFF', selInactive:'#F1F5F9', selInactiveTxt:'#64748B',
 };
 
 
@@ -624,36 +627,63 @@ const CarrierLogo = ({carrierId, name}) => {
 };
 
 // eApp button — full-width (standard) or compact (GSB footer)
-const EAppBtn = ({carrierId, compact=false}) => {
+const EAppBtn = ({carrierId, compact=false, lightMode=false}) => {
   const meta = CARRIER_META[carrierId];
   const [hov,setHov] = React.useState(false);
   if(!meta?.eapp) return null;
   const brand = meta.brand || '#3B82F6';
+  // Light mode uses solid blue CTA, dark uses brand-tinted ghost
   if(compact) {
+    const lStyle = {
+      display:'inline-flex',alignItems:'center',gap:5,
+      padding:'5px 14px',borderRadius:6,
+      border:'1.5px solid #2563EB',
+      background:hov?'#1D4ED8':'#2563EB',
+      color:'#FFFFFF',
+      fontSize:11,fontWeight:700,textDecoration:'none',
+      letterSpacing:0.3,transition:'all 0.15s',
+      transform:hov?'translateY(-1px)':'translateY(0)',
+      boxShadow:hov?'0 4px 10px rgba(37,99,235,0.3)':'0 1px 3px rgba(37,99,235,0.15)',
+      whiteSpace:'nowrap',flexShrink:0
+    };
+    const dStyle = {
+      display:'inline-flex',alignItems:'center',gap:5,
+      padding:'5px 12px',borderRadius:6,
+      border:`1px solid ${hov?brand+'88':brand+'44'}`,
+      background:hov?brand+'22':brand+'0F',
+      color:hov?'#F1F5F9':brand+'CC',
+      fontSize:11,fontWeight:600,textDecoration:'none',
+      letterSpacing:0.3,transition:'all 0.18s',
+      transform:hov?'translateY(-1px)':'translateY(0)',
+      boxShadow:hov?`0 3px 8px ${brand}33`:'none',
+      whiteSpace:'nowrap',flexShrink:0
+    };
     return (
       <a href={meta.eapp} target="_blank" rel="noopener noreferrer"
         onMouseEnter={()=>setHov(true)} onMouseLeave={()=>setHov(false)}
-        style={{
-          display:'inline-flex',alignItems:'center',gap:5,
-          padding:'5px 12px',borderRadius:6,
-          border:`1px solid ${hov?brand+'88':brand+'44'}`,
-          background:hov?brand+'22':brand+'0F',
-          color:hov?'#F1F5F9':brand+'CC',
-          fontSize:11,fontWeight:600,textDecoration:'none',
-          letterSpacing:0.3,transition:'all 0.18s',
-          transform:hov?'translateY(-1px)':'translateY(0)',
-          boxShadow:hov?`0 3px 8px ${brand}33`:'none',
-          whiteSpace:'nowrap',flexShrink:0
-        }}>
+        style={lightMode?lStyle:dStyle}>
         📋 e-App
       </a>
     );
   }
+  const lFullStyle = {
+    display:'flex',alignItems:'center',justifyContent:'center',gap:7,
+    width:'100%',padding:'10px 0',
+    borderRadius:8,
+    background:hov?'#1D4ED8':'#2563EB',
+    border:'none',
+    color:'#FFFFFF',
+    fontSize:13,fontWeight:700,textDecoration:'none',
+    letterSpacing:0.3,
+    transition:'all 0.15s',
+    boxShadow:hov?'0 6px 16px rgba(37,99,235,0.35)':'0 2px 6px rgba(37,99,235,0.2)',
+    transform:hov?'translateY(-1px)':'translateY(0)',
+  };
   return (
-    <div style={{marginTop:'auto',paddingTop:12,borderTop:'1px solid rgba(255,255,255,0.06)'}}>
+    <div style={{marginTop:'auto',paddingTop:12,borderTop:lightMode?'1px solid #E2E8F0':'1px solid rgba(255,255,255,0.06)'}}>
       <a href={meta.eapp} target="_blank" rel="noopener noreferrer"
         onMouseEnter={()=>setHov(true)} onMouseLeave={()=>setHov(false)}
-        style={{
+        style={lightMode ? lFullStyle : {
           display:'flex',alignItems:'center',justifyContent:'center',gap:7,
           width:'100%',padding:'9px 0',
           borderRadius:8,
@@ -907,7 +937,7 @@ export default function QuoteMark() {
 
   // ── INPUT STYLES ──
   const inp = {background:C.bg2,border:`1px solid ${C.bd}`,color:C.t1,borderRadius:8,padding:'9px 12px',fontSize:13,width:'100%',outline:'none',fontFamily:"'DM Sans',sans-serif"};
-  const togBtn = (active) => ({flex:1,padding:'7px 0',borderRadius:7,border:`1px solid ${active?C.blue+'66':C.bd}`,cursor:'pointer',fontSize:12,fontWeight:500,background:active?C.blueBg:C.bg2,color:active?'#93C5FD':C.t3,transition:'all 0.12s',fontFamily:"'DM Sans',sans-serif"});
+  const togBtn = (active) => isDark ? {flex:1,padding:'7px 0',borderRadius:7,border:`1px solid ${active?C.blue+'66':C.bd}`,cursor:'pointer',fontSize:12,fontWeight:500,background:active?C.blueBg:C.bg2,color:active?'#93C5FD':C.t3,transition:'all 0.12s',fontFamily:"'DM Sans',sans-serif"} : {flex:1,padding:'7px 0',borderRadius:7,border:`1px solid ${active?'#0F172A':C.bd2}`,cursor:'pointer',fontSize:12,fontWeight:600,background:active?'#0F172A':C.selInactive,color:active?'#FFFFFF':C.selInactiveTxt,transition:'all 0.12s',fontFamily:"'DM Sans',sans-serif"};
   const sec = {background:C.bg3,border:`1px solid ${C.bd}`,borderRadius:12,padding:16};
   const lbl = {fontSize:10,fontWeight:700,letterSpacing:1.8,color:C.t4,textTransform:'uppercase',marginBottom:10};
 
@@ -916,7 +946,7 @@ export default function QuoteMark() {
   // ─────────────────────────────────────────────────
   if (isMobile) {
     const mInp = {background:C.bg2,border:`1px solid ${C.bd}`,color:C.t1,borderRadius:10,padding:'12px 14px',fontSize:15,width:'100%',boxSizing:'border-box',outline:'none',fontFamily:"'DM Sans',sans-serif",WebkitAppearance:'none'};
-    const mTogBtn = (active,color) => ({flex:1,padding:'11px 0',borderRadius:10,border:`1px solid ${active?(color||C.blue)+'66':C.bd}`,cursor:'pointer',fontSize:14,fontWeight:600,background:active?(color?color+'22':C.blueBg):C.bg2,color:active?(color||'#93C5FD'):C.t3,transition:'all 0.12s',fontFamily:"'DM Sans',sans-serif"});
+    const mTogBtn = (active,color) => isDark ? {flex:1,padding:'11px 0',borderRadius:10,border:`1px solid ${active?(color||C.blue)+'66':C.bd}`,cursor:'pointer',fontSize:14,fontWeight:600,background:active?(color?color+'22':C.blueBg):C.bg2,color:active?(color||'#93C5FD'):C.t3,transition:'all 0.12s',fontFamily:"'DM Sans',sans-serif"} : {flex:1,padding:'11px 0',borderRadius:10,border:`1px solid ${active?'#0F172A':C.bd2}`,cursor:'pointer',fontSize:14,fontWeight:600,background:active?'#0F172A':'#F1F5F9',color:active?'#FFFFFF':'#64748B',transition:'all 0.12s',fontFamily:"'DM Sans',sans-serif"};
 
     return (
       <div style={{fontFamily:"'DM Sans',sans-serif",background:C.bg0,minHeight:'100vh',color:C.t1,position:'relative',paddingBottom:100}}>
@@ -978,8 +1008,8 @@ export default function QuoteMark() {
                 <div style={{marginBottom:14}}>
                   <div style={{fontSize:12,color:C.t3,marginBottom:8}}>Gender</div>
                   <div style={{display:'flex',gap:8}}>
-                    <button style={mTogBtn(gender==='male')} onClick={()=>setGender('male')}>👨 Male</button>
-                    <button style={mTogBtn(gender==='female')} onClick={()=>setGender('female')}>👩 Female</button>
+                    <button style={mTogBtn(gender==='male')} onClick={()=>setGender('male')}>{!isDark&&gender==='male'?'✓ ':''}👨 Male</button>
+                    <button style={mTogBtn(gender==='female')} onClick={()=>setGender('female')}>{!isDark&&gender==='female'?'✓ ':''}👩 Female</button>
                   </div>
                 </div>
 
@@ -987,8 +1017,8 @@ export default function QuoteMark() {
                 <div style={{marginBottom:14}}>
                   <div style={{fontSize:12,color:C.t3,marginBottom:8}}>Tobacco</div>
                   <div style={{display:'flex',gap:8}}>
-                    <button style={mTogBtn(!smoker)} onClick={()=>setSmoker(false)}>Non-smoker</button>
-                    <button style={mTogBtn(smoker,'#EF4444')} onClick={()=>setSmoker(true)}>Smoker</button>
+                    <button style={mTogBtn(!smoker)} onClick={()=>setSmoker(false)}>{!isDark&&!smoker?'✓ ':''}Non-smoker</button>
+                    <button style={mTogBtn(smoker,'#EF4444')} onClick={()=>setSmoker(true)}>{!isDark&&smoker?'✓ ':''}Smoker</button>
                   </div>
                 </div>
 
@@ -1274,12 +1304,14 @@ export default function QuoteMark() {
                       }
                       return(
                         <div key={r.id} style={{
-                          background:isGhost?C.bg2:C.bg3,
+                          background: isDark ? (isGhost?C.bg2:C.bg3) : (isGhost?C.bg3:'#FFFFFF'),
                           border:`1px solid ${isGhost?C.bd:(isBest?C.gold+'55':C.bd2)}`,
                           borderTop:`3px solid ${isGhost?C.bd:(isBest?C.gold:brandColor)}`,
                           borderRadius:12,padding:'14px 14px 12px',
                           opacity:isGhost?0.4:1,
                           position:'relative',
+                          boxShadow: isDark?'none': isGhost?'none':'0 4px 6px -1px rgba(0,0,0,0.07)',
+                          filter: isGhost && !isDark ? 'grayscale(1)' : 'none',
                         }}>
                           {isBest&&<div style={{position:'absolute',top:-1,left:'50%',transform:'translateX(-50%)',background:C.gold,color:C.bg0,fontSize:9,fontWeight:800,padding:'2px 10px',borderRadius:'0 0 7px 7px',letterSpacing:1}}>BEST VALUE</div>}
                           <div style={{display:'flex',justifyContent:'space-between',alignItems:'flex-start',marginBottom:isGhost?0:12,marginTop:isBest?10:0}}>
@@ -1301,11 +1333,20 @@ export default function QuoteMark() {
                                 <TierBadge tier={r.activeTier} productName={r.productName}/>
                               </div>
                               {CARRIER_META[r.id]?.eapp && (
-                                <a href={CARRIER_META[r.id].eapp} target="_blank" rel="noopener noreferrer" style={{
-                                  display:'block',padding:'12px 0',borderRadius:9,textAlign:'center',
-                                  background:brandColor+'22',border:`1px solid ${brandColor}55`,
-                                  color:isBest?C.gold:brandColor,fontSize:14,fontWeight:600,textDecoration:'none'
-                                }}>Apply Online →</a>
+                                isDark ? (
+                                  <a href={CARRIER_META[r.id].eapp} target="_blank" rel="noopener noreferrer" style={{
+                                    display:'block',padding:'12px 0',borderRadius:9,textAlign:'center',
+                                    background:brandColor+'22',border:`1px solid ${brandColor}55`,
+                                    color:isBest?C.gold:brandColor,fontSize:14,fontWeight:600,textDecoration:'none'
+                                  }}>Apply Online →</a>
+                                ) : (
+                                  <a href={CARRIER_META[r.id].eapp} target="_blank" rel="noopener noreferrer" style={{
+                                    display:'block',padding:'12px 0',borderRadius:9,textAlign:'center',
+                                    background:'#2563EB',border:'none',
+                                    color:'#FFFFFF',fontSize:14,fontWeight:700,textDecoration:'none',
+                                    boxShadow:'0 2px 6px rgba(37,99,235,0.25)'
+                                  }}>Open e-App →</a>
+                                )
                               )}
                             </>
                           ) : (
@@ -1644,15 +1685,15 @@ export default function QuoteMark() {
               <div>
                 <div style={{fontSize:11,color:C.t3,marginBottom:4}}>Tobacco</div>
                 <div style={{display:'flex',gap:5}}>
-                  <button style={togBtn(!smoker)} onClick={()=>{setSmoker(false);}}>Non-smoker</button>
-                  <button style={togBtn(smoker)}  onClick={()=>{setSmoker(true);}}>Smoker</button>
+                  <button style={togBtn(!smoker)} onClick={()=>{setSmoker(false);}}>{!isDark&&!smoker?'✓ ':''}Non-smoker</button>
+                  <button style={togBtn(smoker)}  onClick={()=>{setSmoker(true);}}>{!isDark&&smoker?'✓ ':''}Smoker</button>
                 </div>
               </div>
               <div>
                 <div style={{fontSize:11,color:C.t3,marginBottom:4}}>Gender</div>
                 <div style={{display:'flex',gap:5}}>
-                  <button style={togBtn(gender==='male')}   onClick={()=>{setGender('male');}}>Male</button>
-                  <button style={togBtn(gender==='female')} onClick={()=>{setGender('female');}}>Female</button>
+                  <button style={togBtn(gender==='male')}   onClick={()=>{setGender('male');}}>{!isDark&&gender==='male'?'✓ ':''}Male</button>
+                  <button style={togBtn(gender==='female')} onClick={()=>{setGender('female');}}>{!isDark&&gender==='female'?'✓ ':''}Female</button>
                 </div>
               </div>
             </div>
@@ -1916,12 +1957,14 @@ export default function QuoteMark() {
                       const gsbBrand = CARRIER_META[r.id]?.brand || C.bd2;
                       return(
                         <div key={r.id} style={{
-                          background:r.anyPrem?C.bg3:C.bg2,
+                          background: isDark?(r.anyPrem?C.bg3:C.bg2):(r.anyPrem?'#FFFFFF':C.bg3),
                           border:`1px solid ${r.anyPrem?C.bd2:C.bd}`,
-                          borderTop:`2px solid ${r.anyPrem?gsbBrand:C.bd}`,
+                          borderTop:`3px solid ${r.anyPrem?gsbBrand:C.bd}`,
                           borderRadius:12,padding:'16px 16px 14px',
-                          opacity:r.anyPrem?1:0.35,
-                          overflow:'visible'
+                          opacity:r.anyPrem?1:0.4,
+                          overflow:'visible',
+                          boxShadow:isDark||!r.anyPrem?'none':'0 4px 6px -1px rgba(0,0,0,0.07)',
+                          filter:!r.anyPrem&&!isDark?'grayscale(1)':'none'
                         }}>
                           {/* Card header: name only — no logo */}
                           <div style={{marginBottom:14}}>
@@ -1962,7 +2005,7 @@ export default function QuoteMark() {
                                 <span style={{width:4,height:4,borderRadius:'50%',background:TIER_INFO[uwTier].dot,flexShrink:0}}/>
                                 <TierBadge tier={uwTier} productName={r.tiers.gold.productName||r.tiers.silver.productName||r.tiers.bronze.productName}/>
                               </div>
-                              <EAppBtn carrierId={r.id} compact={true}/>
+                              <EAppBtn carrierId={r.id} compact={true} lightMode={!isDark}/>
                             </div>
                           )}
                         </div>
@@ -1973,15 +2016,19 @@ export default function QuoteMark() {
                     const premColor  = isBest ? C.gold : (CARRIER_META[r.id]?.brand || C.t0);
                     return(
                       <div key={r.id} style={{
-                        background:isGhost?C.bg2:isBest?'rgba(245,158,11,0.04)':C.bg3,
+                        background: isDark
+                          ? (isGhost?C.bg2:isBest?'rgba(245,158,11,0.04)':C.bg3)
+                          : (isGhost?C.bg3:'#FFFFFF'),
                         border:`1px solid ${isBest?C.gold:isGhost?C.bd:C.bd2}`,
-                        borderTop: isBest?`2px solid ${C.gold}`:isGhost?`1px solid ${C.bd}`:`2px solid ${brandColor||C.bd2}`,
+                        borderTop: isBest?`3px solid ${C.gold}`:isGhost?`1px solid ${C.bd}`:`3px solid ${brandColor||C.bd2}`,
                         borderRadius:12,padding:18,
-                        opacity:isGhost?0.3:1,
+                        opacity:isGhost?0.4:1,
                         position:'relative',
-                        transition:'opacity 0.15s',
+                        transition:'all 0.15s',
                         overflow:'visible',
-                        display:'flex',flexDirection:'column'
+                        display:'flex',flexDirection:'column',
+                        boxShadow: isDark?'none': isGhost?'none':'0 4px 6px -1px rgba(0,0,0,0.07),0 2px 4px -2px rgba(0,0,0,0.05)',
+                        filter: isGhost && !isDark ? 'grayscale(1)' : 'none'
                       }}>
                         {isBest&&(
                           <div style={{position:'absolute',top:-1,left:16,background:C.gold,color:C.bg0,fontSize:10,fontWeight:700,padding:'2px 10px',borderRadius:'0 0 7px 7px',letterSpacing:0.5}}>
@@ -2007,10 +2054,10 @@ export default function QuoteMark() {
                             <div style={{marginBottom:14}}>
                               <div style={{fontSize:10,color:C.t3,marginBottom:3,letterSpacing:0.3}}>Monthly premium</div>
                               <div style={{display:'flex',alignItems:'baseline',gap:8}}>
-                                <span style={{fontFamily:"'DM Mono',monospace",fontSize:30,fontWeight:500,color:premColor,letterSpacing:'-1px',lineHeight:1}}>
+                                <span style={{fontFamily:"'DM Mono',monospace",fontSize:30,fontWeight:700,color:isBest?C.gold:(isDark?premColor:C.t0),letterSpacing:'-1px',lineHeight:1}}>
                                   {fmt$(r.prem)}
                                 </span>
-                                <span style={{fontSize:11,color:C.t2}}>/mo EFT</span>
+                                <span style={{fontSize:11,color:C.t3}}>/mo EFT</span>
                               </div>
                               <div style={{fontSize:12,color:C.t1,marginTop:4}}>
                                 <span style={{fontFamily:"'DM Mono',monospace"}}>${(r.prem*12).toFixed(0)}</span>
@@ -2035,7 +2082,7 @@ export default function QuoteMark() {
                             </div>
 
                             <div style={{flex:1}}/>
-                            <EAppBtn carrierId={r.id}/>
+                            <EAppBtn carrierId={r.id} lightMode={!isDark}/>
                           </div>
                         )}
                       </div>
