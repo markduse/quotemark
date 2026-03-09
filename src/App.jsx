@@ -435,7 +435,7 @@ const CARRIERS = [
    product:{B:'Level',C:'Level',D:'Graded',E:null},
    fn:(age,male,smoker,tier,face)=>{
      if(tier==='B'||tier==='C') return blQuote(BL_SI,age,male,smoker,Math.min(face,50000));
-     if(tier==='D') return blQuote(BL_GRD,age,male,smoker,Math.min(face,50000));
+     if(tier==='D') return blQuote(BL_GRD,age,male,smoker,Math.min(face,25000));
      return null;
    }},
 ];
