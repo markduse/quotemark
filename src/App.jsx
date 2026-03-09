@@ -30,9 +30,9 @@ const STATE_RULES = {
   fid:  { excludeStates: [] },
 };
 const FACE_CAPS = {
-  acc:40000, ahl:30000, cont:40000, rn:40000,
-  ra:50000, ls:30000, amam:50000, moo:40000, cbg:25000,
-  ta:50000, lb:30000, pf:50000, amr:35000, for:35000,
+  acc:40000, ahl:35000, cont:40000, rn:40000,
+  ra:50000, ls:30000, amam:35000, moo:50000, cbg:25000,
+  ta:100000, lb:30000, pf:50000, amr:30000, for:35000,
   afl:50000, laf:50000, uhl:30000, fid:40000,
 };
 const AGE_MAX = {
@@ -172,45 +172,109 @@ function csvLookup(tbl, _modal, age, male, smoker, face) {
 }
 
 const CONDITIONS = [
-  {id:'none',         label:'No significant conditions',                  tier:'B',cat:'✓ Clean Health',    meds:''},
-  {id:'htn',          label:'Hypertension (controlled)',                   tier:'B',cat:'❤️ Heart & Blood',  meds:'lisinopril amlodipine losartan metoprolol atenolol hydrochlorothiazide hctz ramipril valsartan blood pressure bp'},
-  {id:'hcl',          label:'High cholesterol (controlled)',               tier:'B',cat:'❤️ Heart & Blood',  meds:'statin atorvastatin lipitor simvastatin zocor rosuvastatin crestor pravastatin cholesterol lipid'},
-  {id:'afib_ctrl',    label:'Atrial fibrillation (stable)',                tier:'B',cat:'❤️ Heart & Blood',  meds:'eliquis apixaban xarelto rivaroxaban warfarin coumadin afib irregular heartbeat arrhythmia'},
-  {id:'anxiety',      label:'Anxiety / depression (stable)',               tier:'B',cat:'🧠 Mental Health',  meds:'sertraline zoloft escitalopram lexapro fluoxetine prozac paroxetine paxil citalopram buspirone xanax alprazolam lorazepam ativan ssri antidepressant anxiety depression'},
-  {id:'thyroid',      label:'Thyroid condition (controlled)',              tier:'B',cat:'💊 Other',          meds:'levothyroxine synthroid armour thyroid hypothyroid hyperthyroid'},
-  {id:'sleep_apnea',  label:'Sleep apnea (CPAP)',                          tier:'B',cat:'💊 Other',          meds:'cpap bipap snoring apnea'},
-  {id:'arthritis',    label:'Arthritis (managed)',                         tier:'B',cat:'💊 Other',          meds:'methotrexate hydroxychloroquine plaquenil naproxen meloxicam celebrex rheumatoid osteoarthritis joint'},
-  {id:'gerd',         label:'GERD / Acid reflux',                         tier:'B',cat:'💊 Other',          meds:'omeprazole prilosec pantoprazole protonix esomeprazole nexium famotidine pepcid heartburn reflux gerd'},
-  {id:'obesity',      label:'Obesity (BMI under 40)',                      tier:'B',cat:'💊 Other',          meds:'wegovy ozempic semaglutide bmi overweight obese'},
-  {id:'diabetes_oral',label:'Type 2 diabetes (oral meds only)',            tier:'C',cat:'🩸 Diabetes',       meds:'metformin glucophage glipizide glimepiride jardiance empagliflozin farxiga dapagliflozin januvia sitagliptin trulicity dulaglutide ozempic oral diabetes sugar a1c t2d'},
-  {id:'copd_no_o2',   label:'COPD / Emphysema (no oxygen)',                tier:'C',cat:'🫁 Respiratory',    meds:'albuterol tiotropium spiriva advair fluticasone salmeterol symbicort budesonide copd emphysema inhaler bronchodilator ventolin'},
-  {id:'asthma_mod',   label:'Asthma (moderate, requires steroids)',        tier:'C',cat:'🫁 Respiratory',    meds:'albuterol prednisone inhaler asthma wheeze bronchospasm steroid'},
-  {id:'mi_4plus',     label:'Heart attack 4+ years ago (stable)',          tier:'C',cat:'❤️ Heart & Blood',  meds:'clopidogrel plavix aspirin nitroglycerin heart attack mi stent bypass cardiac'},
-  {id:'stroke_4plus', label:'Stroke / TIA 4+ years ago (stable)',         tier:'C',cat:'❤️ Heart & Blood',  meds:'warfarin apixaban eliquis stroke tia mini-stroke'},
-  {id:'cancer_5plus', label:'Cancer — remission 5+ years',                tier:'C',cat:'🎗️ Cancer',         meds:'remission survivor cancer oncology'},
-  {id:'ms',           label:'Multiple sclerosis (ambulatory)',             tier:'C',cat:'🧠 Neurological',   meds:'tecfidera copaxone glatiramer ocrelizumab multiple sclerosis ms'},
-  {id:'crohn',        label:"Crohn's / IBD (managed)",                    tier:'C',cat:'💊 Other',          meds:'mesalamine humira adalimumab infliximab remicade crohns colitis ibd'},
-  {id:'mi_2to4',      label:'Heart attack within 2–4 years',              tier:'D',cat:'❤️ Heart & Blood',  meds:'recent heart attack mi stent'},
-  {id:'stroke_2to4',  label:'Stroke / TIA within 2–4 years',             tier:'D',cat:'❤️ Heart & Blood',  meds:'recent stroke tia'},
-  {id:'chf',          label:'Congestive heart failure (CHF)',             tier:'D',cat:'❤️ Heart & Blood',  meds:'furosemide lasix spironolactone digoxin lanoxin carvedilol sacubitril entresto heart failure chf edema fluid ejection'},
-  {id:'cancer_2to4',  label:'Cancer — remission 2–4 years',              tier:'D',cat:'🎗️ Cancer',         meds:'chemotherapy radiation recent cancer'},
-  {id:'cancer_lt2',   label:'Cancer — treated under 2 years ago',         tier:'D',cat:'🎗️ Cancer',         meds:'active chemo radiation tumor'},
-  {id:'copd_o2',      label:'COPD requiring home oxygen',                 tier:'D',cat:'🫁 Respiratory',    meds:'home oxygen o2 concentrator tank copd severe'},
-  {id:'cirrhosis',    label:'Cirrhosis of the liver',                     tier:'D',cat:'💊 Other',          meds:'cirrhosis liver lactulose rifaximin hepatic'},
-  {id:'kidney_disease',label:'Chronic kidney disease (not on dialysis)',  tier:'D',cat:'🫘 Kidney',         meds:'ckd chronic kidney creatinine egfr renal'},
-  {id:'diabetes_ins', label:'Insulin-dependent diabetes',                 tier:'D',cat:'🩸 Diabetes',       meds:'insulin lantus glargine novolog humalog basaglar toujeo neuropathy retinopathy insulin-dependent t1d'},
-  {id:'pad',          label:'Peripheral artery disease (PAD)',             tier:'D',cat:'❤️ Heart & Blood',  meds:'cilostazol pletal peripheral artery pad claudication circulation'},
-  {id:'mi_1yr',       label:'⚠ Heart attack — last 12 months',           tier:'E',cat:'🚫 Knockout',       meds:'recent heart attack mi cardiac'},
-  {id:'stroke_1yr',   label:'⚠ Stroke — last 12 months',                tier:'E',cat:'🚫 Knockout',       meds:'recent stroke'},
-  {id:'dialysis',     label:'⚠ Currently on dialysis',                   tier:'E',cat:'🚫 Knockout',       meds:'dialysis hemodialysis esrd renal failure'},
-  {id:'chemo',        label:'⚠ Receiving chemotherapy',                  tier:'E',cat:'🚫 Knockout',       meds:'active chemotherapy radiation cancer'},
-  {id:'home_o2_24hr', label:'⚠ Home oxygen 24 hrs/day',                  tier:'E',cat:'🚫 Knockout',       meds:'24 hour oxygen continuous concentrator'},
-  {id:'alzheimers',   label:'⚠ Alzheimer\'s / dementia',                 tier:'E',cat:'🚫 Knockout',       meds:'donepezil aricept memantine namenda alzheimers dementia memory'},
-  {id:'als',          label:'⚠ ALS (Lou Gehrig\'s)',                      tier:'E',cat:'🚫 Knockout',       meds:'riluzole als lou gehrig motor neuron'},
-  {id:'nursing_home', label:'⚠ Confined to nursing home',                 tier:'E',cat:'🚫 Knockout',       meds:'nursing home skilled nursing snf long term care'},
-  {id:'transplant_rec',label:'⚠ Organ transplant — last 2 years',        tier:'E',cat:'🚫 Knockout',       meds:'tacrolimus prograf mycophenolate cellcept cyclosporine transplant'},
-];
+  // CLEAN HEALTH
+  {id:'none',          label:'No significant conditions',                              tier:'B', cat:'Clean Health',     meds:''},
 
+  // HEART & BLOOD
+  {id:'htn',           label:'Hypertension (controlled)',                              tier:'B', cat:'Heart & Blood',    meds:'lisinopril amlodipine losartan metoprolol atenolol hydrochlorothiazide hctz ramipril valsartan blood pressure bp'},
+  {id:'hcl',           label:'High cholesterol (controlled)',                          tier:'B', cat:'Heart & Blood',    meds:'statin atorvastatin lipitor simvastatin zocor rosuvastatin crestor pravastatin cholesterol lipid'},
+  {id:'afib_ctrl',     label:'Atrial fibrillation / irregular heartbeat',              tier:'B', cat:'Heart & Blood',    meds:'eliquis apixaban xarelto rivaroxaban warfarin coumadin afib irregular heartbeat arrhythmia'},
+  {id:'aneurysm_old',  label:'Aneurysm - treated 2+ years ago',                       tier:'B', cat:'Heart & Blood',    meds:'aneurysm aortic'},
+  {id:'pad_old',       label:'PAD / PVD - peripheral artery disease',                 tier:'B', cat:'Heart & Blood',    meds:'cilostazol pletal peripheral artery pad pvd claudication circulation'},
+  {id:'angina_2plus',  label:'Angina (chest pain) - treated 2+ years ago',            tier:'C', cat:'Heart & Blood',    meds:'nitroglycerin nitro angina chest pain'},
+  {id:'angio_2plus',   label:'Angioplasty - 2+ years ago',                            tier:'C', cat:'Heart & Blood',    meds:'angioplasty balloon stent cardiac'},
+  {id:'mi_4plus',      label:'Heart attack - 4+ years ago (stable)',                  tier:'C', cat:'Heart & Blood',    meds:'clopidogrel plavix aspirin heart attack mi cardiac'},
+  {id:'stent_2plus',   label:'Stent / bypass surgery - 2+ years ago',                 tier:'C', cat:'Heart & Blood',    meds:'stent bypass cardiac surgery atorvastatin lipitor'},
+  {id:'stroke_4plus',  label:'Stroke / TIA - 4+ years ago (stable)',                  tier:'C', cat:'Heart & Blood',    meds:'warfarin apixaban eliquis stroke tia mini-stroke'},
+  {id:'cardiomyo_old', label:'Cardiomyopathy - 2+ years ago',                         tier:'C', cat:'Heart & Blood',    meds:'cardiomyopathy heart muscle'},
+  {id:'cad',           label:'Coronary artery disease (CAD)',                          tier:'C', cat:'Heart & Blood',    meds:'coronary artery disease cad ischemic'},
+  {id:'pacemaker_old', label:'Pacemaker / defibrillator - implanted 2+ years ago',    tier:'C', cat:'Heart & Blood',    meds:'pacemaker defibrillator icd implant'},
+  {id:'mi_2to4',       label:'Heart attack - 2 to 4 years ago',                       tier:'D', cat:'Heart & Blood',    meds:'recent heart attack mi stent'},
+  {id:'stroke_2to4',   label:'Stroke / TIA - 2 to 4 years ago',                      tier:'D', cat:'Heart & Blood',    meds:'recent stroke tia'},
+  {id:'angina_1yr',    label:'Angina (chest pain) - within last year',                tier:'D', cat:'Heart & Blood',    meds:'nitroglycerin nitro angina recent'},
+  {id:'stent_1to2',    label:'Stent / heart surgery - 1 to 2 years ago',              tier:'D', cat:'Heart & Blood',    meds:'stent bypass recent surgery cardiac'},
+  {id:'pacemaker_new', label:'Pacemaker / defibrillator - implanted within 2 years',  tier:'D', cat:'Heart & Blood',    meds:'pacemaker defibrillator icd implant recent'},
+  {id:'chf',           label:'Congestive heart failure (CHF)',                         tier:'D', cat:'Heart & Blood',    meds:'furosemide lasix spironolactone digoxin carvedilol sacubitril entresto heart failure chf edema ejection fraction'},
+  {id:'mi_1yr',        label:'Heart attack - last 12 months',                         tier:'E', cat:'Knockout',         meds:'recent heart attack mi cardiac'},
+  {id:'stroke_1yr',    label:'Stroke - last 12 months',                               tier:'E', cat:'Knockout',         meds:'recent stroke cva'},
+
+  // DIABETES
+  {id:'diabetes_oral', label:'Diabetes - oral medications only (type 2)',              tier:'B', cat:'Diabetes',         meds:'metformin glucophage glipizide glimepiride jardiance empagliflozin farxiga dapagliflozin januvia sitagliptin trulicity dulaglutide ozempic oral diabetes sugar a1c t2d'},
+  {id:'diabetes_ins',  label:'Diabetes - insulin dependent',                           tier:'C', cat:'Diabetes',         meds:'insulin lantus glargine novolog humalog basaglar toujeo insulin-dependent t1d'},
+  {id:'diabetes_comp', label:'Diabetes with complications - neuropathy, retinopathy, nephropathy', tier:'D', cat:'Diabetes', meds:'neuropathy retinopathy nephropathy diabetic complications peripheral'},
+  {id:'diabetes_coma', label:'Diabetic coma / insulin shock / amputation due to diabetes', tier:'E', cat:'Knockout',    meds:'diabetic coma insulin shock amputation limb loss'},
+
+  // RESPIRATORY
+  {id:'asthma_b',      label:'Asthma - managed, no steroids',                         tier:'B', cat:'Respiratory',      meds:'albuterol inhaler asthma wheeze bronchospasm ventolin'},
+  {id:'asthma_mod',    label:'Asthma - moderate, requires steroids',                   tier:'C', cat:'Respiratory',      meds:'prednisone steroid inhaler albuterol asthma'},
+  {id:'sleep_apnea',   label:'Sleep apnea - CPAP, no oxygen required',                tier:'B', cat:'Respiratory',      meds:'cpap bipap snoring apnea sleep'},
+  {id:'copd_no_o2',    label:'COPD / emphysema - no home oxygen',                     tier:'C', cat:'Respiratory',      meds:'tiotropium spiriva advair fluticasone salmeterol symbicort budesonide copd emphysema chronic bronchitis inhaler'},
+  {id:'bronchitis_chr',label:'Chronic bronchitis',                                     tier:'C', cat:'Respiratory',      meds:'chronic bronchitis inhaler corticosteroid bronchodilator'},
+  {id:'copd_o2',       label:'COPD requiring home oxygen',                             tier:'E', cat:'Knockout',         meds:'home oxygen o2 concentrator tank copd severe emphysema'},
+  {id:'pulm_fib',      label:'Pulmonary fibrosis',                                    tier:'E', cat:'Knockout',         meds:'pulmonary fibrosis interstitial lung pirfenidone ofev nintedanib'},
+
+  // CANCER
+  {id:'basal_cell',    label:'Basal cell / squamous cell skin cancer',                 tier:'B', cat:'Cancer',           meds:'basal cell squamous cell skin cancer bcc scc mohs'},
+  {id:'cancer_5plus',  label:'Cancer - in remission 5+ years',                        tier:'B', cat:'Cancer',           meds:'remission survivor cancer oncology'},
+  {id:'cancer_4plus',  label:'Cancer - in remission 4+ years',                        tier:'C', cat:'Cancer',           meds:'cancer remission survivor 4 years oncology'},
+  {id:'cancer_2to4',   label:'Cancer - in remission 2 to 4 years',                   tier:'D', cat:'Cancer',           meds:'cancer remission 2 years chemo radiation'},
+  {id:'melanoma_2to4', label:'Melanoma - in remission 2 to 4 years',                 tier:'D', cat:'Cancer',           meds:'melanoma skin cancer malignant'},
+  {id:'cancer_lt2',    label:'Cancer - active or treated under 2 years ago',          tier:'E', cat:'Knockout',         meds:'active chemo radiation tumor chemotherapy cancer current'},
+  {id:'chemo_active',  label:'Currently receiving chemotherapy or radiation',          tier:'E', cat:'Knockout',         meds:'chemotherapy radiation oncology active treatment current'},
+
+  // NEUROLOGICAL
+  {id:'seizures_rare', label:'Seizures / epilepsy - fewer than 6 per year',           tier:'B', cat:'Neurological',     meds:'levetiracetam keppra lamotrigine lamictal phenytoin dilantin epilepsy seizure'},
+  {id:'neuropathy',    label:'Neuropathy - not diabetes related',                      tier:'B', cat:'Neurological',     meds:'gabapentin neurontin pregabalin lyrica neuropathy nerve pain'},
+  {id:'ms',            label:'Multiple sclerosis (MS) - ambulatory',                  tier:'C', cat:'Neurological',     meds:'tecfidera copaxone glatiramer ocrelizumab ms multiple sclerosis'},
+  {id:'parkinsons',    label:'Parkinson disease - stable',                             tier:'C', cat:'Neurological',     meds:'carbidopa levodopa sinemet ropinirole pramipexole parkinsons'},
+  {id:'seizures_freq', label:'Seizures - 6 or more within 2 years',                  tier:'D', cat:'Neurological',     meds:'frequent seizures epilepsy uncontrolled'},
+  {id:'alzheimers',    label:'Alzheimer / dementia / memory loss / cognitive decline', tier:'E', cat:'Knockout',         meds:'donepezil aricept memantine namenda alzheimers dementia memory cognitive'},
+  {id:'als',           label:'ALS - Lou Gehrig disease',                              tier:'E', cat:'Knockout',         meds:'riluzole als amyotrophic lateral sclerosis lou gehrig motor neuron'},
+
+  // MENTAL HEALTH
+  {id:'anxiety',       label:'Anxiety / depression - stable, age 19+',                tier:'B', cat:'Mental Health',    meds:'sertraline zoloft escitalopram lexapro fluoxetine prozac paroxetine paxil citalopram buspizone ssri antidepressant anxiety depression'},
+  {id:'ptsd',          label:'PTSD - age 19+',                                        tier:'B', cat:'Mental Health',    meds:'prazosin ptsd post traumatic stress trauma'},
+  {id:'bipolar',       label:'Bipolar disorder - managed',                             tier:'B', cat:'Mental Health',    meds:'lithium lamotrigine valproate quetiapine seroquel bipolar mood stabilizer'},
+  {id:'schizophrenia', label:'Schizophrenia - stable, age 18+',                       tier:'C', cat:'Mental Health',    meds:'risperidone risperdal olanzapine zyprexa aripiprazole abilify clozapine schizophrenia psychosis'},
+  {id:'alcohol_2plus', label:'Alcohol / drug abuse - treatment 2+ years ago',         tier:'C', cat:'Mental Health',    meds:'suboxone naltrexone vivitrol methadone alcohol rehab substance abuse sober'},
+  {id:'alcohol_2yr',   label:'Alcohol / drug abuse - treatment within 2 years',       tier:'D', cat:'Mental Health',    meds:'recent alcohol rehab drug treatment substance abuse suboxone naltrexone'},
+
+  // KIDNEY
+  {id:'kidney_disease',label:'Chronic kidney disease - CKD, not on dialysis',         tier:'D', cat:'Kidney',           meds:'ckd chronic kidney creatinine egfr renal benazepril kidney disease failure'},
+  {id:'dialysis',      label:'Currently on dialysis',                                  tier:'E', cat:'Knockout',         meds:'dialysis hemodialysis esrd renal failure kidney'},
+
+  // LIVER
+  {id:'hep_c_cured',   label:'Hepatitis C - cured or resolved 2+ years ago',          tier:'C', cat:'Liver',            meds:'hepatitis c hep c cured sovaldi harvoni epclusa ledipasvir'},
+  {id:'hep_b',         label:'Hepatitis B - stable',                                  tier:'C', cat:'Liver',            meds:'hepatitis b hbsag entecavir baraclude tenofovir viread'},
+  {id:'hep_c_active',  label:'Hepatitis C - current or within 2 years',               tier:'D', cat:'Liver',            meds:'hepatitis c active current treatment hcv'},
+  {id:'cirrhosis',     label:'Cirrhosis of the liver',                                 tier:'D', cat:'Liver',            meds:'cirrhosis liver lactulose rifaximin hepatic failure'},
+
+  // OTHER CONDITIONS
+  {id:'thyroid',       label:'Thyroid condition - controlled',                         tier:'B', cat:'Other',            meds:'levothyroxine synthroid armour thyroid hypothyroid hyperthyroid'},
+  {id:'arthritis',     label:'Arthritis - managed',                                   tier:'B', cat:'Other',            meds:'methotrexate hydroxychloroquine plaquenil naproxen meloxicam celebrex osteoarthritis joint pain arthritis'},
+  {id:'rheum_arth',    label:'Rheumatoid arthritis',                                   tier:'B', cat:'Other',            meds:'methotrexate hydroxychloroquine humira adalimumab etanercept enbrel rheumatoid arthritis ra'},
+  {id:'gerd',          label:'GERD / acid reflux - controlled',                        tier:'B', cat:'Other',            meds:'omeprazole prilosec pantoprazole protonix esomeprazole nexium famotidine pepcid heartburn reflux gerd'},
+  {id:'obesity',       label:'Obesity - BMI under 40',                                 tier:'B', cat:'Other',            meds:'wegovy ozempic semaglutide bmi overweight obese weight'},
+  {id:'crohn',         label:'Crohn disease / ulcerative colitis - managed',           tier:'B', cat:'Other',            meds:'mesalamine humira adalimumab infliximab remicade crohns colitis ibd inflammatory bowel'},
+  {id:'lupus',         label:'Lupus / systemic lupus erythematosus - SLE',            tier:'C', cat:'Other',            meds:'hydroxychloroquine plaquenil belimumab lupus sle autoimmune'},
+  {id:'chronic_pain',  label:'Chronic pain - 6 or more narcotic prescriptions per year',tier:'C',cat:'Other',           meds:'oxycodone hydrocodone oxycontin vicodin percocet morphine fentanyl tramadol narcotic opioid pain chronic'},
+  {id:'sarcoidosis',   label:'Sarcoidosis',                                            tier:'C', cat:'Other',            meds:'prednisone sarcoidosis sarcoid'},
+  {id:'pancreatitis',  label:'Pancreatitis - chronic',                                 tier:'C', cat:'Other',            meds:'pancreatic enzymes creon pancreatitis pancreas'},
+  {id:'hep_c_curr',    label:'Hepatitis C - chronic or currently active',              tier:'C', cat:'Other',            meds:'hepatitis hcv hep c ribavirin interferon'},
+  {id:'restless_leg',  label:'Restless leg syndrome - check meds for Parkinson overlap',tier:'B',cat:'Other',           meds:'ropinirole pramipexole requip mirapex restless leg rls'},
+  {id:'dui_2plus',     label:'DUI - 2+ years ago',                                    tier:'C', cat:'Other',            meds:'dui dwi drunk driving'},
+  {id:'dui_2yr',       label:'DUI - within last 2 years',                              tier:'D', cat:'Other',            meds:'recent dui dwi drunk driving'},
+  {id:'sickle_cell',   label:'Sickle cell anemia',                                     tier:'D', cat:'Other',            meds:'hydroxyurea droxia sickle cell hemoglobin voxelotor oxbryta'},
+
+  // KNOCKOUT / GI ONLY
+  {id:'home_o2_24hr',  label:'Home oxygen required 24 hours per day',                 tier:'E', cat:'Knockout',         meds:'24 hour oxygen continuous concentrator tank home o2'},
+  {id:'nursing_home',  label:'Confined to nursing home or assisted living',            tier:'E', cat:'Knockout',         meds:'nursing home skilled nursing snf long term care assisted living facility'},
+  {id:'hospice',       label:'Currently in hospice care',                              tier:'E', cat:'Knockout',         meds:'hospice palliative terminal end of life'},
+  {id:'transplant_rec',label:'Organ transplant - any organ',                           tier:'E', cat:'Knockout',         meds:'tacrolimus prograf mycophenolate cellcept cyclosporine transplant organ'},
+  {id:'wheelchair',    label:'Confined to wheelchair due to illness or disease',       tier:'E', cat:'Knockout',         meds:'wheelchair electric scooter mobility disabled confined'},
+  {id:'aids_hiv',      label:'AIDS / HIV / ARC',                                      tier:'E', cat:'Knockout',         meds:'hiv aids atripla truvada biktarvy dolutegravir antiretroviral'},
+  {id:'terminal',      label:'Terminal illness - life expectancy under 2 years',       tier:'E', cat:'Knockout',         meds:'terminal illness prognosis palliative hospice'},
+]
 const TIER_INFO = {
   B:{label:'Level — Preferred',  short:'Preferred',    dot:'#22C55E', pill:'rgba(34,197,94,0.12)',  bd:'rgba(34,197,94,0.3)'},
   C:{label:'Level — Standard',   short:'Standard',     dot:'#EAB308', pill:'rgba(234,179,8,0.12)',  bd:'rgba(234,179,8,0.3)'},
@@ -543,7 +607,7 @@ export default function QuoteMark() {
   };
   const handleGsbBlur = (key) => {
     const n = parseInt(gsbRaw[key]);
-    const clamped = isNaN(n)||n<1000 ? 1000 : Math.min(n,40000);
+    const clamped = isNaN(n)||n<1000 ? 1000 : Math.min(n,100000);
     setGsbFace(p=>({...p,[key]:clamped}));
     setGsbRaw(p=>({...p,[key]:String(clamped)}));
   };
@@ -768,14 +832,14 @@ export default function QuoteMark() {
                           <span>Coverage amount</span>
                           <span style={{color:C.t0,fontWeight:700,fontSize:16,fontFamily:"'DM Mono',monospace"}}>{fmtF(faceAmt)}</span>
                         </div>
-                        <input type="range" min="2000" max="40000" step="1000" value={faceAmt}
+                        <input type="range" min="2000" max="100000" step="1000" value={faceAmt}
                           onChange={e=>{
                             setFaceAmt(+e.target.value);
                             if(navigator.vibrate) navigator.vibrate(4);
                           }}
                           style={{width:'100%',accentColor:C.gold,height:35,cursor:'pointer',marginBottom:6}}/>
                         <div style={{display:'flex',justifyContent:'space-between',fontSize:11,color:C.t4}}>
-                          <span>$2,000</span><span>$40,000</span>
+                          <span>$2,000</span><span>$100,000</span>
                         </div>
                       </>
                     ) : (
@@ -824,7 +888,7 @@ export default function QuoteMark() {
                   <div style={{background:C.goldBg,border:`1px solid ${C.goldBd}`,borderRadius:10,padding:'10px 12px',marginBottom:10}}>
                     <div style={{fontSize:12,color:C.gold,fontWeight:600,marginBottom:6}}>💊 "{search}" may indicate:</div>
                     <div style={{display:'flex',flexWrap:'wrap',gap:5}}>
-                      {medHints.map(c=>(<span key={c.id} onClick={()=>toggleCond(c.id)} style={{background:TIER_INFO[c.tier].pill,border:`1px solid ${TIER_INFO[c.tier].bd}`,color:TIER_INFO[c.tier].dot,borderRadius:6,padding:'4px 10px',cursor:'pointer',fontWeight:600,fontSize:12}}>+ {c.label.replace('⚠ ','')}</span>))}
+                      {medHints.map(c=>(<span key={c.id} onClick={()=>toggleCond(c.id)} style={{background:TIER_INFO[c.tier].pill,border:`1px solid ${TIER_INFO[c.tier].bd}`,color:TIER_INFO[c.tier].dot,borderRadius:6,padding:'4px 10px',cursor:'pointer',fontWeight:600,fontSize:12}}>+ {c.label}</span>))}
                     </div>
                   </div>
                 )}
@@ -842,8 +906,8 @@ export default function QuoteMark() {
                           color:active?C.t0:C.t1
                         }}>
                           <span style={{width:8,height:8,borderRadius:'50%',background:active?tc:TIER_INFO[c.tier].dot,flexShrink:0}}/>
-                          <span style={{flex:1,lineHeight:1.35}}>{c.label.replace('⚠ ','')}</span>
-                          <span style={{fontSize:11,color:C.t4}}>{c.cat.split(' ').slice(1).join(' ')}</span>
+                          <span style={{flex:1,lineHeight:1.35}}>{c.label}</span>
+                          <span style={{fontSize:11,color:C.t4}}>{c.cat}</span>
                           {active&&<span style={{color:tc,fontSize:13}}>✓</span>}
                         </div>
                       );
@@ -1253,11 +1317,11 @@ export default function QuoteMark() {
                 {mode==='face'?(
                   <>
                     <div style={{fontSize:11,color:C.t3,marginBottom:6,display:'flex',justifyContent:'space-between'}}><span>Coverage amount</span><span style={{color:C.t2,fontWeight:500,fontFamily:"'DM Mono',monospace"}}>{fmtF(faceAmt)}</span></div>
-                    <input type="range" min="2000" max="40000" step="1000" value={faceAmt}
+                    <input type="range" min="2000" max="100000" step="1000" value={faceAmt}
                       onChange={e=>setFaceAmt(+e.target.value)}
                       style={{width:'100%',accentColor:C.gold,marginBottom:4}}/>
                     <div style={{display:'flex',justifyContent:'space-between',fontSize:10,color:C.t4}}>
-                      <span>$2,000</span><span>$40,000</span>
+                      <span>$2,000</span><span>$100,000</span>
                     </div>
                   </>
                 ):(
@@ -1364,7 +1428,7 @@ export default function QuoteMark() {
               <div style={{background:C.goldBg,border:`1px solid ${C.goldBd}`,borderRadius:8,padding:'8px 10px',marginBottom:8}}>
                 <div style={{fontSize:11,color:C.gold,fontWeight:600,marginBottom:5}}>💊 "{search}" may indicate:</div>
                 <div style={{display:'flex',flexWrap:'wrap',gap:4}}>
-                  {medHints.map(c=>(<span key={c.id} onClick={()=>toggleCond(c.id)} style={{background:TIER_INFO[c.tier].pill,border:`1px solid ${TIER_INFO[c.tier].bd}`,color:TIER_INFO[c.tier].dot,borderRadius:5,padding:'3px 8px',cursor:'pointer',fontWeight:600,fontSize:11}}>+ {c.label.replace('⚠ ','')}</span>))}
+                  {medHints.map(c=>(<span key={c.id} onClick={()=>toggleCond(c.id)} style={{background:TIER_INFO[c.tier].pill,border:`1px solid ${TIER_INFO[c.tier].bd}`,color:TIER_INFO[c.tier].dot,borderRadius:5,padding:'3px 8px',cursor:'pointer',fontWeight:600,fontSize:11}}>+ {c.label}</span>))}
                 </div>
               </div>
             )}
