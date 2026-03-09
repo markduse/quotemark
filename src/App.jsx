@@ -535,6 +535,18 @@ export default function QuoteMark() {
   const [budget,setBudget]     = useState(60);
   const [gsbOn,setGsbOn]       = useState(false);
   const [gsbFace,setGsbFace]   = useState({gold:15000,silver:10000,bronze:5000});
+  const [gsbRaw,setGsbRaw]     = useState({gold:'15000',silver:'10000',bronze:'5000'});
+  const handleGsbChange = (key,val) => {
+    setGsbRaw(p=>({...p,[key]:val}));
+    const n = parseInt(val.replace(/[^0-9]/g,''));
+    if(!isNaN(n) && n>=1000) setGsbFace(p=>({...p,[key]:n}));
+  };
+  const handleGsbBlur = (key) => {
+    const n = parseInt(gsbRaw[key]);
+    const clamped = isNaN(n)||n<1000 ? 1000 : Math.min(n,40000);
+    setGsbFace(p=>({...p,[key]:clamped}));
+    setGsbRaw(p=>({...p,[key]:String(clamped)}));
+  };
   const [selected,setSelected] = useState(['none']);
   const [search,setSearch]     = useState('');
   const [hasQuoted,setHasQuoted]   = useState(false);
@@ -571,7 +583,22 @@ export default function QuoteMark() {
   const toggleCarrier = (id) => setCarriers(p=>p.map(c=>c.id===id?{...c,enabled:!c.enabled}:c));
 
   const q = search.toLowerCase();
-  const filteredConds = CONDITIONS.filter(c=>c.label.toLowerCase().includes(q)||c.cat.toLowerCase().includes(q)||(c.meds&&c.meds.toLowerCase().includes(q)));
+  const filteredConds = React.useMemo(()=>{
+    if(!q) return CONDITIONS;
+    const results = [];
+    const seen = new Set();
+    // 1. Label starts with query (highest priority)
+    CONDITIONS.forEach(c=>{ if(c.label.toLowerCase().replace('⚠ ','').startsWith(q)){results.push({...c,_score:0});seen.add(c.id);} });
+    // 2. Any word in label starts with query
+    CONDITIONS.forEach(c=>{ if(seen.has(c.id))return; if(c.label.toLowerCase().split(/\s+/).some(w=>w.startsWith(q))){results.push({...c,_score:1});seen.add(c.id);} });
+    // 3. Label contains query anywhere
+    CONDITIONS.forEach(c=>{ if(seen.has(c.id))return; if(c.label.toLowerCase().includes(q)){results.push({...c,_score:2});seen.add(c.id);} });
+    // 4. Meds field contains query
+    CONDITIONS.forEach(c=>{ if(seen.has(c.id))return; if(c.meds&&c.meds.toLowerCase().includes(q)){results.push({...c,_score:3});seen.add(c.id);} });
+    // 5. Category contains query
+    CONDITIONS.forEach(c=>{ if(seen.has(c.id))return; if(c.cat.toLowerCase().includes(q)){results.push({...c,_score:4});seen.add(c.id);} });
+    return results.sort((a,b)=>a._score-b._score);
+  },[q]);
   const cats = useMemo(()=>{const m={};filteredConds.forEach(c=>{if(!m[c.cat])m[c.cat]=[];m[c.cat].push(c);});return m;},[filteredConds]);
   const medHints = useMemo(()=>search.length<3?[]:filteredConds.filter(c=>c.meds&&c.meds.toLowerCase().includes(q)&&!c.label.toLowerCase().includes(q)),[search,filteredConds]);
 
@@ -641,7 +668,7 @@ export default function QuoteMark() {
               ⊞ Carriers
             </button>
             <button onClick={signOut} style={{padding:'8px 12px',borderRadius:8,border:`1px solid ${C.bd2}`,background:'transparent',color:C.t4,fontSize:11,cursor:'pointer',fontFamily:"'DM Sans',sans-serif"}}>
-              Out
+              Logout
             </button>
           </div>
         </div>
@@ -772,8 +799,10 @@ export default function QuoteMark() {
                         <span style={{fontSize:13,fontWeight:700,color:g.color,width:50,flexShrink:0}}>{g.label}</span>
                         <div style={{position:'relative',flex:1}}>
                           <span style={{position:'absolute',left:12,top:'50%',transform:'translateY(-50%)',color:C.t4,fontSize:13}}>$</span>
-                          <input type="number" min="1000" max="40000" step="1000" value={gsbFace[g.key]}
-                            onChange={e=>setGsbFace(p=>({...p,[g.key]:Math.max(1000,+e.target.value)}))}
+                          <input type="text" inputMode="numeric" value={gsbRaw[g.key]}
+                            onChange={e=>handleGsbChange(g.key,e.target.value)}
+                            onBlur={()=>handleGsbBlur(g.key)}
+                            onFocus={e=>e.target.select()}
                             style={{...mInp,paddingLeft:24,fontFamily:"'DM Mono',monospace"}}/>
                         </div>
                       </div>
@@ -799,25 +828,27 @@ export default function QuoteMark() {
                     </div>
                   </div>
                 )}
-                {/* Search results */}
-                {search.length>0 && filteredConds.length>0 && (
-                  <div style={{maxHeight:220,overflowY:'auto'}}>
-                    {filteredConds.map(c=>{
+                {/* Smart suggestions — max 5, no accordion */}
+                {search.length>=2 && (
+                  <div style={{marginBottom:8}}>
+                    {filteredConds.slice(0,5).map(c=>{
                       const active=selected.includes(c.id),tc=TIER_INFO[c.tier].dot;
                       return(
-                        <div key={c.id} onClick={()=>toggleCond(c.id)} style={{
-                          display:'flex',alignItems:'center',gap:8,padding:'10px 12px',borderRadius:9,
-                          cursor:'pointer',fontSize:14,marginBottom:4,
-                          background:active?TIER_INFO[c.tier].pill:'transparent',
-                          border:`1px solid ${active?TIER_INFO[c.tier].bd:C.bd}`,
-                          color:active?C.t0:C.t2
+                        <div key={c.id} onClick={()=>{toggleCond(c.id);setSearch('');}} style={{
+                          display:'flex',alignItems:'center',gap:10,padding:'11px 12px',borderRadius:9,
+                          cursor:'pointer',fontSize:14,marginBottom:5,
+                          background:active?TIER_INFO[c.tier].pill:C.bg3,
+                          border:`1px solid ${active?TIER_INFO[c.tier].bd:C.bd2}`,
+                          color:active?C.t0:C.t1
                         }}>
-                          <span style={{width:7,height:7,borderRadius:'50%',background:active?tc:'#334155',flexShrink:0}}/>
-                          <span style={{flex:1,lineHeight:1.35}}>{c.label}</span>
-                          {active&&<span style={{color:tc,fontSize:12}}>✓</span>}
+                          <span style={{width:8,height:8,borderRadius:'50%',background:active?tc:TIER_INFO[c.tier].dot,flexShrink:0}}/>
+                          <span style={{flex:1,lineHeight:1.35}}>{c.label.replace('⚠ ','')}</span>
+                          <span style={{fontSize:11,color:C.t4}}>{c.cat.split(' ').slice(1).join(' ')}</span>
+                          {active&&<span style={{color:tc,fontSize:13}}>✓</span>}
                         </div>
                       );
                     })}
+                    {filteredConds.length===0&&<div style={{fontSize:13,color:C.t4,padding:'8px 4px'}}>No matches — try a different term</div>}
                   </div>
                 )}
                 {/* Active condition chips */}
@@ -1052,6 +1083,46 @@ export default function QuoteMark() {
                     </div>
                   );
                 })}
+
+                {/* ── Request a Carrier (mobile) ── */}
+                <div style={{marginTop:20,paddingTop:16,borderTop:`1px solid ${C.bd}`}}>
+                  <div style={{fontSize:11,fontWeight:700,color:C.t4,letterSpacing:1.5,textTransform:'uppercase',marginBottom:4}}>Request a Carrier</div>
+                  <div style={{fontSize:12,color:C.t3,marginBottom:14,lineHeight:1.6}}>Don't see your carrier? Submit a request and we'll add them.</div>
+                  {reqSent?(
+                    <div style={{background:'rgba(34,197,94,0.1)',border:'1px solid rgba(34,197,94,0.3)',borderRadius:10,padding:'14px 16px',textAlign:'center'}}>
+                      <div style={{fontSize:22,marginBottom:6}}>✓</div>
+                      <div style={{fontSize:14,color:C.green,fontWeight:600}}>Request submitted</div>
+                      <div style={{fontSize:12,color:C.t3,marginTop:3}}>We'll review and add within 48 hrs</div>
+                      <button onClick={()=>{setReqSent(false);setReqForm({name:'',state:'',notes:''}); }} style={{marginTop:10,padding:'8px 16px',borderRadius:8,border:`1px solid ${C.bd}`,background:C.bg2,color:C.t3,fontSize:12,cursor:'pointer',fontFamily:"'DM Sans',sans-serif"}}>Submit another</button>
+                    </div>
+                  ):(
+                    <div style={{display:'flex',flexDirection:'column',gap:10}}>
+                      <div>
+                        <div style={{fontSize:12,color:C.t3,marginBottom:5}}>Carrier name *</div>
+                        <input placeholder="e.g. Mutual of Omaha" value={reqForm.name}
+                          onChange={e=>setReqForm(p=>({...p,name:e.target.value}))}
+                          style={{background:C.bg3,border:`1px solid ${C.bd}`,color:C.t1,borderRadius:9,padding:'11px 13px',fontSize:14,width:'100%',outline:'none',boxSizing:'border-box',fontFamily:"'DM Sans',sans-serif"}}/>
+                      </div>
+                      <div>
+                        <div style={{fontSize:12,color:C.t3,marginBottom:5}}>State(s) needed</div>
+                        <input placeholder="e.g. FL, TX, GA" value={reqForm.state}
+                          onChange={e=>setReqForm(p=>({...p,state:e.target.value}))}
+                          style={{background:C.bg3,border:`1px solid ${C.bd}`,color:C.t1,borderRadius:9,padding:'11px 13px',fontSize:14,width:'100%',outline:'none',boxSizing:'border-box',fontFamily:"'DM Sans',sans-serif"}}/>
+                      </div>
+                      <div>
+                        <div style={{fontSize:12,color:C.t3,marginBottom:5}}>Notes</div>
+                        <textarea placeholder="Product type, tier, special requirements…" value={reqForm.notes}
+                          onChange={e=>setReqForm(p=>({...p,notes:e.target.value}))}
+                          rows={3} style={{background:C.bg3,border:`1px solid ${C.bd}`,color:C.t1,borderRadius:9,padding:'11px 13px',fontSize:14,width:'100%',outline:'none',resize:'none',boxSizing:'border-box',fontFamily:"'DM Sans',sans-serif"}}/>
+                      </div>
+                      <button
+                        onClick={()=>{if(reqForm.name.trim())setReqSent(true);}}
+                        style={{padding:'13px 0',borderRadius:10,border:'none',background:reqForm.name.trim()?C.blue:'#1E3A5A',color:reqForm.name.trim()?C.t0:C.t4,fontSize:14,fontWeight:600,cursor:reqForm.name.trim()?'pointer':'not-allowed',fontFamily:"'DM Sans',sans-serif"}}>
+                        Submit Request
+                      </button>
+                    </div>
+                  )}
+                </div>
               </div>
             </div>
           </div>
@@ -1211,8 +1282,10 @@ export default function QuoteMark() {
                     <span style={{fontSize:12,fontWeight:600,color:g.color,width:44,flexShrink:0}}>{g.label}</span>
                     <div style={{position:'relative',flex:1}}>
                       <span style={{position:'absolute',left:10,top:'50%',transform:'translateY(-50%)',color:C.t4,fontSize:12}}>$</span>
-                      <input type="number" min="1000" max="40000" step="1000" value={gsbFace[g.key]}
-                        onChange={e=>setGsbFace(p=>({...p,[g.key]:Math.max(1000,+e.target.value)}))}
+                      <input type="text" inputMode="numeric" value={gsbRaw[g.key]}
+                        onChange={e=>handleGsbChange(g.key,e.target.value)}
+                        onBlur={()=>handleGsbBlur(g.key)}
+                        onFocus={e=>e.target.select()}
                         style={{...inp,paddingLeft:22,fontSize:13,fontFamily:"'DM Mono',monospace"}}/>
                     </div>
                   </div>
