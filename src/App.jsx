@@ -620,6 +620,7 @@ export default function QuoteMark() {
   const [carrierPanel,setCarrierPanel] = useState(false);
   const [carriers,setCarriers] = useState(CARRIERS.map(c=>({...c})));
   const [reqForm,setReqForm]   = useState({name:'',state:'',notes:''});
+  const mobileResultsRef = React.useRef(null);
   const [reqSent,setReqSent]   = useState(false);
 
   // ── MOBILE DETECTION ──
@@ -678,7 +679,11 @@ export default function QuoteMark() {
     const prem=carr.fn(a,male,smoker,uwTier,cappedFace);
     let reason;
     if(prem==null){if(uwTier==='D'&&a>75)reason='Modified not available after 75';else if(uwTier==='E'&&a>80)reason='GI not available after 80';else reason='Not available for this profile';}
-    return{...carr,face:prem!=null?cappedFace:null,prem,productName:pName,activeTier:uwTier,reason,capped:cappedFace<face};
+    const isCapped = cappedFace < face;
+    if(isCapped && prem!=null && !reason){
+      reason = `Product caps at ${fmtF(cappedFace)} — quoting at max coverage`;
+    }
+    return{...carr,face:prem!=null?cappedFace:null,prem,productName:pName,activeTier:uwTier,reason,capped:isCapped};
   }
 
   const activeCarriers = useMemo(()=>carriers.filter(c=>c.enabled),[carriers]);
@@ -942,7 +947,7 @@ export default function QuoteMark() {
               </div>
 
               {/* GET QUOTES button */}
-              <button onClick={()=>{if(ageOK){setHasQuoted(true);if(isMobile)setMobileTab('results');}}} style={{
+              <button onClick={()=>{if(ageOK){setHasQuoted(true);if(isMobile){setMobileTab('results');setTimeout(()=>window.scrollTo({top:0,behavior:'instant'}),0);}}}  } style={{
                 width:'100%',padding:'18px 0',borderRadius:12,border:'none',
                 cursor:ageOK?'pointer':'not-allowed',
                 background:ageOK?C.gold:'#1A3050',
@@ -960,7 +965,7 @@ export default function QuoteMark() {
 
           {/* ── RESULTS TAB ── */}
           {mobileTab === 'results' && (
-            <div>
+            <div ref={mobileResultsRef}>
               {!hasQuoted ? (
                 <div style={{display:'flex',flexDirection:'column',alignItems:'center',justifyContent:'center',paddingTop:80,gap:16,textAlign:'center'}}>
                   <div style={{fontSize:52,opacity:0.4}}>📋</div>
@@ -1060,7 +1065,7 @@ export default function QuoteMark() {
                               </div>
                               <div style={{display:'flex',gap:6,marginBottom:10,flexWrap:'wrap'}}>
                                 <span style={{fontSize:12,color:C.t2}}>{fmtF(r.face||0)}</span>
-                                {r.capped&&<span style={{fontSize:10,color:C.gold,background:C.goldBg,borderRadius:4,padding:'1px 6px'}}>Capped</span>}
+                                {r.capped&&<span style={{fontSize:10,color:C.gold,background:C.goldBg,borderRadius:4,padding:'2px 7px',fontWeight:600}}>Max: {fmtF(r.face)}</span>}
                                 <TierBadge tier={r.activeTier} productName={r.productName}/>
                               </div>
                               {CARRIER_META[r.id]?.eapp && (
@@ -1103,7 +1108,7 @@ export default function QuoteMark() {
             <span style={{fontSize:20}}>📋</span>
             Quote
           </button>
-          <button onClick={()=>setMobileTab('results')} style={{
+          <button onClick={()=>{setMobileTab('results');setTimeout(()=>window.scrollTo({top:0,behavior:'instant'}),0);}} style={{
             flex:1,padding:'14px 0 12px',border:'none',cursor:'pointer',
             background:'transparent',
             color:mobileTab==='results'?C.gold:C.t4,
@@ -1473,7 +1478,7 @@ export default function QuoteMark() {
             </div>
           </div>
 
-          <button onClick={()=>{if(ageOK){setHasQuoted(true);if(isMobile)setMobileTab('results');}}} style={{
+          <button onClick={()=>{if(ageOK){setHasQuoted(true);if(isMobile){setMobileTab('results');setTimeout(()=>window.scrollTo({top:0,behavior:'instant'}),0);}}}  } style={{
             width:'100%',padding:'13px 0',borderRadius:10,border:'none',
             cursor:ageOK?'pointer':'not-allowed',
             background:ageOK?C.gold:'#1A3050',
@@ -1633,7 +1638,7 @@ export default function QuoteMark() {
                               <div style={{flex:1}}>
                                 <div style={{fontSize:10,color:C.t3,marginBottom:2}}>Face amount</div>
                                 <div style={{fontFamily:"'DM Mono',monospace",fontSize:14,fontWeight:500,color:C.t1}}>
-                                  {fmtF(r.face)}{r.capped&&<span style={{fontSize:9,color:C.gold,marginLeft:4}}>cap</span>}
+                                  {fmtF(r.face)}{r.capped&&<span style={{fontSize:9,color:C.gold,marginLeft:5,background:C.goldBg,borderRadius:3,padding:'1px 5px',fontWeight:700}}>MAX</span>}
                                 </div>
                               </div>
                               <div style={{width:1,height:32,background:C.bd,margin:'0 14px'}}/>
@@ -1644,6 +1649,11 @@ export default function QuoteMark() {
                                 </div>
                               </div>
                             </div>
+                            {r.capped&&(
+                              <div style={{fontSize:11,color:C.gold,background:C.goldBg,border:`1px solid ${C.goldBd}`,borderRadius:7,padding:'6px 10px',marginTop:8,lineHeight:1.5}}>
+                                ⚠ This carrier caps at {fmtF(r.face)} — quoting at max coverage
+                              </div>
+                            )}
                             <div style={{flex:1}}/>
                             <EAppBtn carrierId={r.id}/>
                           </div>
