@@ -1000,7 +1000,7 @@ export default function QuoteMark() {
                         <button key={t} onClick={()=>toggleOvr(t)} style={{
                           padding:'10px 4px',borderRadius:9,
                           border:`1px solid ${active?ti.bd:C.bd}`,
-                          background:isOvr?ti.pill:isAuto?ti.pill+'66':'transparent',
+                          background:isOvr?ti.pill:'transparent',
                           color:active?ti.dot:C.t4,
                           cursor:'pointer',textAlign:'center',
                           display:'flex',flexDirection:'column',alignItems:'center',gap:4,
@@ -1461,7 +1461,7 @@ export default function QuoteMark() {
                     return(
                       <button key={t} onClick={()=>toggleOvr(t)} style={{
                         padding:'8px 10px',borderRadius:8,border:`1px solid ${isOvr||isAuto?ti.bd:C.bd}`,
-                        background:isOvr?ti.pill:isAuto?ti.pill+'80':'transparent',
+                        background:isOvr?ti.pill:'transparent',
                         color:isOvr?ti.dot:isAuto?ti.dot+'CC':C.t3,
                         cursor:'pointer',fontSize:12,fontWeight:600,textAlign:'left',
                         display:'flex',alignItems:'center',gap:7,fontFamily:"'DM Sans',sans-serif"
