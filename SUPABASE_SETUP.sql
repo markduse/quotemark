@@ -65,3 +65,7 @@ ALTER TABLE public.profiles
   ADD COLUMN IF NOT EXISTS display_name text DEFAULT NULL;
 
 -- carrier_prefs format: ["acc","ahl","ta","fid"]  (array of enabled carrier IDs)
+
+-- ── DARK MODE PREFERENCE ──────────────────────────────────────────────────────
+ALTER TABLE public.profiles
+  ADD COLUMN IF NOT EXISTS dark_mode boolean DEFAULT true;

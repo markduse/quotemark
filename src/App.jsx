@@ -492,13 +492,22 @@ const fmt$ = n => n!=null ? `$${n.toFixed(2)}` : '—';
 const fmtF = n => n!=null ? `$${n.toLocaleString()}` : '—';
 
 // ── DESIGN TOKENS ──
-const C = {
+const C_DARK = {
   bg0:'#05101E', bg1:'#080F1C', bg2:'#0C1828', bg3:'#101F32', bg4:'#142438',
   bd:'#1A3050', bd2:'#243D5C',
   t0:'#F8FAFC', t1:'#E2E8F0', t2:'#CBD5E1', t3:'#94A3B8', t4:'#64748B',
   blue:'#3B82F6', blueBg:'rgba(59,130,246,0.1)', blueBd:'rgba(59,130,246,0.25)',
   gold:'#F59E0B', goldBg:'rgba(245,158,11,0.1)', goldBd:'rgba(245,158,11,0.25)',
   green:'#22C55E',
+};
+
+const C_LIGHT = {
+  bg0:'#F0EAE0', bg1:'#FFFBF6', bg2:'#F5EFE6', bg3:'#EDE5D8', bg4:'#E4D9C9',
+  bd:'#D4C4AE', bd2:'#BCA990',
+  t0:'#1C1410', t1:'#2D1F16', t2:'#4A3728', t3:'#7A6355', t4:'#A08878',
+  blue:'#2563EB', blueBg:'rgba(37,99,235,0.08)', blueBd:'rgba(37,99,235,0.2)',
+  gold:'#C2760A', goldBg:'rgba(194,118,10,0.1)', goldBd:'rgba(194,118,10,0.25)',
+  green:'#16A34A',
 };
 
 
@@ -731,6 +740,8 @@ export default function QuoteMark() {
   const [pwMsg, setPwMsg] = useState(null);
   const [pwChanging, setPwChanging] = useState(false);
   const [carriersSaved, setCarriersSaved] = useState(false);
+  const [isDark, setIsDark] = useState(true);
+  const C = isDark ? C_DARK : C_LIGHT;
 
   // ── CONTACT MODAL STATE ──
   const [showContact, setShowContact] = useState(false);
@@ -740,6 +751,12 @@ export default function QuoteMark() {
   const [contactSent, setContactSent] = useState(false);
   const [contactErr, setContactErr] = useState(null);
 
+
+  const toggleDarkMode = async () => {
+    const next = !isDark;
+    setIsDark(next);
+    if(session) await supabase.from('profiles').update({dark_mode:next}).eq('id',session.user.id);
+  };
   const sendContact = async () => {
     if(!contactForm.name||!contactForm.email||!contactForm.message) return;
     setContactSending(true); setContactErr(null);
@@ -758,13 +775,14 @@ export default function QuoteMark() {
   // Load profile data + carrier prefs from Supabase on mount
   useEffect(()=>{
     if(!session) return;
-    supabase.from('profiles').select('display_name,carrier_prefs').eq('id',session.user.id).single()
+    supabase.from('profiles').select('display_name,carrier_prefs,dark_mode').eq('id',session.user.id).single()
       .then(({data})=>{
         if(!data) return;
         if(data.display_name) setProfileName(data.display_name);
         if(data.carrier_prefs && Array.isArray(data.carrier_prefs)){
           setCarriers(prev=>prev.map(c=>({...c,enabled:data.carrier_prefs.includes(c.id)})));
         }
+        if(data.dark_mode !== null && data.dark_mode !== undefined) setIsDark(data.dark_mode);
       });
   },[session]);
 
@@ -909,6 +927,9 @@ export default function QuoteMark() {
             Quote<span style={{color:C.gold}}>Mark</span>
           </div>
           <div style={{display:'flex',alignItems:'center',gap:6}}>
+            <button onClick={toggleDarkMode} title={isDark?'Switch to Light Mode':'Switch to Dark Mode'} style={{padding:'8px 10px',borderRadius:8,border:`1px solid ${C.bd2}`,background:C.bg3,color:C.t2,fontSize:16,cursor:'pointer',lineHeight:1,display:'flex',alignItems:'center'}}>
+              {isDark?'☀️':'🌙'}
+            </button>
             <button onClick={()=>setShowContact(true)} style={{padding:'8px 11px',borderRadius:8,border:`1px solid ${C.bd2}`,background:C.bg3,color:C.t2,fontSize:12,fontWeight:500,cursor:'pointer',fontFamily:"'DM Sans',sans-serif",display:'flex',alignItems:'center',gap:5}}>
               <span style={{fontSize:14}}>📬</span><span style={{fontSize:11}}>Contact</span>
             </button>
@@ -1571,11 +1592,15 @@ export default function QuoteMark() {
         </div>
         <div style={{display:'flex',alignItems:'center',gap:10}}>
 
-          <button onClick={()=>setCarrierPanel(true)} style={{display:'flex',alignItems:'center',gap:7,padding:'7px 14px',borderRadius:8,border:`1px solid ${C.bd2}`,background:C.bg3,color:C.t2,fontSize:12,fontWeight:500,cursor:'pointer',fontFamily:"'DM Sans',sans-serif"}}>
-            <span style={{fontSize:14}}>⊞</span> Carriers
-          </button>
+
           {/* Account menu */}
           <div style={{display:'flex',alignItems:'center',gap:8,paddingLeft:10,borderLeft:`1px solid ${C.bd}`}}>
+            <button onClick={toggleDarkMode} title={isDark?'Switch to Light Mode':'Switch to Dark Mode'} style={{padding:'5px 9px',borderRadius:7,border:`1px solid ${C.bd2}`,background:C.bg3,color:C.t2,fontSize:14,cursor:'pointer',lineHeight:1,display:'flex',alignItems:'center'}}>
+              {isDark?'☀️':'🌙'}
+            </button>
+            <button onClick={()=>setShowContact(true)} style={{padding:'6px 12px',borderRadius:7,border:`1px solid ${C.bd2}`,background:C.bg3,color:C.t2,fontSize:11,fontWeight:500,cursor:'pointer',fontFamily:"'DM Sans',sans-serif",display:'flex',alignItems:'center',gap:5}}>
+              <span style={{fontSize:13}}>📬</span> Contact
+            </button>
             <span style={{fontSize:12,color:C.t4,maxWidth:140,overflow:'hidden',textOverflow:'ellipsis',whiteSpace:'nowrap'}}>{session?.user?.email}</span>
             <button onClick={()=>setShowProfileModal(true)} style={{padding:'6px 12px',borderRadius:7,border:`1px solid ${C.bd2}`,background:'transparent',color:C.t3,fontSize:11,fontWeight:500,cursor:'pointer',fontFamily:"'DM Sans',sans-serif",whiteSpace:'nowrap',display:'flex',alignItems:'center',gap:5}}>
               <span style={{fontSize:13}}>👤</span> Profile
