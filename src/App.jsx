@@ -493,22 +493,22 @@ const fmtF = n => n!=null ? `$${n.toLocaleString()}` : '—';
 
 // ── DESIGN TOKENS ──
 const C_DARK = {
-  bg0:'#05101E', bg1:'#080F1C', bg2:'#0C1828', bg3:'#101F32', bg4:'#142438',
-  bd:'#1A3050', bd2:'#243D5C',
+  bg0:'#020617', bg1:'#0B1120', bg2:'#0F172A', bg3:'#1E293B', bg4:'#263347',
+  bd:'#1E293B', bd2:'#334155',
   t0:'#F8FAFC', t1:'#E2E8F0', t2:'#CBD5E1', t3:'#94A3B8', t4:'#64748B',
-  blue:'#3B82F6', blueBg:'rgba(59,130,246,0.1)', blueBd:'rgba(59,130,246,0.25)',
+  blue:'#38BDF8', blueBg:'rgba(56,189,248,0.1)', blueBd:'rgba(56,189,248,0.25)',
   gold:'#F59E0B', goldBg:'rgba(245,158,11,0.1)', goldBd:'rgba(245,158,11,0.25)',
   green:'#22C55E',
+  selActive:'#38BDF8', selActiveTxt:'#0B1120',
 };
 
 const C_LIGHT = {
-  bg0:'#F0F4F8', bg1:'#F8FAFC', bg2:'#FFFFFF', bg3:'#F1F5F9', bg4:'#E2E8F0',
+  bg0:'#F8FAFC', bg1:'#F8FAFC', bg2:'#FFFFFF', bg3:'#F1F5F9', bg4:'#E2E8F0',
   bd:'#E2E8F0', bd2:'#CBD5E1',
   t0:'#0F172A', t1:'#1E293B', t2:'#334155', t3:'#64748B', t4:'#94A3B8',
   blue:'#2563EB', blueBg:'rgba(37,99,235,0.07)', blueBd:'rgba(37,99,235,0.2)',
-  gold:'#D97706', goldBg:'rgba(217,119,6,0.08)', goldBd:'rgba(217,119,6,0.25)',
+  gold:'#F59E0B', goldBg:'rgba(245,158,11,0.08)', goldBd:'rgba(245,158,11,0.25)',
   green:'#16A34A',
-  // Light-mode specific overrides used in card logic
   cardBg:'#FFFFFF', cardShadow:'0 4px 6px -1px rgba(0,0,0,0.07),0 2px 4px -2px rgba(0,0,0,0.05)',
   selActive:'#0F172A', selActiveTxt:'#FFFFFF', selInactive:'#F1F5F9', selInactiveTxt:'#64748B',
 };
@@ -604,23 +604,25 @@ const CompBadge = ({carrierId, tier}) => {
 };
 
 // Carrier logo — monochrome/grayscale filter so logos don't clash with dark UI
-const CarrierLogo = ({carrierId, name}) => {
+const CarrierLogo = ({carrierId, name, small=false}) => {
   const meta = CARRIER_META[carrierId];
   const [err,setErr] = React.useState(false);
-  if(!meta || err) {
+  const w = small ? 48 : 72;
+  const h = small ? 20 : 28;
+  if(!meta?.img || err) {
     return (
-      <div style={{width:72,height:28,borderRadius:6,background:'#0C1828',border:'1px solid #1A3050',display:'flex',alignItems:'center',justifyContent:'center',fontSize:9,fontWeight:700,color:'#475569',letterSpacing:0.8,flexShrink:0}}>
+      <div style={{width:w,height:h,borderRadius:5,background:'rgba(100,116,139,0.1)',border:'1px solid rgba(100,116,139,0.2)',display:'flex',alignItems:'center',justifyContent:'center',fontSize:small?7:9,fontWeight:700,color:'#475569',letterSpacing:0.5,flexShrink:0}}>
         {name?name.slice(0,3).toUpperCase():'???'}
       </div>
     );
   }
   return (
-    <div style={{width:90,height:34,borderRadius:6,background:'transparent',display:'flex',alignItems:'center',justifyContent:'center',overflow:'hidden',flexShrink:0}}>
+    <div style={{width:w,height:h,borderRadius:5,background:'rgba(255,255,255,0.06)',display:'flex',alignItems:'center',justifyContent:'center',overflow:'hidden',flexShrink:0,padding:'2px 4px',boxSizing:'border-box'}}>
       <img
         src={meta.img}
         alt={name}
         onError={()=>setErr(true)}
-        style={{width:'100%',height:'100%',objectFit:'contain',opacity:0.92}}
+        style={{width:'100%',height:'100%',objectFit:'contain',opacity:0.85,filter:'brightness(0) invert(1) opacity(0.7)'}}
       />
     </div>
   );
@@ -648,14 +650,14 @@ const EAppBtn = ({carrierId, compact=false, lightMode=false}) => {
     };
     const dStyle = {
       display:'inline-flex',alignItems:'center',gap:5,
-      padding:'5px 12px',borderRadius:6,
-      border:`1px solid ${hov?brand+'88':brand+'44'}`,
-      background:hov?brand+'22':brand+'0F',
-      color:hov?'#F1F5F9':brand+'CC',
-      fontSize:11,fontWeight:600,textDecoration:'none',
-      letterSpacing:0.3,transition:'all 0.18s',
+      padding:'5px 14px',borderRadius:6,
+      border:'none',
+      background:hov?'#0EA5E9':'#38BDF8',
+      color:'#0B1120',
+      fontSize:11,fontWeight:700,textDecoration:'none',
+      letterSpacing:0.3,transition:'all 0.15s',
       transform:hov?'translateY(-1px)':'translateY(0)',
-      boxShadow:hov?`0 3px 8px ${brand}33`:'none',
+      boxShadow:hov?'0 4px 12px rgba(56,189,248,0.4)':'0 1px 4px rgba(56,189,248,0.2)',
       whiteSpace:'nowrap',flexShrink:0
     };
     return (
@@ -685,16 +687,16 @@ const EAppBtn = ({carrierId, compact=false, lightMode=false}) => {
         onMouseEnter={()=>setHov(true)} onMouseLeave={()=>setHov(false)}
         style={lightMode ? lFullStyle : {
           display:'flex',alignItems:'center',justifyContent:'center',gap:7,
-          width:'100%',padding:'9px 0',
+          width:'100%',padding:'10px 0',
           borderRadius:8,
-          border:`1px solid ${hov?brand+'88':brand+'44'}`,
-          background:hov?brand+'22':brand+'0F',
-          color:hov?'#F1F5F9':brand+'DD',
-          fontSize:12,fontWeight:600,textDecoration:'none',
-          letterSpacing:0.4,
-          transition:'all 0.18s',
+          border:'none',
+          background:hov?'#0EA5E9':'#38BDF8',
+          color:'#0B1120',
+          fontSize:12,fontWeight:700,textDecoration:'none',
+          letterSpacing:0.3,
+          transition:'all 0.15s',
           transform:hov?'translateY(-1px)':'translateY(0)',
-          boxShadow:hov?`0 4px 12px ${brand}33`:'none',
+          boxShadow:hov?'0 6px 16px rgba(56,189,248,0.4)':'0 2px 6px rgba(56,189,248,0.2)',
         }}>
         📋 e-App
       </a>
@@ -754,6 +756,7 @@ export default function QuoteMark() {
   const [carriers,setCarriers] = useState(CARRIERS.map(c=>({...c})));
   const [reqForm,setReqForm]   = useState({name:'',state:'',notes:''});
   const mobileResultsRef = React.useRef(null);
+  const [hovCard, setHovCard] = useState(null);
   const dobDdRef  = React.useRef(null);
   const dobYyyyRef = React.useRef(null);
   const dobDdRefD  = React.useRef(null);
@@ -937,7 +940,7 @@ export default function QuoteMark() {
 
   // ── INPUT STYLES ──
   const inp = {background:C.bg2,border:`1px solid ${C.bd}`,color:C.t1,borderRadius:8,padding:'9px 12px',fontSize:13,width:'100%',outline:'none',fontFamily:"'DM Sans',sans-serif"};
-  const togBtn = (active) => isDark ? {flex:1,padding:'7px 0',borderRadius:7,border:`1px solid ${active?C.blue+'66':C.bd}`,cursor:'pointer',fontSize:12,fontWeight:500,background:active?C.blueBg:C.bg2,color:active?'#93C5FD':C.t3,transition:'all 0.12s',fontFamily:"'DM Sans',sans-serif"} : {flex:1,padding:'7px 0',borderRadius:7,border:`1px solid ${active?'#0F172A':C.bd2}`,cursor:'pointer',fontSize:12,fontWeight:600,background:active?'#0F172A':C.selInactive,color:active?'#FFFFFF':C.selInactiveTxt,transition:'all 0.12s',fontFamily:"'DM Sans',sans-serif"};
+  const togBtn = (active) => isDark ? {flex:1,padding:'7px 0',borderRadius:7,border:`1px solid ${active?'#38BDF8':'#1E293B'}`,cursor:'pointer',fontSize:12,fontWeight:600,background:active?'#38BDF8':'#0F172A',color:active?'#0B1120':'#64748B',transition:'all 0.12s',fontFamily:"'DM Sans',sans-serif"} : {flex:1,padding:'7px 0',borderRadius:7,border:`1px solid ${active?'#0F172A':C.bd2}`,cursor:'pointer',fontSize:12,fontWeight:600,background:active?'#0F172A':C.selInactive,color:active?'#FFFFFF':C.selInactiveTxt,transition:'all 0.12s',fontFamily:"'DM Sans',sans-serif"};
   const sec = {background:C.bg3,border:`1px solid ${C.bd}`,borderRadius:12,padding:16};
   const lbl = {fontSize:10,fontWeight:700,letterSpacing:1.8,color:C.t4,textTransform:'uppercase',marginBottom:10};
 
@@ -946,10 +949,10 @@ export default function QuoteMark() {
   // ─────────────────────────────────────────────────
   if (isMobile) {
     const mInp = {background:C.bg2,border:`1px solid ${C.bd}`,color:C.t1,borderRadius:10,padding:'12px 14px',fontSize:15,width:'100%',boxSizing:'border-box',outline:'none',fontFamily:"'DM Sans',sans-serif",WebkitAppearance:'none'};
-    const mTogBtn = (active,color) => isDark ? {flex:1,padding:'11px 0',borderRadius:10,border:`1px solid ${active?(color||C.blue)+'66':C.bd}`,cursor:'pointer',fontSize:14,fontWeight:600,background:active?(color?color+'22':C.blueBg):C.bg2,color:active?(color||'#93C5FD'):C.t3,transition:'all 0.12s',fontFamily:"'DM Sans',sans-serif"} : {flex:1,padding:'11px 0',borderRadius:10,border:`1px solid ${active?'#0F172A':C.bd2}`,cursor:'pointer',fontSize:14,fontWeight:600,background:active?'#0F172A':'#F1F5F9',color:active?'#FFFFFF':'#64748B',transition:'all 0.12s',fontFamily:"'DM Sans',sans-serif"};
+    const mTogBtn = (active,color) => isDark ? {flex:1,padding:'11px 0',borderRadius:10,border:`1px solid ${active?'#38BDF8':'#1E293B'}`,cursor:'pointer',fontSize:14,fontWeight:600,background:active?'#38BDF8':'#0F172A',color:active?'#0B1120':'#64748B',transition:'all 0.12s',fontFamily:"'DM Sans',sans-serif"} : {flex:1,padding:'11px 0',borderRadius:10,border:`1px solid ${active?'#0F172A':C.bd2}`,cursor:'pointer',fontSize:14,fontWeight:600,background:active?'#0F172A':'#F1F5F9',color:active?'#FFFFFF':'#64748B',transition:'all 0.12s',fontFamily:"'DM Sans',sans-serif"};
 
     return (
-      <div style={{fontFamily:"'DM Sans',sans-serif",background:C.bg0,minHeight:'100vh',color:C.t1,position:'relative',paddingBottom:100}}>
+      <div style={{fontFamily:"'DM Sans',sans-serif",background:C.bg0,minHeight:'100vh',color:C.t1,position:'relative',paddingBottom:100,backgroundImage:isDark?'radial-gradient(circle,#1E293B 1px,transparent 1px)':'radial-gradient(circle,#CBD5E1 1px,transparent 1px)',backgroundSize:'24px 24px'}}>
 
         {/* ── MOBILE HEADER ── */}
         <div style={{background:C.bg1,borderBottom:`1px solid ${C.bd}`,padding:'12px 18px',display:'flex',alignItems:'center',justifyContent:'space-between',position:'sticky',top:0,zIndex:50}}>
@@ -1150,15 +1153,22 @@ export default function QuoteMark() {
                 {/* Active condition chips */}
                 {selected.filter(c=>c!=='none').length>0&&(
                   <div style={{marginTop:10}}>
-                    <div style={{fontSize:11,color:C.t4,marginBottom:6}}>Active conditions</div>
+                    <div style={{fontSize:10,color:C.t4,marginBottom:6,fontWeight:600,letterSpacing:0.5}}>ACTIVE CONDITIONS</div>
                     <div style={{display:'flex',flexWrap:'wrap',gap:5}}>
                       {selected.filter(c=>c!=='none').map(id=>{
                         const cond=CONDITIONS.find(c=>c.id===id);
                         return(
-                          <span key={id} onClick={()=>toggleCond(id)} style={{background:C.bg1,border:`1px solid ${C.bd}`,borderRadius:6,padding:'4px 10px',fontSize:12,color:C.t2,cursor:'pointer',display:'flex',alignItems:'center',gap:4}}>
-                            <span style={{color:TIER_INFO[cond?.tier||'B'].dot,fontSize:8}}>●</span>
+                          <span key={id} onClick={()=>toggleCond(id)} style={{
+                            background:TIER_INFO[cond?.tier||'B'].pill,
+                            border:`1px solid ${TIER_INFO[cond?.tier||'B'].bd}`,
+                            borderRadius:20,padding:'4px 12px 4px 10px',fontSize:12,
+                            color:TIER_INFO[cond?.tier||'B'].dot,
+                            cursor:'pointer',display:'inline-flex',alignItems:'center',gap:5,
+                            fontWeight:600
+                          }}>
+                            <span style={{width:5,height:5,borderRadius:'50%',background:TIER_INFO[cond?.tier||'B'].dot,flexShrink:0}}/>
                             {cond?.label.replace('⚠ ','')}
-                            <span style={{color:C.t4,marginLeft:2}}>×</span>
+                            <span style={{opacity:0.7,fontWeight:400,fontSize:14,lineHeight:1}}>×</span>
                           </span>
                         );
                       })}
@@ -1295,31 +1305,42 @@ export default function QuoteMark() {
                             {r.anyPrem && CARRIER_META[r.id]?.eapp && (
                               <a href={CARRIER_META[r.id].eapp} target="_blank" rel="noopener noreferrer" style={{
                                 display:'block',marginTop:10,padding:'11px 0',borderRadius:9,textAlign:'center',
-                                background:gsbBrand+'22',border:`1px solid ${gsbBrand}55`,
-                                color:gsbBrand,fontSize:13,fontWeight:600,textDecoration:'none'
-                              }}>Apply Online →</a>
+                                background:isDark?'#38BDF8':'#2563EB',border:'none',
+                                color:isDark?'#0B1120':'#FFFFFF',fontSize:13,fontWeight:700,textDecoration:'none',
+                                boxShadow:isDark?'0 2px 8px rgba(56,189,248,0.3)':'0 2px 6px rgba(37,99,235,0.2)'
+                              }}>Open e-App →</a>
                             )}
                           </div>
                         );
                       }
                       return(
-                        <div key={r.id} style={{
-                          background: isDark ? (isGhost?C.bg2:C.bg3) : (isGhost?C.bg3:'#FFFFFF'),
-                          border:`1px solid ${isGhost?C.bd:(isBest?C.gold+'55':C.bd2)}`,
+                        <div key={r.id}
+                          onMouseEnter={()=>setHovCard(r.id)}
+                          onMouseLeave={()=>setHovCard(null)}
+                          style={{
+                          background: isDark ? (isGhost?C.bg2:'#1E293B') : (isGhost?C.bg3:'#FFFFFF'),
+                          border:`1px solid ${isGhost?C.bd:(isBest?C.gold:isDark?C.bd2:C.bd2)}`,
                           borderTop:`3px solid ${isGhost?C.bd:(isBest?C.gold:brandColor)}`,
                           borderRadius:12,padding:'14px 14px 12px',
                           opacity:isGhost?0.4:1,
                           position:'relative',
-                          boxShadow: isDark?'none': isGhost?'none':'0 4px 6px -1px rgba(0,0,0,0.07)',
+                          transition:'transform 0.18s,box-shadow 0.18s',
+                          transform: !isGhost&&hovCard===r.id?'translateY(-4px)':'translateY(0)',
+                          boxShadow: isGhost?'none': isDark
+                            ? (hovCard===r.id?`0 0 0 1px ${isBest?C.gold:brandColor}66,0 8px 24px rgba(0,0,0,0.4)`:`0 0 0 1px ${C.bd2}`)
+                            : (hovCard===r.id?'0 12px 24px -4px rgba(0,0,0,0.15)':'0 4px 6px -1px rgba(0,0,0,0.07)'),
                           filter: isGhost && !isDark ? 'grayscale(1)' : 'none',
                         }}>
-                          {isBest&&<div style={{position:'absolute',top:-1,left:'50%',transform:'translateX(-50%)',background:C.gold,color:C.bg0,fontSize:9,fontWeight:800,padding:'2px 10px',borderRadius:'0 0 7px 7px',letterSpacing:1}}>BEST VALUE</div>}
+                          {isBest&&<div style={{position:'absolute',top:-1,left:'50%',transform:'translateX(-50%)',background:C.gold,color:'#fff',fontSize:9,fontWeight:800,padding:'2px 10px',borderRadius:'0 0 7px 7px',letterSpacing:1}}>BEST VALUE</div>}
                           <div style={{display:'flex',justifyContent:'space-between',alignItems:'flex-start',marginBottom:isGhost?0:12,marginTop:isBest?10:0}}>
-                            <div>
+                            <div style={{flex:1,minWidth:0}}>
                               <div style={{fontSize:18,fontWeight:700,color:C.t0}}>{r.name}</div>
                               <div style={{fontSize:11,color:C.t3,marginTop:2}}>{r.sub}</div>
                             </div>
-                            {!isGhost&&<CompBadge carrierId={r.id} tier={r.activeTier}/>}
+                            <div style={{display:'flex',flexDirection:'column',alignItems:'flex-end',gap:6,flexShrink:0,marginLeft:10}}>
+                              <CarrierLogo carrierId={r.id} name={r.name} small={true}/>
+                              {!isGhost&&<CompBadge carrierId={r.id} tier={r.activeTier}/>}
+                            </div>
                           </div>
                           {!isGhost ? (
                             <>
@@ -1336,9 +1357,10 @@ export default function QuoteMark() {
                                 isDark ? (
                                   <a href={CARRIER_META[r.id].eapp} target="_blank" rel="noopener noreferrer" style={{
                                     display:'block',padding:'12px 0',borderRadius:9,textAlign:'center',
-                                    background:brandColor+'22',border:`1px solid ${brandColor}55`,
-                                    color:isBest?C.gold:brandColor,fontSize:14,fontWeight:600,textDecoration:'none'
-                                  }}>Apply Online →</a>
+                                    background:'#38BDF8',border:'none',
+                                    color:'#0B1120',fontSize:14,fontWeight:700,textDecoration:'none',
+                                    boxShadow:'0 2px 8px rgba(56,189,248,0.3)'
+                                  }}>Open e-App →</a>
                                 ) : (
                                   <a href={CARRIER_META[r.id].eapp} target="_blank" rel="noopener noreferrer" style={{
                                     display:'block',padding:'12px 0',borderRadius:9,textAlign:'center',
@@ -1625,7 +1647,7 @@ export default function QuoteMark() {
   // ─────────────────────────────────────────────────
 
   return (
-    <div style={{fontFamily:"'DM Sans',sans-serif",background:C.bg0,minHeight:'100vh',color:C.t1,position:'relative'}}>
+    <div style={{fontFamily:"'DM Sans',sans-serif",background:C.bg0,minHeight:'100vh',color:C.t1,position:'relative',backgroundImage:isDark?'radial-gradient(circle,#1E293B 1px,transparent 1px)':'radial-gradient(circle,#CBD5E1 1px,transparent 1px)',backgroundSize:'24px 24px'}}>
       {/* ── HEADER ── */}
       <div style={{background:C.bg1,borderBottom:`1px solid ${C.bd}`,padding:'11px 24px',display:'flex',alignItems:'center',justifyContent:'space-between',position:'sticky',top:0,zIndex:50}}>
         <div style={{fontFamily:"'Barlow Condensed',sans-serif",fontSize:26,fontWeight:800,color:C.t0,letterSpacing:'-0.5px'}}>
@@ -1850,7 +1872,7 @@ export default function QuoteMark() {
             <div style={lbl}>Health Conditions</div>
             <div style={{position:'relative',marginBottom:8}}>
               <span style={{position:'absolute',left:10,top:'50%',transform:'translateY(-50%)',fontSize:12,color:C.t4}}>🔍</span>
-              <input placeholder="Condition or medication (e.g. lasix, metformin)…"
+              <input placeholder="Search condition or medication…"
                 value={search} onChange={e=>setSearch(e.target.value)}
                 style={{...inp,paddingLeft:30,fontSize:12}}/>
             </div>
@@ -1858,49 +1880,56 @@ export default function QuoteMark() {
               <div style={{background:C.goldBg,border:`1px solid ${C.goldBd}`,borderRadius:8,padding:'8px 10px',marginBottom:8}}>
                 <div style={{fontSize:11,color:C.gold,fontWeight:600,marginBottom:5}}>💊 "{search}" may indicate:</div>
                 <div style={{display:'flex',flexWrap:'wrap',gap:4}}>
-                  {medHints.map(c=>(<span key={c.id} onClick={()=>toggleCond(c.id)} style={{background:TIER_INFO[c.tier].pill,border:`1px solid ${TIER_INFO[c.tier].bd}`,color:TIER_INFO[c.tier].dot,borderRadius:5,padding:'3px 8px',cursor:'pointer',fontWeight:600,fontSize:11}}>+ {c.label}</span>))}
+                  {medHints.map(c=>(<span key={c.id} onClick={()=>{toggleCond(c.id);setSearch('');}} style={{background:TIER_INFO[c.tier].pill,border:`1px solid ${TIER_INFO[c.tier].bd}`,color:TIER_INFO[c.tier].dot,borderRadius:5,padding:'3px 8px',cursor:'pointer',fontWeight:600,fontSize:11}}>+ {c.label}</span>))}
                 </div>
               </div>
             )}
-            <div style={{maxHeight:250,overflowY:'auto',paddingRight:2}}>
-              {Object.entries(cats).map(([cat,conds])=>(
-                <div key={cat} style={{marginBottom:3}}>
-                  {(()=>{
-                    const catHasActive=conds.some(c=>selected.includes(c.id));
-                    // Split emoji prefix from text
-                    const emojiMatch=cat.match(/^(\S+\s)/);
-                    const icon=emojiMatch?emojiMatch[1]:'';
-                    const label=emojiMatch?cat.slice(icon.length):cat;
+            {search.length>=2&&(
+              <div style={{marginBottom:8}}>
+                {filteredConds.slice(0,6).map(c=>{
+                  const active=selected.includes(c.id),tc=TIER_INFO[c.tier].dot;
+                  return(
+                    <div key={c.id} onClick={()=>{toggleCond(c.id);setSearch('');}} style={{
+                      display:'flex',alignItems:'center',gap:8,padding:'8px 10px',borderRadius:8,
+                      cursor:'pointer',fontSize:12.5,marginBottom:4,
+                      background:active?TIER_INFO[c.tier].pill:C.bg3,
+                      border:`1px solid ${active?TIER_INFO[c.tier].bd:C.bd2}`,
+                      color:active?C.t0:C.t1,transition:'all 0.1s'
+                    }}>
+                      <span style={{width:7,height:7,borderRadius:'50%',background:active?tc:TIER_INFO[c.tier].dot,flexShrink:0}}/>
+                      <span style={{flex:1,lineHeight:1.35}}>{c.label}</span>
+                      <span style={{fontSize:10,color:C.t4}}>{c.cat}</span>
+                      {active&&<span style={{color:tc,fontSize:11}}>✓</span>}
+                    </div>
+                  );
+                })}
+                {filteredConds.length===0&&<div style={{fontSize:12,color:C.t4,padding:'6px 4px'}}>No matches — try a different term</div>}
+              </div>
+            )}
+            {selected.filter(c=>c!=='none').length>0&&(
+              <div style={{marginTop:6}}>
+                <div style={{fontSize:10,color:C.t4,marginBottom:5,fontWeight:600,letterSpacing:0.5}}>ACTIVE CONDITIONS</div>
+                <div style={{display:'flex',flexWrap:'wrap',gap:4}}>
+                  {selected.filter(c=>c!=='none').map(id=>{
+                    const cond=CONDITIONS.find(c=>c.id===id);
                     return(
-                      <div onClick={()=>setOpenCat(openCat===cat?null:cat)} style={{fontSize:10,fontWeight:700,textTransform:'uppercase',letterSpacing:0.9,padding:'5px 3px',cursor:'pointer',display:'flex',justifyContent:'space-between',userSelect:'none',alignItems:'center'}}>
-                        <span>
-                          <span style={{filter:catHasActive?'none':'grayscale(1) opacity(0.45)',transition:'filter 0.2s'}}>{icon}</span>
-                          <span style={{color:catHasActive?C.t1:C.t3}}>{label}</span>
-                          {catHasActive&&<span style={{marginLeft:5,display:'inline-block',width:5,height:5,borderRadius:'50%',background:'#EF4444',verticalAlign:'middle'}}/>}
-                        </span>
-                        <span style={{color:C.t4,fontSize:8}}>{openCat===cat?'▲':'▼'}</span>
-                      </div>
-                    );
-                  })()}
-                  {(openCat===cat||search.length>0)&&conds.map(c=>{
-                    const active=selected.includes(c.id),tc=TIER_INFO[c.tier].dot;
-                    return(
-                      <div key={c.id} onClick={()=>toggleCond(c.id)} style={{
-                        display:'flex',alignItems:'center',gap:7,padding:'7px 9px',borderRadius:7,
-                        cursor:'pointer',fontSize:12.5,marginBottom:2,
-                        background:active?TIER_INFO[c.tier].pill:'transparent',
-                        border:`1px solid ${active?TIER_INFO[c.tier].bd:C.bd}`,
-                        color:active?C.t0:C.t2,transition:'all 0.1s'
+                      <span key={id} onClick={()=>toggleCond(id)} style={{
+                        background:TIER_INFO[cond?.tier||'B'].pill,
+                        border:`1px solid ${TIER_INFO[cond?.tier||'B'].bd}`,
+                        borderRadius:20,padding:'3px 10px 3px 8px',fontSize:11,
+                        color:TIER_INFO[cond?.tier||'B'].dot,
+                        cursor:'pointer',display:'inline-flex',alignItems:'center',gap:5,
+                        fontWeight:600,transition:'all 0.1s'
                       }}>
-                        <span style={{width:6,height:6,borderRadius:'50%',background:active?tc:'#334155',flexShrink:0}}/>
-                        <span style={{flex:1,lineHeight:1.35}}>{c.label}</span>
-                        {active&&<span style={{color:tc,fontSize:10}}>✓</span>}
-                      </div>
+                        <span style={{width:5,height:5,borderRadius:'50%',background:TIER_INFO[cond?.tier||'B'].dot}}/>
+                        {cond?.label.replace('⚠ ','')}
+                        <span style={{opacity:0.7,fontWeight:400,fontSize:13,lineHeight:1}}>×</span>
+                      </span>
                     );
                   })}
                 </div>
-              ))}
-            </div>
+              </div>
+            )}
           </div>
 
           <button onClick={()=>{if(ageOK){setHasQuoted(true);if(isMobile){setMobileTab('results');setTimeout(()=>window.scrollTo({top:0,behavior:'instant'}),0);}}}  } style={{
@@ -2015,19 +2044,25 @@ export default function QuoteMark() {
                     const brandColor = (!isGhost&&!isBest) ? (CARRIER_META[r.id]?.brand||C.bd2) : null;
                     const premColor  = isBest ? C.gold : (CARRIER_META[r.id]?.brand || C.t0);
                     return(
-                      <div key={r.id} style={{
+                      <div key={r.id}
+                        onMouseEnter={()=>setHovCard(r.id)}
+                        onMouseLeave={()=>setHovCard(null)}
+                        style={{
                         background: isDark
-                          ? (isGhost?C.bg2:isBest?'rgba(245,158,11,0.04)':C.bg3)
+                          ? (isGhost?'rgba(15,23,42,0.5)':'#1E293B')
                           : (isGhost?C.bg3:'#FFFFFF'),
                         border:`1px solid ${isBest?C.gold:isGhost?C.bd:C.bd2}`,
                         borderTop: isBest?`3px solid ${C.gold}`:isGhost?`1px solid ${C.bd}`:`3px solid ${brandColor||C.bd2}`,
                         borderRadius:12,padding:18,
                         opacity:isGhost?0.4:1,
                         position:'relative',
-                        transition:'all 0.15s',
+                        transition:'transform 0.18s,box-shadow 0.18s',
                         overflow:'visible',
                         display:'flex',flexDirection:'column',
-                        boxShadow: isDark?'none': isGhost?'none':'0 4px 6px -1px rgba(0,0,0,0.07),0 2px 4px -2px rgba(0,0,0,0.05)',
+                        transform: !isGhost&&hovCard===r.id?'translateY(-4px)':'translateY(0)',
+                        boxShadow: isGhost?'none': isDark
+                          ? (hovCard===r.id?`0 0 0 1px ${isBest?C.gold:brandColor||C.bd2}66,0 12px 32px rgba(0,0,0,0.5)`:`0 0 0 1px ${C.bd}`)
+                          : (hovCard===r.id?'0 16px 32px -4px rgba(0,0,0,0.18)':'0 4px 6px -1px rgba(0,0,0,0.07),0 2px 4px -2px rgba(0,0,0,0.05)'),
                         filter: isGhost && !isDark ? 'grayscale(1)' : 'none'
                       }}>
                         {isBest&&(
@@ -2040,11 +2075,10 @@ export default function QuoteMark() {
                             <div style={{fontSize:18,fontWeight:700,color:C.t0,letterSpacing:'-0.3px',lineHeight:1.2}}>{r.name}</div>
                             <div style={{fontSize:11,color:C.t3,marginTop:3}}>{r.sub}</div>
                           </div>
-                          {!isGhost&&(
-                            <div style={{marginLeft:10,flexShrink:0}}>
-                              <CompBadge carrierId={r.id} tier={r.activeTier}/>
-                            </div>
-                          )}
+                          <div style={{display:'flex',flexDirection:'column',alignItems:'flex-end',gap:6,flexShrink:0,marginLeft:10}}>
+                            <CarrierLogo carrierId={r.id} name={r.name} small={true}/>
+                            {!isGhost&&<CompBadge carrierId={r.id} tier={r.activeTier}/>}
+                          </div>
                         </div>
                         {isGhost?(
                           <div style={{fontSize:12,color:C.t4,fontStyle:'italic'}}>{r.reason}</div>
