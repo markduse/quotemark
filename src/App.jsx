@@ -715,6 +715,10 @@ export default function QuoteMark() {
   const [carriers,setCarriers] = useState(CARRIERS.map(c=>({...c})));
   const [reqForm,setReqForm]   = useState({name:'',state:'',notes:''});
   const mobileResultsRef = React.useRef(null);
+  const dobDdRef  = React.useRef(null);
+  const dobYyyyRef = React.useRef(null);
+  const dobDdRefD  = React.useRef(null);
+  const dobYyyyRefD = React.useRef(null);
   const [reqSent,setReqSent]   = useState(false);
 
   // ── PROFILE STATE ──
@@ -905,14 +909,14 @@ export default function QuoteMark() {
                   <div style={{fontSize:12,color:C.t3,marginBottom:8}}>Date of birth <span style={{color:C.t4}}>· or enter age →</span></div>
                   <div style={{display:'flex',gap:6,alignItems:'center'}}>
                     <input type="text" inputMode="numeric" maxLength="2" placeholder="mm" value={dob.mm}
-                      onChange={e=>setDob(p=>({...p,mm:e.target.value}))}
+                      onChange={e=>{const v=e.target.value;setDob(p=>({...p,mm:v}));if(v.length===2)dobDdRef.current?.focus();}}
                       style={{...mInp,width:52,textAlign:'center',padding:'11px 4px'}}/>
                     <span style={{color:C.t4}}>/</span>
-                    <input type="text" inputMode="numeric" maxLength="2" placeholder="dd" value={dob.dd}
-                      onChange={e=>setDob(p=>({...p,dd:e.target.value}))}
+                    <input ref={dobDdRef} type="text" inputMode="numeric" maxLength="2" placeholder="dd" value={dob.dd}
+                      onChange={e=>{const v=e.target.value;setDob(p=>({...p,dd:v}));if(v.length===2)dobYyyyRef.current?.focus();}}
                       style={{...mInp,width:52,textAlign:'center',padding:'11px 4px'}}/>
                     <span style={{color:C.t4}}>/</span>
-                    <input type="text" inputMode="numeric" maxLength="4" placeholder="yyyy" value={dob.yyyy}
+                    <input ref={dobYyyyRef} type="text" inputMode="numeric" maxLength="4" placeholder="yyyy" value={dob.yyyy}
                       onChange={e=>setDob(p=>({...p,yyyy:e.target.value}))}
                       style={{...mInp,width:72,textAlign:'center',padding:'11px 6px'}}/>
                     <span style={{color:C.t4,fontSize:12,flexShrink:0}}>or</span>
@@ -1512,15 +1516,15 @@ export default function QuoteMark() {
               <div style={{fontSize:11,color:C.t3,marginBottom:6}}>Date of birth <span style={{color:C.t4}}>· or enter age below</span></div>
               <div style={{display:'flex',gap:5,alignItems:'center',marginBottom:8}}>
                 <input type="text" maxLength="2" placeholder="mm" value={dob.mm}
-                  onChange={e=>{setDob(p=>({...p,mm:e.target.value}));}}
+                  onChange={e=>{const v=e.target.value;setDob(p=>({...p,mm:v}));if(v.length===2)dobDdRefD.current?.focus();}}
                   style={{...inp,width:44,textAlign:'center',padding:'8px 4px'}}/>
                 <span style={{color:C.t4,fontSize:12}}>/</span>
-                <input type="text" maxLength="2" placeholder="dd" value={dob.dd}
-                  onChange={e=>{setDob(p=>({...p,dd:e.target.value}));}}
+                <input ref={dobDdRefD} type="text" maxLength="2" placeholder="dd" value={dob.dd}
+                  onChange={e=>{const v=e.target.value;setDob(p=>({...p,dd:v}));if(v.length===2)dobYyyyRefD.current?.focus();}}
                   style={{...inp,width:44,textAlign:'center',padding:'8px 4px'}}/>
                 <span style={{color:C.t4,fontSize:12}}>/</span>
-                <input type="text" maxLength="4" placeholder="yyyy" value={dob.yyyy}
-                  onChange={e=>{setDob(p=>({...p,yyyy:e.target.value}));}}
+                <input ref={dobYyyyRefD} type="text" maxLength="4" placeholder="yyyy" value={dob.yyyy}
+                  onChange={e=>setDob(p=>({...p,yyyy:e.target.value}))}
                   style={{...inp,width:62,textAlign:'center',padding:'8px 4px'}}/>
                 <span style={{color:C.t4,fontSize:11,flexShrink:0}}>or</span>
                 <input type="number" min="50" max="89" placeholder="age" value={age}
