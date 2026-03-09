@@ -520,7 +520,7 @@ export default function QuoteMark() {
   const [reqSent,setReqSent]   = useState(false);
 
   // ── MOBILE DETECTION ──
-  const [isMobile, setIsMobile] = useState(() => window.innerWidth < 768);
+  const [isMobile, setIsMobile] = useState(() => window.innerWidth < 768 || window.screen.width < 768);
   const [mobileTab, setMobileTab] = useState('quote'); // 'quote' | 'results'
   useEffect(() => {
     const handle = () => setIsMobile(window.innerWidth < 768);
