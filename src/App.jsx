@@ -300,7 +300,7 @@ const COMP_RATES = {
 // ── CARRIER META: logo domain (Clearbit) + eApp link ──
 const CARRIER_META = {
   acc:  { img:'/logos/cvs2.jpg',   eapp:'https://www.aetnaseniorproducts.com/ssi/index.html', brand:'#DC2626' }, // CVS/Accendo — Standard Red
-  ahl:  { img:'/logos/ahl2.png',   eapp:'https://ahlpatriotseries.com/',                       brand:'#1E3A8A' }, // AHL — Deep Blue
+  ahl:  { img:'/logos/ahl2.png',   eapp:'https://ahlpatriotseries.com/',                       brand:'#3B82F6' }, // AHL — Bright Blue
   cont: { img:'/logos/aetna2.png', eapp:'https://www.aetnaseniorproducts.com/ssi/index.html', brand:'#7C3AED' }, // Continental/Aetna — Purple
   rn:   { img:'/logos/rn2.png',    eapp:'https://agent.royalneighbors.org/login',              brand:'#16A34A' }, // Royal Neighbors — Green
   ta:   { img:'/logos/ta.png',     eapp:'https://www.transamerica.com/financial-professionals/', brand:'#EF4444' }, // Transamerica — Lighter Red
@@ -310,7 +310,7 @@ const CARRIER_META = {
   moo:  { img:'/logos/moo.png',    eapp:'https://www.mutualofomaha.com/agent-login',            brand:'#2563EB' }, // Mutual of Omaha — Royal Blue
   laf:  { img:'/logos/laf.png',    eapp:'https://www.lafayettelife.com/agent-resources',        brand:'#8B5CF6' }, // Lafayette — Medium Purple
   for:  { img:'/logos/for.png',    eapp:'https://www.forestersfinancial.com/us/agent-portal',   brand:'#7E22CE' }, // Foresters — Plum
-  amr:  { img:'/logos/amr.png',    eapp:'https://www.americo.com/agent-access',                brand:'#1D4ED8' }, // Americo — Dark Blue
+  amr:  { img:'/logos/amr.png',    eapp:'https://www.americo.com/agent-access',                brand:'#60A5FA' }, // Americo — Vivid Cobalt
   amam: { img:'/logos/amam.png',   eapp:'https://www.americanamicable.com/agent-portal',        brand:'#CBD5E1' }, // American Amicable — Light Gray
   ts:   { img:'/logos/ts.png',     eapp:'https://www.trustage.com/agents',                     brand:'#FDE68A' }, // TruStage — Pale Yellow
   ls:   { img:'/logos/ls.png',     eapp:'https://www.lifeshield.com/agent',                    brand:'#64748B' }, // LifeShield — Gray
