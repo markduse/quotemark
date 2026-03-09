@@ -1288,13 +1288,32 @@ export default function QuoteMark() {
                               {GSB.map(g=>{
                                 const tier=r.tiers?.[g.key];
                                 const hasPrem=tier?.prem!=null;
-                                const metalColor=g.key==='gold'?'#FFD700':g.key==='silver'?'#94A3B8':'#CD7F32';
+                                const darkMetal=g.key==='gold'?'#FFD700':g.key==='silver'?'#94A3B8':'#CD7F32';
+                                const lightLabel=g.key==='gold'?'#855D10':g.key==='silver'?'#475569':'#92400E';
+                                const isGoldKey=g.key==='gold';
                                 return(
-                                  <div key={g.key} style={{flex:1,background:hasPrem?C.bg1:C.bg0,border:`1px solid ${hasPrem?metalColor+'55':C.bd}`,borderTop:`2px solid ${hasPrem?metalColor:C.bd}`,borderRadius:9,padding:'10px 8px',textAlign:'center',opacity:hasPrem?1:0.35}}>
-                                    <div style={{fontSize:10,color:C.t4,marginBottom:3}}>{g.medal} {g.label}</div>
+                                  <div key={g.key} style={{
+                                    flex:1,
+                                    background: isDark?(hasPrem?C.bg1:C.bg0):'#FFFFFF',
+                                    border:`1px solid ${isDark?(hasPrem?darkMetal+'55':C.bd):'#E2E8F0'}`,
+                                    borderTop: isDark
+                                      ? `2px solid ${hasPrem?darkMetal:C.bd}`
+                                      : (isGoldKey?`4px solid #D97706`:`2px solid ${hasPrem?(g.key==='silver'?'#94A3B8':'#C2700A'):C.bd}`),
+                                    borderRadius:9,padding:'10px 8px',textAlign:'center',
+                                    opacity:hasPrem?1:0.35,
+                                    boxShadow:!isDark&&hasPrem&&isGoldKey?'0 2px 8px rgba(217,119,6,0.12)':'none'
+                                  }}>
+                                    <div style={{
+                                      fontSize:9,fontWeight:700,marginBottom:3,letterSpacing:1,textTransform:'uppercase',
+                                      color:isDark?darkMetal:lightLabel
+                                    }}>{g.label}</div>
                                     <div style={{fontSize:11,color:C.t3,marginBottom:4}}>{fmtF(tier?.face||0)}</div>
                                     {hasPrem?(
-                                      <div style={{fontSize:16,fontWeight:700,color:metalColor,fontFamily:"'DM Mono',monospace"}}>${tier.prem}<span style={{fontSize:10,fontWeight:400,color:C.t4}}>/mo</span></div>
+                                      <div style={{
+                                        fontSize:16,fontWeight:800,
+                                        color:isDark?darkMetal:'#0F172A',
+                                        fontFamily:"'DM Mono',monospace"
+                                      }}>${tier.prem}<span style={{fontSize:10,fontWeight:400,color:C.t4}}>/mo</span></div>
                                     ):(
                                       <div style={{fontSize:10,color:C.t4}}>{tier?.reason||'N/A'}</div>
                                     )}
@@ -2004,21 +2023,37 @@ export default function QuoteMark() {
                           <div style={{display:'grid',gridTemplateColumns:'1fr 1fr 1fr',gap:5}}>
                             {GSB.map(g=>{
                               const tr=r.tiers[g.key];
+                              const darkColor=g.color; // original #FFD700/#94A3B8/#CD7F32
+                              const lightLabel=g.key==='gold'?'#855D10':g.key==='silver'?'#475569':'#92400E';
+                              const isGoldKey=g.key==='gold';
                               return(
                                 <div key={g.key} style={{
-                                  background:C.bg1,borderRadius:8,
-                                  padding:'10px 8px 10px',
-                                  border:`1px solid ${tr.prem?C.bd2:C.bd}`,
-                                  borderTop:`2px solid ${g.color}`,
-                                  textAlign:'center'
+                                  background: isDark?C.bg1:'#FFFFFF',
+                                  borderRadius:8,
+                                  padding:'12px 10px',
+                                  border:`1px solid ${isDark?(tr.prem?C.bd2:C.bd):'#E2E8F0'}`,
+                                  borderTop: isDark
+                                    ? `2px solid ${darkColor}`
+                                    : (isGoldKey?`4px solid #D97706`:`2px solid ${g.key==='silver'?'#94A3B8':'#C2700A'}`),
+                                  textAlign:'center',
+                                  boxShadow:!isDark&&isGoldKey&&tr.prem?'0 2px 12px rgba(217,119,6,0.1)':'none',
+                                  opacity:tr.prem?1:0.4
                                 }}>
-                                  <div style={{fontSize:10,color:g.color,fontWeight:700,marginBottom:4,letterSpacing:0.5}}>{g.medal} {g.label}</div>
-                                  <div style={{fontSize:14,color:C.t2,marginBottom:6,fontFamily:"'DM Mono',monospace",fontWeight:600}}>{fmtF(gsbFace[g.key])}</div>
+                                  <div style={{
+                                    fontSize:9,fontWeight:700,marginBottom:5,
+                                    letterSpacing:1.2,textTransform:'uppercase',
+                                    color:isDark?darkColor:lightLabel
+                                  }}>{g.medal} {g.label}</div>
+                                  <div style={{fontSize:13,color:C.t3,marginBottom:8,fontFamily:"'DM Mono',monospace",fontWeight:500}}>{fmtF(gsbFace[g.key])}</div>
                                   {tr.prem!=null?(
                                     <>
-                                      <div style={{fontFamily:"'DM Mono',monospace",fontSize:24,fontWeight:600,color:g.color,letterSpacing:'-0.5px',lineHeight:1}}>{fmt$(tr.prem)}</div>
-                                      <div style={{fontSize:10,color:C.t3,marginTop:4}}>/mo EFT</div>
-                                      <div style={{fontSize:10,color:C.t4,marginTop:2,fontFamily:"'DM Mono',monospace"}}>${(tr.prem*12).toFixed(0)}<span style={{color:C.t4,fontSize:9}}>/yr</span></div>
+                                      <div style={{
+                                        fontFamily:"'DM Mono',monospace",fontSize:22,fontWeight:800,
+                                        color:isDark?darkColor:'#0F172A',
+                                        letterSpacing:'-0.5px',lineHeight:1
+                                      }}>{fmt$(tr.prem)}</div>
+                                      <div style={{fontSize:10,color:C.t4,marginTop:4}}>/mo EFT</div>
+                                      <div style={{fontSize:10,color:C.t4,marginTop:2,fontFamily:"'DM Mono',monospace"}}>${(tr.prem*12).toFixed(0)}<span style={{fontSize:9}}>/yr</span></div>
                                     </>
                                   ):(
                                     <div style={{fontSize:10,color:C.t4,lineHeight:1.5,marginTop:4,minHeight:52}}>{tr.reason||'N/A'}</div>
