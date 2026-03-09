@@ -1,5 +1,6 @@
 import React, { useState, useMemo, useEffect, useRef } from "react";
 import { useAuth } from "./AuthContext";
+import { supabase } from "./supabase";
 
 // ── FONTS ──
 const FONT_LINK = "https://fonts.googleapis.com/css2?family=DM+Mono:wght@400;500&family=DM+Sans:wght@400;500;600;700&family=Barlow+Condensed:wght@700;800&display=swap";
@@ -34,7 +35,7 @@ const FACE_CAPS = {
   ra:50000, ls:30000, amam:50000, moo:50000, cbg:25000,
   ta:100000, lb:30000, pf:50000, amr:30000, for:35000,
   afl:50000, laf:50000, uhl:30000, fid:40000,
-  bl:25000,
+  bl:50000,
 };
 const AGE_MAX = {
   acc:89, ahl:85, cont:89, rn:85,
@@ -716,6 +717,59 @@ export default function QuoteMark() {
   const mobileResultsRef = React.useRef(null);
   const [reqSent,setReqSent]   = useState(false);
 
+  // ── PROFILE STATE ──
+  const [mobileTab2, setMobileTab2] = useState(null); // null | 'profile'
+  const [showProfileModal, setShowProfileModal] = useState(false);
+  const [profileName, setProfileName] = useState('');
+  const [profileSaving, setProfileSaving] = useState(false);
+  const [profileSaved, setProfileSaved] = useState(false);
+  const [pwForm, setPwForm] = useState({cur:'',next:'',confirm:''});
+  const [pwMsg, setPwMsg] = useState(null);
+  const [pwChanging, setPwChanging] = useState(false);
+  const [carriersSaved, setCarriersSaved] = useState(false);
+
+  // Load profile data + carrier prefs from Supabase on mount
+  useEffect(()=>{
+    if(!session) return;
+    supabase.from('profiles').select('display_name,carrier_prefs').eq('id',session.user.id).single()
+      .then(({data})=>{
+        if(!data) return;
+        if(data.display_name) setProfileName(data.display_name);
+        if(data.carrier_prefs && Array.isArray(data.carrier_prefs)){
+          setCarriers(prev=>prev.map(c=>({...c,enabled:data.carrier_prefs.includes(c.id)})));
+        }
+      });
+  },[session]);
+
+  const saveCarrierPrefs = async () => {
+    if(!session) return;
+    setCarriersSaved(false);
+    const enabledIds = carriers.filter(c=>c.enabled).map(c=>c.id);
+    await supabase.from('profiles').update({carrier_prefs:enabledIds}).eq('id',session.user.id);
+    setCarriersSaved(true);
+    setTimeout(()=>setCarriersSaved(false),2500);
+  };
+
+  const saveProfile = async () => {
+    if(!session) return;
+    setProfileSaving(true);
+    await supabase.from('profiles').update({display_name:profileName.trim()||null}).eq('id',session.user.id);
+    setProfileSaving(false);
+    setProfileSaved(true);
+    setTimeout(()=>setProfileSaved(false),2500);
+  };
+
+  const changePassword = async () => {
+    if(pwForm.next !== pwForm.confirm){setPwMsg({err:true,msg:'Passwords do not match'});return;}
+    if(pwForm.next.length < 8){setPwMsg({err:true,msg:'Password must be at least 8 characters'});return;}
+    setPwChanging(true);
+    const {error} = await supabase.auth.updateUser({password:pwForm.next});
+    setPwChanging(false);
+    if(error) setPwMsg({err:true,msg:error.message});
+    else{setPwMsg({err:false,msg:'Password updated!'});setPwForm({cur:'',next:'',confirm:''});}
+    setTimeout(()=>setPwMsg(null),3500);
+  };
+
   // ── MOBILE DETECTION ──
   const [isMobile, setIsMobile] = useState(() => window.innerWidth < 768 || window.screen.width < 768);
   const [mobileTab, setMobileTab] = useState('quote'); // 'quote' | 'results'
@@ -831,9 +885,7 @@ export default function QuoteMark() {
             <button onClick={()=>setCarrierPanel(true)} style={{padding:'8px 14px',borderRadius:8,border:`1px solid ${C.bd2}`,background:C.bg3,color:C.t2,fontSize:12,fontWeight:500,cursor:'pointer',fontFamily:"'DM Sans',sans-serif"}}>
               ⊞ Carriers
             </button>
-            <button onClick={signOut} style={{padding:'8px 12px',borderRadius:8,border:`1px solid ${C.bd2}`,background:'transparent',color:C.t4,fontSize:11,cursor:'pointer',fontFamily:"'DM Sans',sans-serif"}}>
-              Logout
-            </button>
+
           </div>
         </div>
 
@@ -1256,10 +1308,102 @@ export default function QuoteMark() {
               </span>
             )}
           </button>
+          <button onClick={()=>setMobileTab2(mobileTab2==='profile'?null:'profile')} style={{
+            flex:1,padding:'14px 0 12px',border:'none',cursor:'pointer',
+            background:'transparent',
+            color:mobileTab2==='profile'?C.gold:C.t4,
+            fontSize:11,fontWeight:mobileTab2==='profile'?700:500,
+            display:'flex',flexDirection:'column',alignItems:'center',gap:3,
+            fontFamily:"'DM Sans',sans-serif",
+            borderTop:mobileTab2==='profile'?`2px solid ${C.gold}`:'2px solid transparent'
+          }}>
+            <span style={{fontSize:20}}>👤</span>
+            Profile
+          </button>
         </div>
 
         {/* ── CARRIER PANEL (mobile) ── */}
-        {carrierPanel&&(
+        {/* ── MOBILE PROFILE SLIDE-UP SHEET ── */}
+      {mobileTab2==='profile'&&(
+        <div style={{position:'fixed',inset:0,zIndex:200,display:'flex',flexDirection:'column'}} onClick={()=>setMobileTab2(null)}>
+          <div style={{flex:1,background:'rgba(0,0,0,0.5)'}}/>
+          <div onClick={e=>e.stopPropagation()} style={{background:C.bg1,borderRadius:'18px 18px 0 0',maxHeight:'88vh',overflowY:'auto',paddingBottom:'env(safe-area-inset-bottom,16px)'}}>
+            <div style={{display:'flex',alignItems:'center',justifyContent:'space-between',padding:'16px 18px 0'}}>
+              <div style={{fontSize:16,fontWeight:700,color:C.t1}}>My Profile</div>
+              <button onClick={()=>setMobileTab2(null)} style={{background:'transparent',border:'none',color:C.t4,fontSize:22,cursor:'pointer',lineHeight:1}}>✕</button>
+            </div>
+            {/* ══ PROFILE PANEL CONTENT ══ */}
+        {(()=>{
+          const inp={width:'100%',boxSizing:'border-box',background:C.bg3,border:`1px solid ${C.bd2}`,borderRadius:8,color:C.t1,fontSize:14,padding:'11px 12px',fontFamily:"'DM Sans',sans-serif",outline:'none'};
+          return(
+          <div style={{padding:'16px 16px 32px',display:'flex',flexDirection:'column',gap:20}}>
+
+            {/* Account Info */}
+            <div style={{background:C.bg2,borderRadius:12,padding:16,border:`1px solid ${C.bd}`}}>
+              <div style={{fontSize:11,fontWeight:700,letterSpacing:1.5,color:C.t4,textTransform:'uppercase',marginBottom:14}}>Account</div>
+              <div style={{fontSize:12,color:C.t4,marginBottom:4}}>Email</div>
+              <div style={{fontSize:14,color:C.t2,marginBottom:14,padding:'10px 12px',background:C.bg3,borderRadius:8,border:`1px solid ${C.bd}`}}>{session?.user?.email||'—'}</div>
+              <div style={{fontSize:12,color:C.t4,marginBottom:6}}>Display Name</div>
+              <input value={profileName} onChange={e=>setProfileName(e.target.value)} placeholder="Your name (optional)" style={inp}/>
+              <button onClick={saveProfile} disabled={profileSaving} style={{marginTop:10,width:'100%',padding:'11px',borderRadius:8,border:'none',background:profileSaved?'#16A34A':C.gold,color:profileSaved?'#fff':C.bg0,fontWeight:700,fontSize:13,cursor:'pointer',fontFamily:"'DM Sans',sans-serif",transition:'background 0.2s'}}>
+                {profileSaving?'Saving…':profileSaved?'✓ Saved!':'Save Name'}
+              </button>
+            </div>
+
+            {/* Change Password */}
+            <div style={{background:C.bg2,borderRadius:12,padding:16,border:`1px solid ${C.bd}`}}>
+              <div style={{fontSize:11,fontWeight:700,letterSpacing:1.5,color:C.t4,textTransform:'uppercase',marginBottom:14}}>Change Password</div>
+              {['New Password','Confirm Password'].map((lbl,i)=>{
+                const key=i===0?'next':'confirm';
+                return(<div key={lbl} style={{marginBottom:10}}>
+                  <div style={{fontSize:12,color:C.t4,marginBottom:5}}>{lbl}</div>
+                  <input type="password" value={pwForm[key]} onChange={e=>setPwForm(p=>({...p,[key]:e.target.value}))} placeholder={lbl} style={inp}/>
+                </div>);
+              })}
+              {pwMsg&&<div style={{fontSize:12,color:pwMsg.err?'#EF4444':'#22C55E',marginBottom:8,padding:'7px 10px',background:pwMsg.err?'rgba(239,68,68,0.08)':'rgba(34,197,94,0.08)',borderRadius:7}}>{pwMsg.msg}</div>}
+              <button onClick={changePassword} disabled={pwChanging||!pwForm.next} style={{width:'100%',padding:'11px',borderRadius:8,border:'none',background:C.gold,color:C.bg0,fontWeight:700,fontSize:13,cursor:'pointer',fontFamily:"'DM Sans',sans-serif",opacity:pwForm.next?1:0.5}}>
+                {pwChanging?'Updating…':'Update Password'}
+              </button>
+            </div>
+
+            {/* Carrier Preferences */}
+            <div style={{background:C.bg2,borderRadius:12,padding:16,border:`1px solid ${C.bd}`}}>
+              <div style={{fontSize:11,fontWeight:700,letterSpacing:1.5,color:C.t4,textTransform:'uppercase',marginBottom:4}}>My Carriers</div>
+              <div style={{fontSize:12,color:C.t4,marginBottom:14}}>Toggle which carriers appear in your quote results. Saved to your profile.</div>
+              <div style={{display:'flex',flexDirection:'column',gap:8}}>
+                {carriers.map(c=>{
+                  const brand=CARRIER_META[c.id]?.brand||C.bd2;
+                  return(
+                  <div key={c.id} onClick={()=>setCarriers(p=>p.map(x=>x.id===c.id?{...x,enabled:!x.enabled}:x))}
+                    style={{display:'flex',alignItems:'center',gap:12,padding:'10px 12px',borderRadius:9,border:`1px solid ${c.enabled?brand+'66':C.bd}`,background:c.enabled?brand+'0D':'transparent',cursor:'pointer',transition:'all 0.15s'}}>
+                    <div style={{width:18,height:18,borderRadius:5,border:`2px solid ${c.enabled?brand:C.bd2}`,background:c.enabled?brand:'transparent',display:'flex',alignItems:'center',justifyContent:'center',flexShrink:0,transition:'all 0.15s'}}>
+                      {c.enabled&&<span style={{color:'#fff',fontSize:11,fontWeight:700,lineHeight:1}}>✓</span>}
+                    </div>
+                    <div style={{flex:1,minWidth:0}}>
+                      <div style={{fontSize:13,fontWeight:600,color:c.enabled?C.t1:C.t3}}>{c.name}</div>
+                      <div style={{fontSize:11,color:C.t4}}>{c.sub}</div>
+                    </div>
+                    <div style={{width:8,height:8,borderRadius:'50%',background:c.enabled?brand:'#334155',flexShrink:0}}/>
+                  </div>);
+                })}
+              </div>
+              <button onClick={saveCarrierPrefs} style={{marginTop:14,width:'100%',padding:'12px',borderRadius:8,border:'none',background:carriersSaved?'#16A34A':C.gold,color:carriersSaved?'#fff':C.bg0,fontWeight:700,fontSize:13,cursor:'pointer',fontFamily:"'DM Sans',sans-serif",transition:'background 0.2s'}}>
+                {carriersSaved?'✓ Carriers Saved!':'Save Carrier Preferences'}
+              </button>
+            </div>
+
+            {/* Sign Out */}
+            <button onClick={signOut} style={{padding:'13px',borderRadius:10,border:`1px solid ${C.bd2}`,background:'transparent',color:'#EF4444',fontWeight:600,fontSize:14,cursor:'pointer',fontFamily:"'DM Sans',sans-serif"}}>
+              Sign Out
+            </button>
+          </div>
+          );
+        })()}
+          </div>
+        </div>
+      )}
+
+      {carrierPanel&&(
           <div style={{position:'fixed',inset:0,background:'rgba(0,0,0,0.7)',zIndex:200,display:'flex',alignItems:'flex-end'}} onClick={()=>setCarrierPanel(false)}>
             <div style={{background:C.bg1,borderRadius:'16px 16px 0 0',width:'100%',maxHeight:'80vh',overflow:'hidden',display:'flex',flexDirection:'column'}} onClick={e=>e.stopPropagation()}>
               <div style={{padding:'16px 18px 12px',borderBottom:`1px solid ${C.bd}`,display:'flex',justifyContent:'space-between',alignItems:'center'}}>
@@ -1348,8 +1492,8 @@ export default function QuoteMark() {
           {/* Account menu */}
           <div style={{display:'flex',alignItems:'center',gap:8,paddingLeft:10,borderLeft:`1px solid ${C.bd}`}}>
             <span style={{fontSize:12,color:C.t4,maxWidth:140,overflow:'hidden',textOverflow:'ellipsis',whiteSpace:'nowrap'}}>{session?.user?.email}</span>
-            <button onClick={signOut} style={{padding:'6px 12px',borderRadius:7,border:`1px solid ${C.bd2}`,background:'transparent',color:C.t3,fontSize:11,fontWeight:500,cursor:'pointer',fontFamily:"'DM Sans',sans-serif",whiteSpace:'nowrap'}}>
-              Sign out
+            <button onClick={()=>setShowProfileModal(true)} style={{padding:'6px 12px',borderRadius:7,border:`1px solid ${C.bd2}`,background:'transparent',color:C.t3,fontSize:11,fontWeight:500,cursor:'pointer',fontFamily:"'DM Sans',sans-serif",whiteSpace:'nowrap',display:'flex',alignItems:'center',gap:5}}>
+              <span style={{fontSize:13}}>👤</span> Profile
             </button>
           </div>
         </div>
@@ -1833,6 +1977,151 @@ export default function QuoteMark() {
       </div>
 
       {/* ── CARRIER PANEL OVERLAY ── */}
+      {/* ── MOBILE PROFILE SLIDE-UP SHEET ── */}
+      {mobileTab2==='profile'&&(
+        <div style={{position:'fixed',inset:0,zIndex:200,display:'flex',flexDirection:'column'}} onClick={()=>setMobileTab2(null)}>
+          <div style={{flex:1,background:'rgba(0,0,0,0.5)'}}/>
+          <div onClick={e=>e.stopPropagation()} style={{background:C.bg1,borderRadius:'18px 18px 0 0',maxHeight:'88vh',overflowY:'auto',paddingBottom:'env(safe-area-inset-bottom,16px)'}}>
+            <div style={{display:'flex',alignItems:'center',justifyContent:'space-between',padding:'16px 18px 0'}}>
+              <div style={{fontSize:16,fontWeight:700,color:C.t1}}>My Profile</div>
+              <button onClick={()=>setMobileTab2(null)} style={{background:'transparent',border:'none',color:C.t4,fontSize:22,cursor:'pointer',lineHeight:1}}>✕</button>
+            </div>
+            {/* ══ PROFILE PANEL CONTENT ══ */}
+        {(()=>{
+          const inp={width:'100%',boxSizing:'border-box',background:C.bg3,border:`1px solid ${C.bd2}`,borderRadius:8,color:C.t1,fontSize:14,padding:'11px 12px',fontFamily:"'DM Sans',sans-serif",outline:'none'};
+          return(
+          <div style={{padding:'16px 16px 32px',display:'flex',flexDirection:'column',gap:20}}>
+
+            {/* Account Info */}
+            <div style={{background:C.bg2,borderRadius:12,padding:16,border:`1px solid ${C.bd}`}}>
+              <div style={{fontSize:11,fontWeight:700,letterSpacing:1.5,color:C.t4,textTransform:'uppercase',marginBottom:14}}>Account</div>
+              <div style={{fontSize:12,color:C.t4,marginBottom:4}}>Email</div>
+              <div style={{fontSize:14,color:C.t2,marginBottom:14,padding:'10px 12px',background:C.bg3,borderRadius:8,border:`1px solid ${C.bd}`}}>{session?.user?.email||'—'}</div>
+              <div style={{fontSize:12,color:C.t4,marginBottom:6}}>Display Name</div>
+              <input value={profileName} onChange={e=>setProfileName(e.target.value)} placeholder="Your name (optional)" style={inp}/>
+              <button onClick={saveProfile} disabled={profileSaving} style={{marginTop:10,width:'100%',padding:'11px',borderRadius:8,border:'none',background:profileSaved?'#16A34A':C.gold,color:profileSaved?'#fff':C.bg0,fontWeight:700,fontSize:13,cursor:'pointer',fontFamily:"'DM Sans',sans-serif",transition:'background 0.2s'}}>
+                {profileSaving?'Saving…':profileSaved?'✓ Saved!':'Save Name'}
+              </button>
+            </div>
+
+            {/* Change Password */}
+            <div style={{background:C.bg2,borderRadius:12,padding:16,border:`1px solid ${C.bd}`}}>
+              <div style={{fontSize:11,fontWeight:700,letterSpacing:1.5,color:C.t4,textTransform:'uppercase',marginBottom:14}}>Change Password</div>
+              {['New Password','Confirm Password'].map((lbl,i)=>{
+                const key=i===0?'next':'confirm';
+                return(<div key={lbl} style={{marginBottom:10}}>
+                  <div style={{fontSize:12,color:C.t4,marginBottom:5}}>{lbl}</div>
+                  <input type="password" value={pwForm[key]} onChange={e=>setPwForm(p=>({...p,[key]:e.target.value}))} placeholder={lbl} style={inp}/>
+                </div>);
+              })}
+              {pwMsg&&<div style={{fontSize:12,color:pwMsg.err?'#EF4444':'#22C55E',marginBottom:8,padding:'7px 10px',background:pwMsg.err?'rgba(239,68,68,0.08)':'rgba(34,197,94,0.08)',borderRadius:7}}>{pwMsg.msg}</div>}
+              <button onClick={changePassword} disabled={pwChanging||!pwForm.next} style={{width:'100%',padding:'11px',borderRadius:8,border:'none',background:C.gold,color:C.bg0,fontWeight:700,fontSize:13,cursor:'pointer',fontFamily:"'DM Sans',sans-serif",opacity:pwForm.next?1:0.5}}>
+                {pwChanging?'Updating…':'Update Password'}
+              </button>
+            </div>
+
+            {/* Carrier Preferences */}
+            <div style={{background:C.bg2,borderRadius:12,padding:16,border:`1px solid ${C.bd}`}}>
+              <div style={{fontSize:11,fontWeight:700,letterSpacing:1.5,color:C.t4,textTransform:'uppercase',marginBottom:4}}>My Carriers</div>
+              <div style={{fontSize:12,color:C.t4,marginBottom:14}}>Toggle which carriers appear in your quote results. Saved to your profile.</div>
+              <div style={{display:'flex',flexDirection:'column',gap:8}}>
+                {carriers.map(c=>{
+                  const brand=CARRIER_META[c.id]?.brand||C.bd2;
+                  return(
+                  <div key={c.id} onClick={()=>setCarriers(p=>p.map(x=>x.id===c.id?{...x,enabled:!x.enabled}:x))}
+                    style={{display:'flex',alignItems:'center',gap:12,padding:'10px 12px',borderRadius:9,border:`1px solid ${c.enabled?brand+'66':C.bd}`,background:c.enabled?brand+'0D':'transparent',cursor:'pointer',transition:'all 0.15s'}}>
+                    <div style={{width:18,height:18,borderRadius:5,border:`2px solid ${c.enabled?brand:C.bd2}`,background:c.enabled?brand:'transparent',display:'flex',alignItems:'center',justifyContent:'center',flexShrink:0,transition:'all 0.15s'}}>
+                      {c.enabled&&<span style={{color:'#fff',fontSize:11,fontWeight:700,lineHeight:1}}>✓</span>}
+                    </div>
+                    <div style={{flex:1,minWidth:0}}>
+                      <div style={{fontSize:13,fontWeight:600,color:c.enabled?C.t1:C.t3}}>{c.name}</div>
+                      <div style={{fontSize:11,color:C.t4}}>{c.sub}</div>
+                    </div>
+                    <div style={{width:8,height:8,borderRadius:'50%',background:c.enabled?brand:'#334155',flexShrink:0}}/>
+                  </div>);
+                })}
+              </div>
+              <button onClick={saveCarrierPrefs} style={{marginTop:14,width:'100%',padding:'12px',borderRadius:8,border:'none',background:carriersSaved?'#16A34A':C.gold,color:carriersSaved?'#fff':C.bg0,fontWeight:700,fontSize:13,cursor:'pointer',fontFamily:"'DM Sans',sans-serif",transition:'background 0.2s'}}>
+                {carriersSaved?'✓ Carriers Saved!':'Save Carrier Preferences'}
+              </button>
+            </div>
+
+            {/* Sign Out */}
+            <button onClick={signOut} style={{padding:'13px',borderRadius:10,border:`1px solid ${C.bd2}`,background:'transparent',color:'#EF4444',fontWeight:600,fontSize:14,cursor:'pointer',fontFamily:"'DM Sans',sans-serif"}}>
+              Sign Out
+            </button>
+          </div>
+          );
+        })()}
+          </div>
+        </div>
+      )}
+
+      {/* ── DESKTOP PROFILE MODAL ── */}
+      {showProfileModal&&(
+        <div onClick={()=>setShowProfileModal(false)} style={{position:'fixed',inset:0,zIndex:300,background:'rgba(0,0,0,0.6)',display:'flex',alignItems:'center',justifyContent:'center'}}>
+          <div onClick={e=>e.stopPropagation()} style={{background:C.bg1,borderRadius:16,width:460,maxWidth:'94vw',maxHeight:'88vh',overflowY:'auto',boxShadow:'0 24px 80px rgba(0,0,0,0.5)'}}>
+            <div style={{display:'flex',alignItems:'center',justifyContent:'space-between',padding:'18px 20px 0'}}>
+              <div style={{fontSize:17,fontWeight:700,color:C.t1}}>My Profile</div>
+              <button onClick={()=>setShowProfileModal(false)} style={{background:'transparent',border:'none',color:C.t4,fontSize:22,cursor:'pointer',lineHeight:1}}>✕</button>
+            </div>
+            <div style={{padding:'16px 16px 32px',display:'flex',flexDirection:'column',gap:20}}>
+              <div style={{background:C.bg2,borderRadius:12,padding:16,border:`1px solid ${C.bd}`}}>
+                <div style={{fontSize:11,fontWeight:700,letterSpacing:1.5,color:C.t4,textTransform:'uppercase',marginBottom:14}}>Account</div>
+                <div style={{fontSize:12,color:C.t4,marginBottom:4}}>Email</div>
+                <div style={{fontSize:14,color:C.t2,marginBottom:14,padding:'10px 12px',background:C.bg3,borderRadius:8,border:`1px solid ${C.bd}`}}>{session?.user?.email||'—'}</div>
+                <div style={{fontSize:12,color:C.t4,marginBottom:6}}>Display Name</div>
+                <input value={profileName} onChange={e=>setProfileName(e.target.value)} placeholder="Your name (optional)" style={{width:'100%',boxSizing:'border-box',background:C.bg3,border:`1px solid ${C.bd2}`,borderRadius:8,color:C.t1,fontSize:14,padding:'11px 12px',fontFamily:"'DM Sans',sans-serif",outline:'none'}}/>
+                <button onClick={saveProfile} disabled={profileSaving} style={{marginTop:10,width:'100%',padding:'11px',borderRadius:8,border:'none',background:profileSaved?'#16A34A':C.gold,color:profileSaved?'#fff':C.bg0,fontWeight:700,fontSize:13,cursor:'pointer',fontFamily:"'DM Sans',sans-serif"}}>
+                  {profileSaving?'Saving…':profileSaved?'✓ Saved!':'Save Name'}
+                </button>
+              </div>
+              <div style={{background:C.bg2,borderRadius:12,padding:16,border:`1px solid ${C.bd}`}}>
+                <div style={{fontSize:11,fontWeight:700,letterSpacing:1.5,color:C.t4,textTransform:'uppercase',marginBottom:14}}>Change Password</div>
+                {[['New Password','next'],['Confirm Password','confirm']].map(([lbl,key])=>(
+                  <div key={key} style={{marginBottom:10}}>
+                    <div style={{fontSize:12,color:C.t4,marginBottom:5}}>{lbl}</div>
+                    <input type="password" value={pwForm[key]} onChange={e=>setPwForm(p=>({...p,[key]:e.target.value}))} placeholder={lbl} style={{width:'100%',boxSizing:'border-box',background:C.bg3,border:`1px solid ${C.bd2}`,borderRadius:8,color:C.t1,fontSize:14,padding:'11px 12px',fontFamily:"'DM Sans',sans-serif",outline:'none'}}/>
+                  </div>
+                ))}
+                {pwMsg&&<div style={{fontSize:12,color:pwMsg.err?'#EF4444':'#22C55E',marginBottom:8,padding:'7px 10px',background:pwMsg.err?'rgba(239,68,68,0.08)':'rgba(34,197,94,0.08)',borderRadius:7}}>{pwMsg.msg}</div>}
+                <button onClick={changePassword} disabled={pwChanging||!pwForm.next} style={{width:'100%',padding:'11px',borderRadius:8,border:'none',background:C.gold,color:C.bg0,fontWeight:700,fontSize:13,cursor:'pointer',fontFamily:"'DM Sans',sans-serif",opacity:pwForm.next?1:0.5}}>
+                  {pwChanging?'Updating…':'Update Password'}
+                </button>
+              </div>
+              <div style={{background:C.bg2,borderRadius:12,padding:16,border:`1px solid ${C.bd}`}}>
+                <div style={{fontSize:11,fontWeight:700,letterSpacing:1.5,color:C.t4,textTransform:'uppercase',marginBottom:4}}>My Carriers</div>
+                <div style={{fontSize:12,color:C.t4,marginBottom:14}}>Toggle which carriers appear in your results. Saved to your profile.</div>
+                <div style={{display:'flex',flexDirection:'column',gap:8}}>
+                  {carriers.map(c=>{
+                    const brand=CARRIER_META[c.id]?.brand||C.bd2;
+                    return(
+                      <div key={c.id} onClick={()=>setCarriers(p=>p.map(x=>x.id===c.id?{...x,enabled:!x.enabled}:x))}
+                        style={{display:'flex',alignItems:'center',gap:12,padding:'10px 12px',borderRadius:9,border:`1px solid ${c.enabled?brand+'66':C.bd}`,background:c.enabled?brand+'0D':'transparent',cursor:'pointer'}}>
+                        <div style={{width:18,height:18,borderRadius:5,border:`2px solid ${c.enabled?brand:C.bd2}`,background:c.enabled?brand:'transparent',display:'flex',alignItems:'center',justifyContent:'center',flexShrink:0}}>
+                          {c.enabled&&<span style={{color:'#fff',fontSize:11,fontWeight:700,lineHeight:1}}>✓</span>}
+                        </div>
+                        <div style={{flex:1,minWidth:0}}>
+                          <div style={{fontSize:13,fontWeight:600,color:c.enabled?C.t1:C.t3}}>{c.name}</div>
+                          <div style={{fontSize:11,color:C.t4}}>{c.sub}</div>
+                        </div>
+                        <div style={{width:8,height:8,borderRadius:'50%',background:c.enabled?brand:'#334155',flexShrink:0}}/>
+                      </div>
+                    );
+                  })}
+                </div>
+                <button onClick={saveCarrierPrefs} style={{marginTop:14,width:'100%',padding:'12px',borderRadius:8,border:'none',background:carriersSaved?'#16A34A':C.gold,color:carriersSaved?'#fff':C.bg0,fontWeight:700,fontSize:13,cursor:'pointer',fontFamily:"'DM Sans',sans-serif"}}>
+                  {carriersSaved?'✓ Carriers Saved!':'Save Carrier Preferences'}
+                </button>
+              </div>
+              <button onClick={signOut} style={{padding:'13px',borderRadius:10,border:`1px solid ${C.bd2}`,background:'transparent',color:'#EF4444',fontWeight:600,fontSize:14,cursor:'pointer',fontFamily:"'DM Sans',sans-serif"}}>
+                Sign Out
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
       {carrierPanel&&(
         <div style={{position:'fixed',inset:0,zIndex:100,display:'flex'}}>
           <div onClick={()=>setCarrierPanel(false)} style={{flex:1,background:'rgba(0,0,0,0.55)'}}/>

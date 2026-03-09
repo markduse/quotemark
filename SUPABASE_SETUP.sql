@@ -57,3 +57,11 @@ CREATE INDEX IF NOT EXISTS profiles_stripe_customer_id_idx
 -- Verify
 SELECT column_name, data_type FROM information_schema.columns
 WHERE table_name = 'profiles' ORDER BY ordinal_position;
+
+-- ── CARRIER PREFERENCES (run this in Supabase SQL editor) ──────────────
+-- Add carrier_prefs column to store enabled carrier IDs as JSON array
+ALTER TABLE public.profiles
+  ADD COLUMN IF NOT EXISTS carrier_prefs jsonb DEFAULT NULL,
+  ADD COLUMN IF NOT EXISTS display_name text DEFAULT NULL;
+
+-- carrier_prefs format: ["acc","ahl","ta","fid"]  (array of enabled carrier IDs)
