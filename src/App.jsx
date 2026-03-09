@@ -276,9 +276,9 @@ const CONDITIONS = [
   {id:'terminal',      label:'Terminal illness - life expectancy under 2 years',       tier:'E', cat:'Knockout',         meds:'terminal illness prognosis palliative hospice'},
 ]
 const TIER_INFO = {
-  B:{label:'Level — Preferred',  short:'Preferred',    dot:'#22C55E', pill:'rgba(34,197,94,0.12)',  bd:'rgba(34,197,94,0.3)'},
-  C:{label:'Level — Standard',   short:'Standard',     dot:'#EAB308', pill:'rgba(234,179,8,0.12)',  bd:'rgba(234,179,8,0.3)'},
-  D:{label:'Modified Benefit',   short:'Modified/GDB', dot:'#F97316', pill:'rgba(249,115,22,0.12)', bd:'rgba(249,115,22,0.3)'},
+  B:{label:'Level — Preferred',  short:'Preferred',    dot:'#A78BFA', pill:'rgba(167,139,250,0.12)', bd:'rgba(167,139,250,0.3)'},
+  C:{label:'Level — Standard',   short:'Standard',     dot:'#22C55E', pill:'rgba(34,197,94,0.12)',  bd:'rgba(34,197,94,0.3)'},
+  D:{label:'Modified Benefit',   short:'Modified',     dot:'#EAB308', pill:'rgba(234,179,8,0.12)',  bd:'rgba(234,179,8,0.3)'},
   E:{label:'Guaranteed Issue',   short:'GI Only',      dot:'#EF4444', pill:'rgba(239,68,68,0.12)',  bd:'rgba(239,68,68,0.3)'},
 };
 
@@ -759,19 +759,19 @@ export default function QuoteMark() {
                 <div style={{marginBottom:14}}>
                   <div style={{fontSize:12,color:C.t3,marginBottom:8}}>Date of birth <span style={{color:C.t4}}>· or enter age →</span></div>
                   <div style={{display:'flex',gap:6,alignItems:'center'}}>
-                    <input type="text" maxLength="2" placeholder="mm" value={dob.mm}
+                    <input type="text" inputMode="numeric" maxLength="2" placeholder="mm" value={dob.mm}
                       onChange={e=>setDob(p=>({...p,mm:e.target.value}))}
                       style={{...mInp,width:52,textAlign:'center',padding:'11px 4px'}}/>
                     <span style={{color:C.t4}}>/</span>
-                    <input type="text" maxLength="2" placeholder="dd" value={dob.dd}
+                    <input type="text" inputMode="numeric" maxLength="2" placeholder="dd" value={dob.dd}
                       onChange={e=>setDob(p=>({...p,dd:e.target.value}))}
                       style={{...mInp,width:52,textAlign:'center',padding:'11px 4px'}}/>
                     <span style={{color:C.t4}}>/</span>
-                    <input type="text" maxLength="4" placeholder="yyyy" value={dob.yyyy}
+                    <input type="text" inputMode="numeric" maxLength="4" placeholder="yyyy" value={dob.yyyy}
                       onChange={e=>setDob(p=>({...p,yyyy:e.target.value}))}
                       style={{...mInp,width:72,textAlign:'center',padding:'11px 6px'}}/>
                     <span style={{color:C.t4,fontSize:12,flexShrink:0}}>or</span>
-                    <input type="number" min="50" max="89" placeholder="age" value={age}
+                    <input type="text" inputMode="numeric" maxLength="2" placeholder="age" value={age}
                       onChange={e=>{setAge(e.target.value);setDob({mm:'',dd:'',yyyy:''}); }}
                       style={{...mInp,width:64,padding:'11px 8px',borderColor:age&&!ageOK?'#EF4444':C.bd}}/>
                   </div>
