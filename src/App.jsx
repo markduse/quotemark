@@ -519,6 +519,15 @@ export default function QuoteMark() {
   const [reqForm,setReqForm]   = useState({name:'',state:'',notes:''});
   const [reqSent,setReqSent]   = useState(false);
 
+  // ── MOBILE DETECTION ──
+  const [isMobile, setIsMobile] = useState(() => window.innerWidth < 768);
+  const [mobileTab, setMobileTab] = useState('quote'); // 'quote' | 'results'
+  useEffect(() => {
+    const handle = () => setIsMobile(window.innerWidth < 768);
+    window.addEventListener('resize', handle);
+    return () => window.removeEventListener('resize', handle);
+  }, []);
+
   useEffect(()=>{ const a=calcAge(dob.mm,dob.dd,dob.yyyy);if(a!==null&&a>=50&&a<=89)setAge(String(a)); },[dob]);
 
   const autoTier = useMemo(()=>getAutoTier(selected),[selected]);
@@ -584,6 +593,443 @@ export default function QuoteMark() {
   const togBtn = (active) => ({flex:1,padding:'7px 0',borderRadius:7,border:`1px solid ${active?C.blue+'66':C.bd}`,cursor:'pointer',fontSize:12,fontWeight:500,background:active?C.blueBg:C.bg2,color:active?'#93C5FD':C.t3,transition:'all 0.12s',fontFamily:"'DM Sans',sans-serif"});
   const sec = {background:C.bg3,border:`1px solid ${C.bd}`,borderRadius:12,padding:16};
   const lbl = {fontSize:10,fontWeight:700,letterSpacing:1.8,color:C.t4,textTransform:'uppercase',marginBottom:10};
+
+  // ─────────────────────────────────────────────────
+  // ── MOBILE RENDER (<768px)
+  // ─────────────────────────────────────────────────
+  if (isMobile) {
+    const mInp = {background:C.bg2,border:`1px solid ${C.bd}`,color:C.t1,borderRadius:10,padding:'12px 14px',fontSize:15,width:'100%',outline:'none',fontFamily:"'DM Sans',sans-serif",WebkitAppearance:'none'};
+    const mTogBtn = (active,color) => ({flex:1,padding:'11px 0',borderRadius:10,border:`1px solid ${active?(color||C.blue)+'66':C.bd}`,cursor:'pointer',fontSize:14,fontWeight:600,background:active?(color?color+'22':C.blueBg):C.bg2,color:active?(color||'#93C5FD'):C.t3,transition:'all 0.12s',fontFamily:"'DM Sans',sans-serif"});
+
+    return (
+      <div style={{fontFamily:"'DM Sans',sans-serif",background:C.bg0,minHeight:'100vh',color:C.t1,position:'relative',paddingBottom:72}}>
+
+        {/* ── MOBILE HEADER ── */}
+        <div style={{background:C.bg1,borderBottom:`1px solid ${C.bd}`,padding:'12px 18px',display:'flex',alignItems:'center',justifyContent:'space-between',position:'sticky',top:0,zIndex:50}}>
+          <div style={{fontFamily:"'Barlow Condensed',sans-serif",fontSize:26,fontWeight:800,color:C.t0,letterSpacing:'-0.5px'}}>
+            Quote<span style={{color:C.gold}}>Mark</span>
+          </div>
+          <div style={{display:'flex',alignItems:'center',gap:8}}>
+            <button onClick={()=>setCarrierPanel(true)} style={{padding:'8px 14px',borderRadius:8,border:`1px solid ${C.bd2}`,background:C.bg3,color:C.t2,fontSize:12,fontWeight:500,cursor:'pointer',fontFamily:"'DM Sans',sans-serif"}}>
+              ⊞ Carriers
+            </button>
+            <button onClick={signOut} style={{padding:'8px 12px',borderRadius:8,border:`1px solid ${C.bd2}`,background:'transparent',color:C.t4,fontSize:11,cursor:'pointer',fontFamily:"'DM Sans',sans-serif"}}>
+              Out
+            </button>
+          </div>
+        </div>
+
+        {/* ── MOBILE BODY ── */}
+        <div style={{padding:'16px 16px 0'}}>
+
+          {/* ── QUOTE TAB ── */}
+          {mobileTab === 'quote' && (
+            <div style={{display:'flex',flexDirection:'column',gap:12}}>
+
+              {/* Age row */}
+              <div style={{background:C.bg2,border:`1px solid ${C.bd}`,borderRadius:12,padding:16}}>
+                <div style={{fontSize:11,fontWeight:700,letterSpacing:1.8,color:C.t4,textTransform:'uppercase',marginBottom:12}}>Client Info</div>
+
+                {/* DOB */}
+                <div style={{marginBottom:14}}>
+                  <div style={{fontSize:12,color:C.t3,marginBottom:8}}>Date of birth <span style={{color:C.t4}}>· or enter age →</span></div>
+                  <div style={{display:'flex',gap:6,alignItems:'center'}}>
+                    <input type="text" maxLength="2" placeholder="mm" value={dob.mm}
+                      onChange={e=>setDob(p=>({...p,mm:e.target.value}))}
+                      style={{...mInp,width:52,textAlign:'center',padding:'11px 4px'}}/>
+                    <span style={{color:C.t4}}>/</span>
+                    <input type="text" maxLength="2" placeholder="dd" value={dob.dd}
+                      onChange={e=>setDob(p=>({...p,dd:e.target.value}))}
+                      style={{...mInp,width:52,textAlign:'center',padding:'11px 4px'}}/>
+                    <span style={{color:C.t4}}>/</span>
+                    <input type="text" maxLength="4" placeholder="yyyy" value={dob.yyyy}
+                      onChange={e=>setDob(p=>({...p,yyyy:e.target.value}))}
+                      style={{...mInp,width:72,textAlign:'center',padding:'11px 6px'}}/>
+                    <span style={{color:C.t4,fontSize:12,flexShrink:0}}>or</span>
+                    <input type="number" min="50" max="89" placeholder="age" value={age}
+                      onChange={e=>{setAge(e.target.value);setDob({mm:'',dd:'',yyyy:''}); }}
+                      style={{...mInp,width:64,padding:'11px 8px',borderColor:age&&!ageOK?'#EF4444':C.bd}}/>
+                  </div>
+                  {age&&ageOK&&<div style={{fontSize:11,color:C.green,marginTop:6}}>✓ Age {age}</div>}
+                  {age&&!ageOK&&parseInt(age)>0&&<div style={{fontSize:11,color:'#EF4444',marginTop:6}}>Age must be 50–89</div>}
+                </div>
+
+                {/* Gender */}
+                <div style={{marginBottom:14}}>
+                  <div style={{fontSize:12,color:C.t3,marginBottom:8}}>Gender</div>
+                  <div style={{display:'flex',gap:8}}>
+                    <button style={mTogBtn(gender==='male')} onClick={()=>setGender('male')}>👨 Male</button>
+                    <button style={mTogBtn(gender==='female')} onClick={()=>setGender('female')}>👩 Female</button>
+                  </div>
+                </div>
+
+                {/* Smoker */}
+                <div style={{marginBottom:14}}>
+                  <div style={{fontSize:12,color:C.t3,marginBottom:8}}>Tobacco</div>
+                  <div style={{display:'flex',gap:8}}>
+                    <button style={mTogBtn(!smoker)} onClick={()=>setSmoker(false)}>Non-smoker</button>
+                    <button style={mTogBtn(smoker,'#EF4444')} onClick={()=>setSmoker(true)}>Smoker</button>
+                  </div>
+                </div>
+
+                {/* State */}
+                <div>
+                  <div style={{fontSize:12,color:C.t3,marginBottom:8}}>State</div>
+                  <select value={usState} onChange={e=>setUsState(e.target.value)}
+                    style={{...mInp,cursor:'pointer'}}>
+                    <option value="">— Select state —</option>
+                    {US_STATES.map(s=><option key={s} value={s}>{s} — {STATE_NAMES[s]}</option>)}
+                  </select>
+                </div>
+              </div>
+
+              {/* Quote Target */}
+              <div style={{background:C.bg2,border:`1px solid ${C.bd}`,borderRadius:12,padding:16}}>
+                <div style={{display:'flex',alignItems:'center',justifyContent:'space-between',marginBottom:12}}>
+                  <div style={{fontSize:11,fontWeight:700,letterSpacing:1.8,color:C.t4,textTransform:'uppercase'}}>Quote Target</div>
+                  <button onClick={()=>{setGsbOn(p=>!p);setMode('face');}} style={{
+                    display:'flex',alignItems:'center',gap:6,
+                    padding:'5px 10px 5px 6px',borderRadius:20,
+                    border:`1px solid ${gsbOn?C.gold+'66':C.bd}`,
+                    background:gsbOn?C.goldBg:C.bg2,
+                    color:gsbOn?C.gold:C.t3,
+                    fontSize:11,fontWeight:600,cursor:'pointer',fontFamily:"'DM Sans',sans-serif"
+                  }}>
+                    <span style={{position:'relative',display:'inline-block',width:26,height:15,borderRadius:8,background:gsbOn?C.gold:'#1A3050',border:`1px solid ${gsbOn?C.gold:'#243D5C'}`,flexShrink:0}}>
+                      <span style={{position:'absolute',top:2,left:gsbOn?11:2,width:9,height:9,borderRadius:'50%',background:'white',transition:'left 0.2s'}}/>
+                    </span>
+                    🥇 GSB Mode
+                  </button>
+                </div>
+
+                {!gsbOn ? (
+                  <>
+                    <div style={{display:'flex',gap:6,marginBottom:14}}>
+                      <button style={{...mTogBtn(mode==='face'),borderColor:mode==='face'?C.gold+'55':C.bd,background:mode==='face'?C.goldBg:C.bg2,color:mode==='face'?C.gold:C.t3}} onClick={()=>setMode('face')}>Face Amount</button>
+                      <button style={{...mTogBtn(mode==='budget'),borderColor:mode==='budget'?C.gold+'55':C.bd,background:mode==='budget'?C.goldBg:C.bg2,color:mode==='budget'?C.gold:C.t3}} onClick={()=>setMode('budget')}>Monthly Budget</button>
+                    </div>
+                    {mode==='face' ? (
+                      <>
+                        <div style={{display:'flex',justifyContent:'space-between',fontSize:12,color:C.t3,marginBottom:8}}>
+                          <span>Coverage amount</span>
+                          <span style={{color:C.t0,fontWeight:700,fontSize:16,fontFamily:"'DM Mono',monospace"}}>{fmtF(faceAmt)}</span>
+                        </div>
+                        <input type="range" min="2000" max="40000" step="1000" value={faceAmt}
+                          onChange={e=>setFaceAmt(+e.target.value)}
+                          style={{width:'100%',accentColor:C.gold,height:6,marginBottom:6}}/>
+                        <div style={{display:'flex',justifyContent:'space-between',fontSize:11,color:C.t4}}>
+                          <span>$2,000</span><span>$40,000</span>
+                        </div>
+                      </>
+                    ) : (
+                      <>
+                        <div style={{fontSize:12,color:C.t3,marginBottom:8}}>Max monthly premium</div>
+                        <div style={{position:'relative'}}>
+                          <span style={{position:'absolute',left:14,top:'50%',transform:'translateY(-50%)',color:C.t3,fontSize:16}}>$</span>
+                          <input type="number" min="20" max="500" value={budget}
+                            onChange={e=>setBudget(+e.target.value)}
+                            style={{...mInp,paddingLeft:30,fontFamily:"'DM Mono',monospace",fontSize:17}}/>
+                        </div>
+                      </>
+                    )}
+                  </>
+                ) : (
+                  <div>
+                    <div style={{fontSize:12,color:C.t3,marginBottom:10}}>Coverage per tier</div>
+                    {GSB.map(g=>(
+                      <div key={g.key} style={{display:'flex',alignItems:'center',gap:10,marginBottom:10}}>
+                        <span style={{fontSize:18,flexShrink:0}}>{g.medal}</span>
+                        <span style={{fontSize:13,fontWeight:700,color:g.color,width:50,flexShrink:0}}>{g.label}</span>
+                        <div style={{position:'relative',flex:1}}>
+                          <span style={{position:'absolute',left:12,top:'50%',transform:'translateY(-50%)',color:C.t4,fontSize:13}}>$</span>
+                          <input type="number" min="1000" max="40000" step="1000" value={gsbFace[g.key]}
+                            onChange={e=>setGsbFace(p=>({...p,[g.key]:Math.max(1000,+e.target.value)}))}
+                            style={{...mInp,paddingLeft:24,fontFamily:"'DM Mono',monospace"}}/>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                )}
+              </div>
+
+              {/* Health conditions — search only */}
+              <div style={{background:C.bg2,border:`1px solid ${C.bd}`,borderRadius:12,padding:16}}>
+                <div style={{fontSize:11,fontWeight:700,letterSpacing:1.8,color:C.t4,textTransform:'uppercase',marginBottom:12}}>Health Conditions</div>
+                <div style={{position:'relative',marginBottom:10}}>
+                  <span style={{position:'absolute',left:12,top:'50%',transform:'translateY(-50%)',fontSize:14,color:C.t4}}>🔍</span>
+                  <input placeholder="Condition or medication…"
+                    value={search} onChange={e=>setSearch(e.target.value)}
+                    style={{...mInp,paddingLeft:34}}/>
+                </div>
+                {medHints.length>0&&search.length>=3&&(
+                  <div style={{background:C.goldBg,border:`1px solid ${C.goldBd}`,borderRadius:10,padding:'10px 12px',marginBottom:10}}>
+                    <div style={{fontSize:12,color:C.gold,fontWeight:600,marginBottom:6}}>💊 "{search}" may indicate:</div>
+                    <div style={{display:'flex',flexWrap:'wrap',gap:5}}>
+                      {medHints.map(c=>(<span key={c.id} onClick={()=>toggleCond(c.id)} style={{background:TIER_INFO[c.tier].pill,border:`1px solid ${TIER_INFO[c.tier].bd}`,color:TIER_INFO[c.tier].dot,borderRadius:6,padding:'4px 10px',cursor:'pointer',fontWeight:600,fontSize:12}}>+ {c.label.replace('⚠ ','')}</span>))}
+                    </div>
+                  </div>
+                )}
+                {/* Search results */}
+                {search.length>0 && filteredConds.length>0 && (
+                  <div style={{maxHeight:220,overflowY:'auto'}}>
+                    {filteredConds.map(c=>{
+                      const active=selected.includes(c.id),tc=TIER_INFO[c.tier].dot;
+                      return(
+                        <div key={c.id} onClick={()=>toggleCond(c.id)} style={{
+                          display:'flex',alignItems:'center',gap:8,padding:'10px 12px',borderRadius:9,
+                          cursor:'pointer',fontSize:14,marginBottom:4,
+                          background:active?TIER_INFO[c.tier].pill:'transparent',
+                          border:`1px solid ${active?TIER_INFO[c.tier].bd:C.bd}`,
+                          color:active?C.t0:C.t2
+                        }}>
+                          <span style={{width:7,height:7,borderRadius:'50%',background:active?tc:'#334155',flexShrink:0}}/>
+                          <span style={{flex:1,lineHeight:1.35}}>{c.label}</span>
+                          {active&&<span style={{color:tc,fontSize:12}}>✓</span>}
+                        </div>
+                      );
+                    })}
+                  </div>
+                )}
+                {/* Active condition chips */}
+                {selected.filter(c=>c!=='none').length>0&&(
+                  <div style={{marginTop:10}}>
+                    <div style={{fontSize:11,color:C.t4,marginBottom:6}}>Active conditions</div>
+                    <div style={{display:'flex',flexWrap:'wrap',gap:5}}>
+                      {selected.filter(c=>c!=='none').map(id=>{
+                        const cond=CONDITIONS.find(c=>c.id===id);
+                        return(
+                          <span key={id} onClick={()=>toggleCond(id)} style={{background:C.bg1,border:`1px solid ${C.bd}`,borderRadius:6,padding:'4px 10px',fontSize:12,color:C.t2,cursor:'pointer',display:'flex',alignItems:'center',gap:4}}>
+                            <span style={{color:TIER_INFO[cond?.tier||'B'].dot,fontSize:8}}>●</span>
+                            {cond?.label.replace('⚠ ','')}
+                            <span style={{color:C.t4,marginLeft:2}}>×</span>
+                          </span>
+                        );
+                      })}
+                    </div>
+                  </div>
+                )}
+                {/* UW tier display (read-only, no controls) */}
+                <div style={{marginTop:12,padding:'10px 12px',background:C.bg3,borderRadius:9,border:`1px solid ${TIER_INFO[uwTier].bd}`,display:'flex',alignItems:'center',gap:8}}>
+                  <span style={{fontSize:11,color:C.t4}}>UW Tier:</span>
+                  <TierPill tier={uwTier}/>
+                  {tierOvr&&<span style={{fontSize:10,color:C.gold,fontWeight:700}}>Manual</span>}
+                </div>
+              </div>
+
+              {/* GET QUOTES button */}
+              <button onClick={()=>{if(ageOK){setHasQuoted(true);if(isMobile)setMobileTab('results');}}} style={{
+                width:'100%',padding:'16px 0',borderRadius:12,border:'none',
+                cursor:ageOK?'pointer':'not-allowed',
+                background:ageOK?C.gold:'#1A3050',
+                color:ageOK?C.bg0:C.t4,
+                fontSize:16,fontWeight:700,letterSpacing:0.5,
+                opacity:ageOK?1:0.4,
+                fontFamily:"'DM Sans',sans-serif"
+              }}>
+                ⚡ Get Quotes
+              </button>
+            </div>
+          )}
+
+          {/* ── RESULTS TAB ── */}
+          {mobileTab === 'results' && (
+            <div>
+              {!hasQuoted ? (
+                <div style={{display:'flex',flexDirection:'column',alignItems:'center',justifyContent:'center',paddingTop:80,gap:16,textAlign:'center'}}>
+                  <div style={{fontSize:52,opacity:0.4}}>📋</div>
+                  <div style={{fontFamily:"'Barlow Condensed',sans-serif",fontSize:22,fontWeight:700,color:C.t4}}>Fill in client info first</div>
+                  <button onClick={()=>setMobileTab('quote')} style={{marginTop:8,padding:'13px 28px',borderRadius:10,border:`1px solid ${C.bd2}`,background:C.bg2,color:C.t2,fontSize:14,fontWeight:600,cursor:'pointer',fontFamily:"'DM Sans',sans-serif"}}>
+                    ← Back to Quote
+                  </button>
+                </div>
+              ) : (
+                <>
+                  {/* Scenario bar */}
+                  <div style={{background:C.bg3,border:`1px solid ${C.bd}`,borderRadius:10,padding:'10px 14px',marginBottom:14,display:'flex',alignItems:'center',justifyContent:'space-between',flexWrap:'wrap',gap:6}}>
+                    <div style={{fontSize:13,color:C.t2,display:'flex',gap:8,flexWrap:'wrap',alignItems:'center'}}>
+                      <span style={{fontFamily:"'DM Mono',monospace",fontWeight:600,color:C.t0}}>
+                        {gsbOn?`GSB Mode`:(mode==='face'?fmtF(faceAmt):`$${budget}/mo`)}
+                      </span>
+                      <span style={{color:C.t4}}>·</span>
+                      <span>Age {age}</span>
+                      <span style={{color:C.t4}}>·</span>
+                      <span>{gender==='male'?'M':'F'} · {smoker?'Smoker':'NS'}</span>
+                      {usState&&<><span style={{color:C.t4}}>·</span><span>{usState}</span></>}
+                    </div>
+                    <TierPill tier={uwTier}/>
+                  </div>
+
+                  {/* Cards — single column full width */}
+                  <div style={{display:'flex',flexDirection:'column',gap:10}}>
+                    {results && results.map((r,idx)=>{
+                      const isBest = !gsbOn && r.prem!=null && idx===0 && results.filter(x=>x.prem!=null).length>1;
+                      const isGhost = !r.prem;
+                      const brandColor = CARRIER_META[r.id]?.brand || C.bd2;
+                      const premColor = isBest ? C.gold : brandColor;
+                      if(gsbOn){
+                        const gsbBrand = brandColor;
+                        return(
+                          <div key={r.id} style={{
+                            background:r.anyPrem?C.bg3:C.bg2,
+                            border:`1px solid ${r.anyPrem?C.bd2:C.bd}`,
+                            borderTop:`3px solid ${r.anyPrem?gsbBrand:C.bd}`,
+                            borderRadius:12,padding:'14px 14px 12px',
+                            opacity:r.anyPrem?1:0.35,
+                          }}>
+                            <div style={{marginBottom:12}}>
+                              <div style={{fontSize:17,fontWeight:700,color:C.t0}}>{r.name}</div>
+                              <div style={{fontSize:11,color:C.t4,marginTop:2}}>{r.sub}</div>
+                            </div>
+                            <div style={{display:'flex',gap:8}}>
+                              {GSB.map(g=>{
+                                const tier=r.tiers?.[g.key];
+                                const hasPrem=tier?.prem!=null;
+                                const metalColor=g.key==='gold'?C.gold:g.key==='silver'?'#94A3B8':'#CD7F32';
+                                return(
+                                  <div key={g.key} style={{flex:1,background:hasPrem?C.bg1:C.bg0,border:`1px solid ${hasPrem?metalColor+'55':C.bd}`,borderTop:`2px solid ${hasPrem?metalColor:C.bd}`,borderRadius:9,padding:'10px 8px',textAlign:'center',opacity:hasPrem?1:0.35}}>
+                                    <div style={{fontSize:10,color:C.t4,marginBottom:3}}>{g.medal} {g.label}</div>
+                                    <div style={{fontSize:11,color:C.t3,marginBottom:4}}>{fmtF(tier?.face||0)}</div>
+                                    {hasPrem?(
+                                      <div style={{fontSize:16,fontWeight:700,color:metalColor,fontFamily:"'DM Mono',monospace"}}>${tier.prem}<span style={{fontSize:10,fontWeight:400,color:C.t4}}>/mo</span></div>
+                                    ):(
+                                      <div style={{fontSize:10,color:C.t4}}>{tier?.reason||'N/A'}</div>
+                                    )}
+                                  </div>
+                                );
+                              })}
+                            </div>
+                            {r.anyPrem && CARRIER_META[r.id]?.eapp && (
+                              <a href={CARRIER_META[r.id].eapp} target="_blank" rel="noopener noreferrer" style={{
+                                display:'block',marginTop:10,padding:'11px 0',borderRadius:9,textAlign:'center',
+                                background:gsbBrand+'22',border:`1px solid ${gsbBrand}55`,
+                                color:gsbBrand,fontSize:13,fontWeight:600,textDecoration:'none'
+                              }}>Apply Online →</a>
+                            )}
+                          </div>
+                        );
+                      }
+                      return(
+                        <div key={r.id} style={{
+                          background:isGhost?C.bg2:C.bg3,
+                          border:`1px solid ${isGhost?C.bd:(isBest?C.gold+'55':C.bd2)}`,
+                          borderTop:`3px solid ${isGhost?C.bd:(isBest?C.gold:brandColor)}`,
+                          borderRadius:12,padding:'14px 14px 12px',
+                          opacity:isGhost?0.4:1,
+                          position:'relative',
+                        }}>
+                          {isBest&&<div style={{position:'absolute',top:-1,left:'50%',transform:'translateX(-50%)',background:C.gold,color:C.bg0,fontSize:9,fontWeight:800,padding:'2px 10px',borderRadius:'0 0 7px 7px',letterSpacing:1}}>BEST VALUE</div>}
+                          <div style={{display:'flex',justifyContent:'space-between',alignItems:'flex-start',marginBottom:isGhost?0:12,marginTop:isBest?10:0}}>
+                            <div>
+                              <div style={{fontSize:18,fontWeight:700,color:C.t0}}>{r.name}</div>
+                              <div style={{fontSize:11,color:C.t3,marginTop:2}}>{r.sub}</div>
+                            </div>
+                            {!isGhost&&<CompBadge carrierId={r.id} tier={r.activeTier}/>}
+                          </div>
+                          {!isGhost ? (
+                            <>
+                              <div style={{display:'flex',alignItems:'baseline',gap:5,marginBottom:8}}>
+                                <span style={{fontSize:32,fontWeight:700,color:premColor,fontFamily:"'DM Mono',monospace"}}>${r.prem}</span>
+                                <span style={{fontSize:13,color:C.t4}}>/mo</span>
+                              </div>
+                              <div style={{display:'flex',gap:6,marginBottom:10,flexWrap:'wrap'}}>
+                                <span style={{fontSize:12,color:C.t2}}>{fmtF(r.face||0)}</span>
+                                {r.capped&&<span style={{fontSize:10,color:C.gold,background:C.goldBg,borderRadius:4,padding:'1px 6px'}}>Capped</span>}
+                                <TierBadge tier={r.activeTier} productName={r.productName}/>
+                              </div>
+                              {CARRIER_META[r.id]?.eapp && (
+                                <a href={CARRIER_META[r.id].eapp} target="_blank" rel="noopener noreferrer" style={{
+                                  display:'block',padding:'12px 0',borderRadius:9,textAlign:'center',
+                                  background:brandColor+'22',border:`1px solid ${brandColor}55`,
+                                  color:isBest?C.gold:brandColor,fontSize:14,fontWeight:600,textDecoration:'none'
+                                }}>Apply Online →</a>
+                              )}
+                            </>
+                          ) : (
+                            <div style={{fontSize:12,color:C.t4,fontStyle:'italic'}}>{r.reason}</div>
+                          )}
+                        </div>
+                      );
+                    })}
+                  </div>
+                </>
+              )}
+            </div>
+          )}
+        </div>
+
+        {/* ── BOTTOM TAB BAR ── */}
+        <div style={{
+          position:'fixed',bottom:0,left:0,right:0,
+          background:C.bg1,borderTop:`1px solid ${C.bd}`,
+          display:'flex',zIndex:100,
+          paddingBottom:'env(safe-area-inset-bottom,0px)'
+        }}>
+          <button onClick={()=>setMobileTab('quote')} style={{
+            flex:1,padding:'14px 0 12px',border:'none',cursor:'pointer',
+            background:'transparent',
+            color:mobileTab==='quote'?C.gold:C.t4,
+            fontSize:11,fontWeight:mobileTab==='quote'?700:500,
+            display:'flex',flexDirection:'column',alignItems:'center',gap:3,
+            fontFamily:"'DM Sans',sans-serif",
+            borderTop:mobileTab==='quote'?`2px solid ${C.gold}`:'2px solid transparent'
+          }}>
+            <span style={{fontSize:20}}>📋</span>
+            Quote
+          </button>
+          <button onClick={()=>setMobileTab('results')} style={{
+            flex:1,padding:'14px 0 12px',border:'none',cursor:'pointer',
+            background:'transparent',
+            color:mobileTab==='results'?C.gold:C.t4,
+            fontSize:11,fontWeight:mobileTab==='results'?700:500,
+            display:'flex',flexDirection:'column',alignItems:'center',gap:3,
+            fontFamily:"'DM Sans',sans-serif",
+            borderTop:mobileTab==='results'?`2px solid ${C.gold}`:'2px solid transparent',
+            position:'relative'
+          }}>
+            <span style={{fontSize:20}}>⚡</span>
+            Results
+            {hasQuoted&&results&&results.filter(r=>r.prem!=null).length>0&&(
+              <span style={{position:'absolute',top:10,right:'28%',background:C.gold,color:C.bg0,fontSize:9,fontWeight:800,borderRadius:10,padding:'1px 5px',minWidth:16,textAlign:'center'}}>
+                {results.filter(r=>r.prem!=null).length}
+              </span>
+            )}
+          </button>
+        </div>
+
+        {/* ── CARRIER PANEL (mobile) ── */}
+        {carrierPanel&&(
+          <div style={{position:'fixed',inset:0,background:'rgba(0,0,0,0.7)',zIndex:200,display:'flex',alignItems:'flex-end'}} onClick={()=>setCarrierPanel(false)}>
+            <div style={{background:C.bg1,borderRadius:'16px 16px 0 0',width:'100%',maxHeight:'80vh',overflow:'hidden',display:'flex',flexDirection:'column'}} onClick={e=>e.stopPropagation()}>
+              <div style={{padding:'16px 18px 12px',borderBottom:`1px solid ${C.bd}`,display:'flex',justifyContent:'space-between',alignItems:'center'}}>
+                <div style={{fontSize:15,fontWeight:700,color:C.t0}}>Active Carriers</div>
+                <button onClick={()=>setCarrierPanel(false)} style={{background:'transparent',border:'none',color:C.t3,fontSize:22,cursor:'pointer',lineHeight:1}}>×</button>
+              </div>
+              <div style={{overflowY:'auto',padding:'12px 16px',flex:1}}>
+                {carriers.map(c=>{
+                  const active=c.enabled;
+                  return(
+                    <div key={c.id} style={{display:'flex',alignItems:'center',gap:12,padding:'12px 0',borderBottom:`1px solid ${C.bd}`}} onClick={()=>toggleCarrier(c.id)}>
+                      <div style={{width:36,height:36,borderRadius:8,background:C.bg3,display:'flex',alignItems:'center',justifyContent:'center',fontSize:10,fontWeight:700,color:active?CARRIER_META[c.id]?.brand||C.t2:C.t4,border:`1px solid ${active?CARRIER_META[c.id]?.brand+'44'||C.bd:C.bd}`}}>{c.abbr}</div>
+                      <div style={{flex:1}}>
+                        <div style={{fontSize:14,fontWeight:600,color:active?C.t0:C.t4}}>{c.name}</div>
+                        <div style={{fontSize:11,color:C.t4,marginTop:1}}>{c.sub}</div>
+                      </div>
+                      <div style={{width:44,height:26,borderRadius:13,background:active?C.blue:'#1E3A5A',position:'relative',flexShrink:0}}>
+                        <div style={{position:'absolute',top:4,left:active?22:4,width:16,height:16,borderRadius:'50%',background:'white',transition:'left 0.2s'}}/>
+                      </div>
+                    </div>
+                  );
+                })}
+              </div>
+            </div>
+          </div>
+        )}
+      </div>
+    );
+  }
+  // ─────────────────────────────────────────────────
+  // ── END MOBILE RENDER — DESKTOP BELOW
+  // ─────────────────────────────────────────────────
 
   return (
     <div style={{fontFamily:"'DM Sans',sans-serif",background:C.bg0,minHeight:'100vh',color:C.t1,position:'relative'}}>
@@ -858,7 +1304,7 @@ export default function QuoteMark() {
             </div>
           </div>
 
-          <button onClick={()=>{if(ageOK)setHasQuoted(true);}} style={{
+          <button onClick={()=>{if(ageOK){setHasQuoted(true);if(isMobile)setMobileTab('results');}}} style={{
             width:'100%',padding:'13px 0',borderRadius:10,border:'none',
             cursor:ageOK?'pointer':'not-allowed',
             background:ageOK?C.gold:'#1A3050',
