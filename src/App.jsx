@@ -680,10 +680,12 @@ export default function QuoteMark() {
     let reason;
     if(prem==null){if(uwTier==='D'&&a>75)reason='Modified not available after 75';else if(uwTier==='E'&&a>80)reason='GI not available after 80';else reason='Not available for this profile';}
     const isCapped = cappedFace < face;
-    if(isCapped && prem!=null && !reason){
-      reason = `Product caps at ${fmtF(cappedFace)} — quoting at max coverage`;
+    if(isCapped){
+      // Treat as unavailable — ghost card, sorted to bottom
+      return{...carr,face:null,prem:null,productName:pName,activeTier:uwTier,
+        reason:`Coverage caps at ${fmtF(cappedFace)} for this carrier`,capped:true};
     }
-    return{...carr,face:prem!=null?cappedFace:null,prem,productName:pName,activeTier:uwTier,reason,capped:isCapped};
+    return{...carr,face:prem!=null?cappedFace:null,prem,productName:pName,activeTier:uwTier,reason,capped:false};
   }
 
   const activeCarriers = useMemo(()=>carriers.filter(c=>c.enabled),[carriers]);
@@ -1065,7 +1067,7 @@ export default function QuoteMark() {
                               </div>
                               <div style={{display:'flex',gap:6,marginBottom:10,flexWrap:'wrap'}}>
                                 <span style={{fontSize:12,color:C.t2}}>{fmtF(r.face||0)}</span>
-                                {r.capped&&<span style={{fontSize:10,color:C.gold,background:C.goldBg,borderRadius:4,padding:'2px 7px',fontWeight:600}}>Max: {fmtF(r.face)}</span>}
+                
                                 <TierBadge tier={r.activeTier} productName={r.productName}/>
                               </div>
                               {CARRIER_META[r.id]?.eapp && (
@@ -1638,7 +1640,7 @@ export default function QuoteMark() {
                               <div style={{flex:1}}>
                                 <div style={{fontSize:10,color:C.t3,marginBottom:2}}>Face amount</div>
                                 <div style={{fontFamily:"'DM Mono',monospace",fontSize:14,fontWeight:500,color:C.t1}}>
-                                  {fmtF(r.face)}{r.capped&&<span style={{fontSize:9,color:C.gold,marginLeft:5,background:C.goldBg,borderRadius:3,padding:'1px 5px',fontWeight:700}}>MAX</span>}
+                                  {fmtF(r.face)}
                                 </div>
                               </div>
                               <div style={{width:1,height:32,background:C.bd,margin:'0 14px'}}/>
@@ -1649,11 +1651,7 @@ export default function QuoteMark() {
                                 </div>
                               </div>
                             </div>
-                            {r.capped&&(
-                              <div style={{fontSize:11,color:C.gold,background:C.goldBg,border:`1px solid ${C.goldBd}`,borderRadius:7,padding:'6px 10px',marginTop:8,lineHeight:1.5}}>
-                                ⚠ This carrier caps at {fmtF(r.face)} — quoting at max coverage
-                              </div>
-                            )}
+
                             <div style={{flex:1}}/>
                             <EAppBtn carrierId={r.id}/>
                           </div>
