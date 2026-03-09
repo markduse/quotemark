@@ -365,7 +365,7 @@ const TIER_INFO = {
 };
 
 const GSB = [
-  {key:'gold',   label:'Gold',   medal:'🥇', color:'#F59E0B', default:15000},
+  {key:'gold',   label:'Gold',   medal:'🥇', color:'#FFD700', default:15000},
   {key:'silver', label:'Silver', medal:'🥈', color:'#94A3B8', default:10000},
   {key:'bronze', label:'Bronze', medal:'🥉', color:'#B45309', default:5000},
 ];
@@ -1227,7 +1227,7 @@ export default function QuoteMark() {
                               {GSB.map(g=>{
                                 const tier=r.tiers?.[g.key];
                                 const hasPrem=tier?.prem!=null;
-                                const metalColor=g.key==='gold'?C.gold:g.key==='silver'?'#94A3B8':'#CD7F32';
+                                const metalColor=g.key==='gold'?'#FFD700':g.key==='silver'?'#94A3B8':'#CD7F32';
                                 return(
                                   <div key={g.key} style={{flex:1,background:hasPrem?C.bg1:C.bg0,border:`1px solid ${hasPrem?metalColor+'55':C.bd}`,borderTop:`2px solid ${hasPrem?metalColor:C.bd}`,borderRadius:9,padding:'10px 8px',textAlign:'center',opacity:hasPrem?1:0.35}}>
                                     <div style={{fontSize:10,color:C.t4,marginBottom:3}}>{g.medal} {g.label}</div>
