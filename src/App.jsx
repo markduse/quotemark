@@ -602,7 +602,7 @@ export default function QuoteMark() {
     const mTogBtn = (active,color) => ({flex:1,padding:'11px 0',borderRadius:10,border:`1px solid ${active?(color||C.blue)+'66':C.bd}`,cursor:'pointer',fontSize:14,fontWeight:600,background:active?(color?color+'22':C.blueBg):C.bg2,color:active?(color||'#93C5FD'):C.t3,transition:'all 0.12s',fontFamily:"'DM Sans',sans-serif"});
 
     return (
-      <div style={{fontFamily:"'DM Sans',sans-serif",background:C.bg0,minHeight:'100vh',color:C.t1,position:'relative',paddingBottom:72}}>
+      <div style={{fontFamily:"'DM Sans',sans-serif",background:C.bg0,minHeight:'100vh',color:C.t1,position:'relative',paddingBottom:100}}>
 
         {/* ── MOBILE HEADER ── */}
         <div style={{background:C.bg1,borderBottom:`1px solid ${C.bd}`,padding:'12px 18px',display:'flex',alignItems:'center',justifyContent:'space-between',position:'sticky',top:0,zIndex:50}}>
@@ -715,8 +715,11 @@ export default function QuoteMark() {
                           <span style={{color:C.t0,fontWeight:700,fontSize:16,fontFamily:"'DM Mono',monospace"}}>{fmtF(faceAmt)}</span>
                         </div>
                         <input type="range" min="2000" max="40000" step="1000" value={faceAmt}
-                          onChange={e=>setFaceAmt(+e.target.value)}
-                          style={{width:'100%',accentColor:C.gold,height:6,marginBottom:6}}/>
+                          onChange={e=>{
+                            setFaceAmt(+e.target.value);
+                            if(navigator.vibrate) navigator.vibrate(4);
+                          }}
+                          style={{width:'100%',accentColor:C.gold,height:28,cursor:'pointer',marginBottom:6}}/>
                         <div style={{display:'flex',justifyContent:'space-between',fontSize:11,color:C.t4}}>
                           <span>$2,000</span><span>$40,000</span>
                         </div>
@@ -818,16 +821,18 @@ export default function QuoteMark() {
 
               {/* GET QUOTES button */}
               <button onClick={()=>{if(ageOK){setHasQuoted(true);if(isMobile)setMobileTab('results');}}} style={{
-                width:'100%',padding:'16px 0',borderRadius:12,border:'none',
+                width:'100%',padding:'18px 0',borderRadius:12,border:'none',
                 cursor:ageOK?'pointer':'not-allowed',
                 background:ageOK?C.gold:'#1A3050',
                 color:ageOK?C.bg0:C.t4,
-                fontSize:16,fontWeight:700,letterSpacing:0.5,
+                fontSize:17,fontWeight:700,letterSpacing:0.5,
                 opacity:ageOK?1:0.4,
                 fontFamily:"'DM Sans',sans-serif"
               }}>
                 ⚡ Get Quotes
               </button>
+              {/* Bottom spacer — keeps button clear of fixed tab bar */}
+              <div style={{height:32}}/>
             </div>
           )}
 
