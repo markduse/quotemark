@@ -299,14 +299,21 @@ const COMP_RATES = {
 
 // ── CARRIER META: logo domain (Clearbit) + eApp link ──
 const CARRIER_META = {
-  acc:  { img:'/logos/cvs2.jpg',   eapp:'https://www.aetnaseniorproducts.com/ssi/index.html', brand:'#7C3AED' }, // CVS/Aetna — acc uses CVS brand
-  ahl:  { img:'/logos/ahl2.png',   eapp:'https://ahlpatriotseries.com/',                       brand:'#1D4ED8' }, // AHL blue
-  cont: { img:'/logos/aetna2.png', eapp:'https://www.aetnaseniorproducts.com/ssi/index.html', brand:'#7C3AED' }, // Aetna purple
-  rn:   { img:'/logos/rn2.png',    eapp:'https://agent.royalneighbors.org/login',              brand:'#059669' }, // Royal green
-  ta:   { img:'/logos/ta.png',     eapp:'https://www.transamerica.com/financial-professionals/', brand:'#0EA5E9' }, // Transamerica (keep existing)
-  fid:  { img:'/logos/fid2.png',   eapp:'https://portal.instabrain.io/App/?redirected=true',   brand:'#0369A1' }, // Fidelity navy
-  cbg:  { img:'/logos/cbg2.png',   eapp:'https://www.connext.corebridgefinancial.com/life/connext-portal/public/login', brand:'#D97706' }, // Corebridge amber
-  uhl:  { img:'/logos/uhl2.png',   eapp:'https://agentportal.unitedhomelife.com/home',          brand:'#BE123C' }, // UHL red
+  acc:  { img:'/logos/cvs2.jpg',   eapp:'https://www.aetnaseniorproducts.com/ssi/index.html', brand:'#DC2626' }, // CVS/Accendo — Standard Red
+  ahl:  { img:'/logos/ahl2.png',   eapp:'https://ahlpatriotseries.com/',                       brand:'#1E3A8A' }, // AHL — Deep Blue
+  cont: { img:'/logos/aetna2.png', eapp:'https://www.aetnaseniorproducts.com/ssi/index.html', brand:'#7C3AED' }, // Continental/Aetna — Purple
+  rn:   { img:'/logos/rn2.png',    eapp:'https://agent.royalneighbors.org/login',              brand:'#16A34A' }, // Royal Neighbors — Green
+  ta:   { img:'/logos/ta.png',     eapp:'https://www.transamerica.com/financial-professionals/', brand:'#EF4444' }, // Transamerica — Lighter Red
+  fid:  { img:'/logos/fid2.png',   eapp:'https://portal.instabrain.io/App/?redirected=true',   brand:'#38BDF8' }, // Fidelity/InstaBrain — Light Blue
+  cbg:  { img:'/logos/cbg2.png',   eapp:'https://www.connext.corebridgefinancial.com/life/connext-portal/public/login', brand:'#9333EA' }, // Corebridge — Deep Purple
+  uhl:  { img:'/logos/uhl2.png',   eapp:'https://agentportal.unitedhomelife.com/home',          brand:'#B91C1C' }, // UHL — Slightly Dark Red
+  moo:  { img:'/logos/moo.png',    eapp:'https://www.mutualofomaha.com/agent-login',            brand:'#2563EB' }, // Mutual of Omaha — Royal Blue
+  laf:  { img:'/logos/laf.png',    eapp:'https://www.lafayettelife.com/agent-resources',        brand:'#8B5CF6' }, // Lafayette — Medium Purple
+  for:  { img:'/logos/for.png',    eapp:'https://www.forestersfinancial.com/us/agent-portal',   brand:'#7E22CE' }, // Foresters — Plum
+  amr:  { img:'/logos/amr.png',    eapp:'https://www.americo.com/agent-access',                brand:'#1D4ED8' }, // Americo — Dark Blue
+  amam: { img:'/logos/amam.png',   eapp:'https://www.americanamicable.com/agent-portal',        brand:'#CBD5E1' }, // American Amicable — Light Gray
+  ts:   { img:'/logos/ts.png',     eapp:'https://www.trustage.com/agents',                     brand:'#FDE68A' }, // TruStage — Pale Yellow
+  ls:   { img:'/logos/ls.png',     eapp:'https://www.lifeshield.com/agent',                    brand:'#64748B' }, // LifeShield — Gray
 };
 
 function getCompBadge(carrierId, tier) {
@@ -912,13 +919,10 @@ export default function QuoteMark() {
                           opacity:r.anyPrem?1:0.35,
                           overflow:'visible'
                         }}>
-                          {/* Card header: name + logo */}
-                          <div style={{display:'flex',justifyContent:'space-between',alignItems:'center',marginBottom:14}}>
-                            <div>
-                              <div style={{fontSize:16,fontWeight:600,color:C.t0,letterSpacing:'-0.2px'}}>{r.name}</div>
-                              <div style={{fontSize:11,color:C.t3,marginTop:2}}>{r.sub}</div>
-                            </div>
-                            <CarrierLogo carrierId={r.id} name={r.name}/>
+                          {/* Card header: name only — no logo */}
+                          <div style={{marginBottom:14}}>
+                            <div style={{fontSize:18,fontWeight:700,color:C.t0,letterSpacing:'-0.3px',lineHeight:1.2}}>{r.name}</div>
+                            <div style={{fontSize:11,color:C.t3,marginTop:3}}>{r.sub}</div>
                           </div>
                           {/* Three tier boxes — tighter gap */}
                           <div style={{display:'grid',gridTemplateColumns:'1fr 1fr 1fr',gap:5}}>
@@ -982,13 +986,14 @@ export default function QuoteMark() {
                         )}
                         <div style={{display:'flex',justifyContent:'space-between',alignItems:'flex-start',marginBottom:isGhost?0:14,marginTop:isBest?10:0}}>
                           <div style={{flex:1,minWidth:0}}>
-                            <div style={{fontSize:16,fontWeight:600,color:C.t0,letterSpacing:'-0.2px'}}>{r.name}</div>
-                            <div style={{fontSize:11,color:C.t3,marginTop:2}}>{r.sub}</div>
+                            <div style={{fontSize:18,fontWeight:700,color:C.t0,letterSpacing:'-0.3px',lineHeight:1.2}}>{r.name}</div>
+                            <div style={{fontSize:11,color:C.t3,marginTop:3}}>{r.sub}</div>
                           </div>
-                          <div style={{display:'flex',flexDirection:'column',alignItems:'flex-end',gap:5,marginLeft:10,flexShrink:0}}>
-                            <CarrierLogo carrierId={r.id} name={r.name}/>
-                            {!isGhost&&<CompBadge carrierId={r.id} tier={r.activeTier}/>}
-                          </div>
+                          {!isGhost&&(
+                            <div style={{marginLeft:10,flexShrink:0}}>
+                              <CompBadge carrierId={r.id} tier={r.activeTier}/>
+                            </div>
+                          )}
                         </div>
                         {isGhost?(
                           <div style={{fontSize:12,color:C.t4,fontStyle:'italic'}}>{r.reason}</div>
