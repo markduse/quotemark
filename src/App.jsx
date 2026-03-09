@@ -34,7 +34,7 @@ const FACE_CAPS = {
   ra:50000, ls:30000, amam:50000, moo:50000, cbg:25000,
   ta:100000, lb:30000, pf:50000, amr:30000, for:35000,
   afl:50000, laf:50000, uhl:30000, fid:40000,
-  bl:50000,
+  bl:25000,
 };
 const AGE_MAX = {
   acc:89, ahl:85, cont:89, rn:85,
@@ -433,8 +433,8 @@ const CARRIERS = [
   {id:'bl',   name:'Better Life',          sub:'Better Final Expense', abbr:'BL', enabled:false,
    product:{B:'Level',C:'Level',D:'Graded',E:null},
    fn:(age,male,smoker,tier,face)=>{
-     if(tier==='B'||tier==='C') return blQuote(BL_SI,age,male,smoker,Math.min(face,50000));
-     if(tier==='D') return blQuote(BL_GRD,age,male,smoker,Math.min(face,50000));
+     if(tier==='B'||tier==='C') return blQuote(BL_SI,age,male,smoker,Math.min(face,25000));
+     if(tier==='D') return blQuote(BL_GRD,age,male,smoker,Math.min(face,25000));
      return null;
    }},
 ];
