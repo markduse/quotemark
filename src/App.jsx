@@ -380,7 +380,8 @@ const TierBadge = ({tier, productName}) => {
 
 // Comp badge — green 💰 for high comp (≥110%), red 📉 for low (<90%)
 const CompBadge = ({carrierId, tier}) => {
-  const [hov,setHov] = React.useState(false);
+  const [open,setOpen] = React.useState(false);
+  const ref = React.useRef(null);
   const level = getCompBadge(carrierId, tier);
   if(!level || level==='mid') return null;
   const isHigh = level==='high';
@@ -391,14 +392,40 @@ const CompBadge = ({carrierId, tier}) => {
   const tip   = isHigh
     ? 'Strong commission contract. One of the better-compensated products in this tier.'
     : 'Below-average commission for this tier. Consider alternatives when available.';
+  // Determine if tooltip should open upward or downward based on screen position
+  const [openUp,setOpenUp] = React.useState(true);
+  const handleOpen = () => {
+    if(ref.current){
+      const rect = ref.current.getBoundingClientRect();
+      setOpenUp(rect.top > 160); // flip down if near top of screen
+    }
+    setOpen(o=>!o);
+  };
+  // Close on outside tap
+  React.useEffect(()=>{
+    if(!open) return;
+    const close = ()=>setOpen(false);
+    setTimeout(()=>document.addEventListener('click',close),0);
+    return ()=>document.removeEventListener('click',close);
+  },[open]);
   return (
-    <span style={{position:'relative',display:'inline-flex'}}
-      onMouseEnter={()=>setHov(true)} onMouseLeave={()=>setHov(false)}>
-      <span style={{display:'inline-flex',alignItems:'center',gap:4,background:bg,border:`1px solid ${bd}`,color,borderRadius:5,padding:'2px 7px',fontSize:10,fontWeight:700,cursor:'default',whiteSpace:'nowrap'}}>
+    <span ref={ref} style={{position:'relative',display:'inline-flex'}}
+      onMouseEnter={()=>setOpen(true)} onMouseLeave={()=>setOpen(false)}
+      onClick={e=>{e.stopPropagation();handleOpen();}}>
+      <span style={{display:'inline-flex',alignItems:'center',gap:4,background:bg,border:`1px solid ${bd}`,color,borderRadius:5,padding:'3px 8px',fontSize:11,fontWeight:700,cursor:'pointer',whiteSpace:'nowrap'}}>
         {emoji}
       </span>
-      {hov&&(
-        <span style={{position:'fixed',transform:'translateY(-100%) translateY(-8px)',background:'#0F2035',border:'1px solid #2A4F78',color:'#CBD5E1',fontSize:10,borderRadius:7,padding:'8px 11px',width:200,lineHeight:1.6,zIndex:9999,pointerEvents:'none',boxShadow:'0 8px 24px rgba(0,0,0,0.7)',left:'auto'}}>
+      {open&&(
+        <span style={{
+          position:'absolute',
+          [openUp?'bottom':'top']:openUp?'calc(100% + 8px)':'calc(100% + 8px)',
+          right:0,
+          background:'#0F2035',border:'1px solid #2A4F78',color:'#CBD5E1',
+          fontSize:11,borderRadius:8,padding:'9px 12px',
+          width:210,lineHeight:1.6,zIndex:9999,pointerEvents:'none',
+          boxShadow:'0 8px 24px rgba(0,0,0,0.8)',
+          whiteSpace:'normal'
+        }}>
           {tip}
         </span>
       )}
@@ -598,7 +625,7 @@ export default function QuoteMark() {
   // ── MOBILE RENDER (<768px)
   // ─────────────────────────────────────────────────
   if (isMobile) {
-    const mInp = {background:C.bg2,border:`1px solid ${C.bd}`,color:C.t1,borderRadius:10,padding:'12px 14px',fontSize:15,width:'100%',outline:'none',fontFamily:"'DM Sans',sans-serif",WebkitAppearance:'none'};
+    const mInp = {background:C.bg2,border:`1px solid ${C.bd}`,color:C.t1,borderRadius:10,padding:'12px 14px',fontSize:15,width:'100%',boxSizing:'border-box',outline:'none',fontFamily:"'DM Sans',sans-serif",WebkitAppearance:'none'};
     const mTogBtn = (active,color) => ({flex:1,padding:'11px 0',borderRadius:10,border:`1px solid ${active?(color||C.blue)+'66':C.bd}`,cursor:'pointer',fontSize:14,fontWeight:600,background:active?(color?color+'22':C.blueBg):C.bg2,color:active?(color||'#93C5FD'):C.t3,transition:'all 0.12s',fontFamily:"'DM Sans',sans-serif"});
 
     return (
@@ -684,7 +711,7 @@ export default function QuoteMark() {
               </div>
 
               {/* Quote Target */}
-              <div style={{background:C.bg2,border:`1px solid ${C.bd}`,borderRadius:12,padding:16}}>
+              <div style={{background:C.bg2,border:`1px solid ${C.bd}`,borderRadius:12,padding:16,overflow:'hidden'}}>
                 <div style={{display:'flex',alignItems:'center',justifyContent:'space-between',marginBottom:12}}>
                   <div style={{fontSize:11,fontWeight:700,letterSpacing:1.8,color:C.t4,textTransform:'uppercase'}}>Quote Target</div>
                   <button onClick={()=>{setGsbOn(p=>!p);setMode('face');}} style={{
@@ -719,7 +746,7 @@ export default function QuoteMark() {
                             setFaceAmt(+e.target.value);
                             if(navigator.vibrate) navigator.vibrate(4);
                           }}
-                          style={{width:'100%',accentColor:C.gold,height:28,cursor:'pointer',marginBottom:6}}/>
+                          style={{width:'100%',accentColor:C.gold,height:35,cursor:'pointer',marginBottom:6}}/>
                         <div style={{display:'flex',justifyContent:'space-between',fontSize:11,color:C.t4}}>
                           <span>$2,000</span><span>$40,000</span>
                         </div>
@@ -756,7 +783,7 @@ export default function QuoteMark() {
               </div>
 
               {/* Health conditions — search only */}
-              <div style={{background:C.bg2,border:`1px solid ${C.bd}`,borderRadius:12,padding:16}}>
+              <div style={{background:C.bg2,border:`1px solid ${C.bd}`,borderRadius:12,padding:16,overflow:'hidden'}}>
                 <div style={{fontSize:11,fontWeight:700,letterSpacing:1.8,color:C.t4,textTransform:'uppercase',marginBottom:12}}>Health Conditions</div>
                 <div style={{position:'relative',marginBottom:10}}>
                   <span style={{position:'absolute',left:12,top:'50%',transform:'translateY(-50%)',fontSize:14,color:C.t4}}>🔍</span>
