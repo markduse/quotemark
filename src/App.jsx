@@ -732,6 +732,29 @@ export default function QuoteMark() {
   const [pwChanging, setPwChanging] = useState(false);
   const [carriersSaved, setCarriersSaved] = useState(false);
 
+  // ── CONTACT MODAL STATE ──
+  const [showContact, setShowContact] = useState(false);
+  const [contactType, setContactType] = useState('carrier');
+  const [contactForm, setContactForm] = useState({name:'',email:'',company:'',message:''});
+  const [contactSending, setContactSending] = useState(false);
+  const [contactSent, setContactSent] = useState(false);
+  const [contactErr, setContactErr] = useState(null);
+
+  const sendContact = async () => {
+    if(!contactForm.name||!contactForm.email||!contactForm.message) return;
+    setContactSending(true); setContactErr(null);
+    try {
+      const res = await fetch('/.netlify/functions/contact',{
+        method:'POST',
+        headers:{'Content-Type':'application/json'},
+        body:JSON.stringify({type:contactType,...contactForm})
+      });
+      if(res.ok){setContactSent(true);}
+      else setContactErr('Failed to send — please try again.');
+    } catch{ setContactErr('Network error — please try again.'); }
+    setContactSending(false);
+  };
+
   // Load profile data + carrier prefs from Supabase on mount
   useEffect(()=>{
     if(!session) return;
@@ -885,11 +908,13 @@ export default function QuoteMark() {
           <div style={{fontFamily:"'Barlow Condensed',sans-serif",fontSize:26,fontWeight:800,color:C.t0,letterSpacing:'-0.5px'}}>
             Quote<span style={{color:C.gold}}>Mark</span>
           </div>
-          <div style={{display:'flex',alignItems:'center',gap:8}}>
-            <button onClick={()=>setCarrierPanel(true)} style={{padding:'8px 14px',borderRadius:8,border:`1px solid ${C.bd2}`,background:C.bg3,color:C.t2,fontSize:12,fontWeight:500,cursor:'pointer',fontFamily:"'DM Sans',sans-serif"}}>
-              ⊞ Carriers
+          <div style={{display:'flex',alignItems:'center',gap:6}}>
+            <button onClick={()=>setShowContact(true)} style={{padding:'8px 11px',borderRadius:8,border:`1px solid ${C.bd2}`,background:C.bg3,color:C.t2,fontSize:12,fontWeight:500,cursor:'pointer',fontFamily:"'DM Sans',sans-serif",display:'flex',alignItems:'center',gap:5}}>
+              <span style={{fontSize:14}}>📬</span><span style={{fontSize:11}}>Contact</span>
             </button>
-
+            <button onClick={()=>setMobileTab2('profile')} style={{padding:'8px 11px',borderRadius:8,border:`1px solid ${C.bd2}`,background:C.bg3,color:C.t2,fontSize:12,fontWeight:500,cursor:'pointer',fontFamily:"'DM Sans',sans-serif",display:'flex',alignItems:'center',gap:5}}>
+              <span style={{fontSize:14}}>👤</span><span style={{fontSize:11}}>Profile</span>
+            </button>
           </div>
         </div>
 
@@ -1312,22 +1337,78 @@ export default function QuoteMark() {
               </span>
             )}
           </button>
-          <button onClick={()=>setMobileTab2(mobileTab2==='profile'?null:'profile')} style={{
-            flex:1,padding:'14px 0 12px',border:'none',cursor:'pointer',
-            background:'transparent',
-            color:mobileTab2==='profile'?C.gold:C.t4,
-            fontSize:11,fontWeight:mobileTab2==='profile'?700:500,
-            display:'flex',flexDirection:'column',alignItems:'center',gap:3,
-            fontFamily:"'DM Sans',sans-serif",
-            borderTop:mobileTab2==='profile'?`2px solid ${C.gold}`:'2px solid transparent'
-          }}>
-            <span style={{fontSize:20}}>👤</span>
-            Profile
-          </button>
+
         </div>
 
         {/* ── CARRIER PANEL (mobile) ── */}
-        {/* ── MOBILE PROFILE SLIDE-UP SHEET ── */}
+        {/* ── CONTACT MODAL ── */}
+      {showContact&&(
+        <div onClick={()=>{if(!contactSending)setShowContact(false);}} style={{position:'fixed',inset:0,zIndex:400,background:'rgba(0,0,0,0.65)',display:'flex',alignItems:'center',justifyContent:'center',padding:'16px'}}>
+          <div onClick={e=>e.stopPropagation()} style={{background:C.bg1,borderRadius:16,width:480,maxWidth:'100%',maxHeight:'90vh',overflowY:'auto',boxShadow:'0 24px 80px rgba(0,0,0,0.5)'}}>
+            <div style={{display:'flex',alignItems:'center',justifyContent:'space-between',padding:'18px 20px 0'}}>
+              <div style={{fontSize:17,fontWeight:700,color:C.t1}}>Contact QuoteMark</div>
+              <button onClick={()=>setShowContact(false)} style={{background:'transparent',border:'none',color:C.t4,fontSize:22,cursor:'pointer',lineHeight:1}}>✕</button>
+            </div>
+            {contactSent?(
+              <div style={{padding:'32px 24px',textAlign:'center'}}>
+                <div style={{fontSize:40,marginBottom:12}}>✅</div>
+                <div style={{fontSize:16,fontWeight:700,color:C.t1,marginBottom:8}}>Message Sent!</div>
+                <div style={{fontSize:13,color:C.t3,marginBottom:24}}>We'll get back to you shortly.</div>
+                <button onClick={()=>{setShowContact(false);setContactSent(false);setContactForm({name:'',email:'',company:'',message:''}); }} style={{padding:'11px 28px',borderRadius:8,border:'none',background:C.gold,color:C.bg0,fontWeight:700,fontSize:14,cursor:'pointer',fontFamily:"'DM Sans',sans-serif"}}>Close</button>
+              </div>
+            ):(
+              <div style={{padding:'16px 20px 24px',display:'flex',flexDirection:'column',gap:14}}>
+                {/* Type selector */}
+                <div>
+                  <div style={{fontSize:11,fontWeight:700,letterSpacing:1.2,color:C.t4,textTransform:'uppercase',marginBottom:10}}>Inquiry Type</div>
+                  {[
+                    {id:'carrier',    emoji:'📋', label:'Submit a New Carrier', desc:'Request a carrier be added to QuoteMark'},
+                    {id:'suggestion', emoji:'💡', label:'General Suggestion',    desc:'Feature ideas, feedback, or improvements'},
+                    {id:'partnership',emoji:'🤝', label:'Partnership / Whitelabel', desc:'Agency inquiries, 5+ seats, or white-label licensing'},
+                  ].map(opt=>(
+                    <div key={opt.id} onClick={()=>setContactType(opt.id)}
+                      style={{display:'flex',alignItems:'center',gap:12,padding:'11px 14px',borderRadius:9,border:`1px solid ${contactType===opt.id?C.gold+'88':C.bd}`,background:contactType===opt.id?C.gold+'0D':'transparent',cursor:'pointer',marginBottom:7}}>
+                      <span style={{fontSize:18,flexShrink:0}}>{opt.emoji}</span>
+                      <div>
+                        <div style={{fontSize:13,fontWeight:600,color:contactType===opt.id?C.gold:C.t1}}>{opt.label}</div>
+                        <div style={{fontSize:11,color:C.t4}}>{opt.desc}</div>
+                      </div>
+                      {contactType===opt.id&&<span style={{marginLeft:'auto',color:C.gold,fontSize:14}}>✓</span>}
+                    </div>
+                  ))}
+                </div>
+                {/* Fields */}
+                {[
+                  {key:'name',    label:'Your Name',    ph:'Full name',          req:true},
+                  {key:'email',   label:'Email',        ph:'your@email.com',     req:true},
+                  {key:'company', label:'Company / Agency', ph:'Optional',      req:false},
+                ].map(f=>(
+                  <div key={f.key}>
+                    <div style={{fontSize:12,color:C.t4,marginBottom:5}}>{f.label}{f.req&&<span style={{color:'#EF4444'}}> *</span>}</div>
+                    <input value={contactForm[f.key]} onChange={e=>setContactForm(p=>({...p,[f.key]:e.target.value}))}
+                      placeholder={f.ph}
+                      style={{width:'100%',boxSizing:'border-box',background:C.bg3,border:`1px solid ${C.bd2}`,borderRadius:8,color:C.t1,fontSize:14,padding:'11px 12px',fontFamily:"'DM Sans',sans-serif",outline:'none'}}/>
+                  </div>
+                ))}
+                <div>
+                  <div style={{fontSize:12,color:C.t4,marginBottom:5}}>Message <span style={{color:'#EF4444'}}>*</span></div>
+                  <textarea value={contactForm.message} onChange={e=>setContactForm(p=>({...p,message:e.target.value}))}
+                    placeholder={contactType==='carrier'?'Carrier name, website, and any relevant product details…':(contactType==='suggestion'?'Describe your idea or feedback…':'Tell us about your agency, team size, and what you are looking for…')}
+                    rows={4}
+                    style={{width:'100%',boxSizing:'border-box',background:C.bg3,border:`1px solid ${C.bd2}`,borderRadius:8,color:C.t1,fontSize:14,padding:'11px 12px',fontFamily:"'DM Sans',sans-serif",outline:'none',resize:'vertical'}}/>
+                </div>
+                {contactErr&&<div style={{fontSize:12,color:'#EF4444',padding:'8px 10px',background:'rgba(239,68,68,0.08)',borderRadius:7}}>{contactErr}</div>}
+                <button onClick={sendContact} disabled={contactSending||!contactForm.name||!contactForm.email||!contactForm.message}
+                  style={{padding:'13px',borderRadius:9,border:'none',background:C.gold,color:C.bg0,fontWeight:700,fontSize:14,cursor:'pointer',fontFamily:"'DM Sans',sans-serif",opacity:(contactSending||!contactForm.name||!contactForm.email||!contactForm.message)?0.5:1}}>
+                  {contactSending?'Sending…':'Send Message'}
+                </button>
+              </div>
+            )}
+          </div>
+        </div>
+      )}
+
+      {/* ── MOBILE PROFILE SLIDE-UP SHEET ── */}
       {mobileTab2==='profile'&&(
         <div style={{position:'fixed',inset:0,zIndex:200,display:'flex',flexDirection:'column'}} onClick={()=>setMobileTab2(null)}>
           <div style={{flex:1,background:'rgba(0,0,0,0.5)'}}/>
@@ -1981,6 +2062,73 @@ export default function QuoteMark() {
       </div>
 
       {/* ── CARRIER PANEL OVERLAY ── */}
+      {/* ── CONTACT MODAL ── */}
+      {showContact&&(
+        <div onClick={()=>{if(!contactSending)setShowContact(false);}} style={{position:'fixed',inset:0,zIndex:400,background:'rgba(0,0,0,0.65)',display:'flex',alignItems:'center',justifyContent:'center',padding:'16px'}}>
+          <div onClick={e=>e.stopPropagation()} style={{background:C.bg1,borderRadius:16,width:480,maxWidth:'100%',maxHeight:'90vh',overflowY:'auto',boxShadow:'0 24px 80px rgba(0,0,0,0.5)'}}>
+            <div style={{display:'flex',alignItems:'center',justifyContent:'space-between',padding:'18px 20px 0'}}>
+              <div style={{fontSize:17,fontWeight:700,color:C.t1}}>Contact QuoteMark</div>
+              <button onClick={()=>setShowContact(false)} style={{background:'transparent',border:'none',color:C.t4,fontSize:22,cursor:'pointer',lineHeight:1}}>✕</button>
+            </div>
+            {contactSent?(
+              <div style={{padding:'32px 24px',textAlign:'center'}}>
+                <div style={{fontSize:40,marginBottom:12}}>✅</div>
+                <div style={{fontSize:16,fontWeight:700,color:C.t1,marginBottom:8}}>Message Sent!</div>
+                <div style={{fontSize:13,color:C.t3,marginBottom:24}}>We'll get back to you shortly.</div>
+                <button onClick={()=>{setShowContact(false);setContactSent(false);setContactForm({name:'',email:'',company:'',message:''}); }} style={{padding:'11px 28px',borderRadius:8,border:'none',background:C.gold,color:C.bg0,fontWeight:700,fontSize:14,cursor:'pointer',fontFamily:"'DM Sans',sans-serif"}}>Close</button>
+              </div>
+            ):(
+              <div style={{padding:'16px 20px 24px',display:'flex',flexDirection:'column',gap:14}}>
+                {/* Type selector */}
+                <div>
+                  <div style={{fontSize:11,fontWeight:700,letterSpacing:1.2,color:C.t4,textTransform:'uppercase',marginBottom:10}}>Inquiry Type</div>
+                  {[
+                    {id:'carrier',    emoji:'📋', label:'Submit a New Carrier', desc:'Request a carrier be added to QuoteMark'},
+                    {id:'suggestion', emoji:'💡', label:'General Suggestion',    desc:'Feature ideas, feedback, or improvements'},
+                    {id:'partnership',emoji:'🤝', label:'Partnership / Whitelabel', desc:'Agency inquiries, 5+ seats, or white-label licensing'},
+                  ].map(opt=>(
+                    <div key={opt.id} onClick={()=>setContactType(opt.id)}
+                      style={{display:'flex',alignItems:'center',gap:12,padding:'11px 14px',borderRadius:9,border:`1px solid ${contactType===opt.id?C.gold+'88':C.bd}`,background:contactType===opt.id?C.gold+'0D':'transparent',cursor:'pointer',marginBottom:7}}>
+                      <span style={{fontSize:18,flexShrink:0}}>{opt.emoji}</span>
+                      <div>
+                        <div style={{fontSize:13,fontWeight:600,color:contactType===opt.id?C.gold:C.t1}}>{opt.label}</div>
+                        <div style={{fontSize:11,color:C.t4}}>{opt.desc}</div>
+                      </div>
+                      {contactType===opt.id&&<span style={{marginLeft:'auto',color:C.gold,fontSize:14}}>✓</span>}
+                    </div>
+                  ))}
+                </div>
+                {/* Fields */}
+                {[
+                  {key:'name',    label:'Your Name',    ph:'Full name',          req:true},
+                  {key:'email',   label:'Email',        ph:'your@email.com',     req:true},
+                  {key:'company', label:'Company / Agency', ph:'Optional',      req:false},
+                ].map(f=>(
+                  <div key={f.key}>
+                    <div style={{fontSize:12,color:C.t4,marginBottom:5}}>{f.label}{f.req&&<span style={{color:'#EF4444'}}> *</span>}</div>
+                    <input value={contactForm[f.key]} onChange={e=>setContactForm(p=>({...p,[f.key]:e.target.value}))}
+                      placeholder={f.ph}
+                      style={{width:'100%',boxSizing:'border-box',background:C.bg3,border:`1px solid ${C.bd2}`,borderRadius:8,color:C.t1,fontSize:14,padding:'11px 12px',fontFamily:"'DM Sans',sans-serif",outline:'none'}}/>
+                  </div>
+                ))}
+                <div>
+                  <div style={{fontSize:12,color:C.t4,marginBottom:5}}>Message <span style={{color:'#EF4444'}}>*</span></div>
+                  <textarea value={contactForm.message} onChange={e=>setContactForm(p=>({...p,message:e.target.value}))}
+                    placeholder={contactType==='carrier'?'Carrier name, website, and any relevant product details…':(contactType==='suggestion'?'Describe your idea or feedback…':'Tell us about your agency, team size, and what you are looking for…')}
+                    rows={4}
+                    style={{width:'100%',boxSizing:'border-box',background:C.bg3,border:`1px solid ${C.bd2}`,borderRadius:8,color:C.t1,fontSize:14,padding:'11px 12px',fontFamily:"'DM Sans',sans-serif",outline:'none',resize:'vertical'}}/>
+                </div>
+                {contactErr&&<div style={{fontSize:12,color:'#EF4444',padding:'8px 10px',background:'rgba(239,68,68,0.08)',borderRadius:7}}>{contactErr}</div>}
+                <button onClick={sendContact} disabled={contactSending||!contactForm.name||!contactForm.email||!contactForm.message}
+                  style={{padding:'13px',borderRadius:9,border:'none',background:C.gold,color:C.bg0,fontWeight:700,fontSize:14,cursor:'pointer',fontFamily:"'DM Sans',sans-serif",opacity:(contactSending||!contactForm.name||!contactForm.email||!contactForm.message)?0.5:1}}>
+                  {contactSending?'Sending…':'Send Message'}
+                </button>
+              </div>
+            )}
+          </div>
+        </div>
+      )}
+
       {/* ── MOBILE PROFILE SLIDE-UP SHEET ── */}
       {mobileTab2==='profile'&&(
         <div style={{position:'fixed',inset:0,zIndex:200,display:'flex',flexDirection:'column'}} onClick={()=>setMobileTab2(null)}>
