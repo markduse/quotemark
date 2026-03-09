@@ -940,11 +940,46 @@ export default function QuoteMark() {
                     </div>
                   </div>
                 )}
-                {/* UW tier display (read-only, no controls) */}
-                <div style={{marginTop:12,padding:'10px 12px',background:C.bg3,borderRadius:9,border:`1px solid ${TIER_INFO[uwTier].bd}`,display:'flex',alignItems:'center',gap:8}}>
-                  <span style={{fontSize:11,color:C.t4}}>UW Tier:</span>
-                  <TierPill tier={uwTier}/>
-                  {tierOvr&&<span style={{fontSize:10,color:C.gold,fontWeight:700}}>Manual</span>}
+                {/* UW Tier selector — tappable on mobile */}
+                <div style={{marginTop:12}}>
+                  <div style={{display:'flex',justifyContent:'space-between',alignItems:'center',marginBottom:7}}>
+                    <span style={{fontSize:11,color:C.t4,fontWeight:600,letterSpacing:0.5}}>UW TIER</span>
+                    <div style={{display:'flex',alignItems:'center',gap:6}}>
+                      {tierOvr?(
+                        <button onClick={()=>setTierOvr(null)} style={{background:'transparent',border:'none',color:C.gold,fontSize:11,fontWeight:700,cursor:'pointer',padding:0,fontFamily:"'DM Sans',sans-serif"}}>
+                          ↺ Auto
+                        </button>
+                      ):(
+                        <span style={{fontSize:10,color:C.t4,fontStyle:'italic'}}>auto-detected</span>
+                      )}
+                    </div>
+                  </div>
+                  <div style={{display:'grid',gridTemplateColumns:'1fr 1fr 1fr 1fr',gap:6}}>
+                    {['B','C','D','E'].map(t=>{
+                      const ti=TIER_INFO[t],isOvr=tierOvr===t,isAuto=!tierOvr&&autoTier===t;
+                      const active=isOvr||isAuto;
+                      return(
+                        <button key={t} onClick={()=>toggleOvr(t)} style={{
+                          padding:'10px 4px',borderRadius:9,
+                          border:`1px solid ${active?ti.bd:C.bd}`,
+                          background:isOvr?ti.pill:isAuto?ti.pill+'66':'transparent',
+                          color:active?ti.dot:C.t4,
+                          cursor:'pointer',textAlign:'center',
+                          display:'flex',flexDirection:'column',alignItems:'center',gap:4,
+                          fontFamily:"'DM Sans',sans-serif",
+                          boxShadow:isOvr?`0 0 0 2px ${ti.dot}44`:'none'
+                        }}>
+                          <span style={{width:7,height:7,borderRadius:'50%',background:active?ti.dot:'#334155'}}/>
+                          <span style={{fontSize:11,fontWeight:700,color:'inherit'}}>{ti.short.split(' ')[0]}</span>
+                          {isAuto&&!tierOvr&&<span style={{fontSize:8,color:ti.dot+'88',fontWeight:500}}>auto</span>}
+                          {isOvr&&<span style={{fontSize:9}}>✓</span>}
+                        </button>
+                      );
+                    })}
+                  </div>
+                  <div style={{marginTop:8,padding:'7px 10px',background:C.bg3,borderRadius:8,border:`1px solid ${TIER_INFO[uwTier].bd}44`,fontSize:11,color:C.t3,lineHeight:1.5}}>
+                    {uwTier==='B'?'Preferred — clean or minor conditions. Full benefit day 1.':uwTier==='C'?'Standard — moderate history. Full benefit day 1.':uwTier==='D'?'Modified — graded benefit, 2–3 yr waiting period.':'GI Only — knockout conditions. No health questions.'}
+                  </div>
                 </div>
               </div>
 
