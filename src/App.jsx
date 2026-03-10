@@ -719,9 +719,19 @@ export default function QuoteMark() {
   const { session, signOut } = useAuth();
   useEffect(()=>{
     const l=document.createElement('link');l.href=FONT_LINK;l.rel='stylesheet';document.head.appendChild(l);
-    // Reset body/html to eliminate white margins/borders
     document.documentElement.style.cssText='margin:0;padding:0;background:#05101E;overflow-x:hidden';
     document.body.style.cssText='margin:0;padding:0;background:#05101E;overflow-x:hidden';
+    // Inject hover/active lift CSS for toggle buttons
+    const s=document.createElement('style');
+    s.id='qm-btn-styles';
+    s.textContent=`
+      .qm-btn { transition: transform 0.18s ease-in-out, box-shadow 0.18s ease-in-out !important; }
+      .qm-btn:hover:not(:disabled) { transform: scale(1.02) translateY(-2px) !important; box-shadow: 0 4px 12px rgba(0,0,0,0.18) !important; }
+      .qm-btn:active { transform: scale(0.98) !important; box-shadow: none !important; }
+      .qm-gsb-toggle:hover { opacity: 0.9; transform: translateY(-1px); }
+      .qm-gsb-toggle { transition: all 0.2s ease-in-out; }
+    `;
+    if(!document.getElementById('qm-btn-styles')) document.head.appendChild(s);
   },[]);
 
   const [age,setAge]           = useState('');
@@ -940,7 +950,7 @@ export default function QuoteMark() {
 
   // ── INPUT STYLES ──
   const inp = {background:C.bg2,border:`1px solid ${C.bd}`,color:C.t1,borderRadius:8,padding:'9px 12px',fontSize:13,width:'100%',outline:'none',fontFamily:"'DM Sans',sans-serif"};
-  const togBtn = (active) => isDark ? {flex:1,padding:'7px 0',borderRadius:7,border:`1px solid ${active?'#38BDF8':'#1E293B'}`,cursor:'pointer',fontSize:12,fontWeight:600,background:active?'#38BDF8':'#0F172A',color:active?'#0B1120':'#64748B',transition:'all 0.12s',fontFamily:"'DM Sans',sans-serif"} : {flex:1,padding:'7px 0',borderRadius:7,border:`1px solid ${active?'#0F172A':C.bd2}`,cursor:'pointer',fontSize:12,fontWeight:600,background:active?'#0F172A':C.selInactive,color:active?'#FFFFFF':C.selInactiveTxt,transition:'all 0.12s',fontFamily:"'DM Sans',sans-serif"};
+  const togBtn = (active) => isDark ? {flex:1,padding:'9px 0',minHeight:40,borderRadius:7,border:`2px solid ${active?'#38BDF8':'#374151'}`,cursor:'pointer',fontSize:12,fontWeight:600,background:active?'#38BDF8':'#0F172A',color:active?'#0B1120':'#94A3B8',fontFamily:"'DM Sans',sans-serif"} : {flex:1,padding:'9px 0',minHeight:40,borderRadius:7,border:`2px solid ${active?'#0F172A':'#CBD5E1'}`,cursor:'pointer',fontSize:12,fontWeight:600,background:active?'#0F172A':C.selInactive,color:active?'#FFFFFF':'#64748B',fontFamily:"'DM Sans',sans-serif"};
   const sec = {background:C.bg3,border:`1px solid ${C.bd}`,borderRadius:12,padding:16};
   const lbl = {fontSize:10,fontWeight:700,letterSpacing:1.8,color:C.t4,textTransform:'uppercase',marginBottom:10};
 
@@ -949,7 +959,7 @@ export default function QuoteMark() {
   // ─────────────────────────────────────────────────
   if (isMobile) {
     const mInp = {background:C.bg2,border:`1px solid ${C.bd}`,color:C.t1,borderRadius:10,padding:'12px 14px',fontSize:15,width:'100%',boxSizing:'border-box',outline:'none',fontFamily:"'DM Sans',sans-serif",WebkitAppearance:'none'};
-    const mTogBtn = (active,color) => isDark ? {flex:1,padding:'11px 0',borderRadius:10,border:`1px solid ${active?'#38BDF8':'#1E293B'}`,cursor:'pointer',fontSize:14,fontWeight:600,background:active?'#38BDF8':'#0F172A',color:active?'#0B1120':'#64748B',transition:'all 0.12s',fontFamily:"'DM Sans',sans-serif"} : {flex:1,padding:'11px 0',borderRadius:10,border:`1px solid ${active?'#0F172A':C.bd2}`,cursor:'pointer',fontSize:14,fontWeight:600,background:active?'#0F172A':'#F1F5F9',color:active?'#FFFFFF':'#64748B',transition:'all 0.12s',fontFamily:"'DM Sans',sans-serif"};
+    const mTogBtn = (active,color) => isDark ? {flex:1,padding:'14px 0',minHeight:48,borderRadius:10,border:`2px solid ${active?'#38BDF8':'#374151'}`,cursor:'pointer',fontSize:14,fontWeight:600,background:active?'#38BDF8':'#0F172A',color:active?'#0B1120':'#94A3B8',fontFamily:"'DM Sans',sans-serif"} : {flex:1,padding:'14px 0',minHeight:48,borderRadius:10,border:`2px solid ${active?'#0F172A':'#CBD5E1'}`,cursor:'pointer',fontSize:14,fontWeight:600,background:active?'#0F172A':'#F1F5F9',color:active?'#FFFFFF':'#64748B',fontFamily:"'DM Sans',sans-serif"};
 
     return (
       <div style={{fontFamily:"'DM Sans',sans-serif",background:C.bg0,minHeight:'100vh',color:C.t1,position:'relative',paddingBottom:100,backgroundImage:isDark?'radial-gradient(circle,#1E293B 1px,transparent 1px)':'radial-gradient(circle,#CBD5E1 1px,transparent 1px)',backgroundSize:'24px 24px'}}>
@@ -1011,8 +1021,8 @@ export default function QuoteMark() {
                 <div style={{marginBottom:14}}>
                   <div style={{fontSize:12,color:C.t3,marginBottom:8}}>Gender</div>
                   <div style={{display:'flex',gap:8}}>
-                    <button style={mTogBtn(gender==='male')} onClick={()=>setGender('male')}>{!isDark&&gender==='male'?'✓ ':''}👨 Male</button>
-                    <button style={mTogBtn(gender==='female')} onClick={()=>setGender('female')}>{!isDark&&gender==='female'?'✓ ':''}👩 Female</button>
+                    <button className='qm-btn' style={mTogBtn(gender==='male')} onClick={()=>setGender('male')}>{!isDark&&gender==='male'?'✓ ':''}👨 Male</button>
+                    <button className='qm-btn' style={mTogBtn(gender==='female')} onClick={()=>setGender('female')}>{!isDark&&gender==='female'?'✓ ':''}👩 Female</button>
                   </div>
                 </div>
 
@@ -1020,8 +1030,8 @@ export default function QuoteMark() {
                 <div style={{marginBottom:14}}>
                   <div style={{fontSize:12,color:C.t3,marginBottom:8}}>Tobacco</div>
                   <div style={{display:'flex',gap:8}}>
-                    <button style={mTogBtn(!smoker)} onClick={()=>setSmoker(false)}>{!isDark&&!smoker?'✓ ':''}Non-smoker</button>
-                    <button style={mTogBtn(smoker,'#EF4444')} onClick={()=>setSmoker(true)}>{!isDark&&smoker?'✓ ':''}Smoker</button>
+                    <button className='qm-btn' style={mTogBtn(!smoker)} onClick={()=>setSmoker(false)}>{!isDark&&!smoker?'✓ ':''}Non-smoker</button>
+                    <button className='qm-btn' style={mTogBtn(smoker,'#EF4444')} onClick={()=>setSmoker(true)}>{!isDark&&smoker?'✓ ':''}Smoker</button>
                   </div>
                 </div>
 
@@ -1040,26 +1050,37 @@ export default function QuoteMark() {
               <div style={{background:C.bg2,border:`1px solid ${C.bd}`,borderRadius:12,padding:16,overflow:'hidden'}}>
                 <div style={{display:'flex',alignItems:'center',justifyContent:'space-between',marginBottom:12}}>
                   <div style={{fontSize:11,fontWeight:700,letterSpacing:1.8,color:C.t4,textTransform:'uppercase'}}>Quote Target</div>
-                  <button onClick={()=>{setGsbOn(p=>!p);setMode('face');}} style={{
+                  <button className="qm-gsb-toggle" onClick={()=>{setGsbOn(p=>!p);setMode('face');}} style={{
                     display:'flex',alignItems:'center',gap:6,
-                    padding:'5px 10px 5px 6px',borderRadius:20,
-                    border:`1px solid ${gsbOn?C.gold+'66':C.bd}`,
-                    background:gsbOn?C.goldBg:C.bg2,
+                    padding:'6px 12px 6px 8px',borderRadius:20,
+                    border:`2px solid ${gsbOn
+                      ? isDark?'rgba(245,158,11,0.7)':'#D97706'
+                      : isDark?'#374151':'#CBD5E1'}`,
+                    background:gsbOn
+                      ? (isDark?'linear-gradient(135deg,rgba(245,158,11,0.18) 0%,rgba(148,115,52,0.12) 50%,rgba(180,100,30,0.12) 100%)':'linear-gradient(135deg,rgba(245,158,11,0.12) 0%,rgba(180,130,60,0.08) 100%)')
+                      : (isDark?'#0F172A':'#F8FAFC'),
                     color:gsbOn?C.gold:C.t3,
-                    fontSize:11,fontWeight:600,cursor:'pointer',fontFamily:"'DM Sans',sans-serif"
+                    fontSize:11,fontWeight:700,cursor:'pointer',fontFamily:"'DM Sans',sans-serif",
+                    boxShadow:gsbOn?(isDark?'0 0 12px rgba(245,158,11,0.2),0 2px 8px rgba(0,0,0,0.3)':'0 2px 8px rgba(217,119,6,0.15)'):'none'
                   }}>
-                    <span style={{position:'relative',display:'inline-block',width:26,height:15,borderRadius:8,background:gsbOn?C.gold:'#1A3050',border:`1px solid ${gsbOn?C.gold:'#243D5C'}`,flexShrink:0}}>
-                      <span style={{position:'absolute',top:2,left:gsbOn?11:2,width:9,height:9,borderRadius:'50%',background:'white',transition:'left 0.2s'}}/>
+                    <span style={{position:'relative',display:'inline-block',width:28,height:16,borderRadius:8,
+                      background:gsbOn
+                        ? (isDark?'linear-gradient(90deg,#B45309,#D97706,#92400E)':'linear-gradient(90deg,#B45309,#D97706)')
+                        : (isDark?'#1E293B':'#E2E8F0'),
+                      border:`1px solid ${gsbOn?'rgba(245,158,11,0.5)':isDark?'#374151':'#CBD5E1'}`,
+                      boxShadow:gsbOn?'0 0 6px rgba(245,158,11,0.4)':'none',
+                      transition:'all 0.2s',flexShrink:0}}>
+                      <span style={{position:'absolute',top:2,left:gsbOn?13:2,width:10,height:10,borderRadius:'50%',background:'white',transition:'left 0.2s',boxShadow:'0 1px 3px rgba(0,0,0,0.3)'}}/>
                     </span>
-                    🥇 GSB Mode
+                    {gsbOn?'🥇🥈🥉':'🏆'} GSB Mode
                   </button>
                 </div>
 
                 {!gsbOn ? (
                   <>
                     <div style={{display:'flex',gap:6,marginBottom:14}}>
-                      <button style={{...mTogBtn(mode==='face'),borderColor:mode==='face'?C.gold+'55':C.bd,background:mode==='face'?C.goldBg:C.bg2,color:mode==='face'?C.gold:C.t3}} onClick={()=>setMode('face')}>Face Amount</button>
-                      <button style={{...mTogBtn(mode==='budget'),borderColor:mode==='budget'?C.gold+'55':C.bd,background:mode==='budget'?C.goldBg:C.bg2,color:mode==='budget'?C.gold:C.t3}} onClick={()=>setMode('budget')}>Monthly Budget</button>
+                      <button className='qm-btn' style={{...mTogBtn(mode==='face'),border:`2px solid ${mode==='face'?C.gold:isDark?'#374151':'#CBD5E1'}`,background:mode==='face'?C.goldBg:C.bg2,color:mode==='face'?C.gold:C.t3}} onClick={()=>setMode('face')}>Face Amount</button>
+                      <button className='qm-btn' style={{...mTogBtn(mode==='budget'),border:`2px solid ${mode==='budget'?C.gold:isDark?'#374151':'#CBD5E1'}`,background:mode==='budget'?C.goldBg:C.bg2,color:mode==='budget'?C.gold:C.t3}} onClick={()=>setMode('budget')}>Monthly Budget</button>
                     </div>
                     {mode==='face' ? (
                       <>
@@ -1726,15 +1747,15 @@ export default function QuoteMark() {
               <div>
                 <div style={{fontSize:11,color:C.t3,marginBottom:4}}>Tobacco</div>
                 <div style={{display:'flex',gap:5}}>
-                  <button style={togBtn(!smoker)} onClick={()=>{setSmoker(false);}}>{!isDark&&!smoker?'✓ ':''}Non-smoker</button>
-                  <button style={togBtn(smoker)}  onClick={()=>{setSmoker(true);}}>{!isDark&&smoker?'✓ ':''}Smoker</button>
+                  <button className="qm-btn" style={togBtn(!smoker)} onClick={()=>{setSmoker(false);}}>{!isDark&&!smoker?'✓ ':''}Non-smoker</button>
+                  <button className="qm-btn" style={togBtn(smoker)} onClick={()=>{setSmoker(true);}}>{!isDark&&smoker?'✓ ':''}Smoker</button>
                 </div>
               </div>
               <div>
                 <div style={{fontSize:11,color:C.t3,marginBottom:4}}>Gender</div>
                 <div style={{display:'flex',gap:5}}>
-                  <button style={togBtn(gender==='male')}   onClick={()=>{setGender('male');}}>{!isDark&&gender==='male'?'✓ ':''}Male</button>
-                  <button style={togBtn(gender==='female')} onClick={()=>{setGender('female');}}>{!isDark&&gender==='female'?'✓ ':''}Female</button>
+                  <button className="qm-btn" style={togBtn(gender==='male')} onClick={()=>{setGender('male');}}>{!isDark&&gender==='male'?'✓ ':''}Male</button>
+                  <button className="qm-btn" style={togBtn(gender==='female')} onClick={()=>{setGender('female');}}>{!isDark&&gender==='female'?'✓ ':''}Female</button>
                 </div>
               </div>
             </div>
@@ -1752,38 +1773,45 @@ export default function QuoteMark() {
           <div style={sec}>
             <div style={{display:'flex',alignItems:'center',justifyContent:'space-between',marginBottom:10}}>
               <div style={lbl}>Quote Target</div>
-              <button onClick={()=>{setGsbOn(p=>!p);setMode('face');}} style={{
-                display:'flex',alignItems:'center',gap:8,
-                padding:'5px 10px 5px 6px',borderRadius:20,
-                border:`1px solid ${gsbOn?C.gold+'66':C.bd}`,
-                background:gsbOn?C.goldBg:C.bg2,
+              <button className="qm-gsb-toggle" onClick={()=>{setGsbOn(p=>!p);setMode('face');}} style={{
+                display:'flex',alignItems:'center',gap:7,
+                padding:'6px 12px 6px 8px',borderRadius:20,
+                border:`2px solid ${gsbOn
+                  ? isDark?'rgba(245,158,11,0.7)':'#D97706'
+                  : isDark?'#374151':'#CBD5E1'}`,
+                background:gsbOn
+                  ? (isDark?'linear-gradient(135deg,rgba(245,158,11,0.18) 0%,rgba(148,115,52,0.12) 50%,rgba(180,100,30,0.12) 100%)':'linear-gradient(135deg,rgba(245,158,11,0.12) 0%,rgba(180,130,60,0.08) 100%)')
+                  : (isDark?'#0F172A':'#F8FAFC'),
                 color:gsbOn?C.gold:C.t3,
-                fontSize:11,fontWeight:600,cursor:'pointer',fontFamily:"'DM Sans',sans-serif",
-                transition:'all 0.2s'
+                fontSize:11,fontWeight:700,cursor:'pointer',fontFamily:"'DM Sans',sans-serif",
+                boxShadow:gsbOn?(isDark?'0 0 14px rgba(245,158,11,0.22),0 2px 8px rgba(0,0,0,0.3)':'0 2px 10px rgba(217,119,6,0.18)'):'none'
               }}>
-                {/* Toggle track */}
                 <span style={{
                   position:'relative',display:'inline-block',
                   width:28,height:16,borderRadius:8,
-                  background:gsbOn?C.gold:'#1A3050',
-                  border:`1px solid ${gsbOn?C.gold:'#243D5C'}`,
+                  background:gsbOn
+                    ? (isDark?'linear-gradient(90deg,#B45309,#D97706,#92400E)':'linear-gradient(90deg,#B45309,#D97706)')
+                    : (isDark?'#1E293B':'#E2E8F0'),
+                  border:`1px solid ${gsbOn?'rgba(245,158,11,0.5)':isDark?'#374151':'#CBD5E1'}`,
+                  boxShadow:gsbOn?'0 0 6px rgba(245,158,11,0.4)':'none',
                   transition:'all 0.2s',flexShrink:0
                 }}>
                   <span style={{
                     position:'absolute',top:2,
-                    left:gsbOn?12:2,width:10,height:10,
+                    left:gsbOn?13:2,width:10,height:10,
                     borderRadius:'50%',background:'white',
-                    transition:'left 0.2s'
+                    transition:'left 0.2s',
+                    boxShadow:'0 1px 3px rgba(0,0,0,0.3)'
                   }}/>
                 </span>
-                🥇 Gold / Silver / Bronze
+                {gsbOn?'🥇🥈🥉':'🏆'} Gold / Silver / Bronze
               </button>
             </div>
             {!gsbOn?(
               <>
                 <div style={{display:'flex',gap:6,marginBottom:14}}>
-                  <button style={{...togBtn(mode==='face'),borderColor:mode==='face'?C.gold+'55':C.bd,background:mode==='face'?C.goldBg:C.bg2,color:mode==='face'?C.gold:C.t3}} onClick={()=>{setMode('face');}}>Face amount</button>
-                  <button style={{...togBtn(mode==='budget'),borderColor:mode==='budget'?C.gold+'55':C.bd,background:mode==='budget'?C.goldBg:C.bg2,color:mode==='budget'?C.gold:C.t3}} onClick={()=>{setMode('budget');}}>Monthly budget</button>
+                  <button className='qm-btn' style={{...togBtn(mode==='face'),border:`2px solid ${mode==='face'?C.gold:isDark?'#374151':'#CBD5E1'}`,background:mode==='face'?C.goldBg:C.bg2,color:mode==='face'?C.gold:C.t3}} onClick={()=>{setMode('face');}}>Face amount</button>
+                  <button className='qm-btn' style={{...togBtn(mode==='budget'),border:`2px solid ${mode==='budget'?C.gold:isDark?'#374151':'#CBD5E1'}`,background:mode==='budget'?C.goldBg:C.bg2,color:mode==='budget'?C.gold:C.t3}} onClick={()=>{setMode('budget');}}>Monthly budget</button>
                 </div>
                 {mode==='face'?(
                   <>
