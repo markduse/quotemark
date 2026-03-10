@@ -372,16 +372,16 @@ const GSB = [
 
 // Each carrier gets a single neutral initials label — no per-carrier glow colors
 const CARRIERS = [
-  {id:'acc',  name:'Accendo Insurance',  sub:'CVS Health / Aetna', abbr:'AC', enabled:true,
+  {id:'acc',  name:'Accendo Insurance',  sub:'Final Expense', abbr:'AC', enabled:true,
    product:{B:'Level',C:'Level',D:'Modified',E:null},
    fn:(age,male,smoker,tier,face)=>{const i=age-50,ri=(male?0:2)+(smoker?1:0);if(i<0||i>35)return null;let t;if(tier==='B')t=ACC.pf;else if(tier==='C')t=ACC.st;else if(tier==='D'){if(i>25)return null;t=ACC.md;}else return null;return Math.round(((t[i][ri]*(face/1000))+40)*0.0875*100)/100;}},
-  {id:'ahl',  name:'American Home Life', sub:'Since 1909', abbr:'AH', enabled:true,
+  {id:'ahl',  name:'American Home Life', sub:'Patriot Series Tiered FE', abbr:'AH', enabled:true,
    product:{B:'Level',C:'Level',D:'Modified',E:null},
    fn:(age,male,smoker,tier,face)=>{const i=age-50,ri=(male?0:2)+(smoker?1:0);if(i<0||i>35)return null;let t;if(tier==='B')t=AHL.pf;else if(tier==='C')t=AHL.st;else if(tier==='D'){if(i>25)return null;t=AHL.md;}else return null;return Math.round(((t[i][ri]*(face/500))+36)*0.0875*100)/100;}},
-  {id:'cont', name:'Continental Life',   sub:'An Aetna Company', abbr:'CL', enabled:true,
+  {id:'cont', name:'Continental Life',   sub:'Protection Series FE', abbr:'CL', enabled:true,
    product:{B:'Level',C:null,D:null,E:null},
    fn:(age,male,smoker,tier,face)=>{const i=age-50,ri=(male?0:2)+(smoker?1:0);if(i<0||i>35||tier!=='B')return null;return Math.round(((CONT.pf[i][ri]*(face/1000))+40)*0.08333*100)/100;}},
-  {id:'rn',   name:'Royal Neighbors',    sub:'of America', abbr:'RN', enabled:true,
+  {id:'rn',   name:'Royal Neighbors',    sub:'Ensure Legacy FE (Standard)', abbr:'RN', enabled:true,
    product:{B:'Level',C:'Level',D:'Graded Death Benefit',E:'Guaranteed Issue'},
    fn:(age,male,smoker,tier,face)=>{const i=age-50,ri=(male?0:2)+(smoker?1:0),u=face/1000;if(i<0)return null;if(tier==='E'){if(i>30)return null;const r=RN.gi[i][male?0:1];return Math.round((Math.round(r*0.087*100)/100*u+4.35)*100)/100;}let t;if(tier==='B'||tier==='C')t=RN.siwl_st;else if(tier==='D')t=RN.gdb;else return null;if(i>35)return null;return Math.round((Math.round(t[i][ri]*0.087*100)/100*u+4.35)*100)/100;}},
   // ── NEW CARRIERS ──
@@ -409,13 +409,13 @@ const CARRIERS = [
   {id:'fid',  name:'Fidelity Life',      sub:'RAPIDecision FE / GI', abbr:'FD', enabled:true,
    product:{B:'Level',C:'Level',D:null,E:'Guaranteed Issue'},
    fn:(age,male,smoker,tier,face)=>{if(tier==='B'||tier==='C')return fidQuote(FIDF,age,male,smoker,face);if(tier==='E')return fidQuote(FIDG2,age,male,smoker,face);return null;}},
-  {id:'cbg',  name:'Corebridge Financial', sub:'AGL — Guaranteed Issue WL', abbr:'CB', enabled:true,
+  {id:'cbg',  name:'Corebridge Financial', sub:'SIWL / GIWL', abbr:'CB', enabled:true,
    product:{B:null,C:null,D:null,E:'Guaranteed Issue'},
    fn:(age,male,smoker,tier,face)=>{if(tier!=='E')return null;if(age<50||age>80)return null;return cbgGiwlQuote(age,male,face);}},
   {id:'lb',   name:'Liberty Bankers',    sub:'SIMPL Whole Life', abbr:'LB', enabled:false,
    product:{B:'Level',C:'Level',D:null,E:null},
    fn:(age,male,smoker,tier,face)=>{if(tier==='B')return csvLookup(LBP,LBP_M,age,male,smoker,face);if(tier==='C')return csvLookup(LBS,LBS_M,age,male,smoker,face);return null;}},
-  {id:'amam', name:'American Amicable',  sub:'Senior Choice — Occidental Life', abbr:'AA', enabled:true,
+  {id:'amam', name:'American Amicable',  sub:'Senior Choice', abbr:'AA', enabled:true,
    product:{B:'Immediate',C:'Immediate',D:'Graded',E:null},
    fn:(age,male,smoker,tier,face)=>{
      if(tier==='B'||tier==='C') return amamQuote(AMAM_IMM,age,male,smoker,Math.min(face,50000));
@@ -548,20 +548,18 @@ const TierBadge = ({tier, productName}) => {
 };
 
 
-// Comp badge — green 💰 for high comp (≥110%), red 📉 for low (<90%)
+// Comp badge — 💰 only for high comp (≥110%); low comp shows nothing
 const CompBadge = ({carrierId, tier}) => {
   const [open,setOpen] = React.useState(false);
   const ref = React.useRef(null);
   const level = getCompBadge(carrierId, tier);
-  if(!level || level==='mid') return null;
-  const isHigh = level==='high';
-  const emoji = isHigh ? '💰' : '📉';
-  const color = isHigh ? '#4ADE80' : '#F87171';
-  const bg    = isHigh ? 'rgba(34,197,94,0.12)' : 'rgba(239,68,68,0.12)';
-  const bd    = isHigh ? 'rgba(34,197,94,0.35)' : 'rgba(239,68,68,0.35)';
-  const tip   = isHigh
-    ? 'Strong commission contract. One of the better-compensated products in this tier.'
-    : 'Below-average commission for this tier. Consider alternatives when available.';
+  if(!level || level!=='high') return null;  // only show money bag for high comp
+  const isHigh = true;
+  const emoji = '💰';
+  const color = '#4ADE80';
+  const bg    = 'rgba(34,197,94,0.12)';
+  const bd    = 'rgba(34,197,94,0.35)';
+  const tip   = 'Strong commission contract. One of the better-compensated products in this tier.';
   // Determine if tooltip should open upward or downward based on screen position
   const [openUp,setOpenUp] = React.useState(true);
   const handleOpen = () => {
@@ -610,11 +608,7 @@ const CarrierLogo = ({carrierId, name, small=false}) => {
   const w = small ? 48 : 72;
   const h = small ? 20 : 28;
   if(!meta?.img || err) {
-    return (
-      <div style={{width:w,height:h,borderRadius:5,background:'rgba(100,116,139,0.1)',border:'1px solid rgba(100,116,139,0.2)',display:'flex',alignItems:'center',justifyContent:'center',fontSize:small?7:9,fontWeight:700,color:'#475569',letterSpacing:0.5,flexShrink:0}}>
-        {name?name.slice(0,3).toUpperCase():'???'}
-      </div>
-    );
+    return null; // No fallback abbr badge — cleaner cards
   }
   return (
     <div style={{width:w,height:h,borderRadius:5,background:'rgba(255,255,255,0.06)',display:'flex',alignItems:'center',justifyContent:'center',overflow:'hidden',flexShrink:0,padding:'2px 4px',boxSizing:'border-box'}}>
@@ -1132,13 +1126,13 @@ export default function QuoteMark() {
               </div>
 
               {/* Health conditions — search only */}
-              <div style={{background:C.bg2,border:`1px solid ${C.bd}`,borderRadius:12,padding:16,overflow:'hidden'}}>
+              <div style={{background:C.bg2,border:`1px solid ${C.bd}`,borderRadius:12,padding:16,overflow:'hidden',boxSizing:'border-box',width:'100%'}}>
                 <div style={{fontSize:11,fontWeight:700,letterSpacing:1.8,color:C.t4,textTransform:'uppercase',marginBottom:12}}>Health Conditions</div>
-                <div style={{position:'relative',marginBottom:10}}>
-                  <span style={{position:'absolute',left:12,top:'50%',transform:'translateY(-50%)',fontSize:14,color:C.t4}}>🔍</span>
+                <div style={{position:'relative',marginBottom:10,width:'100%',boxSizing:'border-box'}}>
+                  <span style={{position:'absolute',left:12,top:'50%',transform:'translateY(-50%)',fontSize:14,color:C.t4,pointerEvents:'none',zIndex:1}}>🔍</span>
                   <input placeholder="Condition or medication…"
                     value={search} onChange={e=>setSearch(e.target.value)}
-                    style={{...mInp,paddingLeft:34}}/>
+                    style={{...mInp,paddingLeft:36,width:'100%',boxSizing:'border-box',maxWidth:'100%'}}/>
                 </div>
                 {medHints.length>0&&search.length>=3&&(
                   <div style={{background:C.goldBg,border:`1px solid ${C.goldBd}`,borderRadius:10,padding:'10px 12px',marginBottom:10}}>
@@ -2149,7 +2143,6 @@ export default function QuoteMark() {
                           <div style={{display:'flex',flexDirection:'column',minHeight:180}}>
                             {/* Premium */}
                             <div style={{marginBottom:14}}>
-                              <div style={{fontSize:10,color:C.t3,marginBottom:3,letterSpacing:0.3}}>Monthly premium</div>
                               <div style={{display:'flex',alignItems:'baseline',gap:8}}>
                                 <span style={{fontFamily:"'DM Mono',monospace",fontSize:30,fontWeight:700,color:isBest?C.gold:(isDark?premColor:C.t0),letterSpacing:'-1px',lineHeight:1}}>
                                   {fmt$(r.prem)}
