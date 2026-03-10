@@ -1128,11 +1128,11 @@ export default function QuoteMark() {
               {/* Health conditions — search only */}
               <div style={{background:C.bg2,border:`1px solid ${C.bd}`,borderRadius:12,padding:16,overflow:'hidden',boxSizing:'border-box',width:'100%'}}>
                 <div style={{fontSize:11,fontWeight:700,letterSpacing:1.8,color:C.t4,textTransform:'uppercase',marginBottom:12}}>Health Conditions</div>
-                <div style={{position:'relative',marginBottom:10,width:'100%',boxSizing:'border-box'}}>
+                <div style={{position:'relative',marginBottom:10,display:'flex',alignItems:'center',width:'100%',boxSizing:'border-box'}}>
                   <span style={{position:'absolute',left:12,top:'50%',transform:'translateY(-50%)',fontSize:14,color:C.t4,pointerEvents:'none',zIndex:1}}>🔍</span>
                   <input placeholder="Condition or medication…"
                     value={search} onChange={e=>setSearch(e.target.value)}
-                    style={{...mInp,paddingLeft:36,width:'100%',boxSizing:'border-box',maxWidth:'100%'}}/>
+                    style={{...mInp,paddingLeft:36,flex:1,minWidth:0,width:0}}/>
                 </div>
                 {medHints.length>0&&search.length>=3&&(
                   <div style={{background:C.goldBg,border:`1px solid ${C.goldBd}`,borderRadius:10,padding:'10px 12px',marginBottom:10}}>
