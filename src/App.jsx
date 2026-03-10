@@ -943,7 +943,7 @@ export default function QuoteMark() {
   },[hasQuoted,age,gender,smoker,uwTier,mode,faceAmt,budget,gsbOn,gsbFace,activeCarriers,usState]);
 
   // ── INPUT STYLES ──
-  const inp = {background:C.bg2,border:`1px solid ${C.bd}`,color:C.t1,borderRadius:8,padding:'9px 12px',fontSize:13,width:'100%',outline:'none',fontFamily:"'DM Sans',sans-serif"};
+  const inp = {background:C.bg2,border:`1px solid ${C.bd}`,color:C.t1,borderRadius:8,padding:'9px 12px',fontSize:13,width:'100%',boxSizing:'border-box',outline:'none',fontFamily:"'DM Sans',sans-serif"};
   const togBtn = (active) => isDark ? {flex:1,padding:'9px 0',minHeight:40,borderRadius:7,border:`2px solid ${active?'#38BDF8':'#374151'}`,cursor:'pointer',fontSize:12,fontWeight:600,background:active?'#38BDF8':'#0F172A',color:active?'#0B1120':'#94A3B8',fontFamily:"'DM Sans',sans-serif"} : {flex:1,padding:'9px 0',minHeight:40,borderRadius:7,border:`2px solid ${active?'#0F172A':'#CBD5E1'}`,cursor:'pointer',fontSize:12,fontWeight:600,background:active?'#0F172A':C.selInactive,color:active?'#FFFFFF':'#64748B',fontFamily:"'DM Sans',sans-serif"};
   const sec = {background:C.bg3,border:`1px solid ${C.bd}`,borderRadius:12,padding:16};
   const lbl = {fontSize:10,fontWeight:700,letterSpacing:1.8,color:C.t4,textTransform:'uppercase',marginBottom:10};
@@ -1911,11 +1911,11 @@ export default function QuoteMark() {
           {/* 4 — HEALTH CONDITIONS */}
           <div style={sec}>
             <div style={lbl}>Health Conditions</div>
-            <div style={{position:'relative',marginBottom:8}}>
-              <span style={{position:'absolute',left:10,top:'50%',transform:'translateY(-50%)',fontSize:12,color:C.t4}}>🔍</span>
+            <div style={{position:'relative',marginBottom:8,display:'flex',alignItems:'center'}}>
+              <span style={{position:'absolute',left:10,top:'50%',transform:'translateY(-50%)',fontSize:12,color:C.t4,pointerEvents:'none',zIndex:1}}>🔍</span>
               <input placeholder="Search condition or medication…"
                 value={search} onChange={e=>setSearch(e.target.value)}
-                style={{...inp,paddingLeft:30,fontSize:12}}/>
+                style={{...inp,paddingLeft:30,fontSize:12,flex:1,minWidth:0,width:0}}/>
             </div>
             {medHints.length>0&&search.length>=3&&(
               <div style={{background:C.goldBg,border:`1px solid ${C.goldBd}`,borderRadius:8,padding:'8px 10px',marginBottom:8}}>
