@@ -38,7 +38,7 @@ const FACE_CAPS = {
   bl:50000,
 };
 const AGE_MAX = {
-  acc:89, ahl:85, cont:89, rn:85,
+  acc:89, ahl:89, cont:89, rn:85,
   ra:79, ls:79, amam:79, moo:79, cbg:80,
   ta:85, lb:79, pf:79, amr:79, for:79,
   afl:79, laf:79, uhl:79, fid:85,
