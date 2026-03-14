@@ -1602,7 +1602,17 @@ export default function QuoteMark() {
                 </div>
               </div>
 
-
+              <button onClick={()=>{ if(termAgeOK){ setHasQuoted(true); setMobileTab('results'); setTimeout(()=>window.scrollTo({top:0,behavior:'instant'}),0); } }} style={{
+                width:'100%',padding:'18px 0',borderRadius:12,border:'none',
+                cursor:termAgeOK?'pointer':'not-allowed',
+                background:termAgeOK?'#10B981':'#1A3050',
+                color:termAgeOK?'#FFFFFF':C.t4,
+                fontSize:17,fontWeight:700,letterSpacing:0.5,
+                opacity:termAgeOK?1:0.4,
+                fontFamily:"'DM Sans',sans-serif"
+              }}>
+                ⚡ Get Quote
+              </button>
               </>
               )}
               {/* Bottom spacer — keeps button clear of fixed tab bar */}
@@ -2499,52 +2509,18 @@ export default function QuoteMark() {
             </div>
           </div>
 
-          {/* Term Quote Result */}
-          {termAgeOK && termResults && (
-            <div style={{
-              background:termResults.available?(isDark?'linear-gradient(135deg,rgba(16,185,129,0.15) 0%,rgba(5,150,105,0.1) 100%)':'linear-gradient(135deg,rgba(16,185,129,0.1) 0%,rgba(5,150,105,0.05) 100)'):C.bg3,
-              border:`1px solid ${termResults.available?(isDark?'#10B981':'#059669'):C.bd}`,
-              borderRadius:12,padding:16
-            }}>
-              {termResults.available ? (
-                <>
-                  <div style={{display:'flex',alignItems:'center',gap:8,marginBottom:12}}>
-                    <img src="/logos/moo.png" alt="MOO" style={{width:32,height:32,borderRadius:6,objectFit:'contain',background:'white',padding:2}}/>
-                    <div>
-                      <div style={{fontSize:14,fontWeight:700,color:C.t0}}>{termResults.carrier}</div>
-                      <div style={{fontSize:11,color:C.t3}}>{termResults.product}</div>
-                    </div>
-                  </div>
-                  <div style={{display:'flex',justifyContent:'space-between',alignItems:'flex-end',marginBottom:8}}>
-                    <div>
-                      <div style={{fontSize:11,color:C.t4}}>Coverage</div>
-                      <div style={{fontSize:18,fontWeight:700,color:C.t0,fontFamily:"'DM Mono',monospace"}}>{fmtF(termResults.face)}</div>
-                    </div>
-                    <div style={{textAlign:'right'}}>
-                      <div style={{fontSize:11,color:C.t4}}>Monthly Premium</div>
-                      <div style={{fontSize:24,fontWeight:700,color:'#10B981',fontFamily:"'DM Mono',monospace"}}>${termResults.prem.toFixed(2)}</div>
-                    </div>
-                  </div>
-                  <div style={{display:'flex',gap:6,flexWrap:'wrap'}}>
-                    <span style={{background:isDark?'#0F172A':'#E2E8F0',border:`1px solid ${C.bd}`,borderRadius:5,padding:'3px 8px',fontSize:10,color:C.t3}}>
-                      {termResults.healthClass}
-                    </span>
-                    <span style={{background:isDark?'#0F172A':'#E2E8F0',border:`1px solid ${C.bd}`,borderRadius:5,padding:'3px 8px',fontSize:10,color:C.t3}}>
-                      Tier {termResults.tier}
-                    </span>
-                    <span style={{background:isDark?'#0F172A':'#E2E8F0',border:`1px solid ${C.bd}`,borderRadius:5,padding:'3px 8px',fontSize:10,color:C.t3}}>
-                      {gender==='male'?'Male':'Female'} · {smoker?'Tobacco':'Non-Tobacco'} · Age {termAge}
-                    </span>
-                  </div>
-                </>
-              ) : (
-                <div style={{textAlign:'center',padding:16}}>
-                  <div style={{fontSize:14,color:C.t3,marginBottom:4}}>Quote not available</div>
-                  <div style={{fontSize:11,color:C.t4}}>{termResults.reason}</div>
-                </div>
-              )}
-            </div>
-          )}
+          <button onClick={()=>{ if(termAgeOK){ setHasQuoted(true); } }} style={{
+            width:'100%',padding:'13px 0',borderRadius:10,border:'none',
+            cursor:termAgeOK?'pointer':'not-allowed',
+            background:termAgeOK?'#10B981':'#1A3050',
+            color:termAgeOK?'#FFFFFF':C.t4,
+            fontSize:14,fontWeight:700,letterSpacing:0.5,
+            transition:'all 0.15s',opacity:termAgeOK?1:0.4,
+            fontFamily:"'DM Sans',sans-serif"
+          }}>
+            ⚡ Get Quote
+          </button>
+
           </>
           )}
         </div>
@@ -2615,14 +2591,7 @@ export default function QuoteMark() {
                         </div>
                       )}
                     </div>
-                    <div style={{background:C.bg3,border:`1px solid ${C.bd}`,borderRadius:12,padding:'14px 18px',marginBottom:16}}>
-                      <div style={{fontSize:11,fontWeight:700,letterSpacing:1.5,color:C.t4,textTransform:'uppercase',marginBottom:10}}>About Term Life Express</div>
-                      <div style={{display:'grid',gridTemplateColumns:'1fr 1fr 1fr',gap:14}}>
-                        {[{label:'Ages',value:'18–75'},{label:'Coverage',value:'$25K–$300K'},{label:'Terms',value:'10 · 15 · 20 · 30 yr'},{label:'Underwriting',value:'Express (No Exam)'},{label:'Benefit',value:'Level Death Benefit'},{label:'Carrier',value:'Mutual of Omaha'}].map(item=>(
-                          <div key={item.label}><div style={{fontSize:10,color:C.t4,marginBottom:2}}>{item.label}</div><div style={{fontSize:13,fontWeight:600,color:C.t1}}>{item.value}</div></div>
-                        ))}
-                      </div>
-                    </div>
+
                     <div style={{fontSize:11,color:C.t4,lineHeight:1.7,borderTop:`1px solid ${C.bd}`,paddingTop:12}}>
                       $300,000 is the maximum face amount available through Mutual of Omaha Term Life Express without a medical exam. Rates shown are monthly EFT premiums. Actual premiums subject to underwriting approval. Agent use only.
                     </div>
