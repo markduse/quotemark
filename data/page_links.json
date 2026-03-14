@@ -1,0 +1,50 @@
+[
+  {
+    "href": "https://app.insurancetoolkits.com/account/info",
+    "text": "Account"
+  },
+  {
+    "href": "https://app.insurancetoolkits.com/leads",
+    "text": "Leads"
+  },
+  {
+    "href": "https://insurancetoolkits.com/crm",
+    "text": "CRM"
+  },
+  {
+    "href": "https://insurancetoolkits.com/logout",
+    "text": "Logout"
+  },
+  {
+    "href": "https://app.insurancetoolkits.com/term/quoter",
+    "text": "Quoter"
+  },
+  {
+    "href": "https://app.insurancetoolkits.com/term/compare",
+    "text": "Quote Compare"
+  },
+  {
+    "href": "https://app.insurancetoolkits.com/term/quick",
+    "text": "Quick Quoter"
+  },
+  {
+    "href": "https://app.insurancetoolkits.com/term/druglookup",
+    "text": "Drug Lookup"
+  },
+  {
+    "href": "https://app.insurancetoolkits.com/term/cheatsheet",
+    "text": "Health Cheat Sheet"
+  },
+  {
+    "href": "https://app.insurancetoolkits.com/term/settings/lite",
+    "text": "Settings"
+  },
+  {
+    "href": "https://app.insurancetoolkits.com/term/settings/customization",
+    "text": "Customize Carriers"
+  },
+  {
+    "href": "https://app.insurancetoolkits.com/",
+    "text": "Save"
+  }
+]

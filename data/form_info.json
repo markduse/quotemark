@@ -1,0 +1,165 @@
+{
+  "inputs": [
+    {
+      "i": 0,
+      "ph": "Face Amount",
+      "type": "text",
+      "name": ""
+    },
+    {
+      "i": 1,
+      "ph": "Premium",
+      "type": "text",
+      "name": ""
+    },
+    {
+      "i": 2,
+      "ph": "",
+      "type": "checkbox",
+      "name": ""
+    },
+    {
+      "i": 3,
+      "ph": "mm",
+      "type": "text",
+      "name": ""
+    },
+    {
+      "i": 4,
+      "ph": "dd",
+      "type": "text",
+      "name": ""
+    },
+    {
+      "i": 5,
+      "ph": "yyyy",
+      "type": "text",
+      "name": ""
+    },
+    {
+      "i": 6,
+      "ph": "age",
+      "type": "text",
+      "name": ""
+    },
+    {
+      "i": 7,
+      "ph": "ft",
+      "type": "text",
+      "name": ""
+    },
+    {
+      "i": 8,
+      "ph": "in",
+      "type": "text",
+      "name": ""
+    },
+    {
+      "i": 9,
+      "ph": "lbs",
+      "type": "text",
+      "name": ""
+    },
+    {
+      "i": 10,
+      "ph": "Enter Health Condition / Personal History",
+      "type": "text",
+      "name": ""
+    },
+    {
+      "i": 11,
+      "ph": "Enter Medication",
+      "type": "text",
+      "name": ""
+    },
+    {
+      "i": 12,
+      "ph": "",
+      "type": "file",
+      "name": ""
+    }
+  ],
+  "selects": [
+    {
+      "i": 0,
+      "id": "",
+      "name": "",
+      "opts": [
+        "Alabama",
+        "Alaska",
+        "Arizona",
+        "Arkansas",
+        "California",
+        "Colorado",
+        "Connecticut",
+        "Washington D.C."
+      ]
+    },
+    {
+      "i": 1,
+      "id": "",
+      "name": "",
+      "opts": [
+        "None",
+        "Cigarettes",
+        "Cigarettes + Other Nicotine Products",
+        "Occasional pipe/cigar use only",
+        "Other Nicotine Products"
+      ]
+    }
+  ],
+  "buttons": [
+    {
+      "i": 0,
+      "text": "☰"
+    },
+    {
+      "i": 1,
+      "text": "Male"
+    },
+    {
+      "i": 2,
+      "text": "Female"
+    },
+    {
+      "i": 3,
+      "text": "Get Quote"
+    },
+    {
+      "i": 4,
+      "text": "Clear Fields"
+    },
+    {
+      "i": 5,
+      "text": "Load"
+    },
+    {
+      "i": 6,
+      "text": "10"
+    },
+    {
+      "i": 7,
+      "text": "15"
+    },
+    {
+      "i": 8,
+      "text": "20"
+    },
+    {
+      "i": 9,
+      "text": "25"
+    },
+    {
+      "i": 10,
+      "text": "30"
+    },
+    {
+      "i": 11,
+      "text": "35"
+    },
+    {
+      "i": 12,
+      "text": "40"
+    }
+  ]
+}

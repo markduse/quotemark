@@ -567,6 +567,245 @@ const GSB = [
 ];
 
 // Each carrier gets a single neutral initials label — no per-carrier glow colors
+
+// ── TERM LIFE CARRIERS ──
+// American Amicable Term 10yr rates (per $1000 monthly)
+const AMERICAN_AMICABLETERM10_MN = {"18":16.426000000000002,"19":16.568,"20":16.710000000000004,"21":16.852000000000004,"22":16.994,"23":17.136000000000003,"24":17.278000000000002,"25":17.42,"30":18.13,"35":21.3,"40":25.2,"45":32.67,"50":45,"55":63.63,"60":88.74,"65":136.17,"70":213.21,"75":400.5};
+const AMERICAN_AMICABLETERM10_MT = {"18":23.839999999999996,"19":24.419999999999995,"20":24.999999999999996,"21":25.58,"22":26.159999999999997,"23":26.74,"24":27.32,"25":27.9,"30":30.8,"35":38.1,"40":49.14,"45":69.75,"50":69.75,"55":150.93,"60":209,"65":364.77,"70":585.99,"75":861.3};
+const AMERICAN_AMICABLETERM10_FN = {"18":13.698,"19":13.914000000000001,"20":14.130000000000003,"21":14.346000000000004,"22":14.562000000000001,"23":14.778000000000002,"24":14.994,"25":15.21,"30":16.29,"35":18.18,"40":21.24,"45":27.9,"50":27.9,"55":44.64,"60":55.98,"65":78.12,"70":112.41,"75":243};
+const AMERICAN_AMICABLETERM10_FT = {"18":10.463999999999999,"19":11.782,"20":13.100000000000001,"21":14.418,"22":15.736000000000002,"23":17.054000000000002,"24":18.372,"25":19.69,"30":26.28,"35":32.76,"40":43.62,"45":58.66,"50":75.86,"55":105,"60":138.27,"65":203.32,"70":203.32,"75":203.32};
+
+function american_amicableTerm10(age, male, smoker, face) {
+  const tbl = male ? (smoker ? AMERICAN_AMICABLETERM10_MT : AMERICAN_AMICABLETERM10_MN) 
+                  : (smoker ? AMERICAN_AMICABLETERM10_FT : AMERICAN_AMICABLETERM10_FN);
+  const knownAges = Object.keys(tbl).map(Number).sort((a,b)=>a-b);
+  if (age < knownAges[0] || age > knownAges[knownAges.length-1]) return null;
+  
+  // Find rate at this age (with interpolation)
+  let rate;
+  if (tbl[age]) {
+    rate = tbl[age];
+  } else {
+    // Interpolate between surrounding ages
+    let lo = knownAges[0], hi = knownAges[knownAges.length-1];
+    for (let i = 0; i < knownAges.length - 1; i++) {
+      if (age > knownAges[i] && age < knownAges[i+1]) {
+        lo = knownAges[i]; hi = knownAges[i+1]; break;
+      }
+    }
+    const rateLo = tbl[lo], rateHi = tbl[hi];
+    if (rateLo == null || rateHi == null) return null;
+    const t = (age - lo) / (hi - lo);
+    rate = rateLo + t * (rateHi - rateLo);
+  }
+  
+  // Scale by face amount (rates are per $100k, scale to actual face)
+  return Math.round(rate * face / 100000 * 100) / 100;
+}
+
+// Instabrain Term 10yr rates (per $1000 monthly)
+const INSTABRAINTERM10_MN = {"18":11.75,"19":11.75,"20":11.75,"21":11.750000000000002,"22":11.75,"23":11.75,"24":11.75,"25":11.75,"30":11.75,"35":11.75,"40":13.83,"45":16.79,"50":22.71,"55":29.93,"60":52.46};
+const INSTABRAINTERM10_MT = {"18":16.873999999999995,"19":17.221999999999994,"20":17.569999999999997,"21":17.917999999999996,"22":18.266,"23":18.613999999999997,"24":18.961999999999996,"25":19.31,"30":21.05,"35":24.36,"40":32.8,"45":45.85,"50":45.85,"55":98.22,"60":186.01};
+const INSTABRAINTERM10_FN = {"18":9.838,"19":9.873999999999999,"20":9.91,"21":9.946,"22":9.982000000000001,"23":10.018,"24":10.053999999999998,"25":10.09,"30":10.27,"35":10.27,"40":12.09,"45":14.7,"50":14.7,"55":26.62,"60":45.68};
+const INSTABRAINTERM10_FT = {"18":11.335999999999995,"19":11.718,"20":12.1,"21":12.482,"22":12.863999999999999,"23":13.245999999999999,"24":13.627999999999998,"25":14.01,"30":15.92,"35":19.23,"40":25.23,"45":35.93,"50":53.51,"55":86.04,"60":168.08};
+
+function instabrainTerm10(age, male, smoker, face) {
+  const tbl = male ? (smoker ? INSTABRAINTERM10_MT : INSTABRAINTERM10_MN) 
+                  : (smoker ? INSTABRAINTERM10_FT : INSTABRAINTERM10_FN);
+  const knownAges = Object.keys(tbl).map(Number).sort((a,b)=>a-b);
+  if (age < knownAges[0] || age > knownAges[knownAges.length-1]) return null;
+  
+  // Find rate at this age (with interpolation)
+  let rate;
+  if (tbl[age]) {
+    rate = tbl[age];
+  } else {
+    // Interpolate between surrounding ages
+    let lo = knownAges[0], hi = knownAges[knownAges.length-1];
+    for (let i = 0; i < knownAges.length - 1; i++) {
+      if (age > knownAges[i] && age < knownAges[i+1]) {
+        lo = knownAges[i]; hi = knownAges[i+1]; break;
+      }
+    }
+    const rateLo = tbl[lo], rateHi = tbl[hi];
+    if (rateLo == null || rateHi == null) return null;
+    const t = (age - lo) / (hi - lo);
+    rate = rateLo + t * (rateHi - rateLo);
+  }
+  
+  // Scale by face amount (rates are per $100k, scale to actual face)
+  return Math.round(rate * face / 100000 * 100) / 100;
+}
+
+// John Hancock Term 10yr rates (per $1000 monthly)
+const JOHN_HANCOCKTERM10_MN = {"18":22.64,"19":22.64,"20":22.64,"21":22.64,"22":22.64,"23":22.64,"24":22.64,"25":22.64,"30":22.64,"35":24.32,"40":29.5,"45":36.95,"50":54.16,"55":78.71,"60":115.42};
+const JOHN_HANCOCKTERM10_MT = {"18":34.18,"19":34.18000000000001,"20":34.18,"21":34.18,"22":34.18,"23":34.18,"24":34.18,"25":34.18,"30":34.18,"35":39.37,"40":53.8,"45":84.89,"50":84.89,"55":190.36,"60":284.44};
+const JOHN_HANCOCKTERM10_FN = {"18":17.809999999999995,"19":17.810000000000002,"20":17.81,"21":17.810000000000002,"22":17.81,"23":17.81,"24":17.81,"25":17.81,"30":17.81,"35":20.15,"40":22.78,"45":29.82,"50":29.82,"55":57.82,"60":83.47};
+const JOHN_HANCOCKTERM10_FT = {"18":25.163999999999994,"19":25.491999999999997,"20":25.82,"21":26.148000000000003,"22":26.476000000000003,"23":26.803999999999995,"24":27.131999999999998,"25":27.46,"30":29.1,"35":31.44,"40":39.22,"45":61.58,"50":94.2,"55":127.14,"60":187.43};
+
+function john_hancockTerm10(age, male, smoker, face) {
+  const tbl = male ? (smoker ? JOHN_HANCOCKTERM10_MT : JOHN_HANCOCKTERM10_MN) 
+                  : (smoker ? JOHN_HANCOCKTERM10_FT : JOHN_HANCOCKTERM10_FN);
+  const knownAges = Object.keys(tbl).map(Number).sort((a,b)=>a-b);
+  if (age < knownAges[0] || age > knownAges[knownAges.length-1]) return null;
+  
+  // Find rate at this age (with interpolation)
+  let rate;
+  if (tbl[age]) {
+    rate = tbl[age];
+  } else {
+    // Interpolate between surrounding ages
+    let lo = knownAges[0], hi = knownAges[knownAges.length-1];
+    for (let i = 0; i < knownAges.length - 1; i++) {
+      if (age > knownAges[i] && age < knownAges[i+1]) {
+        lo = knownAges[i]; hi = knownAges[i+1]; break;
+      }
+    }
+    const rateLo = tbl[lo], rateHi = tbl[hi];
+    if (rateLo == null || rateHi == null) return null;
+    const t = (age - lo) / (hi - lo);
+    rate = rateLo + t * (rateHi - rateLo);
+  }
+  
+  // Scale by face amount (rates are per $100k, scale to actual face)
+  return Math.round(rate * face / 100000 * 100) / 100;
+}
+
+// Mutual of Omaha Term 10yr rates (per $1000 monthly)
+const MUTUAL_OF_OMAHATERM10_MN = {"18":14.562000000000001,"19":14.935999999999996,"20":15.309999999999999,"21":15.683999999999997,"22":16.058,"23":16.432000000000002,"24":16.806,"25":17.18,"30":19.05,"35":22.61,"40":28.48,"45":39.43,"50":58.3,"55":89.89,"60":124.96,"65":205.5,"70":349.59,"75":592.83};
+const MUTUAL_OF_OMAHATERM10_MT = {"18":25.003999999999998,"19":25.412,"20":25.82,"21":26.228,"22":26.636,"23":27.044,"24":27.451999999999998,"25":27.86,"30":29.9,"35":38,"40":57.23,"45":81.97,"50":81.97,"55":167.77,"60":235.49,"65":438.06,"70":733.09};
+const MUTUAL_OF_OMAHATERM10_FN = {"18":13.416,"19":13.648,"20":13.879999999999999,"21":14.111999999999998,"22":14.344,"23":14.575999999999999,"24":14.808,"25":15.04,"30":16.2,"35":19.14,"40":22.25,"45":31.86,"50":31.86,"55":59.99,"60":88.2,"65":144.54,"70":290.59,"75":529.46};
+const MUTUAL_OF_OMAHATERM10_FT = {"18":21.722,"19":22.026,"20":22.330000000000002,"21":22.634000000000004,"22":22.938000000000002,"23":23.242000000000004,"24":23.546000000000003,"25":23.85,"30":25.37,"35":32.13,"40":48.77,"45":75.38,"50":103.95,"55":152.72,"60":209.95,"65":359.38,"70":359.38,"75":359.38};
+
+function mutual_of_omahaTerm10(age, male, smoker, face) {
+  const tbl = male ? (smoker ? MUTUAL_OF_OMAHATERM10_MT : MUTUAL_OF_OMAHATERM10_MN) 
+                  : (smoker ? MUTUAL_OF_OMAHATERM10_FT : MUTUAL_OF_OMAHATERM10_FN);
+  const knownAges = Object.keys(tbl).map(Number).sort((a,b)=>a-b);
+  if (age < knownAges[0] || age > knownAges[knownAges.length-1]) return null;
+  
+  // Find rate at this age (with interpolation)
+  let rate;
+  if (tbl[age]) {
+    rate = tbl[age];
+  } else {
+    // Interpolate between surrounding ages
+    let lo = knownAges[0], hi = knownAges[knownAges.length-1];
+    for (let i = 0; i < knownAges.length - 1; i++) {
+      if (age > knownAges[i] && age < knownAges[i+1]) {
+        lo = knownAges[i]; hi = knownAges[i+1]; break;
+      }
+    }
+    const rateLo = tbl[lo], rateHi = tbl[hi];
+    if (rateLo == null || rateHi == null) return null;
+    const t = (age - lo) / (hi - lo);
+    rate = rateLo + t * (rateHi - rateLo);
+  }
+  
+  // Scale by face amount (rates are per $100k, scale to actual face)
+  return Math.round(rate * face / 100000 * 100) / 100;
+}
+
+// SBLI Term 10yr rates (per $1000 monthly)
+const SBLITERM10_MN = {"18":7.8100000000000005,"19":7.8100000000000005,"20":7.81,"21":7.81,"22":7.81,"23":7.8100000000000005,"24":7.8100000000000005,"25":7.81,"30":7.81,"35":7.98,"40":8.49,"45":11.03,"50":14.23,"55":20.79,"60":30.08,"65":53.07,"70":86.47,"75":151.26};
+const SBLITERM10_MT = {"18":24.82,"19":24.82,"20":24.82,"21":24.82,"22":24.82,"23":24.82,"24":24.82,"25":24.82,"30":24.82,"35":26.32,"40":36.77,"45":53.49,"50":53.49,"55":124.74,"60":188.86,"65":307.14,"70":417.95,"75":907.72};
+const SBLITERM10_FN = {"18":7.559999999999999,"19":7.5600000000000005,"20":7.56,"21":7.559999999999999,"22":7.56,"23":7.5600000000000005,"24":7.56,"25":7.56,"30":7.56,"35":7.64,"40":8.07,"45":10.01,"50":10.01,"55":18.13,"60":24.3,"65":37.86,"70":59.28,"75":110.07};
+const SBLITERM10_FT = {"18":21.086,"19":21.158,"20":21.23,"21":21.302000000000003,"22":21.374000000000002,"23":21.446,"24":21.518,"25":21.59,"30":21.95,"35":26.32,"40":36.77,"45":53.49,"50":84.08,"55":124.74,"60":188.86,"65":307.14,"70":307.14,"75":307.14};
+
+function sbliTerm10(age, male, smoker, face) {
+  const tbl = male ? (smoker ? SBLITERM10_MT : SBLITERM10_MN) 
+                  : (smoker ? SBLITERM10_FT : SBLITERM10_FN);
+  const knownAges = Object.keys(tbl).map(Number).sort((a,b)=>a-b);
+  if (age < knownAges[0] || age > knownAges[knownAges.length-1]) return null;
+  
+  // Find rate at this age (with interpolation)
+  let rate;
+  if (tbl[age]) {
+    rate = tbl[age];
+  } else {
+    // Interpolate between surrounding ages
+    let lo = knownAges[0], hi = knownAges[knownAges.length-1];
+    for (let i = 0; i < knownAges.length - 1; i++) {
+      if (age > knownAges[i] && age < knownAges[i+1]) {
+        lo = knownAges[i]; hi = knownAges[i+1]; break;
+      }
+    }
+    const rateLo = tbl[lo], rateHi = tbl[hi];
+    if (rateLo == null || rateHi == null) return null;
+    const t = (age - lo) / (hi - lo);
+    rate = rateLo + t * (rateHi - rateLo);
+  }
+  
+  // Scale by face amount (rates are per $100k, scale to actual face)
+  return Math.round(rate * face / 100000 * 100) / 100;
+}
+
+// Royal Neighbors Term 10yr rates (per $1000 monthly)
+const ROYAL_NEIGHBORSTERM10_MN = {"18":11.067999999999998,"19":11.083999999999998,"20":11.1,"21":11.115999999999998,"22":11.132000000000001,"23":11.148,"24":11.164,"25":11.18,"30":11.26,"35":11.35,"40":12.76,"45":14.17,"50":21.38,"55":28.42,"60":49.02,"65":69.78,"70":137.9,"75":207.68};
+const ROYAL_NEIGHBORSTERM10_MT = {"18":20.147999999999996,"19":20.323999999999995,"20":20.499999999999996,"21":20.676,"22":20.851999999999997,"23":21.028,"24":21.204,"25":21.38,"30":22.26,"35":23.23,"40":34.06,"45":44.97,"50":44.97,"55":114.49,"60":187.44,"65":268.66,"70":485.58,"75":708.05};
+const ROYAL_NEIGHBORSTERM10_FN = {"18":9.684000000000003,"19":9.772000000000002,"20":9.860000000000001,"21":9.948000000000002,"22":10.036,"23":10.124,"24":10.212000000000002,"25":10.3,"30":10.74,"35":11.26,"40":12.67,"45":14.08,"50":14.08,"55":24.46,"60":39.86,"65":55.26,"70":110.62,"75":165.97};
+const ROYAL_NEIGHBORSTERM10_FT = {"18":14.659999999999997,"19":15.029999999999998,"20":15.399999999999999,"21":15.77,"22":16.14,"23":16.509999999999998,"24":16.88,"25":17.25,"30":19.1,"35":20.86,"40":28.6,"45":36.34,"50":63.1,"55":89.85,"60":155.23,"65":219.82,"70":219.82,"75":219.82};
+
+function royal_neighborsTerm10(age, male, smoker, face) {
+  const tbl = male ? (smoker ? ROYAL_NEIGHBORSTERM10_MT : ROYAL_NEIGHBORSTERM10_MN) 
+                  : (smoker ? ROYAL_NEIGHBORSTERM10_FT : ROYAL_NEIGHBORSTERM10_FN);
+  const knownAges = Object.keys(tbl).map(Number).sort((a,b)=>a-b);
+  if (age < knownAges[0] || age > knownAges[knownAges.length-1]) return null;
+  
+  // Find rate at this age (with interpolation)
+  let rate;
+  if (tbl[age]) {
+    rate = tbl[age];
+  } else {
+    // Interpolate between surrounding ages
+    let lo = knownAges[0], hi = knownAges[knownAges.length-1];
+    for (let i = 0; i < knownAges.length - 1; i++) {
+      if (age > knownAges[i] && age < knownAges[i+1]) {
+        lo = knownAges[i]; hi = knownAges[i+1]; break;
+      }
+    }
+    const rateLo = tbl[lo], rateHi = tbl[hi];
+    if (rateLo == null || rateHi == null) return null;
+    const t = (age - lo) / (hi - lo);
+    rate = rateLo + t * (rateHi - rateLo);
+  }
+  
+  // Scale by face amount (rates are per $100k, scale to actual face)
+  return Math.round(rate * face / 100000 * 100) / 100;
+}
+
+// Transamerica Term 10yr rates (per $1000 monthly)
+const TRANSAMERICATERM10_MN = {"18":7.949999999999999,"19":7.98,"20":8.01,"21":8.04,"22":8.07,"23":8.1,"24":8.13,"25":8.16,"30":8.31,"35":8.31,"40":9.61,"45":11.46,"50":15.31,"55":20.83,"60":34.04,"65":43.66,"70":81.9,"75":138.34};
+const TRANSAMERICATERM10_MT = {"18":18.73,"19":18.73,"20":18.73,"21":18.729999999999997,"22":18.730000000000004,"23":18.73,"24":18.73,"25":18.73,"30":18.73,"35":18.73,"40":29.58,"45":35.79,"50":35.79,"55":75.43,"60":122.57,"65":185.64,"70":274.98,"75":476.09};
+const TRANSAMERICATERM10_FN = {"18":6.969999999999999,"19":6.970000000000001,"20":6.97,"21":6.969999999999999,"22":6.970000000000001,"23":6.97,"24":6.969999999999999,"25":6.97,"30":6.97,"35":7.57,"40":7.99,"45":9.95,"50":9.95,"55":17.41,"60":25.46,"65":34.39,"70":56.26,"75":97.56};
+const TRANSAMERICATERM10_FT = {"18":14.831999999999997,"19":14.996000000000002,"20":15.16,"21":15.324000000000002,"22":15.488,"23":15.652000000000001,"24":15.815999999999999,"25":15.98,"30":16.8,"35":16.8,"40":23.63,"45":29.92,"50":40.46,"55":51.89,"60":90.7,"65":110.43,"70":110.43,"75":110.43};
+
+function transamericaTerm10(age, male, smoker, face) {
+  const tbl = male ? (smoker ? TRANSAMERICATERM10_MT : TRANSAMERICATERM10_MN) 
+                  : (smoker ? TRANSAMERICATERM10_FT : TRANSAMERICATERM10_FN);
+  const knownAges = Object.keys(tbl).map(Number).sort((a,b)=>a-b);
+  if (age < knownAges[0] || age > knownAges[knownAges.length-1]) return null;
+  
+  // Find rate at this age (with interpolation)
+  let rate;
+  if (tbl[age]) {
+    rate = tbl[age];
+  } else {
+    // Interpolate between surrounding ages
+    let lo = knownAges[0], hi = knownAges[knownAges.length-1];
+    for (let i = 0; i < knownAges.length - 1; i++) {
+      if (age > knownAges[i] && age < knownAges[i+1]) {
+        lo = knownAges[i]; hi = knownAges[i+1]; break;
+      }
+    }
+    const rateLo = tbl[lo], rateHi = tbl[hi];
+    if (rateLo == null || rateHi == null) return null;
+    const t = (age - lo) / (hi - lo);
+    rate = rateLo + t * (rateHi - rateLo);
+  }
+  
+  // Scale by face amount (rates are per $100k, scale to actual face)
+  return Math.round(rate * face / 100000 * 100) / 100;
+}
 const CARRIERS = [
   {id:'acc',  name:'Accendo Insurance',  sub:'Final Expense', abbr:'AC', enabled:true,
    product:{B:'Level',C:'Level',D:'Modified',E:null},
@@ -696,6 +935,14 @@ const CARRIER_META = {
   elco: { img:'',                    eapp:'https://www.elcomutual.com/agent-portal',            brand:'#059669' }, // Elco Mutual — Emerald Green
   balt_sg: { img:'',                 eapp:'https://www.baltlife.com/agent-portal',              brand:'#0369A1' }, // Baltimore Life — Sky Blue
   sl_pp: { img:'',                   eapp:'https://www.seniorlife.com/agent-portal',            brand:'#7C3AED' }, // Senior Life — Purple
+  // ── TERM LIFE CARRIERS ──
+  american_amicable: { img:'',        eapp:'https://www.insuranceapplication.com',              brand:'#CBD5E1' }, // American Amicable — Light Gray
+  instabrain: { img:'',              eapp:'https://portal.instabrain.io/App/?redirected=true',  brand:'#38BDF8' }, // Instabrain — Light Blue
+  john_hancock: { img:'',            eapp:'https://www.johnhancock.com/agent-portal',           brand:'#1E40AF' }, // John Hancock — Blue
+  mutual_of_omaha: { img:'',         eapp:'https://www.mutualofomaha.com/agent-login',          brand:'#2563EB' }, // Mutual of Omaha — Royal Blue
+  sbli: { img:'',                    eapp:'https://www.sbli.com/agent-portal',                  brand:'#059669' }, // SBLI — Emerald Green
+  royal_neighbors: { img:'',         eapp:'https://agent.royalneighbors.org/login',             brand:'#16A34A' }, // Royal Neighbors — Green
+  transamerica: { img:'',            eapp:'https://www.transamerica.com/financial-professionals/', brand:'#EF4444' }, // Transamerica — Red
 };
 
 function getCompBadge(carrierId, tier) {
@@ -1148,7 +1395,16 @@ export default function QuoteMark() {
     return{...carr,face:prem!=null?cappedFace:null,prem,productName:pName,activeTier:uwTier,reason,capped:false};
   }
 
-  const activeCarriers = useMemo(()=>carriers.filter(c=>c.enabled),[carriers]);
+  const activeCarriers = useMemo(()=>{
+    return carriers.filter(c => {
+      if (!c.enabled) return false;
+      // FEX mode: exclude term-only carriers
+      if (quoteMode === 'fe' && c.termOnly) return false;
+      // Term mode: only term-only carriers
+      if (quoteMode === 'term' && !c.termOnly) return false;
+      return true;
+    });
+  },[carriers, quoteMode]);
 
   const results = useMemo(()=>{
     if(!hasQuoted||!ageOK) return null;
@@ -1178,25 +1434,43 @@ export default function QuoteMark() {
   const termAgeOK = termAge && termAgeNum>=18 && termAgeNum<=75;
   const termResults = useMemo(()=>{
     if(quoteMode!=='term'||!termAgeOK) return null;
-    const tbl = termLength==='10'?MOO_TLE_10:termLength==='15'?MOO_TLE_15:termLength==='20'?MOO_TLE_20:MOO_TLE_30;
     const male = gender==='male';
-    // MOO TLE has no health classes in the product - express underwriting
-    // Map health class to tier for display only (all classes get same rate)
-    const prem = mooTermLookup(tbl, termAgeNum, male, smoker, termFace);
-    if(prem==null) return {available:false,reason:'Age/face not available for this term'};
-    // Map health class for display
-    const healthLabel = termHealth==='pp'?'Preferred Plus':termHealth==='p'?'Preferred':termHealth==='sp'?'Standard Plus':'Standard';
-    const tierLabel = (termHealth==='pp'||termHealth==='p')?'B':'C'; // Preferred/PP=B, Standard/SP=C
-    return {
-      available:true,
-      carrier:'Mutual of Omaha',
-      product:`Term Life Express (${termLength}-Year)`,
-      face:termFace,
-      prem,
-      healthClass:healthLabel,
-      tier:tierLabel
-    };
-  },[quoteMode,termAge,termLength,termFace,termHealth,gender,smoker]);
+    
+    // Build results for all active term carriers
+    const results = activeCarriers.filter(c => c.termOnly).map(carr => {
+      const prem = carr.fn(termAgeNum, male, smoker, 'B', termFace);
+      const healthLabel = termHealth==='pp'?'Preferred Plus':termHealth==='p'?'Preferred':termHealth==='sp'?'Standard Plus':'Standard';
+      
+      if(prem == null) {
+        return {
+          ...carr,
+          available: false,
+          reason: 'Not available for this age/coverage',
+          face: termFace,
+          prem: null,
+          healthClass: healthLabel,
+          tier: 'B'
+        };
+      }
+      
+      return {
+        ...carr,
+        available: true,
+        face: termFace,
+        prem,
+        healthClass: healthLabel,
+        tier: 'B'
+      };
+    });
+    
+    // Sort by premium (available first, then by price)
+    return results.sort((a,b) => {
+      if (a.available && !b.available) return -1;
+      if (!a.available && b.available) return 1;
+      if (a.available && b.available && a.prem != null && b.prem != null) return a.prem - b.prem;
+      return 0;
+    });
+  },[quoteMode,termAge,termLength,termFace,termHealth,gender,smoker,activeCarriers]);
 
   // ── INPUT STYLES ──
   const inp = {background:C.bg2,border:`1px solid ${C.bd}`,color:C.t1,borderRadius:8,padding:'9px 12px',fontSize:13,width:'100%',boxSizing:'border-box',outline:'none',fontFamily:"'DM Sans',sans-serif"};
@@ -1646,38 +1920,48 @@ export default function QuoteMark() {
                         ← Back to Quote
                       </button>
                     </div>
-                  ) : termResults && termResults.available ? (
-                    <div style={{
-                      background:isDark?'linear-gradient(135deg,rgba(16,185,129,0.14) 0%,rgba(5,150,105,0.08) 100%)':'#FFFFFF',
-                      border:`1px solid ${isDark?'#10B981':'#D1FAE5'}`,
-                      borderTop:'3px solid #10B981',
-                      borderRadius:14,padding:18,
-                      boxShadow:isDark?'0 0 0 1px rgba(16,185,129,0.15)':'0 4px 12px rgba(16,185,129,0.1)'
-                    }}>
-                      <div style={{display:'flex',justifyContent:'space-between',alignItems:'flex-start',marginBottom:14}}>
-                        <div>
-                          <div style={{fontSize:18,fontWeight:700,color:C.t0}}>Mutual of Omaha</div>
-                          <div style={{fontSize:12,color:C.t3,marginTop:2}}>Term Life Express · {termLength}-Year</div>
+                  ) : termResults && termResults.length > 0 ? (
+                    <div style={{display:'flex',flexDirection:'column',gap:14}}>
+                      {termResults.filter(r => r.available && r.prem != null).map((result,idx) => (
+                        <div key={result.id} style={{
+                          background:isDark?'linear-gradient(135deg,rgba(16,185,129,0.14) 0%,rgba(5,150,105,0.08) 100%)':'#FFFFFF',
+                          border:`1px solid ${isDark?'#10B981':'#D1FAE5'}`,
+                          borderTop:'3px solid #10B981',
+                          borderRadius:14,padding:18,
+                          boxShadow:isDark?'0 0 0 1px rgba(16,185,129,0.15)':'0 4px 12px rgba(16,185,129,0.1)'
+                        }}>
+                          <div style={{display:'flex',justifyContent:'space-between',alignItems:'flex-start',marginBottom:14}}>
+                            <div>
+                              <div style={{fontSize:18,fontWeight:700,color:C.t0}}>{result.name}</div>
+                              <div style={{fontSize:12,color:C.t3,marginTop:2}}>Term {termLength}-Year</div>
+                            </div>
+                            {idx === 0 && <div style={{background:'rgba(16,185,129,0.15)',border:'1px solid rgba(16,185,129,0.3)',borderRadius:7,padding:'3px 10px',fontSize:10,fontWeight:700,color:'#10B981'}}>Best Rate</div>}
+                          </div>
+                          <div style={{display:'flex',alignItems:'baseline',gap:8,marginBottom:4}}>
+                            <span style={{fontFamily:"'DM Mono',monospace",fontSize:34,fontWeight:700,color:'#10B981',letterSpacing:'-1px',lineHeight:1}}>${result.prem.toFixed(2)}</span>
+                            <span style={{fontSize:13,color:C.t3}}>/mo</span>
+                          </div>
+                          <div style={{fontSize:12,color:C.t2,marginBottom:14,fontFamily:"'DM Mono',monospace"}}>${(result.prem*12).toFixed(0)} / year</div>
+                          <div style={{display:'flex',gap:6,flexWrap:'wrap',paddingTop:12,borderTop:`1px solid ${isDark?'rgba(16,185,129,0.2)':'#D1FAE5'}`,marginBottom:14}}>
+                            <span style={{background:isDark?'rgba(16,185,129,0.1)':'#ECFDF5',border:`1px solid ${isDark?'rgba(16,185,129,0.25)':'#6EE7B7'}`,borderRadius:6,padding:'4px 10px',fontSize:11,color:isDark?'#6EE7B7':'#065F46',fontWeight:600}}>{fmtF(result.face)}</span>
+                            <span style={{background:isDark?C.bg3:'#F8FAFC',border:`1px solid ${C.bd}`,borderRadius:6,padding:'4px 10px',fontSize:11,color:C.t3}}>{result.healthClass}</span>
+                            <span style={{background:isDark?C.bg3:'#F8FAFC',border:`1px solid ${C.bd}`,borderRadius:6,padding:'4px 10px',fontSize:11,color:C.t3}}>{gender==='male'?'Male':'Female'} · {smoker?'Tobacco':'NS'} · Age {termAge}</span>
+                          </div>
+                          <a href={CARRIER_META[result.id]?.eapp||'#'} target="_blank" rel="noopener noreferrer" style={{display:'block',padding:'13px 0',borderRadius:9,textAlign:'center',background:'#10B981',color:'#FFFFFF',fontSize:14,fontWeight:700,textDecoration:'none',boxShadow:'0 2px 8px rgba(16,185,129,0.3)'}}>Open e-App →</a>
                         </div>
-                        <div style={{background:'rgba(16,185,129,0.15)',border:'1px solid rgba(16,185,129,0.3)',borderRadius:7,padding:'3px 10px',fontSize:10,fontWeight:700,color:'#10B981'}}>No Exam</div>
-                      </div>
-                      <div style={{display:'flex',alignItems:'baseline',gap:8,marginBottom:4}}>
-                        <span style={{fontFamily:"'DM Mono',monospace",fontSize:34,fontWeight:700,color:'#10B981',letterSpacing:'-1px',lineHeight:1}}>${termResults.prem.toFixed(2)}</span>
-                        <span style={{fontSize:13,color:C.t3}}>/mo</span>
-                      </div>
-                      <div style={{fontSize:12,color:C.t2,marginBottom:14,fontFamily:"'DM Mono',monospace"}}>${(termResults.prem*12).toFixed(0)} / year</div>
-                      <div style={{display:'flex',gap:6,flexWrap:'wrap',paddingTop:12,borderTop:`1px solid ${isDark?'rgba(16,185,129,0.2)':'#D1FAE5'}`,marginBottom:14}}>
-                        <span style={{background:isDark?'rgba(16,185,129,0.1)':'#ECFDF5',border:`1px solid ${isDark?'rgba(16,185,129,0.25)':'#6EE7B7'}`,borderRadius:6,padding:'4px 10px',fontSize:11,color:isDark?'#6EE7B7':'#065F46',fontWeight:600}}>{fmtF(termResults.face)}</span>
-                        <span style={{background:isDark?C.bg3:'#F8FAFC',border:`1px solid ${C.bd}`,borderRadius:6,padding:'4px 10px',fontSize:11,color:C.t3}}>{termResults.healthClass}</span>
-                        <span style={{background:isDark?C.bg3:'#F8FAFC',border:`1px solid ${C.bd}`,borderRadius:6,padding:'4px 10px',fontSize:11,color:C.t3}}>{gender==='male'?'Male':'Female'} · {smoker?'Tobacco':'NS'} · Age {termAge}</span>
-                      </div>
-                      <a href={CARRIER_META.moo?.eapp||'#'} target="_blank" rel="noopener noreferrer" style={{display:'block',padding:'13px 0',borderRadius:9,textAlign:'center',background:'#10B981',color:'#FFFFFF',fontSize:14,fontWeight:700,textDecoration:'none',boxShadow:'0 2px 8px rgba(16,185,129,0.3)'}}>Open e-App →</a>
+                      ))}
+                      {termResults.filter(r => !r.available).map(result => (
+                        <div key={result.id} style={{background:C.bg3,border:`1px solid ${C.bd}`,borderRadius:14,padding:18,textAlign:'center',opacity:0.6}}>
+                          <div style={{fontSize:14,color:C.t2,fontWeight:600,marginBottom:4}}>{result.name}</div>
+                          <div style={{fontSize:12,color:C.t4}}>{result.reason}</div>
+                        </div>
+                      ))}
                     </div>
-                  ) : termResults && !termResults.available ? (
+                  ) : termResults && termResults.length === 0 ? (
                     <div style={{background:C.bg3,border:`1px solid ${C.bd}`,borderRadius:14,padding:24,textAlign:'center'}}>
                       <div style={{fontSize:18,marginBottom:8}}>⚠️</div>
-                      <div style={{fontSize:14,color:C.t2,fontWeight:600,marginBottom:4}}>Not Available</div>
-                      <div style={{fontSize:12,color:C.t4}}>{termResults.reason}</div>
+                      <div style={{fontSize:14,color:C.t2,fontWeight:600,marginBottom:4}}>No Term Carriers Available</div>
+                      <div style={{fontSize:12,color:C.t4}}>Enable term carriers in your profile settings</div>
                     </div>
                   ) : null}
                 </div>
@@ -2555,8 +2839,8 @@ export default function QuoteMark() {
                 ):(
                   <>
                     <div style={{display:'grid',gridTemplateColumns:'repeat(auto-fill,minmax(300px,1fr))',gap:14,marginBottom:20}}>
-                      {termResults&&termResults.available&&(
-                        <div style={{
+                      {termResults && termResults.filter(r => r.available && r.prem != null).map((result,idx) => (
+                        <div key={result.id} style={{
                           background:isDark?'linear-gradient(135deg,rgba(16,185,129,0.12) 0%,rgba(5,150,105,0.08) 100%)':'#FFFFFF',
                           border:`1px solid ${isDark?'#10B981':'#D1FAE5'}`,
                           borderTop:'3px solid #10B981',
@@ -2565,35 +2849,41 @@ export default function QuoteMark() {
                         }}>
                           <div style={{display:'flex',justifyContent:'space-between',alignItems:'flex-start',marginBottom:16}}>
                             <div style={{flex:1}}>
-                              <div style={{fontSize:19,fontWeight:700,color:C.t0,letterSpacing:'-0.3px'}}>Mutual of Omaha</div>
-                              <div style={{fontSize:12,color:C.t3,marginTop:3}}>Term Life Express · {termLength}-Year</div>
+                              <div style={{fontSize:19,fontWeight:700,color:C.t0,letterSpacing:'-0.3px'}}>{result.name}</div>
+                              <div style={{fontSize:12,color:C.t3,marginTop:3}}>Term {termLength}-Year</div>
                             </div>
-                            <div style={{background:'rgba(16,185,129,0.15)',border:'1px solid rgba(16,185,129,0.3)',borderRadius:7,padding:'3px 10px',fontSize:10,fontWeight:700,color:'#10B981',letterSpacing:0.5}}>No Exam</div>
+                            {idx === 0 && <div style={{background:'rgba(16,185,129,0.15)',border:'1px solid rgba(16,185,129,0.3)',borderRadius:7,padding:'3px 10px',fontSize:10,fontWeight:700,color:'#10B981',letterSpacing:0.5}}>Best Rate</div>}
                           </div>
                           <div style={{display:'flex',alignItems:'baseline',gap:8,marginBottom:6}}>
-                            <span style={{fontFamily:"'DM Mono',monospace",fontSize:36,fontWeight:700,color:'#10B981',letterSpacing:'-1px',lineHeight:1}}>${termResults.prem.toFixed(2)}</span>
+                            <span style={{fontFamily:"'DM Mono',monospace",fontSize:36,fontWeight:700,color:'#10B981',letterSpacing:'-1px',lineHeight:1}}>${result.prem.toFixed(2)}</span>
                             <span style={{fontSize:13,color:C.t3}}>/mo</span>
                           </div>
-                          <div style={{fontSize:12,color:C.t2,marginBottom:14,fontFamily:"'DM Mono',monospace"}}>${(termResults.prem*12).toFixed(0)} / year</div>
+                          <div style={{fontSize:12,color:C.t2,marginBottom:14,fontFamily:"'DM Mono',monospace"}}>${(result.prem*12).toFixed(0)} / year</div>
                           <div style={{display:'flex',gap:6,flexWrap:'wrap',paddingTop:12,borderTop:`1px solid ${isDark?'rgba(16,185,129,0.15)':'#D1FAE5'}`,marginBottom:14}}>
-                            <span style={{background:isDark?'rgba(16,185,129,0.1)':'#ECFDF5',border:`1px solid ${isDark?'rgba(16,185,129,0.25)':'#6EE7B7'}`,borderRadius:6,padding:'4px 10px',fontSize:11,color:isDark?'#6EE7B7':'#065F46',fontWeight:600}}>{fmtF(termResults.face)} coverage</span>
-                            <span style={{background:isDark?C.bg3:'#F8FAFC',border:`1px solid ${C.bd}`,borderRadius:6,padding:'4px 10px',fontSize:11,color:C.t3}}>{termResults.healthClass}</span>
+                            <span style={{background:isDark?'rgba(16,185,129,0.1)':'#ECFDF5',border:`1px solid ${isDark?'rgba(16,185,129,0.25)':'#6EE7B7'}`,borderRadius:6,padding:'4px 10px',fontSize:11,color:isDark?'#6EE7B7':'#065F46',fontWeight:600}}>{fmtF(result.face)} coverage</span>
+                            <span style={{background:isDark?C.bg3:'#F8FAFC',border:`1px solid ${C.bd}`,borderRadius:6,padding:'4px 10px',fontSize:11,color:C.t3}}>{result.healthClass}</span>
                             <span style={{background:isDark?C.bg3:'#F8FAFC',border:`1px solid ${C.bd}`,borderRadius:6,padding:'4px 10px',fontSize:11,color:C.t3}}>{gender==='male'?'Male':'Female'} · {smoker?'Tobacco':'Non-Tobacco'} · Age {termAge}</span>
                           </div>
-                          <a href={CARRIER_META.moo?.eapp||'#'} target="_blank" rel="noopener noreferrer" style={{display:'flex',alignItems:'center',justifyContent:'center',gap:7,width:'100%',padding:'11px 0',borderRadius:9,background:'#10B981',color:'#FFFFFF',fontSize:13,fontWeight:700,textDecoration:'none',boxShadow:'0 4px 12px rgba(16,185,129,0.3)'}}>📋 Open e-App</a>
+                          <a href={CARRIER_META[result.id]?.eapp||'#'} target="_blank" rel="noopener noreferrer" style={{display:'flex',alignItems:'center',justifyContent:'center',gap:7,width:'100%',padding:'11px 0',borderRadius:9,background:'#10B981',color:'#FFFFFF',fontSize:13,fontWeight:700,textDecoration:'none',boxShadow:'0 4px 12px rgba(16,185,129,0.3)'}}>📋 Open e-App</a>
                         </div>
-                      )}
-                      {termResults&&!termResults.available&&(
-                        <div style={{background:C.bg3,border:`1px solid ${C.bd}`,borderRadius:14,padding:24,textAlign:'center',opacity:0.6}}>
+                      ))}
+                      {termResults && termResults.filter(r => !r.available).map(result => (
+                        <div key={result.id} style={{background:C.bg3,border:`1px solid ${C.bd}`,borderRadius:14,padding:24,textAlign:'center',opacity:0.6}}>
+                          <div style={{fontSize:14,color:C.t2,fontWeight:600,marginBottom:4}}>{result.name}</div>
+                          <div style={{fontSize:12,color:C.t4}}>{result.reason}</div>
+                        </div>
+                      ))}
+                      {(!termResults || termResults.length === 0) && (
+                        <div style={{background:C.bg3,border:`1px solid ${C.bd}`,borderRadius:14,padding:24,textAlign:'center',opacity:0.6,gridColumn:'1 / -1'}}>
                           <div style={{fontSize:18,marginBottom:8}}>⚠️</div>
-                          <div style={{fontSize:14,color:C.t2,fontWeight:600,marginBottom:4}}>Not Available</div>
-                          <div style={{fontSize:12,color:C.t4}}>{termResults.reason}</div>
+                          <div style={{fontSize:14,color:C.t2,fontWeight:600,marginBottom:4}}>No Term Carriers Available</div>
+                          <div style={{fontSize:12,color:C.t4}}>Enable term carriers in your profile settings</div>
                         </div>
                       )}
                     </div>
 
                     <div style={{fontSize:11,color:C.t4,lineHeight:1.7,borderTop:`1px solid ${C.bd}`,paddingTop:12}}>
-                      $300,000 is the maximum face amount available through Mutual of Omaha Term Life Express without a medical exam. Rates shown are monthly EFT premiums. Actual premiums subject to underwriting approval. Agent use only.
+                      Term life coverage ages 18-75. $300,000 maximum face amount (no medical exam). Rates shown are monthly EFT premiums. Actual premiums subject to underwriting approval. Agent use only.
                     </div>
                   </>
                 )}
@@ -2795,7 +3085,51 @@ export default function QuoteMark() {
                 {!gsbOn&&results&&(()=>{
                   const avail=results.filter(r=>r.prem!=null);
                   if(avail.length<1) return null;
-                  const lo=avail[avail.length-1], hi=avail[0]; // sorted cheapest first
+                  const lo=avail[avail.length-1], hi=avail[0,
+  // ── TERM LIFE CARRIERS ──
+  {id:'american_amicable', name:'American Amicable', sub:'Term Life', abbr:'AA', enabled:true, termOnly:true,
+   product:{B:'Term 10yr',C:null,D:null,E:null},
+   fn:(age,male,smoker,tier,face)=>{
+     if(tier!=='B') return null;
+     return american_amicableTerm10(age,male,smoker,face);
+   }},
+  {id:'instabrain', name:'Instabrain', sub:'Term Life', abbr:'I', enabled:true, termOnly:true,
+   product:{B:'Term 10yr',C:null,D:null,E:null},
+   fn:(age,male,smoker,tier,face)=>{
+     if(tier!=='B') return null;
+     return instabrainTerm10(age,male,smoker,face);
+   }},
+  {id:'john_hancock', name:'John Hancock', sub:'Term Life', abbr:'JH', enabled:true, termOnly:true,
+   product:{B:'Term 10yr',C:null,D:null,E:null},
+   fn:(age,male,smoker,tier,face)=>{
+     if(tier!=='B') return null;
+     return john_hancockTerm10(age,male,smoker,face);
+   }},
+  {id:'mutual_of_omaha', name:'Mutual of Omaha', sub:'Term Life', abbr:'MO', enabled:true, termOnly:true,
+   product:{B:'Term 10yr',C:null,D:null,E:null},
+   fn:(age,male,smoker,tier,face)=>{
+     if(tier!=='B') return null;
+     return mutual_of_omahaTerm10(age,male,smoker,face);
+   }},
+  {id:'sbli', name:'SBLI', sub:'Term Life', abbr:'S', enabled:true, termOnly:true,
+   product:{B:'Term 10yr',C:null,D:null,E:null},
+   fn:(age,male,smoker,tier,face)=>{
+     if(tier!=='B') return null;
+     return sbliTerm10(age,male,smoker,face);
+   }},
+  {id:'royal_neighbors', name:'Royal Neighbors', sub:'Term Life', abbr:'RN', enabled:true, termOnly:true,
+   product:{B:'Term 10yr',C:null,D:null,E:null},
+   fn:(age,male,smoker,tier,face)=>{
+     if(tier!=='B') return null;
+     return royal_neighborsTerm10(age,male,smoker,face);
+   }},
+  {id:'transamerica', name:'Transamerica', sub:'Term Life', abbr:'T', enabled:true, termOnly:true,
+   product:{B:'Term 10yr',C:null,D:null,E:null},
+   fn:(age,male,smoker,tier,face)=>{
+     if(tier!=='B') return null;
+     return transamericaTerm10(age,male,smoker,face);
+   }}
+]; // sorted cheapest first
                   const cheapest=avail.reduce((a,b)=>a.prem<b.prem?a:b);
                   const mostExp=avail.reduce((a,b)=>a.prem>b.prem?a:b);
                   const maxCov=mode==='budget'?avail.reduce((a,b)=>(a.face||0)>(b.face||0)?a:b):null;
