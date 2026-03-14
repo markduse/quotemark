@@ -187,6 +187,50 @@ function mooLookup(tbl,faces,age,face){
   return row[faces.length-1];
 }
 
+// ── MOO Term Life Express (TLE) — direct premium lookup tables ──
+// Ages 18-75, face $25k-$300k ($500k not available), no health classes
+// Format: {age: {face: monthly_premium}} — premium is direct, not per $1k
+const MOO_TERM_FACES=[25000,50000,100000,150000,200000,250000,300000];
+const MOO_TLE_10={
+  male:{non_tobacco:{18:{25000:8.3,50000:11.26,100000:17.18,150000:23.1,200000:29.01,250000:34.93,300000:40.85},25:{25000:8.3,50000:11.26,100000:17.18,150000:23.1,200000:29.01,250000:34.93,300000:40.85},30:{25000:45.92,50000:12.19,100000:19.05,150000:25.9,200000:32.75,250000:39.61,300000:46.46},35:{25000:9.66,50000:13.97,100000:22.61,150000:31.24,200000:39.87,250000:48.51,300000:57.14},40:{25000:11.13,50000:16.91,100000:28.48,150000:40.05,200000:51.62,250000:63.19,300000:74.76},45:{25000:13.86,50000:22.38,100000:39.43,150000:56.47,200000:73.51,250000:90.56,300000:107.6},50:{25000:18.58,50000:31.82,100000:58.3,150000:84.77,200000:111.25,250000:137.73,300000:164.21},55:{25000:26.48,50000:47.62,100000:89.89,150000:132.17,200000:174.44,250000:216.72,300000:216.72},60:{25000:35.24,50000:65.15,100000:124.96,150000:184.76,200000:244.57,250000:304.38,300000:304.38},65:{25000:55.38,50000:105.42,100000:205.5,150000:305.58,200000:305.58,250000:305.58,300000:305.58},70:{25000:91.4,50000:177.47,100000:349.59,150000:521.72,200000:521.72,250000:521.72,300000:521.72},75:{25000:152.21,50000:299.08,100000:592.83,150000:886.57,200000:886.57,250000:886.57,300000:886.57}},tobacco:{18:{25000:10.97,50000:16.6,100000:27.86,150000:39.12,200000:50.37,250000:61.63,300000:72.89},25:{25000:10.97,50000:16.6,100000:27.86,150000:39.12,200000:50.37,250000:61.63,300000:72.89},30:{25000:11.48,50000:17.62,100000:29.9,150000:42.19,200000:54.47,250000:66.75,300000:79.03},35:{25000:13.51,50000:21.67,100000:38,150000:54.33,200000:70.67,250000:87,300000:103.33},40:{25000:17.63,50000:29.92,100000:54.51,150000:79.1,200000:103.68,250000:128.27,300000:152.86},45:{25000:23.72,50000:42.11,100000:78.88,150000:115.66,200000:152.43,250000:189.2,300000:225.97},50:{25000:31.73,50000:58.12,100000:110.91,150000:163.69,200000:216.48,250000:269.26,300000:322.05},55:{25000:43.07,50000:80.81,100000:156.28,150000:231.75,200000:307.23,250000:382.7,300000:382.7},60:{25000:59.18,50000:113.02,100000:220.7,150000:328.39,200000:436.08,250000:436.08,300000:436.08},65:{25000:89.8,50000:174.27,100000:343.2,150000:512.13,200000:512.13,250000:512.13,300000:512.13},70:{25000:142.09,50000:278.84,100000:552.34,150000:825.85,200000:825.85,250000:825.85,300000:825.85},75:{25000:222.25,50000:439.16,100000:872.98,150000:1306.81,200000:1306.81,250000:1306.81,300000:1306.81}}},
+  female:{non_tobacco:{18:{25000:7.75,50000:10.16,100000:14.99,150000:19.81,200000:24.63,250000:29.46,300000:34.28},25:{25000:7.75,50000:10.16,100000:14.99,150000:19.81,200000:24.63,250000:29.46,300000:34.28},30:{25000:7.97,50000:10.6,100000:15.87,150000:21.14,200000:26.41,250000:31.69,300000:36.96},35:{25000:8.59,50000:11.84,100000:18.35,150000:24.85,200000:31.35,250000:37.86,300000:44.36},40:{25000:9.37,50000:13.4,100000:21.45,150000:29.51,200000:37.56,250000:45.62,300000:53.67},45:{25000:10.86,50000:16.38,100000:27.43,150000:38.47,200000:49.51,250000:60.55,300000:71.6},50:{25000:13.44,50000:21.54,100000:37.75,150000:53.96,200000:70.18,250000:86.39,300000:102.6},55:{25000:17.63,50000:29.92,100000:54.51,150000:79.1,200000:103.68,250000:128.27,300000:152.86},60:{25000:23.14,50000:41.07,100000:76.81,150000:112.56,200000:148.31,250000:184.05,300000:219.8},65:{25000:32.62,50000:60.05,100000:115.47,150000:170.89,200000:170.89,250000:170.89,300000:170.89},70:{25000:48.42,50000:91.51,100000:179.67,150000:267.84,200000:267.84,250000:267.84,300000:267.84},75:{25000:74.36,50000:143.38,100000:284.42,150000:425.47,200000:425.47,250000:425.47,300000:425.47}},tobacco:{18:{25000:9.08,50000:12.82,100000:20.29,150000:27.77,200000:35.24,250000:42.72,300000:50.2},25:{25000:9.08,50000:12.82,100000:20.29,150000:27.77,200000:35.24,250000:42.72,300000:50.2},30:{25000:9.48,50000:13.62,100000:21.89,150000:30.17,200000:38.45,250000:46.73,300000:55},35:{25000:10.42,50000:15.5,100000:25.66,150000:35.82,200000:45.98,250000:56.14,300000:66.31},40:{25000:11.93,50000:18.52,100000:31.71,150000:44.89,200000:58.07,250000:71.25,300000:84.44},45:{25000:14.35,50000:23.36,100000:41.38,150000:59.4,200000:77.43,250000:95.45,300000:113.47},50:{25000:18,50000:30.66,100000:56.66,150000:82.66,200000:108.67,250000:134.67,300000:160.67},55:{25000:23.36,50000:41.38,100000:77.43,150000:113.47,200000:149.52,250000:185.57,300000:221.61},60:{25000:31.78,50000:58.23,100000:111.11,150000:163.99,200000:216.88,250000:269.76,300000:322.64},65:{25000:46.28,50000:87.22,100000:169.11,150000:251,200000:251,250000:251,300000:251},70:{25000:70.45,50000:135.56,100000:266.79,150000:398.01,200000:398.01,250000:398.01,300000:398.01},75:{25000:108.05,50000:210.77,100000:416.2,150000:621.63,200000:621.63,250000:621.63,300000:621.63}}}
+};
+const MOO_TLE_15={
+  male:{non_tobacco:{18:{25000:8.68,50000:12.02,100000:18.69,150000:25.37,200000:32.04,250000:38.72,300000:45.39},25:{25000:8.68,50000:12.02,100000:18.69,150000:25.37,200000:32.04,250000:38.72,300000:45.39},30:{25000:9.1,50000:12.86,100000:20.38,150000:27.9,200000:35.42,250000:42.94,300000:50.47},35:{25000:10.02,50000:14.69,100000:24.05,150000:33.4,200000:42.76,250000:52.11,300000:61.47},40:{25000:12.15,50000:18.97,100000:32.6,150000:46.23,200000:59.87,250000:73.5,300000:87.13},45:{25000:16.2,50000:27.05,100000:48.77,150000:70.49,200000:92.21,250000:113.92,300000:135.64},50:{25000:22.61,50000:39.88,100000:74.43,150000:108.98,200000:143.52,250000:178.07,300000:212.62},55:{25000:32.71,50000:60.08,100000:114.82,150000:169.55,200000:224.29,250000:279.02,300000:333.76},60:{25000:47.3,50000:89.26,100000:173.19,150000:257.11,200000:341.04,250000:424.96,300000:508.89},65:{25000:72.29,50000:139.24,100000:273.14,150000:407.05,200000:540.95,250000:540.95,300000:540.95},70:{25000:113.43,50000:221.52,100000:438.7,150000:655.89,200000:655.89,250000:655.89,300000:655.89}},tobacco:{18:{25000:11.13,50000:16.91,100000:28.48,150000:40.05,200000:51.62,250000:63.19,300000:74.76},25:{25000:11.13,50000:16.91,100000:28.48,150000:40.05,200000:51.62,250000:63.19,300000:74.76},30:{25000:12.24,50000:19.15,100000:33.02,150000:46.59,200000:60.16,250000:73.74,300000:87.31},35:{25000:15.31,50000:25.28,100000:45.23,150000:65.17,200000:85.12,250000:105.06,300000:125.01},40:{25000:21.18,50000:36.02,100000:66.71,150000:97.39,200000:128.08,250000:158.76,300000:189.45},45:{25000:30.92,50000:56.5,100000:107.66,150000:158.82,200000:209.97,250000:261.13,300000:312.29},50:{25000:43.83,50000:82.33,100000:159.32,150000:236.31,200000:313.3,250000:390.29,300000:467.28},55:{25000:60.43,50000:115.52,100000:225.71,150000:335.9,200000:446.08,250000:556.27,300000:666.46},60:{25000:83.28,50000:161.23,100000:317.12,150000:473.02,200000:628.91,250000:784.81,300000:940.7},65:{25000:118.46,50000:231.59,100000:457.84,150000:684.1,200000:910.35,250000:910.35,300000:910.35},70:{25000:170.66,50000:335.98,100000:668.63,150000:1001.27,200000:1001.27,250000:1001.27,300000:1001.27}}},
+  female:{non_tobacco:{18:{25000:8.01,50000:10.67,100000:16.01,150000:21.34,200000:26.68,250000:32.02,300000:37.35},25:{25000:8.01,50000:10.67,100000:16.01,150000:21.34,200000:26.68,250000:32.02,300000:37.35},30:{25000:8.41,50000:11.48,100000:17.62,150000:23.77,200000:29.91,250000:36.05,300000:42.19},35:{25000:9.06,50000:12.78,100000:20.23,150000:27.68,200000:35.13,250000:42.58,300000:50.02},40:{25000:10.29,50000:15.23,100000:25.13,150000:35.02,200000:44.91,250000:54.8,300000:64.69},45:{25000:12.59,50000:19.84,100000:34.35,150000:48.85,200000:63.35,250000:77.85,300000:92.36},50:{25000:16.2,50000:27.05,100000:48.77,150000:70.49,200000:92.21,250000:113.92,300000:135.64},55:{25000:21.69,50000:38.04,100000:70.75,150000:103.47,200000:136.18,250000:168.89,300000:201.61},60:{25000:29.59,50000:53.85,100000:102.37,150000:150.88,200000:199.4,250000:247.91,300000:296.43},65:{25000:42.26,50000:79.19,100000:153.05,150000:226.9,200000:300.76,250000:374.61,300000:374.61},70:{25000:62.68,50000:120.03,100000:234.72,150000:349.41,200000:464.1,250000:464.1,300000:464.1}},tobacco:{18:{25000:9.66,50000:13.97,100000:22.61,150000:31.24,200000:39.87,250000:48.51,300000:57.14},25:{25000:9.66,50000:13.97,100000:22.61,150000:31.24,200000:39.87,250000:48.51,300000:57.14},30:{25000:10.42,50000:15.5,100000:25.66,150000:35.82,200000:45.98,250000:56.14,300000:66.31},35:{25000:11.71,50000:18.07,100000:30.81,150000:43.56,200000:56.3,250000:69.04,300000:81.79},40:{25000:13.87,50000:22.4,100000:39.47,150000:56.54,200000:73.6,250000:90.67,300000:107.74},45:{25000:17.85,50000:30.35,100000:55.37,150000:80.39,200000:105.42,250000:130.44,300000:155.46},50:{25000:23.45,50000:41.56,100000:77.79,150000:114.01,200000:150.24,250000:186.46,300000:222.69},55:{25000:30.66,50000:55.99,100000:106.64,150000:157.3,200000:207.95,250000:258.61,300000:309.26},60:{25000:40.94,50000:76.54,100000:147.75,150000:218.96,200000:290.17,250000:361.38,300000:432.59},65:{25000:56.41,50000:107.48,100000:209.63,150000:311.77,200000:413.92,250000:516.06,300000:516.06},70:{25000:79.92,50000:154.51,100000:303.68,150000:452.86,200000:602.03,250000:602.03,300000:602.03}}}
+};
+const MOO_TLE_20={
+  male:{non_tobacco:{18:{25000:8.7,50000:12.06,100000:18.78,150000:25.5,200000:32.22,250000:38.94,300000:45.66},25:{25000:8.7,50000:12.06,100000:18.78,150000:25.5,200000:32.22,250000:38.94,300000:45.66},30:{25000:9.46,50000:13.57,100000:21.81,150000:30.04,200000:38.27,250000:46.5,300000:54.74},35:{25000:10.95,50000:16.56,100000:27.79,150000:39.02,200000:50.24,250000:61.47,300000:72.7},40:{25000:13.91,50000:22.47,100000:39.61,150000:56.76,200000:73.9,250000:91.04,300000:108.18},45:{25000:19.49,50000:33.64,100000:61.94,150000:90.24,200000:118.55,250000:146.85,300000:175.15},50:{25000:27.95,50000:50.56,100000:95.79,150000:141.02,200000:186.24,250000:231.47,300000:276.7},55:{25000:40.18,50000:75.02,100000:144.71,150000:214.39,200000:284.07,250000:353.75,300000:423.44},60:{25000:58.27,50000:111.2,100000:217.06,150000:322.93,200000:428.79,250000:534.66,300000:640.52},65:{25000:86.09,50000:166.85,100000:328.36,150000:489.88,200000:651.39,250000:812.9,300000:812.9}},tobacco:{18:{25000:11.48,50000:17.62,100000:29.9,150000:42.19,200000:54.47,250000:66.75,300000:79.03},25:{25000:11.48,50000:17.62,100000:29.9,150000:42.19,200000:54.47,250000:66.75,300000:79.03},30:{25000:13.29,50000:21.23,100000:37.13,150000:53.03,200000:68.93,250000:84.84,300000:100.74},35:{25000:17.81,50000:30.28,100000:55.23,150000:80.17,200000:105.11,250000:130.06,300000:155},40:{25000:25.81,50000:46.28,100000:87.22,150000:128.16,200000:169.11,250000:210.05,300000:250.99},45:{25000:38.5,50000:71.66,100000:138,150000:204.33,200000:270.67,250000:337,300000:403.34},50:{25000:54.74,50000:104.14,100000:203.14,150000:302.14,200000:401.14,250000:500.15,300000:599.15},55:{25000:75.2,50000:145.06,100000:284.78,150000:424.5,200000:564.22,250000:703.94,300000:843.66},60:{25000:103,50000:200.67,100000:396.01,150000:591.34,200000:786.67,250000:982.01,300000:1177.34},65:{25000:142.22,50000:279.11,100000:552.88,150000:826.65,200000:1100.42,250000:1374.2,300000:1374.2}}},
+  female:{non_tobacco:{18:{25000:8.19,50000:11.04,100000:16.74,150000:22.45,200000:28.15,250000:33.86,300000:39.56},25:{25000:8.19,50000:11.04,100000:16.74,150000:22.45,200000:28.15,250000:33.86,300000:39.56},30:{25000:8.77,50000:12.19,100000:19.05,150000:25.9,200000:32.75,250000:39.61,300000:46.46},35:{25000:9.75,50000:14.16,100000:22.98,150000:31.8,200000:40.63,250000:49.45,300000:58.27},40:{25000:11.35,50000:17.36,100000:29.37,150000:41.39,200000:53.4,250000:65.42,300000:77.43},45:{25000:14.15,50000:22.96,100000:40.59,150000:58.21,200000:75.83,250000:93.45,300000:111.07},50:{25000:18.67,50000:32,100000:58.67,150000:85.34,200000:112,250000:138.67,300000:165.34},55:{25000:25.63,50000:45.93,100000:86.52,150000:127.12,200000:167.72,250000:208.31,300000:248.91},60:{25000:35.87,50000:66.4,100000:127.47,150000:188.53,200000:249.6,250000:310.67,300000:371.73},65:{25000:51.04,50000:96.74,100000:188.15,150000:279.56,200000:370.97,250000:462.38,300000:553.79}},tobacco:{18:{25000:10.24,50000:15.13,100000:24.92,150000:34.71,200000:44.5,250000:54.29,300000:64.08},25:{25000:10.24,50000:15.13,100000:24.92,150000:34.71,200000:44.5,250000:54.29,300000:64.08},30:{25000:11.26,50000:17.18,100000:29.01,150000:40.85,200000:52.69,250000:64.53,300000:76.36},35:{25000:13.02,50000:20.69,100000:36.05,150000:51.4,200000:66.76,250000:82.11,300000:97.46},40:{25000:15.84,50000:26.34,100000:47.35,150000:68.36,200000:89.36,250000:110.37,300000:131.38},45:{25000:20.87,50000:36.4,100000:67.46,150000:98.53,200000:129.59,250000:160.65,300000:191.72},50:{25000:28.12,50000:50.91,100000:96.48,150000:142.05,200000:187.62,250000:233.19,300000:278.76},55:{25000:37.38,50000:69.43,100000:133.52,150000:197.61,200000:261.69,250000:325.78,300000:389.87},60:{25000:50.69,50000:96.05,100000:186.76,150000:277.47,200000:368.19,250000:458.9,300000:549.61},65:{25000:69.86,50000:134.38,100000:263.43,150000:392.47,200000:521.52,250000:650.57,300000:779.61}}}
+};
+const MOO_TLE_30={
+  male:{non_tobacco:{18:{25000:9.61,50000:13.88,100000:22.43,150000:30.97,200000:39.52,250000:48.06,300000:56.6},25:{25000:9.61,50000:13.88,100000:22.43,150000:30.97,200000:39.52,250000:48.06,300000:56.6},30:{25000:11.26,50000:17.18,100000:29.01,150000:40.85,200000:52.69,250000:64.53,300000:76.36},35:{25000:14.17,50000:23.01,100000:40.68,150000:58.36,200000:76.03,250000:93.7,300000:111.38},40:{25000:19.23,50000:33.12,100000:60.91,150000:88.69,200000:116.47,250000:144.26,300000:172.04},45:{25000:26.83,50000:48.33,100000:91.32,150000:134.32,200000:177.31,250000:220.3,300000:263.3},50:{25000:37.78,50000:70.22,100000:135.11,150000:200,200000:264.89,250000:329.78,300000:394.67},55:{25000:54.16,50000:103,100000:200.66,150000:298.31,200000:395.97,250000:493.62,300000:591.28}},tobacco:{18:{25000:13.91,50000:22.47,100000:39.61,150000:56.76,200000:73.9,250000:91.04,300000:108.18},25:{25000:13.91,50000:22.47,100000:39.61,150000:56.76,200000:73.9,250000:91.04,300000:108.18},30:{25000:17.18,50000:29.01,100000:52.69,150000:76.36,200000:100.04,250000:123.71,300000:147.39},35:{25000:24.5,50000:43.67,100000:82,150000:120.33,200000:158.67,250000:197,300000:235.33},40:{25000:35.69,50000:66.05,100000:126.76,150000:187.47,200000:248.18,250000:308.88,300000:369.59},45:{25000:51.35,50000:97.37,100000:189.4,150000:281.44,200000:373.47,250000:465.51,300000:557.54},50:{25000:72.16,50000:139,100000:272.66,150000:406.31,200000:539.97,250000:673.63,300000:807.28},55:{25000:100.18,50000:194.83,100000:384.32,150000:573.81,200000:763.3,250000:952.79,300000:1142.28}}},
+  female:{non_tobacco:{18:{25000:8.77,50000:12.19,100000:19.05,150000:25.9,200000:32.75,250000:39.61,300000:46.46},25:{25000:8.77,50000:12.19,100000:19.05,150000:25.9,200000:32.75,250000:39.61,300000:46.46},30:{25000:9.75,50000:14.16,100000:22.98,150000:31.8,200000:40.63,250000:49.45,300000:58.27},35:{25000:11.57,50000:17.8,100000:30.26,150000:42.72,200000:55.18,250000:67.64,300000:80.1},40:{25000:14.35,50000:23.36,100000:41.38,150000:59.4,200000:77.43,250000:95.45,300000:113.47},45:{25000:18.8,50000:32.27,100000:59.2,150000:86.14,200000:113.07,250000:140,300000:166.94},50:{25000:24.85,50000:44.37,100000:83.4,150000:122.42,200000:161.45,250000:200.47,300000:239.5},55:{25000:34.09,50000:62.85,100000:120.37,150000:177.88,200000:235.4,250000:292.92,300000:350.43}},tobacco:{18:{25000:11.48,50000:17.62,100000:29.9,150000:42.19,200000:54.47,250000:66.75,300000:79.03},25:{25000:11.48,50000:17.62,100000:29.9,150000:42.19,200000:54.47,250000:66.75,300000:79.03},30:{25000:13.64,50000:21.94,100000:38.54,150000:55.14,200000:71.73,250000:88.33,300000:104.93},35:{25000:17.18,50000:29.01,100000:52.69,150000:76.36,200000:100.04,250000:123.71,300000:147.39},40:{25000:22.61,50000:39.88,100000:74.43,150000:108.98,200000:143.52,250000:178.07,300000:212.62},45:{25000:30.3,50000:55.26,100000:105.19,150000:155.11,200000:205.04,250000:254.96,300000:304.89},50:{25000:40.94,50000:76.54,100000:147.75,150000:218.96,200000:290.17,250000:361.38,300000:432.59},55:{25000:55.45,50000:105.56,100000:205.79,150000:306.02,200000:406.24,250000:506.47,300000:606.7}}}
+};
+// Term lookup: tbl[gender][tobacco_key][age][face] = monthly premium
+function mooTermLookup(tbl,age,male,smoker,face){
+  const gKey=male?'male':'female';
+  const tKey=smoker?'tobacco':'non_tobacco';
+  const gData=tbl[gKey];if(!gData)return null;
+  const tData=gData[tKey];if(!tData)return null;
+  const ageData=tData[age];if(!ageData)return null;
+  // Find the exact face or interpolate between faces
+  const faces=MOO_TERM_FACES;
+  const cf=Math.min(face,faces[faces.length-1]);
+  if(cf<faces[0])return null; // below minimum
+  for(let i=0;i<faces.length-1;i++){
+    if(cf>=faces[i]&&cf<=faces[i+1]){
+      const p1=ageData[faces[i]];
+      const p2=ageData[faces[i+1]];
+      if(p1==null||p2==null)return null;
+      const t=(cf-faces[i])/(faces[i+1]-faces[i]);
+      return Math.round((p1+t*(p2-p1))*100)/100;
+    }
+  }
+  const lastPrice=ageData[faces[faces.length-1]];
+  return lastPrice!=null?lastPrice:null;
+}
+
 
 // Corebridge (AGL) | GIWL — Guaranteed Issue Whole Life | Ages 50–80
 // Formula: ROUND((annual_rate/1k × face/1000 + $24) × 0.0834, 2)
@@ -801,6 +845,13 @@ export default function QuoteMark() {
   const dobYyyyRefD = React.useRef(null);
   const [reqSent,setReqSent]   = useState(false);
 
+  // ── TERM MODE STATE ──
+  const [quoteMode,setQuoteMode] = useState('fe'); // 'fe' | 'term'
+  const [termLength,setTermLength] = useState('10'); // '10' | '15' | '20' | '30'
+  const [termFace,setTermFace] = useState(100000); // $25k-$300k
+  const [termHealth,setTermHealth] = useState('pp'); // 'pp'=Preferred Plus, 'p'=Preferred, 'sp'=Standard Plus, 's'=Standard
+  const [termAge,setTermAge] = useState(''); // term allows 18-75
+
   // ── PROFILE STATE ──
   const [mobileTab2, setMobileTab2] = useState(null); // null | 'profile'
   const [showProfileModal, setShowProfileModal] = useState(false);
@@ -976,6 +1027,31 @@ export default function QuoteMark() {
     return list.sort((a,b)=>{if(a.prem!=null&&b.prem!=null)return a.prem-b.prem;if(a.prem!=null)return-1;if(b.prem!=null)return 1;return 0;});
   },[hasQuoted,age,gender,smoker,uwTier,mode,faceAmt,budget,gsbOn,gsbFace,activeCarriers,usState]);
 
+  // ── TERM LIFE RESULTS ──
+  const termAgeNum = parseInt(termAge);
+  const termAgeOK = termAge && termAgeNum>=18 && termAgeNum<=75;
+  const termResults = useMemo(()=>{
+    if(quoteMode!=='term'||!termAgeOK) return null;
+    const tbl = termLength==='10'?MOO_TLE_10:termLength==='15'?MOO_TLE_15:termLength==='20'?MOO_TLE_20:MOO_TLE_30;
+    const male = gender==='male';
+    // MOO TLE has no health classes in the product - express underwriting
+    // Map health class to tier for display only (all classes get same rate)
+    const prem = mooTermLookup(tbl, termAgeNum, male, smoker, termFace);
+    if(prem==null) return {available:false,reason:'Age/face not available for this term'};
+    // Map health class for display
+    const healthLabel = termHealth==='pp'?'Preferred Plus':termHealth==='p'?'Preferred':termHealth==='sp'?'Standard Plus':'Standard';
+    const tierLabel = (termHealth==='pp'||termHealth==='p')?'B':'C'; // Preferred/PP=B, Standard/SP=C
+    return {
+      available:true,
+      carrier:'Mutual of Omaha',
+      product:`Term Life Express (${termLength}-Year)`,
+      face:termFace,
+      prem,
+      healthClass:healthLabel,
+      tier:tierLabel
+    };
+  },[quoteMode,termAge,termLength,termFace,termHealth,gender,smoker]);
+
   // ── INPUT STYLES ──
   const inp = {background:C.bg2,border:`1px solid ${C.bd}`,color:C.t1,borderRadius:8,padding:'9px 12px',fontSize:13,width:'100%',boxSizing:'border-box',outline:'none',fontFamily:"'DM Sans',sans-serif"};
   const togBtn = (active) => isDark ? {flex:1,padding:'9px 0',minHeight:40,borderRadius:7,border:`2px solid ${active?'#38BDF8':'#374151'}`,cursor:'pointer',fontSize:12,fontWeight:600,background:active?'#38BDF8':'#0F172A',color:active?'#0B1120':'#94A3B8',fontFamily:"'DM Sans',sans-serif"} : {flex:1,padding:'9px 0',minHeight:40,borderRadius:7,border:`2px solid ${active?'#0F172A':'#CBD5E1'}`,cursor:'pointer',fontSize:12,fontWeight:600,background:active?'#0F172A':C.selInactive,color:active?'#FFFFFF':'#64748B',fontFamily:"'DM Sans',sans-serif"};
@@ -1017,6 +1093,30 @@ export default function QuoteMark() {
           {mobileTab === 'quote' && (
             <div style={{display:'flex',flexDirection:'column',gap:12}}>
 
+              {/* Quote Type Toggle */}
+              <div style={{display:'flex',gap:8}}>
+                <button className="qm-btn" onClick={()=>setQuoteMode('fe')} style={{
+                  flex:1,padding:'14px 0',borderRadius:10,
+                  border:`2px solid ${quoteMode==='fe'?(isDark?'#38BDF8':'#0F172A'):(isDark?'#374151':'#CBD5E1')}`,
+                  background:quoteMode==='fe'?(isDark?'#38BDF8':'#0F172A'):(isDark?'#0F172A':'#F1F5F9'),
+                  color:quoteMode==='fe'?(isDark?'#0B1120':'#FFFFFF'):(isDark?'#94A3B8':'#64748B'),
+                  fontSize:14,fontWeight:700,cursor:'pointer',fontFamily:"'DM Sans',sans-serif"
+                }}>
+                  🏛️ Final Expense
+                </button>
+                <button className="qm-btn" onClick={()=>setQuoteMode('term')} style={{
+                  flex:1,padding:'14px 0',borderRadius:10,
+                  border:`2px solid ${quoteMode==='term'?(isDark?'#10B981':'#059669'):(isDark?'#374151':'#CBD5E1')}`,
+                  background:quoteMode==='term'?(isDark?'#10B981':'#059669'):(isDark?'#0F172A':'#F1F5F9'),
+                  color:quoteMode==='term'?'#FFFFFF':(isDark?'#94A3B8':'#64748B'),
+                  fontSize:14,fontWeight:700,cursor:'pointer',fontFamily:"'DM Sans',sans-serif"
+                }}>
+                  ⏱️ Term Life
+                </button>
+              </div>
+
+              {quoteMode==='fe' ? (
+              <>
               {/* Age row */}
               <div style={{background:C.bg2,border:`1px solid ${C.bd}`,borderRadius:12,padding:16}}>
                 <div style={{fontSize:11,fontWeight:700,letterSpacing:1.8,color:C.t4,textTransform:'uppercase',marginBottom:12}}>Client Info</div>
@@ -1279,6 +1379,133 @@ export default function QuoteMark() {
               }}>
                 ⚡ Get Quotes
               </button>
+              </>
+              ) : (
+              <>
+              {/* ── TERM LIFE MOBILE INPUTS ── */}
+              <div style={{background:C.bg2,border:`1px solid ${C.bd}`,borderRadius:12,padding:16}}>
+                <div style={{fontSize:11,fontWeight:700,letterSpacing:1.8,color:C.t4,textTransform:'uppercase',marginBottom:12}}>Term Life Quote</div>
+
+                <div style={{marginBottom:14}}>
+                  <div style={{fontSize:12,color:C.t3,marginBottom:8}}>Age <span style={{color:C.t4}}>· 18-75</span></div>
+                  <input type="text" inputMode="numeric" maxLength="2" placeholder="age" value={termAge}
+                    onChange={e=>setTermAge(e.target.value)}
+                    style={{...mInp,width:80,borderColor:termAge&&!termAgeOK?'#EF4444':C.bd}}/>
+                  {termAge&&termAgeOK&&<span style={{fontSize:11,color:C.green,marginLeft:8}}>✓ Age {termAge}</span>}
+                  {termAge&&!termAgeOK&&parseInt(termAge)>0&&<span style={{fontSize:11,color:'#EF4444',marginLeft:8}}>Age must be 18–75</span>}
+                </div>
+
+                <div style={{marginBottom:14}}>
+                  <div style={{fontSize:12,color:C.t3,marginBottom:8}}>Gender</div>
+                  <div style={{display:'flex',gap:8}}>
+                    <button className='qm-btn' style={mTogBtn(gender==='male')} onClick={()=>setGender('male')}>{!isDark&&gender==='male'?'✓ ':''}👨 Male</button>
+                    <button className='qm-btn' style={mTogBtn(gender==='female')} onClick={()=>setGender('female')}>{!isDark&&gender==='female'?'✓ ':''}👩 Female</button>
+                  </div>
+                </div>
+
+                <div>
+                  <div style={{fontSize:12,color:C.t3,marginBottom:8}}>Tobacco</div>
+                  <div style={{display:'flex',gap:8}}>
+                    <button className='qm-btn' style={mTogBtn(!smoker)} onClick={()=>setSmoker(false)}>{!isDark&&!smoker?'✓ ':''}Non-smoker</button>
+                    <button className='qm-btn' style={mTogBtn(smoker,'#EF4444')} onClick={()=>setSmoker(true)}>{!isDark&&smoker?'✓ ':''}Smoker</button>
+                  </div>
+                </div>
+              </div>
+
+              <div style={{background:C.bg2,border:`1px solid ${C.bd}`,borderRadius:12,padding:16}}>
+                <div style={{fontSize:11,fontWeight:700,letterSpacing:1.8,color:C.t4,textTransform:'uppercase',marginBottom:12}}>Term Length</div>
+                <div style={{display:'grid',gridTemplateColumns:'1fr 1fr 1fr 1fr',gap:8}}>
+                  {['10','15','20','30'].map(t=>(
+                    <button key={t} className="qm-btn" onClick={()=>setTermLength(t)} style={{
+                      ...mTogBtn(termLength===t),
+                      border:`2px solid ${termLength===t?(isDark?'#10B981':'#059669'):(isDark?'#374151':'#CBD5E1')}`,
+                      background:termLength===t?(isDark?'#10B981':'#059669'):(isDark?'#0F172A':'#F1F5F9'),
+                      color:termLength===t?'#FFFFFF':(isDark?'#94A3B8':'#64748B')
+                    }}>{t}yr</button>
+                  ))}
+                </div>
+              </div>
+
+              <div style={{background:C.bg2,border:`1px solid ${C.bd}`,borderRadius:12,padding:16}}>
+                <div style={{fontSize:11,fontWeight:700,letterSpacing:1.8,color:C.t4,textTransform:'uppercase',marginBottom:12}}>Coverage Amount</div>
+                <div style={{fontSize:12,color:C.t3,marginBottom:8,display:'flex',justifyContent:'space-between'}}>
+                  <span>Face amount</span>
+                  <span style={{color:C.t0,fontWeight:700,fontSize:16,fontFamily:"'DM Mono',monospace"}}>{fmtF(termFace)}</span>
+                </div>
+                <input type="range" min="25000" max="300000" step="25000" value={termFace}
+                  onChange={e=>setTermFace(+e.target.value)}
+                  style={{width:'100%',accentColor:'#10B981',height:35,cursor:'pointer',marginBottom:6}}/>
+                <div style={{display:'flex',justifyContent:'space-between',fontSize:11,color:C.t4}}>
+                  <span>$25,000</span><span>$300,000</span>
+                </div>
+              </div>
+
+              <div style={{background:C.bg2,border:`1px solid ${C.bd}`,borderRadius:12,padding:16}}>
+                <div style={{fontSize:11,fontWeight:700,letterSpacing:1.8,color:C.t4,textTransform:'uppercase',marginBottom:12}}>Health Class</div>
+                <div style={{display:'grid',gridTemplateColumns:'1fr 1fr',gap:8}}>
+                  {[{k:'pp',l:'Preferred Plus'},{k:'p',l:'Preferred'},{k:'sp',l:'Standard Plus'},{k:'s',l:'Standard'}].map(h=>(
+                    <button key={h.k} className="qm-btn" onClick={()=>setTermHealth(h.k)} style={{
+                      ...mTogBtn(termHealth===h.k),
+                      padding:'12px 8px',fontSize:12,
+                      border:`2px solid ${termHealth===h.k?(isDark?'#10B981':'#059669'):(isDark?'#374151':'#CBD5E1')}`,
+                      background:termHealth===h.k?(isDark?'#10B981':'#059669'):(isDark?'#0F172A':'#F1F5F9'),
+                      color:termHealth===h.k?'#FFFFFF':(isDark?'#94A3B8':'#64748B')
+                    }}>{h.l}</button>
+                  ))}
+                </div>
+                <div style={{fontSize:10,color:C.t4,marginTop:10}}>
+                  Note: MOO Term Life Express uses express underwriting — health class shown for reference only.
+                </div>
+              </div>
+
+              {/* Term Quote Result Card */}
+              {termAgeOK && termResults && (
+                <div style={{
+                  background:termResults.available?(isDark?'linear-gradient(135deg,rgba(16,185,129,0.15) 0%,rgba(5,150,105,0.1) 100%)':'linear-gradient(135deg,rgba(16,185,129,0.1) 0%,rgba(5,150,105,0.05) 100%)'):C.bg2,
+                  border:`1px solid ${termResults.available?(isDark?'#10B981':'#059669'):C.bd}`,
+                  borderRadius:12,padding:16
+                }}>
+                  {termResults.available ? (
+                    <>
+                      <div style={{display:'flex',alignItems:'center',gap:10,marginBottom:14}}>
+                        <img src="/logos/moo.png" alt="MOO" style={{width:40,height:40,borderRadius:8,objectFit:'contain',background:'white',padding:3}}/>
+                        <div>
+                          <div style={{fontSize:16,fontWeight:700,color:C.t0}}>{termResults.carrier}</div>
+                          <div style={{fontSize:12,color:C.t3}}>{termResults.product}</div>
+                        </div>
+                      </div>
+                      <div style={{display:'flex',justifyContent:'space-between',alignItems:'flex-end',marginBottom:12}}>
+                        <div>
+                          <div style={{fontSize:12,color:C.t4}}>Coverage</div>
+                          <div style={{fontSize:20,fontWeight:700,color:C.t0,fontFamily:"'DM Mono',monospace"}}>{fmtF(termResults.face)}</div>
+                        </div>
+                        <div style={{textAlign:'right'}}>
+                          <div style={{fontSize:12,color:C.t4}}>Monthly Premium</div>
+                          <div style={{fontSize:28,fontWeight:700,color:'#10B981',fontFamily:"'DM Mono',monospace"}}>${termResults.prem.toFixed(2)}</div>
+                        </div>
+                      </div>
+                      <div style={{display:'flex',gap:6,flexWrap:'wrap'}}>
+                        <span style={{background:isDark?'#0F172A':'#E2E8F0',border:`1px solid ${C.bd}`,borderRadius:6,padding:'4px 10px',fontSize:11,color:C.t3}}>
+                          {termResults.healthClass}
+                        </span>
+                        <span style={{background:isDark?'#0F172A':'#E2E8F0',border:`1px solid ${C.bd}`,borderRadius:6,padding:'4px 10px',fontSize:11,color:C.t3}}>
+                          Tier {termResults.tier}
+                        </span>
+                        <span style={{background:isDark?'#0F172A':'#E2E8F0',border:`1px solid ${C.bd}`,borderRadius:6,padding:'4px 10px',fontSize:11,color:C.t3}}>
+                          {gender==='male'?'Male':'Female'} · {smoker?'Tobacco':'Non-Tobacco'} · Age {termAge}
+                        </span>
+                      </div>
+                    </>
+                  ) : (
+                    <div style={{textAlign:'center',padding:20}}>
+                      <div style={{fontSize:15,color:C.t3,marginBottom:4}}>Quote not available</div>
+                      <div style={{fontSize:12,color:C.t4}}>{termResults.reason}</div>
+                    </div>
+                  )}
+                </div>
+              )}
+              </>
+              )}
               {/* Bottom spacer — keeps button clear of fixed tab bar */}
               <div style={{height:32}}/>
             </div>
@@ -1746,6 +1973,30 @@ export default function QuoteMark() {
         {/* ── SIDEBAR ── */}
         <div style={{background:C.bg2,borderRight:`1px solid ${C.bd}`,padding:16,overflowY:'auto',display:'flex',flexDirection:'column',gap:12}}>
 
+          {/* 0 — QUOTE TYPE TOGGLE */}
+          <div style={{display:'flex',gap:6,marginBottom:4}}>
+            <button className="qm-btn" onClick={()=>setQuoteMode('fe')} style={{
+              flex:1,padding:'12px 0',borderRadius:10,
+              border:`2px solid ${quoteMode==='fe'?(isDark?'#38BDF8':'#0F172A'):(isDark?'#374151':'#CBD5E1')}`,
+              background:quoteMode==='fe'?(isDark?'#38BDF8':'#0F172A'):(isDark?'#0F172A':'#F1F5F9'),
+              color:quoteMode==='fe'?(isDark?'#0B1120':'#FFFFFF'):(isDark?'#94A3B8':'#64748B'),
+              fontSize:13,fontWeight:700,cursor:'pointer',fontFamily:"'DM Sans',sans-serif"
+            }}>
+              🏛️ Final Expense
+            </button>
+            <button className="qm-btn" onClick={()=>setQuoteMode('term')} style={{
+              flex:1,padding:'12px 0',borderRadius:10,
+              border:`2px solid ${quoteMode==='term'?(isDark?'#10B981':'#059669'):(isDark?'#374151':'#CBD5E1')}`,
+              background:quoteMode==='term'?(isDark?'#10B981':'#059669'):(isDark?'#0F172A':'#F1F5F9'),
+              color:quoteMode==='term'?'#FFFFFF':(isDark?'#94A3B8':'#64748B'),
+              fontSize:13,fontWeight:700,cursor:'pointer',fontFamily:"'DM Sans',sans-serif"
+            }}>
+              ⏱️ Term Life
+            </button>
+          </div>
+
+          {quoteMode==='fe' ? (
+          <>
           {/* 1 — CLIENT INFO */}
           <div style={sec}>
             <div style={lbl}>Client Info</div>
@@ -2018,6 +2269,132 @@ export default function QuoteMark() {
           }}>
             ⚡ Get Quotes
           </button>
+          </>
+          ) : (
+          <>
+          {/* ── TERM LIFE INPUTS ── */}
+          <div style={sec}>
+            <div style={lbl}>Term Life Quote</div>
+            <div style={{marginBottom:14}}>
+              <div style={{fontSize:11,color:C.t3,marginBottom:6}}>Age <span style={{color:C.t4}}>· 18-75</span></div>
+              <input type="number" min="18" max="75" placeholder="age" value={termAge}
+                onChange={e=>setTermAge(e.target.value)}
+                style={{...inp,width:80,padding:'9px 12px',borderColor:termAge&&!termAgeOK?'#EF4444':C.bd}}/>
+              {termAge&&termAgeOK&&<span style={{fontSize:10,color:C.green,marginLeft:8}}>✓ Age {termAge}</span>}
+              {termAge&&!termAgeOK&&parseInt(termAge)>0&&<span style={{fontSize:10,color:'#EF4444',marginLeft:8}}>Age must be 18–75</span>}
+            </div>
+            <div style={{display:'grid',gridTemplateColumns:'1fr 1fr',gap:10,marginBottom:14}}>
+              <div>
+                <div style={{fontSize:11,color:C.t3,marginBottom:4}}>Tobacco</div>
+                <div style={{display:'flex',gap:5}}>
+                  <button className="qm-btn" style={togBtn(!smoker)} onClick={()=>{setSmoker(false);}}>{!isDark&&!smoker?'✓ ':''}Non-smoker</button>
+                  <button className="qm-btn" style={togBtn(smoker)} onClick={()=>{setSmoker(true);}}>{!isDark&&smoker?'✓ ':''}Smoker</button>
+                </div>
+              </div>
+              <div>
+                <div style={{fontSize:11,color:C.t3,marginBottom:4}}>Gender</div>
+                <div style={{display:'flex',gap:5}}>
+                  <button className="qm-btn" style={togBtn(gender==='male')} onClick={()=>{setGender('male');}}>{!isDark&&gender==='male'?'✓ ':''}Male</button>
+                  <button className="qm-btn" style={togBtn(gender==='female')} onClick={()=>{setGender('female');}}>{!isDark&&gender==='female'?'✓ ':''}Female</button>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div style={sec}>
+            <div style={lbl}>Term Length</div>
+            <div style={{display:'grid',gridTemplateColumns:'1fr 1fr 1fr 1fr',gap:6}}>
+              {['10','15','20','30'].map(t=>(
+                <button key={t} className="qm-btn" onClick={()=>setTermLength(t)} style={{
+                  ...togBtn(termLength===t),
+                  border:`2px solid ${termLength===t?(isDark?'#10B981':'#059669'):(isDark?'#374151':'#CBD5E1')}`,
+                  background:termLength===t?(isDark?'#10B981':'#059669'):(isDark?'#0F172A':'#F1F5F9'),
+                  color:termLength===t?'#FFFFFF':(isDark?'#94A3B8':'#64748B')
+                }}>{t} Year</button>
+              ))}
+            </div>
+          </div>
+
+          <div style={sec}>
+            <div style={lbl}>Coverage Amount</div>
+            <div style={{fontSize:11,color:C.t3,marginBottom:6,display:'flex',justifyContent:'space-between'}}>
+              <span>Face amount</span>
+              <span style={{color:C.t2,fontWeight:500,fontFamily:"'DM Mono',monospace"}}>{fmtF(termFace)}</span>
+            </div>
+            <input type="range" min="25000" max="300000" step="25000" value={termFace}
+              onChange={e=>setTermFace(+e.target.value)}
+              style={{width:'100%',accentColor:'#10B981',marginBottom:4}}/>
+            <div style={{display:'flex',justifyContent:'space-between',fontSize:10,color:C.t4}}>
+              <span>$25,000</span><span>$300,000</span>
+            </div>
+          </div>
+
+          <div style={sec}>
+            <div style={lbl}>Health Class</div>
+            <div style={{display:'grid',gridTemplateColumns:'1fr 1fr',gap:6}}>
+              {[{k:'pp',l:'Preferred Plus'},{k:'p',l:'Preferred'},{k:'sp',l:'Standard Plus'},{k:'s',l:'Standard'}].map(h=>(
+                <button key={h.k} className="qm-btn" onClick={()=>setTermHealth(h.k)} style={{
+                  ...togBtn(termHealth===h.k),
+                  padding:'10px 8px',fontSize:11,
+                  border:`2px solid ${termHealth===h.k?(isDark?'#10B981':'#059669'):(isDark?'#374151':'#CBD5E1')}`,
+                  background:termHealth===h.k?(isDark?'#10B981':'#059669'):(isDark?'#0F172A':'#F1F5F9'),
+                  color:termHealth===h.k?'#FFFFFF':(isDark?'#94A3B8':'#64748B')
+                }}>{h.l}</button>
+              ))}
+            </div>
+            <div style={{fontSize:10,color:C.t4,marginTop:8}}>
+              Note: MOO Term Life Express uses express underwriting — health class shown for reference only.
+            </div>
+          </div>
+
+          {/* Term Quote Result */}
+          {termAgeOK && termResults && (
+            <div style={{
+              background:termResults.available?(isDark?'linear-gradient(135deg,rgba(16,185,129,0.15) 0%,rgba(5,150,105,0.1) 100%)':'linear-gradient(135deg,rgba(16,185,129,0.1) 0%,rgba(5,150,105,0.05) 100)'):C.bg3,
+              border:`1px solid ${termResults.available?(isDark?'#10B981':'#059669'):C.bd}`,
+              borderRadius:12,padding:16
+            }}>
+              {termResults.available ? (
+                <>
+                  <div style={{display:'flex',alignItems:'center',gap:8,marginBottom:12}}>
+                    <img src="/logos/moo.png" alt="MOO" style={{width:32,height:32,borderRadius:6,objectFit:'contain',background:'white',padding:2}}/>
+                    <div>
+                      <div style={{fontSize:14,fontWeight:700,color:C.t0}}>{termResults.carrier}</div>
+                      <div style={{fontSize:11,color:C.t3}}>{termResults.product}</div>
+                    </div>
+                  </div>
+                  <div style={{display:'flex',justifyContent:'space-between',alignItems:'flex-end',marginBottom:8}}>
+                    <div>
+                      <div style={{fontSize:11,color:C.t4}}>Coverage</div>
+                      <div style={{fontSize:18,fontWeight:700,color:C.t0,fontFamily:"'DM Mono',monospace"}}>{fmtF(termResults.face)}</div>
+                    </div>
+                    <div style={{textAlign:'right'}}>
+                      <div style={{fontSize:11,color:C.t4}}>Monthly Premium</div>
+                      <div style={{fontSize:24,fontWeight:700,color:'#10B981',fontFamily:"'DM Mono',monospace"}}>${termResults.prem.toFixed(2)}</div>
+                    </div>
+                  </div>
+                  <div style={{display:'flex',gap:6,flexWrap:'wrap'}}>
+                    <span style={{background:isDark?'#0F172A':'#E2E8F0',border:`1px solid ${C.bd}`,borderRadius:5,padding:'3px 8px',fontSize:10,color:C.t3}}>
+                      {termResults.healthClass}
+                    </span>
+                    <span style={{background:isDark?'#0F172A':'#E2E8F0',border:`1px solid ${C.bd}`,borderRadius:5,padding:'3px 8px',fontSize:10,color:C.t3}}>
+                      Tier {termResults.tier}
+                    </span>
+                    <span style={{background:isDark?'#0F172A':'#E2E8F0',border:`1px solid ${C.bd}`,borderRadius:5,padding:'3px 8px',fontSize:10,color:C.t3}}>
+                      {gender==='male'?'Male':'Female'} · {smoker?'Tobacco':'Non-Tobacco'} · Age {termAge}
+                    </span>
+                  </div>
+                </>
+              ) : (
+                <div style={{textAlign:'center',padding:16}}>
+                  <div style={{fontSize:14,color:C.t3,marginBottom:4}}>Quote not available</div>
+                  <div style={{fontSize:11,color:C.t4}}>{termResults.reason}</div>
+                </div>
+              )}
+            </div>
+          )}
+          </>
+          )}
         </div>
 
         {/* ── RESULTS PANEL ── */}
