@@ -29,20 +29,23 @@ const STATE_RULES = {
   laf:  { excludeStates: [] },
   uhl:  { excludeStates: [] },
   fid:  { excludeStates: [] },
+  elco: { excludeStates: [] },
+  balt_sg: { excludeStates: [] },
+  sl_pp: { excludeStates: [] },
 };
 const FACE_CAPS = {
   acc:40000, ahl:35000, cont:40000, rn:40000,
   ra:50000, ls:30000, amam:50000, moo:50000, cbg:25000,
   ta:100000, lb:30000, pf:50000, amr:30000, for:35000,
   afl:50000, laf:50000, uhl:30000, fid:40000,
-  bl:50000,
+  bl:50000, elco:25000, balt_sg:25000, sl_pp:25000,
 };
 const AGE_MAX = {
   acc:89, ahl:89, cont:89, rn:85,
   ra:79, ls:79, amam:79, moo:85, cbg:80,
   ta:85, lb:79, pf:79, amr:79, for:85,
   afl:79, laf:79, uhl:79, fid:85,
-  bl:85,
+  bl:85, elco:80, balt_sg:80, sl_pp:80,
 };
 
 // ── Better Life — Better Final Expense ────────────────────────────
@@ -238,36 +241,121 @@ function mooTermLookup(tbl,age,male,smoker,face){
 const CBGG={50:[70.56,70.56,47.81,50.83],51:[71.69,71.69,49.01,54.64],52:[72.98,75.44,50.86,57.9],53:[74.11,79.82,53.61,60.87],54:[75.42,83.64,56.07,63.56],55:[77.6,87.04,58.28,65.96],56:[79.92,89.58,60.75,68.65],57:[81.98,91.84,62.66,70.76],58:[83.82,93.83,64.62,72.9],59:[85.09,95.24,66.42,74.87],60:[86.44,96.23,67.87,76.43],61:[92.62,103.44,72.14,81.1],62:[98.85,110.23,76.04,85.34],63:[104.8,116.74,79.41,89.02],64:[110.53,122.96,81.98,91.84],65:[116.1,129.05,84.19,94.25],66:[121.02,134.42,88.74,99.19],67:[125.3,139.08,92.5,103.3],68:[129.3,143.47,95.99,107.11],69:[132.82,147.28,99.38,110.8],70:[135.92,150.69,102.48,114.19],71:[148.63,164.55,112.85,125.5],72:[161.08,178.13,122.71,136.26],73:[172.75,190.86,132.16,146.58],74:[183.65,202.74,140.86,156.06],75:[192.98,212.92,148.63,164.55],76:[226.02,248.99,170.66,188.59],77:[257.8,269.5,191.44,211.22],78:[265.95,269.78,210.87,232.44],79:[266.49,270.05,229.02,252.24],80:[267.04,270.32,245.1,267.03]};
 function cbgGiwlQuote(age,male,face){const row=CBGG[age];if(!row)return null;const isHigh=face>15000;const ri=male?(isHigh?1:0):(isHigh?3:2);return Math.round((row[ri]*face/1000+24)*0.0834*100)/100;}
 
-// ── TODO: Corebridge SIWL (Simplified Issue Whole Life) — Tiers B/C ──
-// Product: SimpliNow Legacy / SimpliNow Legacy Max (AIG/Corebridge Financial)
-// Ages: 50-85 | Face: $5k-$35k | 4 combos: male/female × tobacco/non-tobacco
-// Research conducted 2026-03-14:
-//   - Rate sheets exist but are marked "FOR FINANCIAL PROFESSIONAL USE ONLY"
-//   - PDF rate sheets from ociservices.com, corebridgefinancial.com not extractable
-//   - No publicly accessible per-$1k rate tables found via web search
-//   - Corebridge offers online quoter: rapid-rater.live.web.corebridgefinancial.com/Simplinowquoter
-// To add SIWL Tier B/C rates:
-//   1. Obtain official rate sheet from Corebridge agent portal or TMG Producer Microsite
-//   2. Extract annual rates per $1k for all 4 gender/tobacco combos, ages 50-85
-//   3. Add CBG_SIWL_B and CBG_SIWL_C tables following CBGG format
-//   4. Update cbg carrier fn() to handle tiers B/C with cbgSiwlQuote()
-// const CBG_SIWL_B = {}; // TODO: Preferred SIWL rates
-// const CBG_SIWL_C = {}; // TODO: Standard SIWL rates
+// ── SCRAPED RATE TABLES: Direct monthly premiums at $10k face ──
+// Formula: scaleRate(ageRateMap, age, face) interpolates between ages and scales by face
+// Ages in data: 50, 55, 60, 65, 70, 75, 80 (5-year intervals)
+// Interpolation: linear between known ages, linear scaling by face/10000
 
-// ── TODO: Baltimore Life Silver Guard — new carrier 'bl_sg' ──
-// Product: Silver Guard Simplified Issue Senior Life Insurance
-// Ages: 50-80 | Face: $2,500-$25,000 | 4 combos: male/female × tobacco/non-tobacco
-// Two tiers: Silver Guard Standard (best rates), Silver Guard Special (substandard)
-// Research conducted 2026-03-14:
-//   - Sample rates found: 50M=$37/mo, 50F=$31/mo, 70M=$84/mo, 70F=$65/mo (for $10k)
-//   - PDF rate sheets (baltlife.com/pdf/M-8660.pdf, pdf/8420.pdf) not extractable
-//   - No complete per-$1k rate tables found via web search
-//   - Features: immediate death benefit, no waiting period, fixed premiums
-// To add Baltimore Life:
-//   1. Obtain official rate sheet from Baltimore Life agent portal
-//   2. Extract rates per $1k for all 4 combos, ages 50-80
-//   3. Add BL_SG_STD and BL_SG_SPL tables
-//   4. Add carrier entry: {id:'bl_sg', name:'Baltimore Life', sub:'Silver Guard', ...}
+function scaleRate(ageRateMap, age, face) {
+  const knownAges = Object.keys(ageRateMap).map(Number).sort((a,b)=>a-b);
+  if (age < knownAges[0] || age > knownAges[knownAges.length-1]) return null;
+  // Find surrounding ages
+  let lo = knownAges[0], hi = knownAges[knownAges.length-1];
+  for (let i = 0; i < knownAges.length - 1; i++) {
+    if (age >= knownAges[i] && age <= knownAges[i+1]) {
+      lo = knownAges[i]; hi = knownAges[i+1]; break;
+    }
+  }
+  const rateLo = ageRateMap[lo], rateHi = ageRateMap[hi];
+  if (rateLo == null || rateHi == null) return null;
+  const t = (hi === lo) ? 0 : (age - lo) / (hi - lo);
+  const rate10k = rateLo + t * (rateHi - rateLo);
+  return Math.round(rate10k * face / 10000 * 100) / 100;
+}
+
+// ── Elco Mutual Silver Eagle — rates at $10k face ──
+// Silver Eagle Premier = Level/Preferred (Tier B)
+// Silver Eagle Plus = Level/Standard (Tier C)
+// Silver Eagle Standard = Modified/Graded (Tier D)
+const ELCO_PREM_MN={50:32.28,55:41.83,60:48.54,65:57.05,70:74.89,75:99.66,80:142.36};
+const ELCO_PREM_MT={50:39.94,55:52.98,60:64.01,65:75.74,70:105.99,75:152.56,80:205.56};
+const ELCO_PREM_FN={50:26.71,55:31.39,60:33.59,65:40.48,70:51.98,75:71.17,80:112.51};
+const ELCO_PREM_FT={50:36.18,55:46.67,60:51.34,65:61.8,70:76.84,75:106.93,80:154.27};
+const ELCO_PLUS_MN={50:34.39,55:44.67,60:51.88,65:61.02,70:80.21,75:106.83,80:152.73};
+const ELCO_PLUS_MT={50:42.63,55:56.66,60:68.51,65:81.12,70:113.63,75:163.7,80:220.68};
+const ELCO_PLUS_FN={50:28.4,55:33.44,60:35.8,65:43.21,70:55.59,75:76.21,80:120.64};
+const ELCO_PLUS_FT={50:38.58,55:49.85,60:54.89,65:66.12,70:82.28,75:114.63,80:165.53};
+const ELCO_STD_MN={50:38.19,55:49.75,60:57.87,65:68.16,70:89.76,75:119.72,80:171.39};
+const ELCO_STD_MT={50:47.46,55:63.24,60:76.58,65:90.77,70:127.38,75:183.73,80:247.87};
+const ELCO_STD_FN={50:31.44,55:37.11,60:39.77,65:48.11,70:62.04,75:85.26,80:135.28};
+const ELCO_STD_FT={50:42.91,55:55.59,60:61.26,65:73.91,70:92.1,75:128.51,80:185.82};
+
+function elcoQuote(age, male, smoker, tier, face) {
+  if (age < 50 || age > 80) return null;
+  let tbl;
+  if (tier === 'B') {
+    tbl = male ? (smoker ? ELCO_PREM_MT : ELCO_PREM_MN) : (smoker ? ELCO_PREM_FT : ELCO_PREM_FN);
+  } else if (tier === 'C') {
+    tbl = male ? (smoker ? ELCO_PLUS_MT : ELCO_PLUS_MN) : (smoker ? ELCO_PLUS_FT : ELCO_PLUS_FN);
+  } else if (tier === 'D') {
+    tbl = male ? (smoker ? ELCO_STD_MT : ELCO_STD_MN) : (smoker ? ELCO_STD_FT : ELCO_STD_FN);
+  } else {
+    return null;
+  }
+  return scaleRate(tbl, age, Math.min(face, 25000));
+}
+
+// ── Baltimore Life Silver Guard — rates at $10k face ──
+// Silver Guard Standard = Level (Tier B)
+// Silver Guard Special = Modified/Graded (Tier D)
+// Tier C = interpolated average of B and D
+const BALT_STD_MN={50:34.83,55:41.67,60:51.75,65:63.54,70:83.88,75:116.37,80:158.58};
+const BALT_STD_MT={50:42.75,55:54.09,60:68.85,65:87.57,70:115.92,75:164.07,80:215.55};
+const BALT_STD_FN={50:31.59,55:36.63,60:44.1,65:53.55,70:66.42,75:91.26,80:122.22};
+const BALT_STD_FT={50:40.14,55:48.51,60:58.59,65:70.56,70:85.14,75:112.95,80:149.85};
+const BALT_SPL_MN={50:42.75,55:54.27,60:69.39,65:85.05,70:121.05,75:190.17,80:289.8};
+const BALT_SPL_MT={50:57.15,55:78.21,60:104.31,65:139.14,70:215.01,75:400.68,80:619.2};
+const BALT_SPL_FN={50:39.42,55:48.6,60:60.48,65:76.5,70:94.14,75:130.23,80:220.5};
+const BALT_SPL_FT={50:53.19,55:70.74,60:88.47,65:111.78,70:136.98,75:184.68,80:333};
+
+function baltSgQuote(age, male, smoker, tier, face) {
+  if (age < 50 || age > 80) return null;
+  let tblB, tblD;
+  if (male) {
+    tblB = smoker ? BALT_STD_MT : BALT_STD_MN;
+    tblD = smoker ? BALT_SPL_MT : BALT_SPL_MN;
+  } else {
+    tblB = smoker ? BALT_STD_FT : BALT_STD_FN;
+    tblD = smoker ? BALT_SPL_FT : BALT_SPL_FN;
+  }
+  if (tier === 'B') return scaleRate(tblB, age, Math.min(face, 25000));
+  if (tier === 'D') return scaleRate(tblD, age, Math.min(face, 25000));
+  if (tier === 'C') {
+    // Interpolate between B and D (average)
+    const rateB = scaleRate(tblB, age, Math.min(face, 25000));
+    const rateD = scaleRate(tblD, age, Math.min(face, 25000));
+    if (rateB == null || rateD == null) return null;
+    return Math.round((rateB + rateD) / 2 * 100) / 100;
+  }
+  return null;
+}
+
+// ── Senior Life Platinum Protection — rates at $10k face ──
+// Level product (Tier B only), ages 55-80 (not available at 50)
+const SLPP_MN={55:31.73,60:39.51,65:49.82,70:66.84,75:92.91,80:129.4};
+const SLPP_MT={55:41.51,60:52.61,65:67.82,70:91.52,75:125.52,80:171.08};
+const SLPP_FN={55:23.78,60:30.18,65:38.84,70:52.85,75:74.17,80:103.24};
+const SLPP_FT={55:34.77,60:44.91,65:58.82,70:81.19,75:111.38,80:145.69};
+
+function slPpQuote(age, male, smoker, tier, face) {
+  if (tier !== 'B') return null;
+  if (age < 55 || age > 80) return null;
+  const tbl = male ? (smoker ? SLPP_MT : SLPP_MN) : (smoker ? SLPP_FT : SLPP_FN);
+  return scaleRate(tbl, age, Math.min(face, 25000));
+}
+
+// ── Corebridge SIWL (Simplified Issue Whole Life) — rates at $10k face ──
+// Tier B and C use same rates (no separate standard rate in data)
+const CBG_SIWL_MN={50:27.35,55:32.78,60:41.74,65:53.75,70:69.23,75:96.58,80:145.79};
+const CBG_SIWL_MT={50:37.38,55:45.44,60:58.73,65:75.45,70:104.47,75:133.5,80:188};
+const CBG_SIWL_FN={50:21.78,55:26.26,60:32.6,65:41.28,70:52.03,75:71.64,80:104.83};
+const CBG_SIWL_FT={50:29.89,55:37.88,60:45.87,65:56.66,70:70.64,75:93.65,80:142.21};
+
+function cbgSiwlQuote(age, male, smoker, face) {
+  if (age < 50 || age > 80) return null;
+  const tbl = male ? (smoker ? CBG_SIWL_MT : CBG_SIWL_MN) : (smoker ? CBG_SIWL_FT : CBG_SIWL_FN);
+  return scaleRate(tbl, age, Math.min(face, 25000));
+}
 
 // Transamerica | Immediate Solution | Ages 18-85
 // Row: [Male NT, Male TB, Female NT, Female TB] — annual rate per $1,000
@@ -519,8 +607,12 @@ const CARRIERS = [
    product:{B:'Level',C:'Level',D:null,E:'Guaranteed Issue'},
    fn:(age,male,smoker,tier,face)=>{if(tier==='B'||tier==='C')return fidQuote(FIDF,age,male,smoker,face);if(tier==='E')return fidQuote(FIDG2,age,male,smoker,face);return null;}},
   {id:'cbg',  name:'Corebridge Financial', sub:'SIWL / GIWL', abbr:'CB', enabled:true,
-   product:{B:null,C:null,D:null,E:'Guaranteed Issue'},
-   fn:(age,male,smoker,tier,face)=>{if(tier!=='E')return null;if(age<50||age>80)return null;return cbgGiwlQuote(age,male,face);}},
+   product:{B:'Level',C:'Level',D:null,E:'Guaranteed Issue'},
+   fn:(age,male,smoker,tier,face)=>{
+     if(tier==='B'||tier==='C') return cbgSiwlQuote(age,male,smoker,Math.min(face,25000));
+     if(tier==='E'){if(age<50||age>80)return null;return cbgGiwlQuote(age,male,face);}
+     return null;
+   }},
   {id:'lb',   name:'Liberty Bankers',    sub:'SIMPL Whole Life', abbr:'LB', enabled:false,
    product:{B:'Level',C:'Level',D:null,E:null},
    fn:(age,male,smoker,tier,face)=>{if(tier==='B')return csvLookup(LBP,LBP_M,age,male,smoker,face);if(tier==='C')return csvLookup(LBS,LBS_M,age,male,smoker,face);return null;}},
@@ -547,6 +639,15 @@ const CARRIERS = [
      if(tier==='D') return blQuote(BL_GRD,age,male,smoker,Math.min(face,25000));
      return null;
    }},
+  {id:'elco', name:'Elco Mutual',          sub:'Silver Eagle', abbr:'EM', enabled:true,
+   product:{B:'Silver Eagle Premier',C:'Silver Eagle Plus',D:'Silver Eagle Standard',E:null},
+   fn:(age,male,smoker,tier,face)=>elcoQuote(age,male,smoker,tier,face)},
+  {id:'balt_sg', name:'Baltimore Life',    sub:'Silver Guard', abbr:'BT', enabled:true,
+   product:{B:'Silver Guard Standard',C:'Silver Guard (Avg)',D:'Silver Guard Special',E:null},
+   fn:(age,male,smoker,tier,face)=>baltSgQuote(age,male,smoker,tier,face)},
+  {id:'sl_pp', name:'Senior Life',         sub:'Platinum Protection', abbr:'SL', enabled:true,
+   product:{B:'Level',C:null,D:null,E:null},
+   fn:(age,male,smoker,tier,face)=>slPpQuote(age,male,smoker,tier,face)},
 ];
 
 
@@ -581,6 +682,9 @@ const CARRIER_META = {
   ts:   { img:'/logos/ts.png',     eapp:'https://www.trustage.com/agents',                     brand:'#FDE68A' }, // TruStage — Pale Yellow
   ls:   { img:'/logos/ls.png',     eapp:'https://www.lifeshield.com/agent',                    brand:'#64748B' }, // LifeShield — Gray
   bl:   { img:'',                    eapp:'https://www.betterlifeins.com/agents',               brand:'#EAB308' }, // Better Life — Yellow
+  elco: { img:'',                    eapp:'https://www.elcomutual.com/agent-portal',            brand:'#059669' }, // Elco Mutual — Emerald Green
+  balt_sg: { img:'',                 eapp:'https://www.baltlife.com/agent-portal',              brand:'#0369A1' }, // Baltimore Life — Sky Blue
+  sl_pp: { img:'',                   eapp:'https://www.seniorlife.com/agent-portal',            brand:'#7C3AED' }, // Senior Life — Purple
 };
 
 function getCompBadge(carrierId, tier) {

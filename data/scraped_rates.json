@@ -1,0 +1,290 @@
+{
+  "male_nt": {
+    "50": {
+      "Silver Eagle Premier": 32.28,
+      "Silver Eagle Plus": 34.39,
+      "Silver Eagle Standard": 38.19,
+      "Silver Guard Standard": 34.83,
+      "Silver Guard Special": 42.75,
+      "iProvide (45-69) Preferred": 33.49,
+      "iProvide (45-69) Standard": 44.01,
+      "Simplified Issue Level": 27.35
+    },
+    "55": {
+      "Silver Eagle Premier": 41.83,
+      "Silver Eagle Plus": 44.67,
+      "Silver Eagle Standard": 49.75,
+      "Silver Guard Standard": 41.67,
+      "Silver Guard Special": 54.27,
+      "iProvide (45-69) Preferred": 39.49,
+      "iProvide (45-69) Standard": 51.99,
+      "Platinum Protection": 31.73,
+      "Simplified Issue Level": 32.78
+    },
+    "60": {
+      "Silver Eagle Premier": 48.54,
+      "Silver Eagle Plus": 51.88,
+      "Silver Eagle Standard": 57.87,
+      "Silver Guard Standard": 51.75,
+      "Silver Guard Special": 69.39,
+      "iProvide (45-69) Preferred": 49.49,
+      "iProvide (45-69) Standard": 63.15,
+      "Platinum Protection": 39.51,
+      "Simplified Issue Level": 41.74
+    },
+    "65": {
+      "Silver Eagle Premier": 57.05,
+      "Silver Eagle Plus": 61.02,
+      "Silver Eagle Standard": 68.16,
+      "Silver Guard Standard": 63.54,
+      "Silver Guard Special": 85.05,
+      "iProvide (45-69) Preferred": 59.49,
+      "iProvide (45-69) Standard": 84.48,
+      "Platinum Protection": 49.82,
+      "Simplified Issue Level": 53.75
+    },
+    "70": {
+      "Silver Eagle Premier": 74.89,
+      "Silver Eagle Plus": 80.21,
+      "Silver Eagle Standard": 89.76,
+      "Silver Guard Standard": 83.88,
+      "Silver Guard Special": 121.05,
+      "Platinum Protection": 66.84,
+      "Simplified Issue Level": 69.23
+    },
+    "75": {
+      "Silver Eagle Premier": 99.66,
+      "Silver Eagle Plus": 106.83,
+      "Silver Eagle Standard": 119.72,
+      "Silver Guard Standard": 116.37,
+      "Silver Guard Special": 190.17,
+      "Platinum Protection": 92.91,
+      "Simplified Issue Level": 96.58
+    },
+    "80": {
+      "Silver Eagle Premier": 142.36,
+      "Silver Eagle Plus": 152.73,
+      "Silver Eagle Standard": 171.39,
+      "Silver Guard Standard": 158.58,
+      "Silver Guard Special": 289.8,
+      "Platinum Protection": 129.4,
+      "Simplified Issue Level": 145.79
+    }
+  },
+  "male_tb": {
+    "50": {
+      "Silver Eagle Premier": 39.94,
+      "Silver Eagle Plus": 42.63,
+      "Silver Eagle Standard": 47.46,
+      "Silver Guard Standard": 42.75,
+      "Silver Guard Special": 57.15,
+      "iProvide (45-69) Preferred": 48.49,
+      "iProvide (45-69) Standard": 64.49,
+      "Simplified Issue Level": 37.38
+    },
+    "55": {
+      "Silver Eagle Premier": 52.98,
+      "Silver Eagle Plus": 56.66,
+      "Silver Eagle Standard": 63.24,
+      "Silver Guard Standard": 54.09,
+      "Silver Guard Special": 78.21,
+      "iProvide (45-69) Preferred": 59.49,
+      "iProvide (45-69) Standard": 82.51,
+      "Platinum Protection": 41.51,
+      "Simplified Issue Level": 45.44
+    },
+    "60": {
+      "Silver Eagle Premier": 64.01,
+      "Silver Eagle Plus": 68.51,
+      "Silver Eagle Standard": 76.58,
+      "Silver Guard Standard": 68.85,
+      "Silver Guard Special": 104.31,
+      "iProvide (45-69) Preferred": 73.49,
+      "iProvide (45-69) Standard": 106.01,
+      "Platinum Protection": 52.61,
+      "Simplified Issue Level": 58.73
+    },
+    "65": {
+      "Silver Eagle Premier": 75.74,
+      "Silver Eagle Plus": 81.12,
+      "Silver Eagle Standard": 90.77,
+      "Silver Guard Standard": 87.57,
+      "Silver Guard Special": 139.14,
+      "iProvide (45-69) Preferred": 93.49,
+      "iProvide (45-69) Standard": 140.51,
+      "Platinum Protection": 67.82,
+      "Simplified Issue Level": 75.45
+    },
+    "70": {
+      "Silver Eagle Premier": 105.99,
+      "Silver Eagle Plus": 113.63,
+      "Silver Eagle Standard": 127.38,
+      "Silver Guard Standard": 115.92,
+      "Silver Guard Special": 215.01,
+      "Platinum Protection": 91.52,
+      "Simplified Issue Level": 104.47
+    },
+    "75": {
+      "Silver Eagle Premier": 152.56,
+      "Silver Eagle Plus": 163.7,
+      "Silver Eagle Standard": 183.73,
+      "Silver Guard Standard": 164.07,
+      "Silver Guard Special": 400.68,
+      "Platinum Protection": 125.52,
+      "Simplified Issue Level": 133.5
+    },
+    "80": {
+      "Silver Eagle Premier": 205.56,
+      "Silver Eagle Plus": 220.68,
+      "Silver Eagle Standard": 247.87,
+      "Silver Guard Standard": 215.55,
+      "Silver Guard Special": 619.2,
+      "Platinum Protection": 171.08,
+      "Simplified Issue Level": 188
+    }
+  },
+  "female_nt": {
+    "50": {
+      "Silver Eagle Premier": 26.71,
+      "Silver Eagle Plus": 28.4,
+      "Silver Eagle Standard": 31.44,
+      "Silver Guard Standard": 31.59,
+      "Silver Guard Special": 39.42,
+      "iProvide (45-69) Preferred": 29.82,
+      "iProvide (45-69) Standard": 38.22,
+      "Simplified Issue Level": 21.78
+    },
+    "55": {
+      "Silver Eagle Premier": 31.39,
+      "Silver Eagle Plus": 33.44,
+      "Silver Eagle Standard": 37.11,
+      "Silver Guard Standard": 36.63,
+      "Silver Guard Special": 48.6,
+      "iProvide (45-69) Preferred": 31.58,
+      "iProvide (45-69) Standard": 43.62,
+      "Platinum Protection": 23.78,
+      "Simplified Issue Level": 26.26
+    },
+    "60": {
+      "Silver Eagle Premier": 33.59,
+      "Silver Eagle Plus": 35.8,
+      "Silver Eagle Standard": 39.77,
+      "Silver Guard Standard": 44.1,
+      "Silver Guard Special": 60.48,
+      "iProvide (45-69) Preferred": 37.99,
+      "iProvide (45-69) Standard": 53.16,
+      "Platinum Protection": 30.18,
+      "Simplified Issue Level": 32.6
+    },
+    "65": {
+      "Silver Eagle Premier": 40.48,
+      "Silver Eagle Plus": 43.21,
+      "Silver Eagle Standard": 48.11,
+      "Silver Guard Standard": 53.55,
+      "Silver Guard Special": 76.5,
+      "iProvide (45-69) Preferred": 48.49,
+      "iProvide (45-69) Standard": 64.09,
+      "Platinum Protection": 38.84,
+      "Simplified Issue Level": 41.28
+    },
+    "70": {
+      "Silver Eagle Premier": 51.98,
+      "Silver Eagle Plus": 55.59,
+      "Silver Eagle Standard": 62.04,
+      "Silver Guard Standard": 66.42,
+      "Silver Guard Special": 94.14,
+      "Platinum Protection": 52.85,
+      "Simplified Issue Level": 52.03
+    },
+    "75": {
+      "Silver Eagle Premier": 71.17,
+      "Silver Eagle Plus": 76.21,
+      "Silver Eagle Standard": 85.26,
+      "Silver Guard Standard": 91.26,
+      "Silver Guard Special": 130.23,
+      "Platinum Protection": 74.17,
+      "Simplified Issue Level": 71.64
+    },
+    "80": {
+      "Silver Eagle Premier": 112.51,
+      "Silver Eagle Plus": 120.64,
+      "Silver Eagle Standard": 135.28,
+      "Silver Guard Standard": 122.22,
+      "Silver Guard Special": 220.5,
+      "Platinum Protection": 103.24,
+      "Simplified Issue Level": 104.83
+    }
+  },
+  "female_tb": {
+    "50": {
+      "Silver Eagle Premier": 36.18,
+      "Silver Eagle Plus": 38.58,
+      "Silver Eagle Standard": 42.91,
+      "Silver Guard Standard": 40.14,
+      "Silver Guard Special": 53.19,
+      "iProvide (45-69) Preferred": 39.48,
+      "iProvide (45-69) Standard": 53.49,
+      "Simplified Issue Level": 29.89
+    },
+    "55": {
+      "Silver Eagle Premier": 46.67,
+      "Silver Eagle Plus": 49.85,
+      "Silver Eagle Standard": 55.59,
+      "Silver Guard Standard": 48.51,
+      "Silver Guard Special": 70.74,
+      "iProvide (45-69) Preferred": 47.48,
+      "iProvide (45-69) Standard": 63.07,
+      "Platinum Protection": 34.77,
+      "Simplified Issue Level": 37.88
+    },
+    "60": {
+      "Silver Eagle Premier": 51.34,
+      "Silver Eagle Plus": 54.89,
+      "Silver Eagle Standard": 61.26,
+      "Silver Guard Standard": 58.59,
+      "Silver Guard Special": 88.47,
+      "iProvide (45-69) Preferred": 55.49,
+      "iProvide (45-69) Standard": 78.51,
+      "Platinum Protection": 44.91,
+      "Simplified Issue Level": 45.87
+    },
+    "65": {
+      "Silver Eagle Premier": 61.8,
+      "Silver Eagle Plus": 66.12,
+      "Silver Eagle Standard": 73.91,
+      "Silver Guard Standard": 70.56,
+      "Silver Guard Special": 111.78,
+      "iProvide (45-69) Preferred": 68.48,
+      "iProvide (45-69) Standard": 98.99,
+      "Platinum Protection": 58.82,
+      "Simplified Issue Level": 56.66
+    },
+    "70": {
+      "Silver Eagle Premier": 76.84,
+      "Silver Eagle Plus": 82.28,
+      "Silver Eagle Standard": 92.1,
+      "Silver Guard Standard": 85.14,
+      "Silver Guard Special": 136.98,
+      "Platinum Protection": 81.19,
+      "Simplified Issue Level": 70.64
+    },
+    "75": {
+      "Silver Eagle Premier": 106.93,
+      "Silver Eagle Plus": 114.63,
+      "Silver Eagle Standard": 128.51,
+      "Silver Guard Standard": 112.95,
+      "Silver Guard Special": 184.68,
+      "Platinum Protection": 111.38,
+      "Simplified Issue Level": 93.65
+    },
+    "80": {
+      "Silver Eagle Premier": 154.27,
+      "Silver Eagle Plus": 165.53,
+      "Silver Eagle Standard": 185.82,
+      "Silver Guard Standard": 149.85,
+      "Silver Guard Special": 333,
+      "Platinum Protection": 145.69,
+      "Simplified Issue Level": 142.21
+    }
+  }
+}
