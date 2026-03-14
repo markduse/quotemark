@@ -36,7 +36,7 @@ const STATE_RULES = {
 const FACE_CAPS = {
   acc:40000, ahl:35000, cont:40000, rn:40000,
   ra:50000, ls:30000, amam:50000, moo:50000, cbg:25000,
-  ta:100000, lb:30000, pf:50000, amr:30000, for:35000,
+  ta:100000, lb:30000, pf:50000, amr:30000, for:35000, bl_sg:25000,
   afl:50000, laf:50000, uhl:30000, fid:40000,
   bl:50000, elco:25000, balt_sg:25000, sl_pp:25000,
 };
@@ -394,6 +394,19 @@ const AMRP={45:[[2.331,3.79],n,n,n],46:[[2.392,3.8],n,n,n],47:[[2.453,3.8],n,n,n
 // Americo | Eagle Select Plan 2 (Standard) | modal=0.095006
 const AMRS_M=0.095006;
 const AMRS={45:[[3.292,3.8],n,n,n],46:[[3.354,3.81],n,n,n],47:[[3.42,3.8],n,n,n],48:[[3.493,3.8],n,n,n],49:[[3.569,3.8],n,n,n],50:[[3.65,3.8],n,[3.181,3.81],n],51:[[3.733,3.81],n,[3.249,3.8],n],52:[[3.82,3.8],n,[3.321,3.79],n],53:[[3.937,3.8],n,[3.358,3.79],n],54:[[4.062,3.8],n,[3.397,3.79],n],55:[[4.197,3.8],n,[3.438,3.8],n],56:[[4.338,3.81],n,[3.482,3.8],n],57:[[4.486,3.8],n,[3.525,3.81],n],58:[[4.692,3.8],n,[3.659,3.79],n],59:[[4.907,3.8],n,[3.812,3.79],n],60:[n,n,[3.989,3.8],n],61:[n,n,[4.197,3.8],n],62:[n,n,[4.421,3.79],n],63:[n,n,[4.604,3.81],n],64:[n,n,[4.8,3.79],n],65:[n,[14.084,3.81],n,n],66:[n,[14.765,3.8],n,n],67:[n,[15.46,3.79],n,n],68:[n,[16.55,3.8],n,n],69:[n,[18.732,3.8],n,n],70:[n,[22.005,3.8],n,n],71:[n,[26.369,3.8],n,n],72:[n,[31.825,3.8],n,n],73:[n,[33.58,3.81],n,n],74:[n,[35.337,3.8],n,n],75:[n,[37.093,3.8],n,n]};
+
+// Baltimore Life Silver Guard — from agent rate guide Form 8420-1219
+// Formula: monthly = (rate_per_1000 * face/1000 + 60) * 0.09
+// SGI = Level (B/C), SGII = Graded (D) | Ages 50-80
+const BL_SGI_MN={50:35.2,51:36.2,52:37.3,53:38.3,54:40.4,55:42.5,56:44.5,57:46.6,58:48.7,59:50.8,60:52.9,61:55.0,62:57.0,63:60.2,64:63.3,65:66.4,66:69.5,67:72.7,68:76.8,69:82.0,70:87.2,71:92.4,72:97.6,73:103.9,74:110.1,75:117.4,76:125.7,77:135.1,78:145.5,79:155.9,80:167.4};
+const BL_SGI_MT={50:46.6,51:48.7,52:50.8,53:52.9,54:55.0,55:57.0,56:59.1,57:62.2,58:65.4,59:68.5,60:71.6,61:74.7,62:77.9,63:82.0,64:86.2,65:90.3,66:94.5,67:99.7,68:106.0,69:114.3,70:122.6,71:130.9,72:139.3,73:148.6,74:159.1,75:169.5,76:179.9,77:191.3,78:203.8,79:217.4,80:231.9};
+const BL_SGI_FN={50:28.9,51:30.0,52:31.0,53:32.1,54:33.1,55:34.1,56:35.2,57:36.2,58:37.3,59:39.3,60:41.4,61:43.5,62:45.6,63:47.7,64:49.7,65:51.8,66:55.0,67:58.1,68:61.2,69:64.3,70:67.4,71:71.6,72:75.8,73:79.9,74:85.1,75:90.3,76:96.6,77:103.9,78:112.2,79:121.6,80:133.0};
+const BL_SGI_FT={50:36.2,51:37.3,52:38.3,53:40.4,54:42.5,55:44.5,56:46.6,57:48.7,58:50.8,59:52.9,60:55.0,61:57.0,62:60.2,63:63.3,64:66.4,65:69.5,66:72.7,67:75.8,68:78.9,69:83.1,70:88.3,71:94.5,72:100.8,73:107.0,74:114.3,75:123.7,76:134.1,77:145.5,78:158.0,79:171.5,80:187.2};
+const BL_SGII_MN={50:47.9,51:50.2,52:52.5,53:54.7,54:57.0,55:59.3,56:62.4,57:65.6,58:68.7,59:71.8,60:74.9,61:78.9,62:82.9,63:86.8,64:90.8,65:94.7,66:103.7,67:112.6,68:121.6,69:130.5,70:139.5,71:150.9,72:162.4,73:173.8,74:185.3,75:196.7,76:209.4,77:222.0,78:234.7,79:247.3,80:260.0};
+const BL_SGII_MT={50:67.7,51:71.0,52:74.3,53:77.6,54:81.0,55:84.3,56:90.1,57:96.0,58:101.8,59:107.6,60:113.5,61:118.9,62:124.3,63:129.7,64:135.1,65:140.5,66:149.9,67:159.3,68:168.6,69:178.0,70:187.4,71:200.9,72:214.4,73:228.0,74:241.5,75:255.0,76:256.6,77:258.2,78:259.8,79:261.4,80:263.0};
+const BL_SGII_FN={50:41.6,51:43.4,52:45.2,53:46.9,54:48.7,55:50.5,56:53.5,57:56.5,58:59.5,59:62.6,60:65.6,61:69.1,62:72.7,63:76.2,64:79.7,65:83.3,66:88.3,67:93.3,68:98.3,69:103.3,70:108.3,71:113.9,72:119.5,73:125.1,74:130.7,75:136.4,76:149.9,77:163.4,78:177.0,79:190.5,80:204.0};
+const BL_SGII_FT={50:59.3,51:62.2,52:65.2,53:68.1,54:71.0,55:73.9,56:76.8,57:79.7,58:82.6,59:85.6,60:88.5,61:91.6,62:94.7,63:97.8,64:101.0,65:104.1,66:111.2,67:118.2,68:125.3,69:132.4,70:139.5,71:147.4,72:155.3,73:163.2,74:171.1,75:179.0,76:194.9,77:210.7,78:226.5,79:242.3,80:258.2};
+function blsgQuote(tbl,age,face){const r=tbl[age];if(r==null)return null;return Math.round((r*face/1000+60)*0.09*100)/100;}
 
 // Foresters PlanRight — rebuilt from Nov 2019 rate book
 // Formula: (rate/1000 * face + 36) * 0.0875 | cert fee already baked into entry[1]=3.15
@@ -984,6 +997,16 @@ const CARRIERS = [
   {id:'ra',   name:'Royal Arcanum',      sub:'Whole Life Level', abbr:'RA', enabled:false,
    product:{B:'Level',C:'Level',D:null,E:null},
    fn:(age,male,smoker,tier,face)=>{if(tier!=='B'&&tier!=='C')return null;return csvLookup(RA,RA_M,age,male,smoker,face);}},
+  {id:'bl_sg', name:'Baltimore Life',    sub:'Silver Guard FE', abbr:'BL', enabled:true,
+   product:{B:'Level',C:'Level',D:'Graded',E:null},
+   fn:(age,male,smoker,tier,face)=>{
+     if(age<50||age>80)return null;
+     const lvlTbl=male?(smoker?BL_SGI_MT:BL_SGI_MN):(smoker?BL_SGI_FT:BL_SGI_FN);
+     const grdTbl=male?(smoker?BL_SGII_MT:BL_SGII_MN):(smoker?BL_SGII_FT:BL_SGII_FN);
+     if(tier==='B'||tier==='C') return blsgQuote(lvlTbl,age,Math.min(face,25000));
+     if(tier==='D') return blsgQuote(grdTbl,age,Math.min(face,15000));
+     return null;
+   }},
   {id:'ls',   name:'Lifeshield',         sub:'Survivor Level', abbr:'LS', enabled:false,
    product:{B:'Level',C:'Level',D:null,E:null},
    fn:(age,male,smoker,tier,face)=>{if(tier!=='B'&&tier!=='C')return null;return csvLookup(LS,LS_M,age,male,smoker,face);}},
@@ -1039,6 +1062,7 @@ const CARRIER_META = {
   for:  { img:'/logos/for.png',    eapp:'https://www.forestersfinancial.com/us/agent-portal',   brand:'#7E22CE' }, // Foresters — Plum
   amr:  { img:'/logos/amr.png',    eapp:'https://www.americo.com/agent-access',                brand:'#60A5FA' }, // Americo — Vivid Cobalt
   amam: { img:'/logos/amam.png',   eapp:'https://www.insuranceapplication.com',                  brand:'#CBD5E1' }, // American Amicable — Light Gray
+  bl_sg:{ img:'',                    eapp:'https://www.baltlife.com',                       brand:'#1D4ED8' }, // Baltimore Life Silver Guard
   ts:   { img:'/logos/ts.png',     eapp:'https://www.trustage.com/agents',                     brand:'#FDE68A' }, // TruStage — Pale Yellow
   ls:   { img:'/logos/ls.png',     eapp:'https://www.lifeshield.com/agent',                    brand:'#64748B' }, // LifeShield — Gray
   bl:   { img:'',                    eapp:'https://www.betterlifeins.com/agents',               brand:'#EAB308' }, // Better Life — Yellow
