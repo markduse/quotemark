@@ -606,7 +606,7 @@ const TRANSAMERICA_TERM_RATES = {"10":{"mn":{"18":7.95,"19":7.98,"20":8.01,"21":
 
 // ── TERM CARRIER ARRAY ──
 const TERM_CARRIERS = [
-  {id:'american_amicable', name:'American Amicable', sub:'Term Life', abbr:'AA', enabled:true, termOnly:true, supportedTerms:['10','15','20'],
+  {id:'american_amicable', name:'American Amicable', sub:'Term Life', abbr:'AA', enabled:true, termOnly:true, linkedId:'amam', supportedTerms:['10','15','20'],
    product:{B:'Term',C:null,D:null,E:null},
    fn:(age,male,smoker,tier,face,termLen)=>{
      if(tier!=='B') return null;
@@ -633,7 +633,7 @@ const TERM_CARRIERS = [
      if(!['10','15','20'].includes(tl)) return null;
      return termLookup(JOHN_HANCOCK_TERM_RATES, tl, combo, age, face);
    }},
-  {id:'mutual_of_omaha', name:'Mutual of Omaha', sub:'Term Life', abbr:'MO', enabled:true, termOnly:true, supportedTerms:['10','15','20'],
+  {id:'mutual_of_omaha', name:'Mutual of Omaha', sub:'Term Life', abbr:'MO', enabled:true, termOnly:true, linkedId:'moo', supportedTerms:['10','15','20'],
    product:{B:'Term',C:null,D:null,E:null},
    fn:(age,male,smoker,tier,face,termLen)=>{
      if(tier!=='B') return null;
@@ -651,7 +651,7 @@ const TERM_CARRIERS = [
      if(!['10','15','20'].includes(tl)) return null;
      return termLookup(SBLI_TERM_RATES, tl, combo, age, face);
    }},
-  {id:'royal_neighbors', name:'Royal Neighbors', sub:'Term Life', abbr:'RN', enabled:true, termOnly:true, supportedTerms:['10','15','20'],
+  {id:'royal_neighbors', name:'Royal Neighbors', sub:'Term Life', abbr:'RN', enabled:true, termOnly:true, linkedId:'rn', supportedTerms:['10','15','20'],
    product:{B:'Term',C:null,D:null,E:null},
    fn:(age,male,smoker,tier,face,termLen)=>{
      if(tier!=='B') return null;
@@ -660,7 +660,7 @@ const TERM_CARRIERS = [
      if(!['10','15','20'].includes(tl)) return null;
      return termLookup(ROYAL_NEIGHBORS_TERM_RATES, tl, combo, age, face);
    }},
-  {id:'transamerica', name:'Transamerica', sub:'Term Life', abbr:'T', enabled:true, termOnly:true, supportedTerms:['10','15','20'],
+  {id:'transamerica', name:'Transamerica', sub:'Term Life', abbr:'T', enabled:true, termOnly:true, linkedId:'ta', supportedTerms:['10','15','20'],
    product:{B:'Term',C:null,D:null,E:null},
    fn:(age,male,smoker,tier,face,termLen)=>{
      if(tier!=='B') return null;
@@ -1467,7 +1467,17 @@ export default function QuoteMark() {
     if(id==='none'){setSelected(['none']);return;}
     setSelected(p=>{const w=p.filter(c=>c!=='none');if(w.includes(id)){const n=w.filter(c=>c!==id);return n.length?n:['none'];}return [...w,id];});
   };
-  const toggleCarrier = (id) => setCarriers(p=>p.map(c=>c.id===id?{...c,enabled:!c.enabled}:c));
+  const toggleCarrier = (id) => setCarriers(p => {
+    const target = p.find(c => c.id === id);
+    if (!target) return p;
+    const newEnabled = !target.enabled;
+    return p.map(c => {
+      if (c.id === id) return {...c, enabled: newEnabled};
+      // Also sync any term carrier linked to this FEX carrier
+      if (c.linkedId === id) return {...c, enabled: newEnabled};
+      return c;
+    });
+  });
 
   const q = search.toLowerCase();
   const filteredConds = React.useMemo(()=>{
@@ -1512,12 +1522,16 @@ export default function QuoteMark() {
 
   const activeCarriers = useMemo(()=>{
     return carriers.filter(c => {
-      if (!c.enabled) return false;
       // FEX mode: exclude term-only carriers
       if (quoteMode === 'fe' && c.termOnly) return false;
       // Term mode: only term-only carriers
       if (quoteMode === 'term' && !c.termOnly) return false;
-      return true;
+      // For term carriers with a linked FEX carrier, use the FEX carrier's enabled state
+      if (c.termOnly && c.linkedId) {
+        const linked = carriers.find(x => x.id === c.linkedId);
+        return linked ? linked.enabled : c.enabled;
+      }
+      return c.enabled;
     });
   },[carriers, quoteMode]);
 
@@ -2401,10 +2415,10 @@ export default function QuoteMark() {
               <div style={{fontSize:11,fontWeight:700,letterSpacing:1.5,color:C.t4,textTransform:'uppercase',marginBottom:4}}>My Carriers</div>
               <div style={{fontSize:12,color:C.t4,marginBottom:14}}>Toggle which carriers appear in your quote results. Saved to your profile.</div>
               <div style={{display:'flex',flexDirection:'column',gap:8}}>
-                {carriers.map(c=>{
+                {carriers.filter(c => !c.linkedId).map(c=>{
                   const brand=CARRIER_META[c.id]?.brand||C.bd2;
                   return(
-                  <div key={c.id} onClick={()=>setCarriers(p=>p.map(x=>x.id===c.id?{...x,enabled:!x.enabled}:x))}
+                  <div key={c.id} onClick={()=>setCarriers(p=>{const t=p.find(x=>x.id===c.id);if(!t)return p;const ne=!t.enabled;return p.map(x=>x.id===c.id||x.linkedId===c.id?{...x,enabled:ne}:x);})}
                     style={{display:'flex',alignItems:'center',gap:12,padding:'10px 12px',borderRadius:9,border:`1px solid ${c.enabled?brand+'66':C.bd}`,background:c.enabled?brand+'0D':'transparent',cursor:'pointer',transition:'all 0.15s'}}>
                     <div style={{width:18,height:18,borderRadius:5,border:`2px solid ${c.enabled?brand:C.bd2}`,background:c.enabled?brand:'transparent',display:'flex',alignItems:'center',justifyContent:'center',flexShrink:0,transition:'all 0.15s'}}>
                       {c.enabled&&<span style={{color:'#fff',fontSize:11,fontWeight:700,lineHeight:1}}>✓</span>}
@@ -2441,7 +2455,7 @@ export default function QuoteMark() {
                 <button onClick={()=>setCarrierPanel(false)} style={{background:'transparent',border:'none',color:C.t3,fontSize:22,cursor:'pointer',lineHeight:1}}>×</button>
               </div>
               <div style={{overflowY:'auto',padding:'12px 16px',flex:1}}>
-                {carriers.map(c=>{
+                {carriers.filter(c => !c.linkedId).map(c=>{
                   const active=c.enabled;
                   return(
                     <div key={c.id} style={{display:'flex',alignItems:'center',gap:12,padding:'12px 0',borderBottom:`1px solid ${C.bd}`}} onClick={()=>toggleCarrier(c.id)}>
@@ -3354,10 +3368,10 @@ export default function QuoteMark() {
               <div style={{fontSize:11,fontWeight:700,letterSpacing:1.5,color:C.t4,textTransform:'uppercase',marginBottom:4}}>My Carriers</div>
               <div style={{fontSize:12,color:C.t4,marginBottom:14}}>Toggle which carriers appear in your quote results. Saved to your profile.</div>
               <div style={{display:'flex',flexDirection:'column',gap:8}}>
-                {carriers.map(c=>{
+                {carriers.filter(c => !c.linkedId).map(c=>{
                   const brand=CARRIER_META[c.id]?.brand||C.bd2;
                   return(
-                  <div key={c.id} onClick={()=>setCarriers(p=>p.map(x=>x.id===c.id?{...x,enabled:!x.enabled}:x))}
+                  <div key={c.id} onClick={()=>setCarriers(p=>{const t=p.find(x=>x.id===c.id);if(!t)return p;const ne=!t.enabled;return p.map(x=>x.id===c.id||x.linkedId===c.id?{...x,enabled:ne}:x);})}
                     style={{display:'flex',alignItems:'center',gap:12,padding:'10px 12px',borderRadius:9,border:`1px solid ${c.enabled?brand+'66':C.bd}`,background:c.enabled?brand+'0D':'transparent',cursor:'pointer',transition:'all 0.15s'}}>
                     <div style={{width:18,height:18,borderRadius:5,border:`2px solid ${c.enabled?brand:C.bd2}`,background:c.enabled?brand:'transparent',display:'flex',alignItems:'center',justifyContent:'center',flexShrink:0,transition:'all 0.15s'}}>
                       {c.enabled&&<span style={{color:'#fff',fontSize:11,fontWeight:700,lineHeight:1}}>✓</span>}
@@ -3422,10 +3436,10 @@ export default function QuoteMark() {
                 <div style={{fontSize:11,fontWeight:700,letterSpacing:1.5,color:C.t4,textTransform:'uppercase',marginBottom:4}}>My Carriers</div>
                 <div style={{fontSize:12,color:C.t4,marginBottom:14}}>Toggle which carriers appear in your results. Saved to your profile.</div>
                 <div style={{display:'flex',flexDirection:'column',gap:8}}>
-                  {carriers.map(c=>{
+                  {carriers.filter(c => !c.linkedId).map(c=>{
                     const brand=CARRIER_META[c.id]?.brand||C.bd2;
                     return(
-                      <div key={c.id} onClick={()=>setCarriers(p=>p.map(x=>x.id===c.id?{...x,enabled:!x.enabled}:x))}
+                      <div key={c.id} onClick={()=>setCarriers(p=>{const t=p.find(x=>x.id===c.id);if(!t)return p;const ne=!t.enabled;return p.map(x=>x.id===c.id||x.linkedId===c.id?{...x,enabled:ne}:x);})}
                         style={{display:'flex',alignItems:'center',gap:12,padding:'10px 12px',borderRadius:9,border:`1px solid ${c.enabled?brand+'66':C.bd}`,background:c.enabled?brand+'0D':'transparent',cursor:'pointer'}}>
                         <div style={{width:18,height:18,borderRadius:5,border:`2px solid ${c.enabled?brand:C.bd2}`,background:c.enabled?brand:'transparent',display:'flex',alignItems:'center',justifyContent:'center',flexShrink:0}}>
                           {c.enabled&&<span style={{color:'#fff',fontSize:11,fontWeight:700,lineHeight:1}}>✓</span>}
