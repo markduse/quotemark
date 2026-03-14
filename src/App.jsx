@@ -216,22 +216,33 @@ function mooTermLookup(tbl,age,male,smoker,face){
   const tKey=smoker?'tobacco':'non_tobacco';
   const gData=tbl[gKey];if(!gData)return null;
   const tData=gData[tKey];if(!tData)return null;
-  const ageData=tData[age];if(!ageData)return null;
-  // Find the exact face or interpolate between faces
   const faces=MOO_TERM_FACES;
   const cf=Math.min(face,faces[faces.length-1]);
-  if(cf<faces[0])return null; // below minimum
-  for(let i=0;i<faces.length-1;i++){
-    if(cf>=faces[i]&&cf<=faces[i+1]){
-      const p1=ageData[faces[i]];
-      const p2=ageData[faces[i+1]];
-      if(p1==null||p2==null)return null;
-      const t=(cf-faces[i])/(faces[i+1]-faces[i]);
-      return Math.round((p1+t*(p2-p1))*100)/100;
+  if(cf<faces[0])return null;
+  // Helper: get premium for a face at an exact age row
+  function premAtRow(ageData,cf){
+    for(let i=0;i<faces.length-1;i++){
+      if(cf>=faces[i]&&cf<=faces[i+1]){
+        const p1=ageData[faces[i]],p2=ageData[faces[i+1]];
+        if(p1==null||p2==null)return null;
+        return p1+(cf-faces[i])/(faces[i+1]-faces[i])*(p2-p1);
+      }
     }
+    return ageData[faces[faces.length-1]]??null;
   }
-  const lastPrice=ageData[faces[faces.length-1]];
-  return lastPrice!=null?lastPrice:null;
+  // Known age breakpoints in the table
+  const knownAges=Object.keys(tData).map(Number).sort((a,b)=>a-b);
+  if(age<knownAges[0]||age>knownAges[knownAges.length-1])return null;
+  // Exact hit
+  if(tData[age]){const p=premAtRow(tData[age],cf);return p!=null?Math.round(p*100)/100:null;}
+  // Interpolate between surrounding breakpoints
+  let lo=knownAges[0],hi=knownAges[knownAges.length-1];
+  for(let i=0;i<knownAges.length-1;i++){if(age>knownAges[i]&&age<knownAges[i+1]){lo=knownAges[i];hi=knownAges[i+1];break;}}
+  const pLo=premAtRow(tData[lo],cf);
+  const pHi=premAtRow(tData[hi],cf);
+  if(pLo==null||pHi==null)return null;
+  const t=(age-lo)/(hi-lo);
+  return Math.round((pLo+t*(pHi-pLo))*100)/100;
 }
 
 
@@ -1591,52 +1602,7 @@ export default function QuoteMark() {
                 </div>
               </div>
 
-              {/* Term Quote Result Card */}
-              {termAgeOK && termResults && (
-                <div style={{
-                  background:termResults.available?(isDark?'linear-gradient(135deg,rgba(16,185,129,0.15) 0%,rgba(5,150,105,0.1) 100%)':'linear-gradient(135deg,rgba(16,185,129,0.1) 0%,rgba(5,150,105,0.05) 100%)'):C.bg2,
-                  border:`1px solid ${termResults.available?(isDark?'#10B981':'#059669'):C.bd}`,
-                  borderRadius:12,padding:16
-                }}>
-                  {termResults.available ? (
-                    <>
-                      <div style={{display:'flex',alignItems:'center',gap:10,marginBottom:14}}>
-                        <img src="/logos/moo.png" alt="MOO" style={{width:40,height:40,borderRadius:8,objectFit:'contain',background:'white',padding:3}}/>
-                        <div>
-                          <div style={{fontSize:16,fontWeight:700,color:C.t0}}>{termResults.carrier}</div>
-                          <div style={{fontSize:12,color:C.t3}}>{termResults.product}</div>
-                        </div>
-                      </div>
-                      <div style={{display:'flex',justifyContent:'space-between',alignItems:'flex-end',marginBottom:12}}>
-                        <div>
-                          <div style={{fontSize:12,color:C.t4}}>Coverage</div>
-                          <div style={{fontSize:20,fontWeight:700,color:C.t0,fontFamily:"'DM Mono',monospace"}}>{fmtF(termResults.face)}</div>
-                        </div>
-                        <div style={{textAlign:'right'}}>
-                          <div style={{fontSize:12,color:C.t4}}>Monthly Premium</div>
-                          <div style={{fontSize:28,fontWeight:700,color:'#10B981',fontFamily:"'DM Mono',monospace"}}>${termResults.prem.toFixed(2)}</div>
-                        </div>
-                      </div>
-                      <div style={{display:'flex',gap:6,flexWrap:'wrap'}}>
-                        <span style={{background:isDark?'#0F172A':'#E2E8F0',border:`1px solid ${C.bd}`,borderRadius:6,padding:'4px 10px',fontSize:11,color:C.t3}}>
-                          {termResults.healthClass}
-                        </span>
-                        <span style={{background:isDark?'#0F172A':'#E2E8F0',border:`1px solid ${C.bd}`,borderRadius:6,padding:'4px 10px',fontSize:11,color:C.t3}}>
-                          Tier {termResults.tier}
-                        </span>
-                        <span style={{background:isDark?'#0F172A':'#E2E8F0',border:`1px solid ${C.bd}`,borderRadius:6,padding:'4px 10px',fontSize:11,color:C.t3}}>
-                          {gender==='male'?'Male':'Female'} · {smoker?'Tobacco':'Non-Tobacco'} · Age {termAge}
-                        </span>
-                      </div>
-                    </>
-                  ) : (
-                    <div style={{textAlign:'center',padding:20}}>
-                      <div style={{fontSize:15,color:C.t3,marginBottom:4}}>Quote not available</div>
-                      <div style={{fontSize:12,color:C.t4}}>{termResults.reason}</div>
-                    </div>
-                  )}
-                </div>
-              )}
+
               </>
               )}
               {/* Bottom spacer — keeps button clear of fixed tab bar */}
@@ -1647,7 +1613,65 @@ export default function QuoteMark() {
           {/* ── RESULTS TAB ── */}
           {mobileTab === 'results' && (
             <div ref={mobileResultsRef}>
-              {!hasQuoted ? (
+              {quoteMode==='term' ? (
+                /* ── MOBILE TERM RESULTS ── */
+                <div>
+                  {/* Term scenario bar */}
+                  <div style={{background:C.bg3,border:`1px solid ${C.bd}`,borderRadius:10,padding:'10px 14px',marginBottom:14,display:'flex',alignItems:'center',justifyContent:'space-between',flexWrap:'wrap',gap:6}}>
+                    <div style={{fontSize:13,color:C.t2,display:'flex',gap:8,flexWrap:'wrap',alignItems:'center'}}>
+                      <span style={{fontFamily:"'DM Mono',monospace",fontWeight:600,color:C.t0}}>{fmtF(termFace)}</span>
+                      <span style={{color:C.t4}}>·</span>
+                      {termAgeOK&&<><span>Age {termAge}</span><span style={{color:C.t4}}>·</span></>}
+                      <span>{gender==='male'?'M':'F'} · {smoker?'Smoker':'NS'}</span>
+                      <span style={{color:C.t4}}>·</span>
+                      <span>{termLength}yr Term</span>
+                    </div>
+                    <span style={{display:'inline-flex',alignItems:'center',gap:5,background:'rgba(16,185,129,0.12)',border:'1px solid rgba(16,185,129,0.3)',color:'#10B981',borderRadius:20,padding:'3px 10px',fontSize:11,fontWeight:600}}>No Exam</span>
+                  </div>
+                  {!termAgeOK ? (
+                    <div style={{textAlign:'center',paddingTop:60}}>
+                      <div style={{fontSize:40,opacity:0.4,marginBottom:12}}>⏱️</div>
+                      <div style={{fontSize:16,fontWeight:700,color:C.t4,marginBottom:8}}>Enter client age first</div>
+                      <button onClick={()=>setMobileTab('quote')} style={{padding:'12px 24px',borderRadius:10,border:`1px solid ${C.bd2}`,background:C.bg2,color:C.t2,fontSize:14,fontWeight:600,cursor:'pointer',fontFamily:"'DM Sans',sans-serif"}}>
+                        ← Back to Quote
+                      </button>
+                    </div>
+                  ) : termResults && termResults.available ? (
+                    <div style={{
+                      background:isDark?'linear-gradient(135deg,rgba(16,185,129,0.14) 0%,rgba(5,150,105,0.08) 100%)':'#FFFFFF',
+                      border:`1px solid ${isDark?'#10B981':'#D1FAE5'}`,
+                      borderTop:'3px solid #10B981',
+                      borderRadius:14,padding:18,
+                      boxShadow:isDark?'0 0 0 1px rgba(16,185,129,0.15)':'0 4px 12px rgba(16,185,129,0.1)'
+                    }}>
+                      <div style={{display:'flex',justifyContent:'space-between',alignItems:'flex-start',marginBottom:14}}>
+                        <div>
+                          <div style={{fontSize:18,fontWeight:700,color:C.t0}}>Mutual of Omaha</div>
+                          <div style={{fontSize:12,color:C.t3,marginTop:2}}>Term Life Express · {termLength}-Year</div>
+                        </div>
+                        <div style={{background:'rgba(16,185,129,0.15)',border:'1px solid rgba(16,185,129,0.3)',borderRadius:7,padding:'3px 10px',fontSize:10,fontWeight:700,color:'#10B981'}}>No Exam</div>
+                      </div>
+                      <div style={{display:'flex',alignItems:'baseline',gap:8,marginBottom:4}}>
+                        <span style={{fontFamily:"'DM Mono',monospace",fontSize:34,fontWeight:700,color:'#10B981',letterSpacing:'-1px',lineHeight:1}}>${termResults.prem.toFixed(2)}</span>
+                        <span style={{fontSize:13,color:C.t3}}>/mo</span>
+                      </div>
+                      <div style={{fontSize:12,color:C.t2,marginBottom:14,fontFamily:"'DM Mono',monospace"}}>${(termResults.prem*12).toFixed(0)} / year</div>
+                      <div style={{display:'flex',gap:6,flexWrap:'wrap',paddingTop:12,borderTop:`1px solid ${isDark?'rgba(16,185,129,0.2)':'#D1FAE5'}`,marginBottom:14}}>
+                        <span style={{background:isDark?'rgba(16,185,129,0.1)':'#ECFDF5',border:`1px solid ${isDark?'rgba(16,185,129,0.25)':'#6EE7B7'}`,borderRadius:6,padding:'4px 10px',fontSize:11,color:isDark?'#6EE7B7':'#065F46',fontWeight:600}}>{fmtF(termResults.face)}</span>
+                        <span style={{background:isDark?C.bg3:'#F8FAFC',border:`1px solid ${C.bd}`,borderRadius:6,padding:'4px 10px',fontSize:11,color:C.t3}}>{termResults.healthClass}</span>
+                        <span style={{background:isDark?C.bg3:'#F8FAFC',border:`1px solid ${C.bd}`,borderRadius:6,padding:'4px 10px',fontSize:11,color:C.t3}}>{gender==='male'?'Male':'Female'} · {smoker?'Tobacco':'NS'} · Age {termAge}</span>
+                      </div>
+                      <a href={CARRIER_META.moo?.eapp||'#'} target="_blank" rel="noopener noreferrer" style={{display:'block',padding:'13px 0',borderRadius:9,textAlign:'center',background:'#10B981',color:'#FFFFFF',fontSize:14,fontWeight:700,textDecoration:'none',boxShadow:'0 2px 8px rgba(16,185,129,0.3)'}}>Open e-App →</a>
+                    </div>
+                  ) : termResults && !termResults.available ? (
+                    <div style={{background:C.bg3,border:`1px solid ${C.bd}`,borderRadius:14,padding:24,textAlign:'center'}}>
+                      <div style={{fontSize:18,marginBottom:8}}>⚠️</div>
+                      <div style={{fontSize:14,color:C.t2,fontWeight:600,marginBottom:4}}>Not Available</div>
+                      <div style={{fontSize:12,color:C.t4}}>{termResults.reason}</div>
+                    </div>
+                  ) : null}
+                </div>
+              ) : !hasQuoted ? (
                 <div style={{display:'flex',flexDirection:'column',alignItems:'center',justifyContent:'center',paddingTop:80,gap:16,textAlign:'center'}}>
                   <div style={{fontSize:52,opacity:0.4}}>📋</div>
                   <div style={{fontFamily:"'Barlow Condensed',sans-serif",fontSize:22,fontWeight:700,color:C.t4}}>Fill in client info first</div>
