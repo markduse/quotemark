@@ -238,6 +238,37 @@ function mooTermLookup(tbl,age,male,smoker,face){
 const CBGG={50:[70.56,70.56,47.81,50.83],51:[71.69,71.69,49.01,54.64],52:[72.98,75.44,50.86,57.9],53:[74.11,79.82,53.61,60.87],54:[75.42,83.64,56.07,63.56],55:[77.6,87.04,58.28,65.96],56:[79.92,89.58,60.75,68.65],57:[81.98,91.84,62.66,70.76],58:[83.82,93.83,64.62,72.9],59:[85.09,95.24,66.42,74.87],60:[86.44,96.23,67.87,76.43],61:[92.62,103.44,72.14,81.1],62:[98.85,110.23,76.04,85.34],63:[104.8,116.74,79.41,89.02],64:[110.53,122.96,81.98,91.84],65:[116.1,129.05,84.19,94.25],66:[121.02,134.42,88.74,99.19],67:[125.3,139.08,92.5,103.3],68:[129.3,143.47,95.99,107.11],69:[132.82,147.28,99.38,110.8],70:[135.92,150.69,102.48,114.19],71:[148.63,164.55,112.85,125.5],72:[161.08,178.13,122.71,136.26],73:[172.75,190.86,132.16,146.58],74:[183.65,202.74,140.86,156.06],75:[192.98,212.92,148.63,164.55],76:[226.02,248.99,170.66,188.59],77:[257.8,269.5,191.44,211.22],78:[265.95,269.78,210.87,232.44],79:[266.49,270.05,229.02,252.24],80:[267.04,270.32,245.1,267.03]};
 function cbgGiwlQuote(age,male,face){const row=CBGG[age];if(!row)return null;const isHigh=face>15000;const ri=male?(isHigh?1:0):(isHigh?3:2);return Math.round((row[ri]*face/1000+24)*0.0834*100)/100;}
 
+// ── TODO: Corebridge SIWL (Simplified Issue Whole Life) — Tiers B/C ──
+// Product: SimpliNow Legacy / SimpliNow Legacy Max (AIG/Corebridge Financial)
+// Ages: 50-85 | Face: $5k-$35k | 4 combos: male/female × tobacco/non-tobacco
+// Research conducted 2026-03-14:
+//   - Rate sheets exist but are marked "FOR FINANCIAL PROFESSIONAL USE ONLY"
+//   - PDF rate sheets from ociservices.com, corebridgefinancial.com not extractable
+//   - No publicly accessible per-$1k rate tables found via web search
+//   - Corebridge offers online quoter: rapid-rater.live.web.corebridgefinancial.com/Simplinowquoter
+// To add SIWL Tier B/C rates:
+//   1. Obtain official rate sheet from Corebridge agent portal or TMG Producer Microsite
+//   2. Extract annual rates per $1k for all 4 gender/tobacco combos, ages 50-85
+//   3. Add CBG_SIWL_B and CBG_SIWL_C tables following CBGG format
+//   4. Update cbg carrier fn() to handle tiers B/C with cbgSiwlQuote()
+// const CBG_SIWL_B = {}; // TODO: Preferred SIWL rates
+// const CBG_SIWL_C = {}; // TODO: Standard SIWL rates
+
+// ── TODO: Baltimore Life Silver Guard — new carrier 'bl_sg' ──
+// Product: Silver Guard Simplified Issue Senior Life Insurance
+// Ages: 50-80 | Face: $2,500-$25,000 | 4 combos: male/female × tobacco/non-tobacco
+// Two tiers: Silver Guard Standard (best rates), Silver Guard Special (substandard)
+// Research conducted 2026-03-14:
+//   - Sample rates found: 50M=$37/mo, 50F=$31/mo, 70M=$84/mo, 70F=$65/mo (for $10k)
+//   - PDF rate sheets (baltlife.com/pdf/M-8660.pdf, pdf/8420.pdf) not extractable
+//   - No complete per-$1k rate tables found via web search
+//   - Features: immediate death benefit, no waiting period, fixed premiums
+// To add Baltimore Life:
+//   1. Obtain official rate sheet from Baltimore Life agent portal
+//   2. Extract rates per $1k for all 4 combos, ages 50-80
+//   3. Add BL_SG_STD and BL_SG_SPL tables
+//   4. Add carrier entry: {id:'bl_sg', name:'Baltimore Life', sub:'Silver Guard', ...}
+
 // Transamerica | Immediate Solution | Ages 18-85
 // Row: [Male NT, Male TB, Female NT, Female TB] — annual rate per $1,000
 // Formula: ROUND((rate * face/1000 + 42) * 0.086, 2)  (fee=$60 if face<$5K)
