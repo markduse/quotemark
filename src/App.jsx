@@ -1295,7 +1295,13 @@ export default function QuoteMark() {
         if(!data) return;
         if(data.display_name) setProfileName(data.display_name);
         if(data.carrier_prefs && Array.isArray(data.carrier_prefs)){
-          setCarriers(prev=>prev.map(c=>({...c,enabled:data.carrier_prefs.includes(c.id)})));
+          const savedIds = data.carrier_prefs;
+          setCarriers(prev=>prev.map(c=>({
+            ...c,
+            // Term carriers: always enabled by default unless explicitly saved as disabled
+            // FEX carriers: use saved prefs (enabled only if in saved list)
+            enabled: c.termOnly ? !savedIds.includes('__disabled_'+c.id) : savedIds.includes(c.id)
+          })));
         }
         if(data.dark_mode !== null && data.dark_mode !== undefined) setIsDark(data.dark_mode);
       });
