@@ -1221,34 +1221,32 @@ export default function QuoteMark() {
           </div>
         </div>
 
+        {/* ── FEX / TERM STICKY SUB-BAR (mobile) ── */}
+        <div style={{background:C.bg1,borderBottom:`1px solid ${C.bd}`,padding:'8px 16px',position:'sticky',top:61,zIndex:49}}>
+          <div style={{display:'flex',background:isDark?'rgba(11,17,32,0.9)':'#F1F5F9',borderRadius:22,padding:3,border:`1px solid ${C.bd}`,gap:2}}>
+            <button onClick={()=>setQuoteMode('fe')} style={{
+              flex:1,padding:'10px 0',borderRadius:18,border:'none',
+              background:quoteMode==='fe'?(isDark?'#38BDF8':'#0F172A'):'transparent',
+              color:quoteMode==='fe'?(isDark?'#0B1120':'#FFFFFF'):C.t3,
+              fontSize:13,fontWeight:700,cursor:'pointer',fontFamily:"'DM Sans',sans-serif",
+              transition:'all 0.18s'
+            }}>🏛️ Final Expense</button>
+            <button onClick={()=>setQuoteMode('term')} style={{
+              flex:1,padding:'10px 0',borderRadius:18,border:'none',
+              background:quoteMode==='term'?'#10B981':'transparent',
+              color:quoteMode==='term'?'#FFFFFF':C.t3,
+              fontSize:13,fontWeight:700,cursor:'pointer',fontFamily:"'DM Sans',sans-serif",
+              transition:'all 0.18s'
+            }}>⏱️ Term Life</button>
+          </div>
+        </div>
+
         {/* ── MOBILE BODY ── */}
         <div style={{padding:'16px 16px 0'}}>
 
           {/* ── QUOTE TAB ── */}
           {mobileTab === 'quote' && (
             <div style={{display:'flex',flexDirection:'column',gap:12}}>
-
-              {/* Quote Type Toggle */}
-              <div style={{display:'flex',gap:8}}>
-                <button className="qm-btn" onClick={()=>setQuoteMode('fe')} style={{
-                  flex:1,padding:'14px 0',borderRadius:10,
-                  border:`2px solid ${quoteMode==='fe'?(isDark?'#38BDF8':'#0F172A'):(isDark?'#374151':'#CBD5E1')}`,
-                  background:quoteMode==='fe'?(isDark?'#38BDF8':'#0F172A'):(isDark?'#0F172A':'#F1F5F9'),
-                  color:quoteMode==='fe'?(isDark?'#0B1120':'#FFFFFF'):(isDark?'#94A3B8':'#64748B'),
-                  fontSize:14,fontWeight:700,cursor:'pointer',fontFamily:"'DM Sans',sans-serif"
-                }}>
-                  🏛️ Final Expense
-                </button>
-                <button className="qm-btn" onClick={()=>setQuoteMode('term')} style={{
-                  flex:1,padding:'14px 0',borderRadius:10,
-                  border:`2px solid ${quoteMode==='term'?(isDark?'#10B981':'#059669'):(isDark?'#374151':'#CBD5E1')}`,
-                  background:quoteMode==='term'?(isDark?'#10B981':'#059669'):(isDark?'#0F172A':'#F1F5F9'),
-                  color:quoteMode==='term'?'#FFFFFF':(isDark?'#94A3B8':'#64748B'),
-                  fontSize:14,fontWeight:700,cursor:'pointer',fontFamily:"'DM Sans',sans-serif"
-                }}>
-                  ⏱️ Term Life
-                </button>
-              </div>
 
               {quoteMode==='fe' ? (
               <>
@@ -1571,7 +1569,7 @@ export default function QuoteMark() {
                   onChange={e=>setTermFace(+e.target.value)}
                   style={{width:'100%',accentColor:'#10B981',height:35,cursor:'pointer',marginBottom:6}}/>
                 <div style={{display:'flex',justifyContent:'space-between',fontSize:11,color:C.t4}}>
-                  <span>$25,000</span><span>$300,000</span>
+                  <span>$25,000</span><span style={{color:'#10B981',fontWeight:600}}>$300K max (no exam)</span>
                 </div>
               </div>
 
@@ -2083,6 +2081,23 @@ export default function QuoteMark() {
         <div style={{fontFamily:"'Barlow Condensed',sans-serif",fontSize:26,fontWeight:800,color:C.t0,letterSpacing:'-0.5px'}}>
           Quote<span style={{color:C.gold}}>Mark</span>
         </div>
+        {/* ── FEX / TERM TOGGLE ── */}
+        <div style={{display:'flex',background:isDark?'rgba(11,17,32,0.8)':'#F1F5F9',borderRadius:24,padding:3,border:`1px solid ${C.bd}`,gap:2}}>
+          <button onClick={()=>setQuoteMode('fe')} style={{
+            padding:'7px 20px',borderRadius:20,border:'none',
+            background:quoteMode==='fe'?(isDark?'#38BDF8':'#0F172A'):'transparent',
+            color:quoteMode==='fe'?(isDark?'#0B1120':'#FFFFFF'):C.t3,
+            fontSize:12,fontWeight:700,cursor:'pointer',fontFamily:"'DM Sans',sans-serif",
+            transition:'all 0.18s',letterSpacing:0.3,whiteSpace:'nowrap'
+          }}>🏛️ Final Expense</button>
+          <button onClick={()=>setQuoteMode('term')} style={{
+            padding:'7px 20px',borderRadius:20,border:'none',
+            background:quoteMode==='term'?'#10B981':'transparent',
+            color:quoteMode==='term'?'#FFFFFF':C.t3,
+            fontSize:12,fontWeight:700,cursor:'pointer',fontFamily:"'DM Sans',sans-serif",
+            transition:'all 0.18s',letterSpacing:0.3,whiteSpace:'nowrap'
+          }}>⏱️ Term Life</button>
+        </div>
         <div style={{display:'flex',alignItems:'center',gap:10}}>
 
 
@@ -2107,28 +2122,6 @@ export default function QuoteMark() {
 
         {/* ── SIDEBAR ── */}
         <div style={{background:C.bg2,borderRight:`1px solid ${C.bd}`,padding:16,overflowY:'auto',display:'flex',flexDirection:'column',gap:12}}>
-
-          {/* 0 — QUOTE TYPE TOGGLE */}
-          <div style={{display:'flex',gap:6,marginBottom:4}}>
-            <button className="qm-btn" onClick={()=>setQuoteMode('fe')} style={{
-              flex:1,padding:'12px 0',borderRadius:10,
-              border:`2px solid ${quoteMode==='fe'?(isDark?'#38BDF8':'#0F172A'):(isDark?'#374151':'#CBD5E1')}`,
-              background:quoteMode==='fe'?(isDark?'#38BDF8':'#0F172A'):(isDark?'#0F172A':'#F1F5F9'),
-              color:quoteMode==='fe'?(isDark?'#0B1120':'#FFFFFF'):(isDark?'#94A3B8':'#64748B'),
-              fontSize:13,fontWeight:700,cursor:'pointer',fontFamily:"'DM Sans',sans-serif"
-            }}>
-              🏛️ Final Expense
-            </button>
-            <button className="qm-btn" onClick={()=>setQuoteMode('term')} style={{
-              flex:1,padding:'12px 0',borderRadius:10,
-              border:`2px solid ${quoteMode==='term'?(isDark?'#10B981':'#059669'):(isDark?'#374151':'#CBD5E1')}`,
-              background:quoteMode==='term'?(isDark?'#10B981':'#059669'):(isDark?'#0F172A':'#F1F5F9'),
-              color:quoteMode==='term'?'#FFFFFF':(isDark?'#94A3B8':'#64748B'),
-              fontSize:13,fontWeight:700,cursor:'pointer',fontFamily:"'DM Sans',sans-serif"
-            }}>
-              ⏱️ Term Life
-            </button>
-          </div>
 
           {quoteMode==='fe' ? (
           <>
@@ -2460,7 +2453,7 @@ export default function QuoteMark() {
               onChange={e=>setTermFace(+e.target.value)}
               style={{width:'100%',accentColor:'#10B981',marginBottom:4}}/>
             <div style={{display:'flex',justifyContent:'space-between',fontSize:10,color:C.t4}}>
-              <span>$25,000</span><span>$300,000</span>
+              <span>$25,000</span><span style={{color:'#10B981',fontWeight:600}}>$300,000 (no exam max)</span>
             </div>
           </div>
 
@@ -2478,7 +2471,7 @@ export default function QuoteMark() {
               ))}
             </div>
             <div style={{fontSize:10,color:C.t4,marginTop:8}}>
-              Note: MOO Term Life Express uses express underwriting — health class shown for reference only.
+              Note: MOO Term Life Express — express underwriting, no medical exam required.
             </div>
           </div>
 
@@ -2534,7 +2527,86 @@ export default function QuoteMark() {
 
         {/* ── RESULTS PANEL ── */}
         <div style={{padding:'0',overflowY:'auto',display:'flex',flexDirection:'column'}}>
-          {!hasQuoted?(
+          {quoteMode==='term'?(
+            <div style={{display:'flex',flexDirection:'column',height:'100%'}}>
+              <div style={{background:C.bg3,borderBottom:`1px solid ${C.bd}`,padding:'11px 24px',display:'flex',alignItems:'center',justifyContent:'space-between',gap:12,flexWrap:'wrap',position:'sticky',top:0,zIndex:10}}>
+                <div style={{display:'flex',alignItems:'center',gap:10,flexWrap:'wrap'}}>
+                  <span style={{fontSize:13,color:C.t2,fontFamily:"'DM Mono',monospace",fontWeight:500}}>{fmtF(termFace)}</span>
+                  <span style={{color:C.bd2}}>·</span>
+                  {termAgeOK&&<><span style={{fontSize:13,color:C.t2}}>Age {termAge}</span><span style={{color:C.bd2}}>·</span></>}
+                  <span style={{fontSize:13,color:C.t2}}>{gender==='male'?'Male':'Female'}</span>
+                  <span style={{color:C.bd2}}>·</span>
+                  <span style={{fontSize:13,color:C.t2}}>{smoker?'Smoker':'Non-smoker'}</span>
+                  <span style={{color:C.bd2}}>·</span>
+                  <span style={{fontSize:13,color:C.t2}}>{termLength}-Year Term</span>
+                </div>
+                <span style={{display:'inline-flex',alignItems:'center',gap:5,background:'rgba(16,185,129,0.12)',border:'1px solid rgba(16,185,129,0.3)',color:'#10B981',borderRadius:20,padding:'3px 10px',fontSize:11,fontWeight:600,letterSpacing:0.3,whiteSpace:'nowrap'}}>
+                  <span style={{width:6,height:6,borderRadius:'50%',background:'#10B981',flexShrink:0}}/>
+                  Term Life Express
+                </span>
+              </div>
+              <div style={{padding:24,flex:1}}>
+                {!termAgeOK?(
+                  <div style={{display:'flex',flexDirection:'column',alignItems:'center',justifyContent:'center',height:'60%',gap:14,textAlign:'center'}}>
+                    <div style={{fontSize:48,opacity:0.4}}>⏱️</div>
+                    <div style={{fontFamily:"'Barlow Condensed',sans-serif",fontSize:22,fontWeight:700,color:C.t4}}>Enter client age in the sidebar</div>
+                    <div style={{fontSize:13,color:C.t4,lineHeight:1.8}}>Term Life Express · Ages 18–75 · Up to $300K · No exam required</div>
+                  </div>
+                ):(
+                  <>
+                    <div style={{display:'grid',gridTemplateColumns:'repeat(auto-fill,minmax(300px,1fr))',gap:14,marginBottom:20}}>
+                      {termResults&&termResults.available&&(
+                        <div style={{
+                          background:isDark?'linear-gradient(135deg,rgba(16,185,129,0.12) 0%,rgba(5,150,105,0.08) 100%)':'#FFFFFF',
+                          border:`1px solid ${isDark?'#10B981':'#D1FAE5'}`,
+                          borderTop:'3px solid #10B981',
+                          borderRadius:14,padding:20,display:'flex',flexDirection:'column',
+                          boxShadow:isDark?'0 0 0 1px rgba(16,185,129,0.15)':'0 4px 12px rgba(16,185,129,0.1)'
+                        }}>
+                          <div style={{display:'flex',justifyContent:'space-between',alignItems:'flex-start',marginBottom:16}}>
+                            <div style={{flex:1}}>
+                              <div style={{fontSize:19,fontWeight:700,color:C.t0,letterSpacing:'-0.3px'}}>Mutual of Omaha</div>
+                              <div style={{fontSize:12,color:C.t3,marginTop:3}}>Term Life Express · {termLength}-Year</div>
+                            </div>
+                            <div style={{background:'rgba(16,185,129,0.15)',border:'1px solid rgba(16,185,129,0.3)',borderRadius:7,padding:'3px 10px',fontSize:10,fontWeight:700,color:'#10B981',letterSpacing:0.5}}>No Exam</div>
+                          </div>
+                          <div style={{display:'flex',alignItems:'baseline',gap:8,marginBottom:6}}>
+                            <span style={{fontFamily:"'DM Mono',monospace",fontSize:36,fontWeight:700,color:'#10B981',letterSpacing:'-1px',lineHeight:1}}>${termResults.prem.toFixed(2)}</span>
+                            <span style={{fontSize:13,color:C.t3}}>/mo</span>
+                          </div>
+                          <div style={{fontSize:12,color:C.t2,marginBottom:14,fontFamily:"'DM Mono',monospace"}}>${(termResults.prem*12).toFixed(0)} / year</div>
+                          <div style={{display:'flex',gap:6,flexWrap:'wrap',paddingTop:12,borderTop:`1px solid ${isDark?'rgba(16,185,129,0.15)':'#D1FAE5'}`,marginBottom:14}}>
+                            <span style={{background:isDark?'rgba(16,185,129,0.1)':'#ECFDF5',border:`1px solid ${isDark?'rgba(16,185,129,0.25)':'#6EE7B7'}`,borderRadius:6,padding:'4px 10px',fontSize:11,color:isDark?'#6EE7B7':'#065F46',fontWeight:600}}>{fmtF(termResults.face)} coverage</span>
+                            <span style={{background:isDark?C.bg3:'#F8FAFC',border:`1px solid ${C.bd}`,borderRadius:6,padding:'4px 10px',fontSize:11,color:C.t3}}>{termResults.healthClass}</span>
+                            <span style={{background:isDark?C.bg3:'#F8FAFC',border:`1px solid ${C.bd}`,borderRadius:6,padding:'4px 10px',fontSize:11,color:C.t3}}>{gender==='male'?'Male':'Female'} · {smoker?'Tobacco':'Non-Tobacco'} · Age {termAge}</span>
+                          </div>
+                          <a href={CARRIER_META.moo?.eapp||'#'} target="_blank" rel="noopener noreferrer" style={{display:'flex',alignItems:'center',justifyContent:'center',gap:7,width:'100%',padding:'11px 0',borderRadius:9,background:'#10B981',color:'#FFFFFF',fontSize:13,fontWeight:700,textDecoration:'none',boxShadow:'0 4px 12px rgba(16,185,129,0.3)'}}>📋 Open e-App</a>
+                        </div>
+                      )}
+                      {termResults&&!termResults.available&&(
+                        <div style={{background:C.bg3,border:`1px solid ${C.bd}`,borderRadius:14,padding:24,textAlign:'center',opacity:0.6}}>
+                          <div style={{fontSize:18,marginBottom:8}}>⚠️</div>
+                          <div style={{fontSize:14,color:C.t2,fontWeight:600,marginBottom:4}}>Not Available</div>
+                          <div style={{fontSize:12,color:C.t4}}>{termResults.reason}</div>
+                        </div>
+                      )}
+                    </div>
+                    <div style={{background:C.bg3,border:`1px solid ${C.bd}`,borderRadius:12,padding:'14px 18px',marginBottom:16}}>
+                      <div style={{fontSize:11,fontWeight:700,letterSpacing:1.5,color:C.t4,textTransform:'uppercase',marginBottom:10}}>About Term Life Express</div>
+                      <div style={{display:'grid',gridTemplateColumns:'1fr 1fr 1fr',gap:14}}>
+                        {[{label:'Ages',value:'18–75'},{label:'Coverage',value:'$25K–$300K'},{label:'Terms',value:'10 · 15 · 20 · 30 yr'},{label:'Underwriting',value:'Express (No Exam)'},{label:'Benefit',value:'Level Death Benefit'},{label:'Carrier',value:'Mutual of Omaha'}].map(item=>(
+                          <div key={item.label}><div style={{fontSize:10,color:C.t4,marginBottom:2}}>{item.label}</div><div style={{fontSize:13,fontWeight:600,color:C.t1}}>{item.value}</div></div>
+                        ))}
+                      </div>
+                    </div>
+                    <div style={{fontSize:11,color:C.t4,lineHeight:1.7,borderTop:`1px solid ${C.bd}`,paddingTop:12}}>
+                      $300,000 is the maximum face amount available through Mutual of Omaha Term Life Express without a medical exam. Rates shown are monthly EFT premiums. Actual premiums subject to underwriting approval. Agent use only.
+                    </div>
+                  </>
+                )}
+              </div>
+            </div>
+          ):!hasQuoted?(
             <div style={{display:'flex',flexDirection:'column',alignItems:'center',justifyContent:'center',height:'100%',gap:14,padding:40}}>
               <div style={{fontSize:48,opacity:0.5}}>📋</div>
               <div style={{fontFamily:"'Barlow Condensed',sans-serif",fontSize:22,fontWeight:700,color:C.t4}}>Enter client info and click Get Quotes</div>
