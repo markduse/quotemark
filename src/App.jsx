@@ -807,10 +807,11 @@ function calculateCVCorridor(monthlyPremium, policyYears) {
   const totalPaid     = Math.round(annualPremium * policyYears);
   const netContrib    = annualPremium * 0.70; // 70% fixed assumption
   const surcharge     = policyYears < 10 ? 0.10 : 0.05;
-  if (policyYears < 1) return { low: 0, high: 0, totalPaid, annualPremium };
-  // FV of annuity at 3% and 5%, then apply surrender charge
-  const rawLow  = netContrib * (Math.pow(1.03, policyYears) - 1) / 0.03;
-  const rawHigh = netContrib * (Math.pow(1.05, policyYears) - 1) / 0.05;
+  if (policyYears <= 2) return { low: 0, high: 0, totalPaid, annualPremium, surcharge };
+  // FV of annuity at 3% and 5% — accumulation starts after 2-year dry period
+  const growthYrs = policyYears - 2;
+  const rawLow  = netContrib * (Math.pow(1.03, growthYrs) - 1) / 0.03;
+  const rawHigh = netContrib * (Math.pow(1.05, growthYrs) - 1) / 0.05;
   const low  = Math.round(rawLow  * (1 - surcharge));
   const high = Math.round(rawHigh * (1 - surcharge));
   return { low, high, totalPaid, annualPremium, surcharge };
@@ -2252,7 +2253,7 @@ export default function QuoteMark() {
                 ⚡ Get Quotes
               </button>
               </>
-              ) : (
+              ) : quoteMode==='term' ? (
               <>
               {/* ── TERM LIFE MOBILE INPUTS ── */}
               <div style={{background:C.bg2,border:`1px solid ${C.bd}`,borderRadius:12,padding:16}}>
@@ -2342,7 +2343,78 @@ export default function QuoteMark() {
                 ⚡ Get Quote
               </button>
               </>
+              ) : null}
+
+              {/* ── CV MOBILE INPUTS ── */}
+              {quoteMode==='cv' && (
+                <div style={{display:'flex',flexDirection:'column',gap:12}}>
+                  <div style={{fontSize:10,fontWeight:700,letterSpacing:1.8,color:'#F59E0B',textTransform:'uppercase'}}>Policy Details</div>
+                  <div style={{background:C.bg3,border:`1px solid ${C.bd}`,borderRadius:12,padding:14,display:'flex',flexDirection:'column',gap:12}}>
+                    <div>
+                      <div style={{fontSize:12,color:C.t3,marginBottom:6,fontWeight:600}}>Date of Birth</div>
+                      <div style={{display:'flex',gap:5,alignItems:'center'}}>
+                        <input type="text" maxLength="2" placeholder="mm" value={cvDob.mm}
+                          onChange={e=>setCvDob(p=>({...p,mm:e.target.value}))}
+                          style={{...mInp,width:48,textAlign:'center',padding:'10px 4px'}}/>
+                        <span style={{color:C.t4,fontSize:14}}>/</span>
+                        <input type="text" maxLength="2" placeholder="dd" value={cvDob.dd}
+                          onChange={e=>setCvDob(p=>({...p,dd:e.target.value}))}
+                          style={{...mInp,width:48,textAlign:'center',padding:'10px 4px'}}/>
+                        <span style={{color:C.t4,fontSize:14}}>/</span>
+                        <input type="text" maxLength="4" placeholder="yyyy" value={cvDob.yyyy}
+                          onChange={e=>setCvDob(p=>({...p,yyyy:e.target.value}))}
+                          style={{...mInp,flex:1,textAlign:'center',padding:'10px 4px'}}/>
+                      </div>
+                      {cvDob.mm&&cvDob.dd&&cvDob.yyyy&&cvDob.yyyy.length===4&&(()=>{
+                        const age=Math.floor((Date.now()-new Date(`${cvDob.yyyy}-${cvDob.mm}-${cvDob.dd}`))/31557600000);
+                        return age>0&&age<120?<div style={{fontSize:11,color:'#F59E0B',marginTop:4,fontWeight:600}}>✓ Age {age}</div>:null;
+                      })()}
+                    </div>
+                    <div>
+                      <div style={{fontSize:12,color:C.t3,marginBottom:6,fontWeight:600}}>Monthly Premium ($)</div>
+                      <input type="number" placeholder="e.g. 52.00" value={cvMonthly}
+                        onChange={e=>setCvMonthly(e.target.value)}
+                        style={{...mInp,fontFamily:"'DM Mono',monospace"}}/>
+                    </div>
+                    <div>
+                      <div style={{fontSize:12,color:C.t3,marginBottom:6,fontWeight:600}}>Years In-Force</div>
+                      <input type="number" placeholder="e.g. 7" min="1" max="50" value={cvPolicyYrs}
+                        onChange={e=>setCvPolicyYrs(e.target.value)}
+                        style={{...mInp,fontFamily:"'DM Mono',monospace"}}/>
+                      <div style={{fontSize:10,color:C.t4,marginTop:4}}>How long has the client had this policy?</div>
+                    </div>
+                  </div>
+                  {cvMonthly && cvPolicyYrs && Number(cvMonthly)>0 && Number(cvPolicyYrs)>0 && (
+                    <div style={{background:'rgba(245,158,11,0.06)',border:'1px solid rgba(245,158,11,0.22)',borderRadius:10,padding:'12px 14px'}}>
+                      <div style={{fontSize:9,color:'#F59E0B',fontWeight:700,marginBottom:8,letterSpacing:1.2,textTransform:'uppercase'}}>Estimated Surrender Value</div>
+                      {(()=>{
+                        const d = calculateCVCorridor(Number(cvMonthly), Number(cvPolicyYrs));
+                        return (<>
+                          <div style={{display:'flex',justifyContent:'space-between',fontSize:13,marginBottom:6}}>
+                            <span style={{color:C.t3}}>Conservative (3%)</span>
+                            <strong style={{color:C.t1,fontFamily:"'DM Mono',monospace"}}>${Math.round(d.low).toLocaleString()}</strong>
+                          </div>
+                          <div style={{display:'flex',justifyContent:'space-between',fontSize:13,marginBottom:6}}>
+                            <span style={{color:C.t3}}>Target (5%)</span>
+                            <strong style={{color:'#F59E0B',fontFamily:"'DM Mono',monospace"}}>${Math.round(d.high).toLocaleString()}</strong>
+                          </div>
+                          <div style={{display:'flex',justifyContent:'space-between',fontSize:13,marginBottom:6}}>
+                            <span style={{color:C.t3}}>Est. Range</span>
+                            <strong style={{color:'#34D399',fontFamily:"'DM Mono',monospace"}}>${Math.round(d.high-d.low).toLocaleString()}</strong>
+                          </div>
+                          <div style={{display:'flex',justifyContent:'space-between',fontSize:13}}>
+                            <span style={{color:C.t3}}>Total Paid</span>
+                            <strong style={{color:C.t2,fontFamily:"'DM Mono',monospace"}}>${Math.round(d.totalPaid).toLocaleString()}</strong>
+                          </div>
+                          {d.low === 0 && <div style={{fontSize:11,color:C.t4,marginTop:8,textAlign:'center'}}>2-year dry period — cash value not yet accumulated</div>}
+                        </>);
+                      })()}
+                    </div>
+                  )}
+                  <div style={{height:32}}/>
+                </div>
               )}
+
               {/* Bottom spacer — keeps button clear of fixed tab bar */}
               <div style={{height:32}}/>
             </div>
@@ -3177,7 +3249,7 @@ export default function QuoteMark() {
             ⚡ Get Quotes
           </button>
           </>
-          ) : (
+          ) : quoteMode==='term' ? (
           <>
           {/* ── TERM LIFE INPUTS ── */}
           <div style={sec}>
@@ -3267,7 +3339,7 @@ export default function QuoteMark() {
           </button>
 
           </>
-          )}
+          ) : null}
 
           {quoteMode==='cv' && (
             <div style={{display:'flex',flexDirection:'column',gap:12}}>
