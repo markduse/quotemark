@@ -802,144 +802,99 @@ const TRANSAMERICA_TERM_RATES = {"10":{"mn":{"18":7.95,"19":7.98,"20":8.01,"21":
 
 
 // ── CASH VALUE CORRIDOR ESTIMATOR ──────────────────────────────────────────
-function calculateCVCorridor(age, monthlyPremium, policyYear) {
-  const totalPaid = Math.round(monthlyPremium * 12 * policyYear);
-  if (policyYear <= 2) return { low: 0, high: 0, totalPaid };
-  const netFactor = age < 40 ? 0.90 : age <= 60 ? 0.80 : 0.70;
-  const annualNet = monthlyPremium * 12 * netFactor;
-  const n = policyYear - 2;
-  const low  = Math.round(annualNet * (Math.pow(1.03, n) - 1) / 0.03);
-  const high = Math.round(annualNet * (Math.pow(1.05, n) - 1) / 0.05);
-  return { low, high, totalPaid };
+function calculateCVCorridor(monthlyPremium, policyYears) {
+  const annualPremium = monthlyPremium * 12;
+  const totalPaid     = Math.round(annualPremium * policyYears);
+  const netContrib    = annualPremium * 0.70; // 70% fixed assumption
+  const surcharge     = policyYears < 10 ? 0.10 : 0.05;
+  if (policyYears < 1) return { low: 0, high: 0, totalPaid, annualPremium };
+  // FV of annuity at 3% and 5%, then apply surrender charge
+  const rawLow  = netContrib * (Math.pow(1.03, policyYears) - 1) / 0.03;
+  const rawHigh = netContrib * (Math.pow(1.05, policyYears) - 1) / 0.05;
+  const low  = Math.round(rawLow  * (1 - surcharge));
+  const high = Math.round(rawHigh * (1 - surcharge));
+  return { low, high, totalPaid, annualPremium, surcharge };
 }
 
-const CashValueProjection = ({ age, monthlyPremium, C, isDark }) => {
-  const [sliderYear, setSliderYear] = React.useState(10);
+const CashValueProjection = ({ monthlyPremium, policyYears, C, isDark }) => {
   const fmt = n => '$' + Math.round(n).toLocaleString();
-  const snapshots = [5, 10, 20];
-  const current = calculateCVCorridor(age, monthlyPremium, sliderYear);
-
-  let breakEvenYear = null;
-  for (let y = 3; y <= 30; y++) {
-    const { high, totalPaid } = calculateCVCorridor(age, monthlyPremium, y);
-    if (high >= totalPaid) { breakEvenYear = y; break; }
-  }
-
-  const netPct = age < 40 ? 90 : age <= 60 ? 80 : 70;
   const amber = '#F59E0B';
   const green = '#34D399';
+  const d = calculateCVCorridor(monthlyPremium, policyYears);
+  const range = d.high - d.low;
+  const surStr = d.surcharge === 0.10 ? '10% (< 10 yrs)' : '5% (10+ yrs)';
 
   return (
-    <div style={{display:'flex',flexDirection:'column',gap:16,padding:24,maxWidth:720,margin:'0 auto',width:'100%'}}>
+    <div style={{display:'flex',flexDirection:'column',gap:16,padding:24,maxWidth:680,margin:'0 auto',width:'100%'}}>
+
       {/* Header */}
-      <div style={{display:'flex',alignItems:'center',gap:12,paddingBottom:12,borderBottom:`1px solid ${C.bd}`}}>
-        <span style={{fontSize:28}}>💰</span>
+      <div style={{display:'flex',alignItems:'center',gap:12,paddingBottom:14,borderBottom:`1px solid ${C.bd}`}}>
+        <span style={{fontSize:30}}>💰</span>
         <div>
-          <div style={{fontSize:18,fontWeight:800,color:C.t0,fontFamily:"'DM Sans',sans-serif"}}>Cash Value Projection</div>
-          <div style={{fontSize:12,color:C.t4,marginTop:2}}>Whole life policies · Agent reference only · {age} y/o · ${monthlyPremium.toLocaleString()}/mo</div>
-        </div>
-        <div style={{marginLeft:'auto',background:'rgba(245,158,11,0.1)',border:'1px solid rgba(245,158,11,0.25)',borderRadius:8,padding:'4px 10px',fontSize:11,color:amber,fontWeight:700}}>
-          {netPct}% net contribution
-        </div>
-      </div>
-
-      {/* Slider */}
-      <div style={{background:C.bg3,border:`1px solid ${C.bd}`,borderRadius:12,padding:16}}>
-        <div style={{display:'flex',justifyContent:'space-between',alignItems:'center',marginBottom:10}}>
-          <span style={{fontSize:12,fontWeight:600,color:C.t3,textTransform:'uppercase',letterSpacing:1.2}}>Policy Year</span>
-          <span style={{fontSize:22,fontWeight:800,color:amber,fontFamily:"'DM Mono',monospace"}}>Year {sliderYear}</span>
-        </div>
-        <input type="range" min="1" max="30" value={sliderYear}
-          onChange={e=>setSliderYear(Number(e.target.value))}
-          style={{width:'100%',accentColor:amber,cursor:'pointer',height:6}}/>
-        <div style={{display:'flex',justifyContent:'space-between',fontSize:10,color:C.t4,marginTop:6}}>
-          {[1,5,10,15,20,25,30].map(y=>(
-            <span key={y} onClick={()=>setSliderYear(y)} style={{cursor:'pointer',color:sliderYear===y?amber:C.t4,fontWeight:sliderYear===y?700:400}}>{y}</span>
-          ))}
-        </div>
-      </div>
-
-      {/* Current year big card */}
-      <div style={{background:isDark?'rgba(245,158,11,0.07)':'rgba(245,158,11,0.05)',border:'1px solid rgba(245,158,11,0.28)',borderRadius:12,padding:18}}>
-        <div style={{fontSize:10,fontWeight:700,letterSpacing:1.8,color:amber,textTransform:'uppercase',marginBottom:14}}>
-          Year {sliderYear} · Estimated Cash Value
-        </div>
-        {sliderYear <= 2 ? (
-          <div style={{textAlign:'center',padding:'16px 0'}}>
-            <div style={{fontSize:28,marginBottom:8}}>⏳</div>
-            <div style={{color:C.t3,fontSize:14,fontWeight:600}}>2-Year Dry Period</div>
-            <div style={{color:C.t4,fontSize:12,marginTop:4}}>Cash value begins accumulating after month 24</div>
+          <div style={{fontSize:18,fontWeight:800,color:C.t0,fontFamily:"'DM Sans',sans-serif"}}>Cash Value Estimator</div>
+          <div style={{fontSize:12,color:C.t4,marginTop:2}}>
+            Whole life · ${monthlyPremium.toLocaleString()}/mo · {policyYears} yr{policyYears===1?'':'s'} in-force
           </div>
-        ) : (
-          <>
-            <div style={{display:'flex',gap:10,marginBottom:14}}>
-              <div style={{flex:1,background:C.bg2,border:`1px solid ${C.bd}`,borderRadius:10,padding:'12px 14px'}}>
-                <div style={{fontSize:10,color:C.t4,marginBottom:6,fontWeight:600}}>CONSERVATIVE · 3%</div>
-                <div style={{fontSize:22,fontWeight:800,color:C.t1,fontFamily:"'DM Mono',monospace"}}>{fmt(current.low)}</div>
-              </div>
-              <div style={{flex:1,background:C.bg2,border:'1px solid rgba(245,158,11,0.4)',borderRadius:10,padding:'12px 14px'}}>
-                <div style={{fontSize:10,color:amber,marginBottom:6,fontWeight:600}}>TARGET · 5%</div>
-                <div style={{fontSize:22,fontWeight:800,color:amber,fontFamily:"'DM Mono',monospace"}}>{fmt(current.high)}</div>
-              </div>
-            </div>
-            <div style={{display:'flex',alignItems:'center',justifyContent:'space-between',fontSize:12}}>
-              <span style={{color:C.t4}}>Total premiums paid: <strong style={{color:C.t2,fontFamily:"'DM Mono',monospace"}}>{fmt(current.totalPaid)}</strong></span>
-              {breakEvenYear && sliderYear >= breakEvenYear && (
-                <span style={{background:'rgba(16,185,129,0.15)',border:'1px solid rgba(16,185,129,0.35)',color:green,borderRadius:20,padding:'3px 10px',fontWeight:700,fontSize:11}}>
-                  ✓ Break-even reached Yr {breakEvenYear}
-                </span>
-              )}
-            </div>
-          </>
-        )}
+        </div>
+        <div style={{marginLeft:'auto',display:'flex',flexDirection:'column',alignItems:'flex-end',gap:4}}>
+          <span style={{background:'rgba(245,158,11,0.1)',border:'1px solid rgba(245,158,11,0.25)',borderRadius:6,padding:'3px 9px',fontSize:11,color:amber,fontWeight:700}}>70% net contribution</span>
+          <span style={{fontSize:10,color:C.t4}}>Surrender charge: {surStr}</span>
+        </div>
       </div>
 
-      {/* Snapshot table */}
-      <div style={{background:C.bg3,border:`1px solid ${C.bd}`,borderRadius:12,overflow:'hidden'}}>
-        <div style={{padding:'10px 16px',borderBottom:`1px solid ${C.bd}`,display:'flex',alignItems:'center',justifyContent:'space-between'}}>
-          <span style={{fontSize:10,fontWeight:700,letterSpacing:1.8,color:C.t4,textTransform:'uppercase'}}>Performance Corridor</span>
-          <span style={{fontSize:10,color:C.t4}}>5 · 10 · 20 year snapshots</span>
+      {/* Key metrics row */}
+      <div style={{display:'grid',gridTemplateColumns:'1fr 1fr',gap:10}}>
+        <div style={{background:C.bg3,border:`1px solid ${C.bd}`,borderRadius:12,padding:'14px 16px'}}>
+          <div style={{fontSize:10,color:C.t4,fontWeight:700,letterSpacing:1.4,textTransform:'uppercase',marginBottom:6}}>Annual Premium</div>
+          <div style={{fontSize:20,fontWeight:800,color:C.t1,fontFamily:"'DM Mono',monospace"}}>{fmt(d.annualPremium)}</div>
         </div>
-        <table style={{width:'100%',borderCollapse:'collapse'}}>
-          <thead>
-            <tr style={{background:isDark?'rgba(255,255,255,0.025)':'rgba(0,0,0,0.025)'}}>
-              {['Year','Conservative (3%)','Target (5%)','Total Paid'].map(h=>(
-                <th key={h} style={{padding:'8px 16px',textAlign:h==='Year'?'left':'right',fontSize:11,color:C.t4,fontWeight:600}}>{h}</th>
-              ))}
-            </tr>
-          </thead>
-          <tbody>
-            {snapshots.map((yr,i)=>{
-              const d = calculateCVCorridor(age, monthlyPremium, yr);
-              const isBE = breakEvenYear === yr;
-              const pastBE = breakEvenYear && yr >= breakEvenYear;
-              const isActive = sliderYear === yr;
-              return (
-                <tr key={yr} onClick={()=>setSliderYear(yr)}
-                  style={{borderTop:i>0?`1px solid ${C.bd}`:'none',cursor:'pointer',
-                    background:isActive?(isDark?'rgba(245,158,11,0.07)':'rgba(245,158,11,0.05)'):'transparent',
-                    transition:'background 0.15s'}}>
-                  <td style={{padding:'11px 16px',fontSize:13,fontWeight:700,color:isActive?amber:C.t1}}>
-                    Year {yr}
-                    {isBE&&<span style={{marginLeft:8,fontSize:10,background:'rgba(16,185,129,0.15)',border:'1px solid rgba(16,185,129,0.35)',color:green,borderRadius:10,padding:'1px 7px',fontWeight:700}}>Break-even</span>}
-                  </td>
-                  <td style={{padding:'11px 16px',textAlign:'right',fontSize:12,color:C.t2,fontFamily:"'DM Mono',monospace"}}>{yr<=2?'—':fmt(d.low)}</td>
-                  <td style={{padding:'11px 16px',textAlign:'right',fontSize:12,fontWeight:700,color:pastBE?green:amber,fontFamily:"'DM Mono',monospace"}}>{yr<=2?'—':fmt(d.high)}</td>
-                  <td style={{padding:'11px 16px',textAlign:'right',fontSize:12,color:C.t3,fontFamily:"'DM Mono',monospace"}}>{fmt(d.totalPaid)}</td>
-                </tr>
-              );
-            })}
-          </tbody>
-        </table>
+        <div style={{background:C.bg3,border:`1px solid ${C.bd}`,borderRadius:12,padding:'14px 16px'}}>
+          <div style={{fontSize:10,color:C.t4,fontWeight:700,letterSpacing:1.4,textTransform:'uppercase',marginBottom:6}}>Total Premiums Paid</div>
+          <div style={{fontSize:20,fontWeight:800,color:C.t1,fontFamily:"'DM Mono',monospace"}}>{fmt(d.totalPaid)}</div>
+        </div>
+      </div>
+
+      {/* Big corridor card */}
+      <div style={{background:isDark?'rgba(245,158,11,0.06)':'rgba(245,158,11,0.04)',border:'1px solid rgba(245,158,11,0.3)',borderRadius:14,padding:20}}>
+        <div style={{fontSize:10,fontWeight:700,letterSpacing:1.8,color:amber,textTransform:'uppercase',marginBottom:16}}>
+          Estimated Surrender Value · After {policyYears} Year{policyYears===1?'':'s'}
+        </div>
+        <div style={{display:'grid',gridTemplateColumns:'1fr 1fr 1fr',gap:10,marginBottom:14}}>
+          <div style={{background:C.bg2,border:`1px solid ${C.bd}`,borderRadius:10,padding:'12px 14px'}}>
+            <div style={{fontSize:9,color:C.t4,marginBottom:6,fontWeight:700,letterSpacing:1.2,textTransform:'uppercase'}}>Conservative · 3%</div>
+            <div style={{fontSize:20,fontWeight:800,color:C.t2,fontFamily:"'DM Mono',monospace"}}>{fmt(d.low)}</div>
+          </div>
+          <div style={{background:C.bg2,border:'1px solid rgba(245,158,11,0.35)',borderRadius:10,padding:'12px 14px'}}>
+            <div style={{fontSize:9,color:amber,marginBottom:6,fontWeight:700,letterSpacing:1.2,textTransform:'uppercase'}}>Target · 5%</div>
+            <div style={{fontSize:20,fontWeight:800,color:amber,fontFamily:"'DM Mono',monospace"}}>{fmt(d.high)}</div>
+          </div>
+          <div style={{background:`rgba(52,211,153,0.07)`,border:'1px solid rgba(52,211,153,0.3)',borderRadius:10,padding:'12px 14px'}}>
+            <div style={{fontSize:9,color:green,marginBottom:6,fontWeight:700,letterSpacing:1.2,textTransform:'uppercase'}}>Est. Range</div>
+            <div style={{fontSize:20,fontWeight:800,color:green,fontFamily:"'DM Mono',monospace"}}>{fmt(range)}</div>
+          </div>
+        </div>
+
+        {/* Visual bar */}
+        <div style={{marginTop:4}}>
+          <div style={{display:'flex',justifyContent:'space-between',fontSize:10,color:C.t4,marginBottom:4}}>
+            <span>{fmt(d.low)}</span><span style={{color:amber}}>{fmt(d.high)}</span>
+          </div>
+          <div style={{height:8,borderRadius:4,background:C.bg2,overflow:'hidden',position:'relative'}}>
+            <div style={{position:'absolute',left:0,top:0,height:'100%',width:'100%',
+              background:'linear-gradient(90deg,rgba(148,163,184,0.4),#F59E0B)',borderRadius:4}}/>
+          </div>
+          <div style={{fontSize:10,color:C.t4,marginTop:4,textAlign:'center'}}>Performance corridor based on 3–5% annual growth</div>
+        </div>
       </div>
 
       {/* Disclaimer */}
-      <div style={{fontSize:10,color:C.t4,lineHeight:1.7,background:C.bg3,borderRadius:8,padding:'10px 14px',border:`1px solid ${C.bd}`}}>
-        ⚠️ <strong>Agent reference only.</strong> Net contribution {netPct}% applied for age {age}. Growth modeled as future value of annuity (3–5% corridors). Actual cash values depend on carrier-specific accumulation tables, policy fees, loan activity, and dividend participation. Always refer to the carrier's official policy illustration before presenting to client.
+      <div style={{fontSize:10,color:C.t4,lineHeight:1.8,background:C.bg3,borderRadius:8,padding:'10px 14px',border:`1px solid ${C.bd}`}}>
+        ⚠️ <strong style={{color:C.t3}}>Agent reference only.</strong> Assumes whole life policy, 70% net premium contribution, {surStr} surrender charge, and 3–5% annual growth corridor. Actual surrender value depends on the carrier's accumulation tables, policy loans, dividends, and contract terms. Always pull the carrier's in-force illustration before discussing numbers with a client.
       </div>
     </div>
   );
 };
+
 
 // ── TERM CARRIER ARRAY ──
 const TERM_CARRIERS = [
@@ -1708,8 +1663,9 @@ export default function QuoteMark() {
 
   // ── TERM MODE STATE ──
   const [quoteMode,setQuoteMode] = useState('fe'); // 'fe' | 'term' | 'cv'
-  const [cvMonthly,setCvMonthly] = useState('');
-  const [cvAge,setCvAge]         = useState('');
+  const [cvMonthly,setCvMonthly]   = useState('');
+  const [cvPolicyYrs,setCvPolicyYrs] = useState('');
+  const [cvDob,setCvDob]           = useState({mm:'',dd:'',yyyy:''});
   const [termLength,setTermLength] = useState('10'); // '10' | '15' | '20' | '30'
   const [termFace,setTermFace] = useState(100000); // $25k-$300k
   const [termHealth,setTermHealth] = useState('pp'); // 'pp'=Preferred Plus, 'p'=Preferred, 'sp'=Standard Plus, 's'=Standard
@@ -3315,30 +3271,60 @@ export default function QuoteMark() {
 
           {quoteMode==='cv' && (
             <div style={{display:'flex',flexDirection:'column',gap:12}}>
-              <div style={{fontSize:10,fontWeight:700,letterSpacing:1.8,color:'#F59E0B',textTransform:'uppercase',marginBottom:2}}>Cash Value Estimator</div>
-              <div style={{background:'rgba(245,158,11,0.07)',border:'1px solid rgba(245,158,11,0.25)',borderRadius:12,padding:14}}>
-                <div style={{fontSize:11,color:C.t3,marginBottom:10,lineHeight:1.5}}>Enter the policy details to project the cash value corridor over time.</div>
-                <div style={{marginBottom:12}}>
+              <div style={{fontSize:10,fontWeight:700,letterSpacing:1.8,color:'#F59E0B',textTransform:'uppercase',marginBottom:2}}>Policy Details</div>
+              <div style={{background:C.bg3,border:`1px solid ${C.bd}`,borderRadius:12,padding:14,display:'flex',flexDirection:'column',gap:12}}>
+                <div>
+                  <div style={{fontSize:11,color:C.t3,marginBottom:6,fontWeight:600}}>Date of Birth</div>
+                  <div style={{display:'flex',gap:5,alignItems:'center'}}>
+                    <input type="text" maxLength="2" placeholder="mm" value={cvDob.mm}
+                      onChange={e=>setCvDob(p=>({...p,mm:e.target.value}))}
+                      style={{...inp,width:44,textAlign:'center',padding:'8px 4px'}}/>
+                    <span style={{color:C.t4,fontSize:12}}>/</span>
+                    <input type="text" maxLength="2" placeholder="dd" value={cvDob.dd}
+                      onChange={e=>setCvDob(p=>({...p,dd:e.target.value}))}
+                      style={{...inp,width:44,textAlign:'center',padding:'8px 4px'}}/>
+                    <span style={{color:C.t4,fontSize:12}}>/</span>
+                    <input type="text" maxLength="4" placeholder="yyyy" value={cvDob.yyyy}
+                      onChange={e=>setCvDob(p=>({...p,yyyy:e.target.value}))}
+                      style={{...inp,flex:1,textAlign:'center',padding:'8px 4px'}}/>
+                  </div>
+                  {cvDob.mm&&cvDob.dd&&cvDob.yyyy&&cvDob.yyyy.length===4&&(()=>{
+                    const age=Math.floor((Date.now()-new Date(`${cvDob.yyyy}-${cvDob.mm}-${cvDob.dd}`))/31557600000);
+                    return age>0&&age<120?<div style={{fontSize:11,color:'#F59E0B',marginTop:4,fontWeight:600}}>✓ Age {age}</div>:null;
+                  })()}
+                </div>
+                <div>
                   <div style={{fontSize:11,color:C.t3,marginBottom:6,fontWeight:600}}>Monthly Premium ($)</div>
-                  <input type="number" placeholder="e.g. 52" value={cvMonthly}
+                  <input type="number" placeholder="e.g. 52.00" value={cvMonthly}
                     onChange={e=>setCvMonthly(e.target.value)}
                     style={{...inp,fontFamily:"'DM Mono',monospace",fontSize:15}}/>
                 </div>
                 <div>
-                  <div style={{fontSize:11,color:C.t3,marginBottom:6,fontWeight:600}}>Client Age</div>
-                  <input type="number" placeholder="e.g. 65" value={cvAge}
-                    onChange={e=>setCvAge(e.target.value)}
+                  <div style={{fontSize:11,color:C.t3,marginBottom:6,fontWeight:600}}>Years In-Force</div>
+                  <input type="number" placeholder="e.g. 7" min="1" max="50" value={cvPolicyYrs}
+                    onChange={e=>setCvPolicyYrs(e.target.value)}
                     style={{...inp,fontFamily:"'DM Mono',monospace",fontSize:15}}/>
+                  <div style={{fontSize:10,color:C.t4,marginTop:4}}>How long has the client had this policy?</div>
                 </div>
               </div>
-              {cvMonthly && cvAge && Number(cvMonthly)>0 && Number(cvAge)>0 && (
-                <div style={{background:'rgba(245,158,11,0.06)',border:'1px solid rgba(245,158,11,0.2)',borderRadius:10,padding:'10px 14px'}}>
-                  <div style={{fontSize:10,color:'#F59E0B',fontWeight:700,marginBottom:6,letterSpacing:1}}>QUICK LOOK · Year 10</div>
+              {cvMonthly && cvPolicyYrs && Number(cvMonthly)>0 && Number(cvPolicyYrs)>0 && (
+                <div style={{background:'rgba(245,158,11,0.06)',border:'1px solid rgba(245,158,11,0.22)',borderRadius:10,padding:'12px 14px'}}>
+                  <div style={{fontSize:9,color:'#F59E0B',fontWeight:700,marginBottom:8,letterSpacing:1.2,textTransform:'uppercase'}}>Quick Look</div>
                   {(()=>{
-                    const d = calculateCVCorridor(Number(cvAge), Number(cvMonthly), 10);
+                    const d = calculateCVCorridor(Number(cvMonthly), Number(cvPolicyYrs));
                     return (<>
-                      <div style={{fontSize:13,color:C.t2}}>Conservative: <strong style={{color:C.t1,fontFamily:"'DM Mono',monospace"}}>${Math.round(d.low).toLocaleString()}</strong></div>
-                      <div style={{fontSize:13,color:C.t2,marginTop:4}}>Target: <strong style={{color:'#F59E0B',fontFamily:"'DM Mono',monospace"}}>${Math.round(d.high).toLocaleString()}</strong></div>
+                      <div style={{display:'flex',justifyContent:'space-between',fontSize:12,marginBottom:4}}>
+                        <span style={{color:C.t3}}>Conservative</span>
+                        <strong style={{color:C.t1,fontFamily:"'DM Mono',monospace"}}>${Math.round(d.low).toLocaleString()}</strong>
+                      </div>
+                      <div style={{display:'flex',justifyContent:'space-between',fontSize:12,marginBottom:4}}>
+                        <span style={{color:C.t3}}>Target</span>
+                        <strong style={{color:'#F59E0B',fontFamily:"'DM Mono',monospace"}}>${Math.round(d.high).toLocaleString()}</strong>
+                      </div>
+                      <div style={{display:'flex',justifyContent:'space-between',fontSize:12}}>
+                        <span style={{color:C.t3}}>Total Paid</span>
+                        <strong style={{color:C.t2,fontFamily:"'DM Mono',monospace"}}>${Math.round(d.totalPaid).toLocaleString()}</strong>
+                      </div>
                     </>);
                   })()}
                 </div>
@@ -3352,8 +3338,8 @@ export default function QuoteMark() {
         <div style={{padding:'0',overflowY:'auto',display:'flex',flexDirection:'column'}}>
           {quoteMode==='cv'?(
             <div style={{display:'flex',justifyContent:'center',width:'100%',overflowY:'auto'}}>
-              {cvMonthly && cvAge && Number(cvMonthly)>0 && Number(cvAge)>0 ? (
-                <CashValueProjection age={Number(cvAge)} monthlyPremium={Number(cvMonthly)} C={C} isDark={isDark}/>
+              {cvMonthly && cvPolicyYrs && Number(cvMonthly)>0 && Number(cvPolicyYrs)>0 ? (
+                <CashValueProjection monthlyPremium={Number(cvMonthly)} policyYears={Number(cvPolicyYrs)} C={C} isDark={isDark}/>
               ) : (
                 <div style={{display:'flex',flexDirection:'column',alignItems:'center',justifyContent:'center',height:'60vh',gap:16}}>
                   <span style={{fontSize:52}}>💰</span>
