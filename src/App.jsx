@@ -802,28 +802,58 @@ const TRANSAMERICA_TERM_RATES = {"10":{"mn":{"18":7.95,"19":7.98,"20":8.01,"21":
 
 
 // ── CASH VALUE CORRIDOR ESTIMATOR ──────────────────────────────────────────
-function calculateCVCorridor(monthlyPremium, policyYears) {
+// ── CV CORRIDOR — calibrated to real carrier policy illustrations ──
+// Data sources: Americo, Royal Neighbors, LifeShield, older whole life carriers
+// Values = Cash/Loan Value as % of Total Premiums Paid (net of carrier charges)
+function calculateCVCorridor(monthlyPremium, policyYears, issueAge) {
   const annualPremium = monthlyPremium * 12;
   const totalPaid     = Math.round(annualPremium * policyYears);
-  const netContrib    = annualPremium * 0.70; // 70% fixed assumption
-  const surcharge     = policyYears < 10 ? 0.10 : 0.05;
-  if (policyYears <= 2) return { low: 0, high: 0, totalPaid, annualPremium, surcharge };
-  // FV of annuity at 3% and 5% — accumulation starts after 2-year dry period
-  const growthYrs = policyYears - 2;
-  const rawLow  = netContrib * (Math.pow(1.03, growthYrs) - 1) / 0.03;
-  const rawHigh = netContrib * (Math.pow(1.05, growthYrs) - 1) / 0.05;
-  const low  = Math.round(rawLow  * (1 - surcharge));
-  const high = Math.round(rawHigh * (1 - surcharge));
-  return { low, high, totalPaid, annualPremium, surcharge };
+
+  // Age-tiered breakpoints [year, lowPct, highPct]
+  // Under 60: slower start, builds higher long term (lower mortality load early)
+  const UNDER60 = [
+    [1,0,0],[2,0,0],[3,0.08,0.12],[5,0.18,0.25],
+    [10,0.28,0.38],[15,0.35,0.44],[20,0.38,0.50],[30,0.42,0.54]
+  ];
+  // 60-70: faster initial build, slightly lower ceiling
+  const AGE60_70 = [
+    [1,0,0],[2,0.05,0.07],[3,0.10,0.22],[5,0.20,0.35],
+    [10,0.28,0.46],[15,0.32,0.50],[20,0.34,0.52],[30,0.36,0.53]
+  ];
+  // 71+: heavy mortality cost, lower ceiling but still meaningful
+  const AGE71PLUS = [
+    [1,0,0],[2,0,0],[3,0.08,0.20],[5,0.20,0.34],
+    [10,0.30,0.44],[15,0.32,0.46],[20,0.32,0.45],[30,0.34,0.46]
+  ];
+
+  const table = issueAge < 60 ? UNDER60 : issueAge <= 70 ? AGE60_70 : AGE71PLUS;
+
+  // Linear interpolation between breakpoints
+  function interp(yr) {
+    if (yr <= table[0][0]) return [table[0][1], table[0][2]];
+    for (let i = 1; i < table.length; i++) {
+      if (yr <= table[i][0]) {
+        const [y0,l0,h0] = table[i-1];
+        const [y1,l1,h1] = table[i];
+        const t = (yr - y0) / (y1 - y0);
+        return [l0 + t*(l1-l0), h0 + t*(h1-h0)];
+      }
+    }
+    return [table[table.length-1][1], table[table.length-1][2]];
+  }
+
+  const [lowPct, highPct] = interp(policyYears);
+  const low  = Math.round(totalPaid * lowPct);
+  const high = Math.round(totalPaid * highPct);
+  return { low, high, totalPaid, annualPremium };
 }
 
-const CashValueProjection = ({ monthlyPremium, policyYears, C, isDark }) => {
+const CashValueProjection = ({ monthlyPremium, policyYears, issueAge, C, isDark }) => {
   const fmt = n => '$' + Math.round(n).toLocaleString();
   const amber = '#F59E0B';
   const green = '#34D399';
-  const d = calculateCVCorridor(monthlyPremium, policyYears);
+  const d = calculateCVCorridor(monthlyPremium, policyYears, issueAge || 65);
   const range = d.high - d.low;
-  const surStr = d.surcharge === 0.10 ? '10% (< 10 yrs)' : '5% (10+ yrs)';
 
   return (
     <div style={{display:'flex',flexDirection:'column',gap:16,padding:24,maxWidth:680,margin:'0 auto',width:'100%'}}>
@@ -834,12 +864,13 @@ const CashValueProjection = ({ monthlyPremium, policyYears, C, isDark }) => {
         <div>
           <div style={{fontSize:18,fontWeight:800,color:C.t0,fontFamily:"'DM Sans',sans-serif"}}>Cash Value Estimator</div>
           <div style={{fontSize:12,color:C.t4,marginTop:2}}>
-            Whole life · ${monthlyPremium.toLocaleString()}/mo · {policyYears} yr{policyYears===1?'':'s'} in-force
+            Whole life · ${monthlyPremium.toLocaleString()}/mo · {policyYears} yr{policyYears===1?'':'s'} in-force · Issued age {issueAge||65}
           </div>
         </div>
         <div style={{marginLeft:'auto',display:'flex',flexDirection:'column',alignItems:'flex-end',gap:4}}>
-          <span style={{background:'rgba(245,158,11,0.1)',border:'1px solid rgba(245,158,11,0.25)',borderRadius:6,padding:'3px 9px',fontSize:11,color:amber,fontWeight:700}}>70% net contribution</span>
-          <span style={{fontSize:10,color:C.t4}}>Surrender charge: {surStr}</span>
+          <span style={{background:'rgba(245,158,11,0.1)',border:'1px solid rgba(245,158,11,0.25)',borderRadius:6,padding:'3px 9px',fontSize:11,color:amber,fontWeight:700}}>
+            {(issueAge||65) < 60 ? 'Under 60' : (issueAge||65) <= 70 ? 'Age 60–70' : 'Age 71+'} tier
+          </span>
         </div>
       </div>
 
@@ -867,7 +898,7 @@ const CashValueProjection = ({ monthlyPremium, policyYears, C, isDark }) => {
             <span style={{fontSize:18,color:C.t4,fontWeight:400}}>–</span>
             <span style={{fontSize:28,fontWeight:800,color:amber,fontFamily:"'DM Mono',monospace"}}>{fmt(d.high)}</span>
           </div>
-          <div style={{fontSize:11,color:C.t4,marginTop:6}}>Conservative (3%) · Target (5%)</div>
+          <div style={{fontSize:11,color:C.t4,marginTop:6}}>Conservative estimate · Target estimate · Agent reference only</div>
         </div>
 
         {/* Visual bar */}
@@ -879,13 +910,13 @@ const CashValueProjection = ({ monthlyPremium, policyYears, C, isDark }) => {
             <div style={{position:'absolute',left:0,top:0,height:'100%',width:'100%',
               background:'linear-gradient(90deg,rgba(148,163,184,0.4),#F59E0B)',borderRadius:4}}/>
           </div>
-          <div style={{fontSize:10,color:C.t4,marginTop:4,textAlign:'center'}}>Performance corridor based on 3–5% annual growth</div>
+          <div style={{fontSize:10,color:C.t4,marginTop:4,textAlign:'center'}}>Estimated corridor based on real carrier policy illustrations</div>
         </div>
       </div>
 
       {/* Disclaimer */}
       <div style={{fontSize:10,color:C.t4,lineHeight:1.8,background:C.bg3,borderRadius:8,padding:'10px 14px',border:`1px solid ${C.bd}`}}>
-        ⚠️ <strong style={{color:C.t3}}>Agent reference only.</strong> Assumes whole life policy, 70% net premium contribution, {surStr} surrender charge, and 3–5% annual growth corridor. Actual surrender value depends on the carrier's accumulation tables, policy loans, dividends, and contract terms. Always pull the carrier's in-force illustration before discussing numbers with a client.
+        ⚠️ <strong style={{color:C.t3}}>Agent reference only.</strong> Estimates calibrated to real whole life carrier illustrations (Americo, Royal Neighbors, LifeShield). Actual cash value depends on your specific carrier, policy form, dividends, and loan history. Always pull the carrier's in-force illustration before discussing numbers with a client.
       </div>
     </div>
   );
@@ -1659,9 +1690,15 @@ export default function QuoteMark() {
 
   // ── TERM MODE STATE ──
   const [quoteMode,setQuoteMode] = useState('fe'); // 'fe' | 'term' | 'cv'
-  const [cvMonthly,setCvMonthly]   = useState('');
+  const [cvMonthly,setCvMonthly]     = useState('');
   const [cvPolicyYrs,setCvPolicyYrs] = useState('');
-  const [cvDob,setCvDob]           = useState({mm:'',dd:'',yyyy:''});
+  const [cvDob,setCvDob]             = useState({mm:'',dd:'',yyyy:''});
+  const [cvAgeMode,setCvAgeMode]     = useState('dob'); // 'dob' | 'age'
+  const [cvAgeInput,setCvAgeInput]   = useState('');
+  const cvDobDdRef   = React.useRef(null);
+  const cvDobYyyyRef = React.useRef(null);
+  const cvDobDdRefM  = React.useRef(null);
+  const cvDobYyyyRefM= React.useRef(null);
   const [termLength,setTermLength] = useState('10'); // '10' | '15' | '20' | '30'
   const [termFace,setTermFace] = useState(100000); // $25k-$300k
   const [termHealth,setTermHealth] = useState('pp'); // 'pp'=Preferred Plus, 'p'=Preferred, 'sp'=Standard Plus, 's'=Standard
@@ -2344,68 +2381,77 @@ export default function QuoteMark() {
               {quoteMode==='cv' && (
                 <div style={{display:'flex',flexDirection:'column',gap:12}}>
                   <div style={{fontSize:10,fontWeight:700,letterSpacing:1.8,color:'#F59E0B',textTransform:'uppercase'}}>Policy Details</div>
-                  <div style={{background:C.bg3,border:`1px solid ${C.bd}`,borderRadius:12,padding:14,display:'flex',flexDirection:'column',gap:12}}>
+                  <div style={{background:C.bg3,border:`1px solid ${C.bd}`,borderRadius:12,padding:14,display:'flex',flexDirection:'column',gap:14}}>
+
+                    {/* Age entry */}
                     <div>
-                      <div style={{fontSize:12,color:C.t3,marginBottom:6,fontWeight:600}}>Date of Birth</div>
-                      <div style={{display:'flex',gap:5,alignItems:'center'}}>
-                        <input type="text" maxLength="2" placeholder="mm" value={cvDob.mm}
-                          onChange={e=>setCvDob(p=>({...p,mm:e.target.value}))}
-                          style={{...mInp,width:48,textAlign:'center',padding:'10px 4px'}}/>
-                        <span style={{color:C.t4,fontSize:14}}>/</span>
-                        <input type="text" maxLength="2" placeholder="dd" value={cvDob.dd}
-                          onChange={e=>setCvDob(p=>({...p,dd:e.target.value}))}
-                          style={{...mInp,width:48,textAlign:'center',padding:'10px 4px'}}/>
-                        <span style={{color:C.t4,fontSize:14}}>/</span>
-                        <input type="text" maxLength="4" placeholder="yyyy" value={cvDob.yyyy}
-                          onChange={e=>setCvDob(p=>({...p,yyyy:e.target.value}))}
-                          style={{...mInp,flex:1,textAlign:'center',padding:'10px 4px'}}/>
+                      <div style={{display:'flex',justifyContent:'space-between',alignItems:'center',marginBottom:8}}>
+                        <span style={{fontSize:12,color:C.t3,fontWeight:600}}>{cvAgeMode==='dob'?'Date of Birth':'Issue Age'}</span>
+                        <button onClick={()=>{setCvAgeMode(m=>m==='dob'?'age':'dob');setCvAgeInput('');setCvDob({mm:'',dd:'',yyyy:''}); }}
+                          style={{fontSize:11,color:'#F59E0B',background:'none',border:'none',cursor:'pointer',padding:0,fontFamily:"'DM Sans',sans-serif",textDecoration:'underline'}}>
+                          {cvAgeMode==='dob'?'Enter age':'Enter DOB'}
+                        </button>
                       </div>
-                      {cvDob.mm&&cvDob.dd&&cvDob.yyyy&&cvDob.yyyy.length===4&&(()=>{
-                        const age=Math.floor((Date.now()-new Date(`${cvDob.yyyy}-${cvDob.mm}-${cvDob.dd}`))/31557600000);
-                        return age>0&&age<120?<div style={{fontSize:11,color:'#F59E0B',marginTop:4,fontWeight:600}}>✓ Age {age}</div>:null;
-                      })()}
+                      {cvAgeMode==='dob' ? (
+                        <>
+                          <div style={{display:'flex',gap:6,alignItems:'center'}}>
+                            <input inputMode="numeric" maxLength="2" placeholder="MM" value={cvDob.mm}
+                              onChange={e=>{const v=e.target.value.replace(/[^0-9]/g,'');setCvDob(p=>({...p,mm:v}));if(v.length===2)cvDobDdRefM.current?.focus();}}
+                              style={{...mInp,width:52,textAlign:'center',padding:'12px 4px',fontSize:16}}/>
+                            <span style={{color:C.t4,fontSize:16}}>/</span>
+                            <input ref={cvDobDdRefM} inputMode="numeric" maxLength="2" placeholder="DD" value={cvDob.dd}
+                              onChange={e=>{const v=e.target.value.replace(/[^0-9]/g,'');setCvDob(p=>({...p,dd:v}));if(v.length===2)cvDobYyyyRefM.current?.focus();}}
+                              style={{...mInp,width:52,textAlign:'center',padding:'12px 4px',fontSize:16}}/>
+                            <span style={{color:C.t4,fontSize:16}}>/</span>
+                            <input ref={cvDobYyyyRefM} inputMode="numeric" maxLength="4" placeholder="YYYY" value={cvDob.yyyy}
+                              onChange={e=>{const v=e.target.value.replace(/[^0-9]/g,'');setCvDob(p=>({...p,yyyy:v}));}}
+                              style={{...mInp,flex:1,textAlign:'center',padding:'12px 4px',fontSize:16}}/>
+                          </div>
+                          {(()=>{const a=cvDob.mm&&cvDob.dd&&cvDob.yyyy&&cvDob.yyyy.length===4?Math.floor((Date.now()-new Date(`${cvDob.yyyy}-${cvDob.mm}-${cvDob.dd}`))/31557600000):null;return a>0&&a<120?<div style={{fontSize:12,color:'#F59E0B',marginTop:6,fontWeight:600}}>✓ Age {a}</div>:null;})()}
+                        </>
+                      ) : (
+                        <input inputMode="numeric" placeholder="e.g. 65" value={cvAgeInput}
+                          onChange={e=>setCvAgeInput(e.target.value.replace(/[^0-9]/g,''))}
+                          style={{...mInp,fontFamily:"'DM Mono',monospace",fontSize:18}}/>
+                      )}
                     </div>
+
                     <div>
                       <div style={{fontSize:12,color:C.t3,marginBottom:6,fontWeight:600}}>Monthly Premium ($)</div>
-                      <input type="number" placeholder="e.g. 52.00" value={cvMonthly}
+                      <input inputMode="decimal" placeholder="e.g. 52.00" value={cvMonthly}
                         onChange={e=>setCvMonthly(e.target.value)}
-                        style={{...mInp,fontFamily:"'DM Mono',monospace"}}/>
+                        style={{...mInp,fontFamily:"'DM Mono',monospace",fontSize:18}}/>
                     </div>
                     <div>
                       <div style={{fontSize:12,color:C.t3,marginBottom:6,fontWeight:600}}>Years In-Force</div>
-                      <input type="number" placeholder="e.g. 7" min="1" max="50" value={cvPolicyYrs}
-                        onChange={e=>setCvPolicyYrs(e.target.value)}
-                        style={{...mInp,fontFamily:"'DM Mono',monospace"}}/>
+                      <input inputMode="numeric" placeholder="e.g. 7" value={cvPolicyYrs}
+                        onChange={e=>setCvPolicyYrs(e.target.value.replace(/[^0-9]/g,''))}
+                        style={{...mInp,fontFamily:"'DM Mono',monospace",fontSize:18}}/>
                       <div style={{fontSize:10,color:C.t4,marginTop:4}}>How long has the client had this policy?</div>
                     </div>
                   </div>
-                  {cvMonthly && cvPolicyYrs && Number(cvMonthly)>0 && Number(cvPolicyYrs)>0 && (
-                    <div style={{background:'rgba(245,158,11,0.06)',border:'1px solid rgba(245,158,11,0.22)',borderRadius:10,padding:'12px 14px'}}>
-                      <div style={{fontSize:9,color:'#F59E0B',fontWeight:700,marginBottom:8,letterSpacing:1.2,textTransform:'uppercase'}}>Estimated Surrender Value</div>
-                      {(()=>{
-                        const d = calculateCVCorridor(Number(cvMonthly), Number(cvPolicyYrs));
-                        return (<>
-                          <div style={{display:'flex',justifyContent:'space-between',fontSize:13,marginBottom:6}}>
-                            <span style={{color:C.t3}}>Conservative (3%)</span>
-                            <strong style={{color:C.t1,fontFamily:"'DM Mono',monospace"}}>${Math.round(d.low).toLocaleString()}</strong>
-                          </div>
-                          <div style={{display:'flex',justifyContent:'space-between',fontSize:13,marginBottom:6}}>
-                            <span style={{color:C.t3}}>Target (5%)</span>
-                            <strong style={{color:'#F59E0B',fontFamily:"'DM Mono',monospace"}}>${Math.round(d.high).toLocaleString()}</strong>
-                          </div>
-                          <div style={{display:'flex',justifyContent:'space-between',fontSize:13,marginBottom:6}}>
-                            <span style={{color:C.t3}}>Est. Cash Value</span>
-                            <strong style={{color:'#F59E0B',fontFamily:"'DM Mono',monospace"}}>${Math.round(d.low).toLocaleString()} – ${Math.round(d.high).toLocaleString()}</strong>
-                          </div>
-                          <div style={{display:'flex',justifyContent:'space-between',fontSize:13}}>
-                            <span style={{color:C.t3}}>Total Paid</span>
-                            <strong style={{color:C.t2,fontFamily:"'DM Mono',monospace"}}>${Math.round(d.totalPaid).toLocaleString()}</strong>
-                          </div>
-                          {d.low === 0 && <div style={{fontSize:11,color:C.t4,marginTop:8,textAlign:'center'}}>2-year dry period — cash value not yet accumulated</div>}
-                        </>);
-                      })()}
-                    </div>
-                  )}
+
+                  {/* Results */}
+                  {(()=>{
+                    const age=(cvAgeMode==='age' ? Number(cvAgeInput) : (cvDob.mm&&cvDob.dd&&cvDob.yyyy&&cvDob.yyyy.length===4 ? Math.floor((Date.now()-new Date(`${cvDob.yyyy}-${cvDob.mm}-${cvDob.dd}`))/31557600000) : null));
+                    if(!cvMonthly||!cvPolicyYrs||!Number(cvMonthly)||!Number(cvPolicyYrs)||!age) return null;
+                    const d=calculateCVCorridor(Number(cvMonthly),Number(cvPolicyYrs),age);
+                    return (
+                      <div style={{background:'rgba(245,158,11,0.06)',border:'1px solid rgba(245,158,11,0.22)',borderRadius:10,padding:'14px 16px'}}>
+                        <div style={{fontSize:9,color:'#F59E0B',fontWeight:700,marginBottom:10,letterSpacing:1.2,textTransform:'uppercase'}}>Estimated Cash Value · Age {age}</div>
+                        <div style={{display:'flex',alignItems:'baseline',gap:8,marginBottom:10,flexWrap:'wrap'}}>
+                          <span style={{fontSize:22,fontWeight:800,color:C.t1,fontFamily:"'DM Mono',monospace"}}>${Math.round(d.low).toLocaleString()}</span>
+                          <span style={{fontSize:16,color:C.t4}}>–</span>
+                          <span style={{fontSize:22,fontWeight:800,color:'#F59E0B',fontFamily:"'DM Mono',monospace"}}>${Math.round(d.high).toLocaleString()}</span>
+                        </div>
+                        <div style={{display:'flex',justifyContent:'space-between',fontSize:12,paddingTop:8,borderTop:`1px solid ${C.bd}`}}>
+                          <span style={{color:C.t3}}>Total Premiums Paid</span>
+                          <strong style={{color:C.t2,fontFamily:"'DM Mono',monospace"}}>${Math.round(d.totalPaid).toLocaleString()}</strong>
+                        </div>
+                        {d.low===0&&<div style={{fontSize:11,color:C.t4,marginTop:8,textAlign:'center'}}>Dry period — CV not yet accumulated</div>}
+                      </div>
+                    );
+                  })()}
                   <div style={{height:32}}/>
                 </div>
               )}
@@ -3340,62 +3386,78 @@ export default function QuoteMark() {
             <div style={{display:'flex',flexDirection:'column',gap:12}}>
               <div style={{fontSize:10,fontWeight:700,letterSpacing:1.8,color:'#F59E0B',textTransform:'uppercase',marginBottom:2}}>Policy Details</div>
               <div style={{background:C.bg3,border:`1px solid ${C.bd}`,borderRadius:12,padding:14,display:'flex',flexDirection:'column',gap:12}}>
+
+                {/* Age entry — DOB or direct age toggle */}
                 <div>
-                  <div style={{fontSize:11,color:C.t3,marginBottom:6,fontWeight:600}}>Date of Birth</div>
-                  <div style={{display:'flex',gap:5,alignItems:'center'}}>
-                    <input type="text" maxLength="2" placeholder="mm" value={cvDob.mm}
-                      onChange={e=>setCvDob(p=>({...p,mm:e.target.value}))}
-                      style={{...inp,width:44,textAlign:'center',padding:'8px 4px'}}/>
-                    <span style={{color:C.t4,fontSize:12}}>/</span>
-                    <input type="text" maxLength="2" placeholder="dd" value={cvDob.dd}
-                      onChange={e=>setCvDob(p=>({...p,dd:e.target.value}))}
-                      style={{...inp,width:44,textAlign:'center',padding:'8px 4px'}}/>
-                    <span style={{color:C.t4,fontSize:12}}>/</span>
-                    <input type="text" maxLength="4" placeholder="yyyy" value={cvDob.yyyy}
-                      onChange={e=>setCvDob(p=>({...p,yyyy:e.target.value}))}
-                      style={{...inp,flex:1,textAlign:'center',padding:'8px 4px'}}/>
+                  <div style={{display:'flex',justifyContent:'space-between',alignItems:'center',marginBottom:6}}>
+                    <span style={{fontSize:11,color:C.t3,fontWeight:600}}>{cvAgeMode==='dob'?'Date of Birth':'Issue Age'}</span>
+                    <button onClick={()=>{setCvAgeMode(m=>m==='dob'?'age':'dob');setCvAgeInput('');setCvDob({mm:'',dd:'',yyyy:''});}}
+                      style={{fontSize:10,color:'#F59E0B',background:'none',border:'none',cursor:'pointer',padding:0,fontFamily:"'DM Sans',sans-serif",textDecoration:'underline'}}>
+                      {cvAgeMode==='dob'?'Enter age instead':'Enter DOB instead'}
+                    </button>
                   </div>
-                  {cvDob.mm&&cvDob.dd&&cvDob.yyyy&&cvDob.yyyy.length===4&&(()=>{
-                    const age=Math.floor((Date.now()-new Date(`${cvDob.yyyy}-${cvDob.mm}-${cvDob.dd}`))/31557600000);
-                    return age>0&&age<120?<div style={{fontSize:11,color:'#F59E0B',marginTop:4,fontWeight:600}}>✓ Age {age}</div>:null;
-                  })()}
+                  {cvAgeMode==='dob' ? (
+                    <>
+                      <div style={{display:'flex',gap:5,alignItems:'center'}}>
+                        <input inputMode="numeric" maxLength="2" placeholder="MM" value={cvDob.mm}
+                          onChange={e=>{const v=e.target.value.replace(/\D/g,'');setCvDob(p=>({...p,mm:v}));if(v.length===2)cvDobDdRef.current?.focus();}}
+                          style={{...inp,width:44,textAlign:'center',padding:'8px 4px'}}/>
+                        <span style={{color:C.t4,fontSize:12}}>/</span>
+                        <input ref={cvDobDdRef} inputMode="numeric" maxLength="2" placeholder="DD" value={cvDob.dd}
+                          onChange={e=>{const v=e.target.value.replace(/\D/g,'');setCvDob(p=>({...p,dd:v}));if(v.length===2)cvDobYyyyRef.current?.focus();}}
+                          style={{...inp,width:44,textAlign:'center',padding:'8px 4px'}}/>
+                        <span style={{color:C.t4,fontSize:12}}>/</span>
+                        <input ref={cvDobYyyyRef} inputMode="numeric" maxLength="4" placeholder="YYYY" value={cvDob.yyyy}
+                          onChange={e=>{const v=e.target.value.replace(/\D/g,'');setCvDob(p=>({...p,yyyy:v}));}}
+                          style={{...inp,flex:1,textAlign:'center',padding:'8px 4px'}}/>
+                      </div>
+                      {(()=>{const a=cvDob.mm&&cvDob.dd&&cvDob.yyyy&&cvDob.yyyy.length===4?Math.floor((Date.now()-new Date(`${cvDob.yyyy}-${cvDob.mm}-${cvDob.dd}`))/31557600000):null;return a>0&&a<120?<div style={{fontSize:11,color:'#F59E0B',marginTop:4,fontWeight:600}}>✓ Age {a}</div>:null;})()}
+                    </>
+                  ) : (
+                    <input inputMode="numeric" placeholder="e.g. 65" value={cvAgeInput}
+                      onChange={e=>setCvAgeInput(e.target.value.replace(/\D/g,''))}
+                      style={{...inp,fontFamily:"'DM Mono',monospace",fontSize:15}}/>
+                  )}
                 </div>
+
                 <div>
                   <div style={{fontSize:11,color:C.t3,marginBottom:6,fontWeight:600}}>Monthly Premium ($)</div>
-                  <input type="number" placeholder="e.g. 52.00" value={cvMonthly}
+                  <input inputMode="decimal" placeholder="e.g. 52.00" value={cvMonthly}
                     onChange={e=>setCvMonthly(e.target.value)}
                     style={{...inp,fontFamily:"'DM Mono',monospace",fontSize:15}}/>
                 </div>
                 <div>
                   <div style={{fontSize:11,color:C.t3,marginBottom:6,fontWeight:600}}>Years In-Force</div>
-                  <input type="number" placeholder="e.g. 7" min="1" max="50" value={cvPolicyYrs}
-                    onChange={e=>setCvPolicyYrs(e.target.value)}
+                  <input inputMode="numeric" placeholder="e.g. 7" value={cvPolicyYrs}
+                    onChange={e=>setCvPolicyYrs(e.target.value.replace(/\D/g,''))}
                     style={{...inp,fontFamily:"'DM Mono',monospace",fontSize:15}}/>
                   <div style={{fontSize:10,color:C.t4,marginTop:4}}>How long has the client had this policy?</div>
                 </div>
               </div>
-              {cvMonthly && cvPolicyYrs && Number(cvMonthly)>0 && Number(cvPolicyYrs)>0 && (
-                <div style={{background:'rgba(245,158,11,0.06)',border:'1px solid rgba(245,158,11,0.22)',borderRadius:10,padding:'12px 14px'}}>
-                  <div style={{fontSize:9,color:'#F59E0B',fontWeight:700,marginBottom:8,letterSpacing:1.2,textTransform:'uppercase'}}>Quick Look</div>
-                  {(()=>{
-                    const d = calculateCVCorridor(Number(cvMonthly), Number(cvPolicyYrs));
-                    return (<>
-                      <div style={{display:'flex',justifyContent:'space-between',fontSize:12,marginBottom:4}}>
-                        <span style={{color:C.t3}}>Conservative</span>
-                        <strong style={{color:C.t1,fontFamily:"'DM Mono',monospace"}}>${Math.round(d.low).toLocaleString()}</strong>
-                      </div>
-                      <div style={{display:'flex',justifyContent:'space-between',fontSize:12,marginBottom:4}}>
-                        <span style={{color:C.t3}}>Target</span>
-                        <strong style={{color:'#F59E0B',fontFamily:"'DM Mono',monospace"}}>${Math.round(d.high).toLocaleString()}</strong>
-                      </div>
-                      <div style={{display:'flex',justifyContent:'space-between',fontSize:12}}>
-                        <span style={{color:C.t3}}>Total Paid</span>
-                        <strong style={{color:C.t2,fontFamily:"'DM Mono',monospace"}}>${Math.round(d.totalPaid).toLocaleString()}</strong>
-                      </div>
-                    </>);
-                  })()}
-                </div>
-              )}
+
+              {/* Quick Look */}
+              {(()=>{
+                const age=(cvAgeMode==='age' ? Number(cvAgeInput) : (cvDob.mm&&cvDob.dd&&cvDob.yyyy&&cvDob.yyyy.length===4 ? Math.floor((Date.now()-new Date(`${cvDob.yyyy}-${cvDob.mm}-${cvDob.dd}`))/31557600000) : null));
+                if(!cvMonthly||!cvPolicyYrs||!Number(cvMonthly)||!Number(cvPolicyYrs)||!age) return null;
+                const d=calculateCVCorridor(Number(cvMonthly),Number(cvPolicyYrs),age);
+                return (
+                  <div style={{background:'rgba(245,158,11,0.06)',border:'1px solid rgba(245,158,11,0.22)',borderRadius:10,padding:'12px 14px'}}>
+                    <div style={{fontSize:9,color:'#F59E0B',fontWeight:700,marginBottom:8,letterSpacing:1.2,textTransform:'uppercase'}}>Quick Look · Age {age}</div>
+                    <div style={{display:'flex',justifyContent:'space-between',fontSize:12,marginBottom:4}}>
+                      <span style={{color:C.t3}}>Conservative</span>
+                      <strong style={{color:C.t1,fontFamily:"'DM Mono',monospace"}}>${Math.round(d.low).toLocaleString()}</strong>
+                    </div>
+                    <div style={{display:'flex',justifyContent:'space-between',fontSize:12,marginBottom:4}}>
+                      <span style={{color:C.t3}}>Target</span>
+                      <strong style={{color:'#F59E0B',fontFamily:"'DM Mono',monospace"}}>${Math.round(d.high).toLocaleString()}</strong>
+                    </div>
+                    <div style={{display:'flex',justifyContent:'space-between',fontSize:12}}>
+                      <span style={{color:C.t3}}>Total Paid</span>
+                      <strong style={{color:C.t2,fontFamily:"'DM Mono',monospace"}}>${Math.round(d.totalPaid).toLocaleString()}</strong>
+                    </div>
+                  </div>
+                );
+              })()}
             </div>
           )}
 
@@ -3405,15 +3467,15 @@ export default function QuoteMark() {
         <div style={{padding:'0',overflowY:'auto',display:'flex',flexDirection:'column'}}>
           {quoteMode==='cv'?(
             <div style={{display:'flex',justifyContent:'center',width:'100%',overflowY:'auto'}}>
-              {cvMonthly && cvPolicyYrs && Number(cvMonthly)>0 && Number(cvPolicyYrs)>0 ? (
-                <CashValueProjection monthlyPremium={Number(cvMonthly)} policyYears={Number(cvPolicyYrs)} C={C} isDark={isDark}/>
+              {(()=>{const age=(cvAgeMode==='age' ? Number(cvAgeInput) : (cvDob.mm&&cvDob.dd&&cvDob.yyyy&&cvDob.yyyy.length===4 ? Math.floor((Date.now()-new Date(`${cvDob.yyyy}-${cvDob.mm}-${cvDob.dd}`))/31557600000) : null));return cvMonthly&&cvPolicyYrs&&Number(cvMonthly)>0&&Number(cvPolicyYrs)>0&&age?(
+                <CashValueProjection monthlyPremium={Number(cvMonthly)} policyYears={Number(cvPolicyYrs)} issueAge={age} C={C} isDark={isDark}/>
               ) : (
                 <div style={{display:'flex',flexDirection:'column',alignItems:'center',justifyContent:'center',height:'60vh',gap:16}}>
                   <span style={{fontSize:52}}>💰</span>
                   <div style={{fontSize:18,fontWeight:700,color:C.t2}}>Cash Value Estimator</div>
-                  <div style={{fontSize:13,textAlign:'center',maxWidth:280,lineHeight:1.6,color:C.t4}}>Enter a monthly premium and client age in the sidebar to project the performance corridor.</div>
+                  <div style={{fontSize:13,textAlign:'center',maxWidth:280,lineHeight:1.6,color:C.t4}}>Enter the policy details in the sidebar to estimate surrender value.</div>
                 </div>
-              )}
+              );})()}
             </div>
           ):quoteMode==='term'?(
             <div style={{display:'flex',flexDirection:'column',height:'100%'}}>
