@@ -1403,18 +1403,18 @@ const CompBadge = ({carrierId, tier}) => {
 const CarrierLogo = ({carrierId, name, small=false}) => {
   const meta = CARRIER_META[carrierId];
   const [err,setErr] = React.useState(false);
-  const w = small ? 56 : 80;
-  const h = small ? 26 : 32;
+  const w = small ? 64 : 92;
+  const h = small ? 30 : 37;
   if(!meta?.img || err) {
     return null;
   }
   return (
-    <div style={{width:w,height:h,borderRadius:4,background:'#FFFFFF',display:'flex',alignItems:'center',justifyContent:'center',overflow:'hidden',flexShrink:0,padding:'5px',boxSizing:'border-box',boxShadow:'0 1px 3px rgba(0,0,0,0.18)'}}>
+    <div style={{width:w,height:h,borderRadius:4,background:'#FFFFFF',display:'flex',alignItems:'center',justifyContent:'center',overflow:'hidden',flexShrink:0,padding:'2px',boxSizing:'border-box',boxShadow:'0 1px 3px rgba(0,0,0,0.18)'}}>
       <img
         src={meta.img}
         alt={name}
         onError={()=>setErr(true)}
-        style={{width:'100%',height:'100%',objectFit:'contain',transform:'scale(1.2)',transformOrigin:'center'}}
+        style={{width:'90%',height:'90%',objectFit:'contain'}}
       />
     </div>
   );
