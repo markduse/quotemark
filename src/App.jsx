@@ -33,20 +33,21 @@ const STATE_RULES = {
   balt_sg: { excludeStates: [] },
   sl_pp: { excludeStates: [] },
   sl:    { excludeStates: [] },
+  ail:   { excludeStates: ['MA','MN','NH','NJ','NC','WA','WV'] },
 };
 const FACE_CAPS = {
   acc:40000, ahl:35000, cont:40000, rn:40000,
   ra:50000, ls:30000, amam:50000, moo:50000, cbg:25000,
   ta:100000, lb:30000, pf:50000, amr:30000, for:35000, bl_sg:25000,
   afl:50000, laf:50000, uhl:30000, fid:40000,
-  bl:50000, elco:25000, balt_sg:25000, sl_pp:25000, sl:30000,
+  bl:50000, elco:25000, balt_sg:25000, sl_pp:25000, sl:30000, ail:30000,
 };
 const AGE_MAX = {
   acc:89, ahl:89, cont:89, rn:85,
   ra:79, ls:79, amam:79, moo:85, cbg:80,
   ta:85, lb:79, pf:79, amr:79, for:85,
   afl:79, laf:79, uhl:79, fid:85,
-  bl:85, elco:80, balt_sg:80, sl_pp:80, sl:85,
+  bl:85, elco:80, balt_sg:80, sl_pp:80, sl:85, ail:80,
 };
 
 // ── Better Life — Better Final Expense ────────────────────────────
@@ -473,6 +474,51 @@ function slWlQuote(age,male,smoker,tier,face){
       const t=(f-bps[i])/(bps[i+1]-bps[i]);
       return Math.round((r[i]+t*(r[i+1]-r[i]))*100)/100;
     }
+  }
+  return null;
+}
+
+// ── American Income Life ──────────────────────────────────────────
+// Formula: Math.ceil(rate_per_1000 * face/1000 / 12 * 100) / 100  (round HIGH)
+// WL Regular: ages 50-59 | Level benefit | B=NTU, C=TU | max face $30,000
+// Senior Graded WL: ages 60-80 | Graded (25/50/75/100% yrs 1-4+) | D | TU max age 75
+// Row format: [M-NTU, M-TU, F-NTU, F-TU]
+const AIL_WL={
+  50:[46.84,62.19,37.94,50.60], 51:[49.47,65.70,40.33,53.09],
+  52:[52.24,69.38,42.80,55.68], 53:[55.19,73.27,45.37,58.44],
+  54:[58.31,77.26,48.05,61.32], 55:[61.51,81.39,50.78,64.32],
+  56:[64.83,85.62,53.60,67.50], 57:[68.31,89.96,56.49,70.79],
+  58:[72.04,94.53,59.45,74.33], 59:[75.99,99.38,62.46,78.04]
+};
+const AIL_SRGWL={
+  60:[81.97,106.82,67.01,83.75],  61:[86.55,112.37,70.29,88.01],
+  62:[91.41,118.25,73.78,92.50],  63:[96.57,124.47,77.62,97.25],
+  64:[102.04,131.02,81.92,102.27],65:[108.06,137.97,86.79,107.91],
+  66:[114.64,146.70,92.64,114.30],67:[121.69,156.00,99.14,121.17],
+  68:[129.23,165.94,106.27,128.46],69:[137.34,176.63,114.06,136.29],
+  70:[146.06,188.12,122.49,144.71],71:[156.85,200.44,131.46,153.76],
+  72:[168.48,213.60,141.12,163.42],73:[180.92,227.57,151.49,173.67],
+  74:[194.26,242.33,162.59,184.50],75:[208.43,257.89,174.47,195.91],
+  76:[223.46,null,187.29,null],   77:[239.55,null,200.89,null],
+  78:[256.79,null,215.31,null],   79:[275.41,null,230.52,null],
+  80:[294.92,null,246.55,null]
+};
+
+function ailQuote(age,male,smoker,tier,face){
+  const ri=(male?0:2)+(smoker?1:0);
+  const f=Math.min(face,30000);
+  if(tier==='B'||tier==='C'){
+    if(age<50||age>59)return null;
+    if(tier==='C'&&!smoker)return null; // C=TU only
+    if(tier==='B'&&smoker)return null;  // B=NTU only
+    const row=AIL_WL[age];if(!row||row[ri]==null)return null;
+    return Math.ceil(row[ri]*f/1000/12*100)/100;
+  }
+  if(tier==='D'){
+    if(age<60||age>80)return null;
+    const row=AIL_SRGWL[age];if(!row)return null;
+    const r=row[ri];if(r==null)return null; // TU not available 76+
+    return Math.ceil(r*f/1000/12*100)/100;
   }
   return null;
 }
@@ -1168,6 +1214,9 @@ const CARRIERS = [
   {id:'sl',    name:'Senior Life',          sub:'Whole Life (EI)', abbr:'SL', enabled:true,
    product:{B:'Level — Super Preferred',C:'Level — Standard',D:'Modified',E:'Guaranteed Issue'},
    fn:(age,male,smoker,tier,face)=>slWlQuote(age,male,smoker,tier,face)},
+  {id:'ail',   name:'American Income Life', sub:'Whole Life / Graded', abbr:'AI', enabled:true,
+   product:{B:'Level — Non-Tobacco',C:'Level — Tobacco',D:'Senior Graded (3-yr)',E:null},
+   fn:(age,male,smoker,tier,face)=>ailQuote(age,male,smoker,tier,face)},
   // ── TERM LIFE CARRIERS (injected below) ──
   ...TERM_CARRIERS,
 ];
@@ -1185,6 +1234,7 @@ const COMP_RATES = {
   fid:  { B:null,C:null,D:null,E:55   },
   cbg:  { B:null,C:null,D:null,E:55   },
   sl:   { B:110, C:110, D:100, E:80  },
+  ail:  { B:110, C:110, D:110, E:null },
 };
 
 // ── CARRIER META: logo domain (Clearbit) + eApp link ──
@@ -1210,6 +1260,7 @@ const CARRIER_META = {
   balt_sg: { img:'',                 eapp:'https://www.baltlife.com/agent-portal',              brand:'#0369A1' }, // Baltimore Life — Sky Blue
   sl_pp: { img:'',                   eapp:'https://www.seniorlife.com/agent-portal',            brand:'#7C3AED' }, // Senior Life — Purple
   sl:    { img:'',                   eapp:'https://www.seniorlife.com/agent-portal',            brand:'#7C3AED' }, // Senior Life WL — Purple
+  ail:   { img:'',                   eapp:'https://www.ailife.com/agent',                       brand:'#1D4ED8' }, // American Income Life — Blue
   // ── TERM LIFE CARRIERS ──
   american_amicable: { img:'',        eapp:'https://www.insuranceapplication.com',              brand:'#CBD5E1' }, // American Amicable — Light Gray
   instabrain: { img:'',              eapp:'https://portal.instabrain.io/App/?redirected=true',  brand:'#38BDF8' }, // Instabrain — Light Blue
