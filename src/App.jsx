@@ -1409,12 +1409,12 @@ const CarrierLogo = ({carrierId, name, small=false}) => {
     return null;
   }
   return (
-    <div style={{width:w,height:h,borderRadius:4,background:'#FFFFFF',display:'flex',alignItems:'center',justifyContent:'center',overflow:'hidden',flexShrink:0,padding:'3px 6px',boxSizing:'border-box',boxShadow:'0 1px 3px rgba(0,0,0,0.18)'}}>
+    <div style={{width:w,height:h,borderRadius:4,background:'#FFFFFF',display:'flex',alignItems:'center',justifyContent:'center',overflow:'hidden',flexShrink:0,padding:'5px',boxSizing:'border-box',boxShadow:'0 1px 3px rgba(0,0,0,0.18)'}}>
       <img
         src={meta.img}
         alt={name}
         onError={()=>setErr(true)}
-        style={{width:'100%',height:'100%',objectFit:'contain'}}
+        style={{width:'100%',height:'100%',objectFit:'contain',transform:'scale(1.2)',transformOrigin:'center'}}
       />
     </div>
   );
