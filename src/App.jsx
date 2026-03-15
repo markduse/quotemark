@@ -860,19 +860,14 @@ const CashValueProjection = ({ monthlyPremium, policyYears, C, isDark }) => {
         <div style={{fontSize:10,fontWeight:700,letterSpacing:1.8,color:amber,textTransform:'uppercase',marginBottom:16}}>
           Estimated Surrender Value · After {policyYears} Year{policyYears===1?'':'s'}
         </div>
-        <div style={{display:'grid',gridTemplateColumns:'1fr 1fr 1fr',gap:10,marginBottom:14}}>
-          <div style={{background:C.bg2,border:`1px solid ${C.bd}`,borderRadius:10,padding:'12px 14px'}}>
-            <div style={{fontSize:9,color:C.t4,marginBottom:6,fontWeight:700,letterSpacing:1.2,textTransform:'uppercase'}}>Conservative · 3%</div>
-            <div style={{fontSize:20,fontWeight:800,color:C.t2,fontFamily:"'DM Mono',monospace"}}>{fmt(d.low)}</div>
+        <div style={{marginBottom:14}}>
+          <div style={{fontSize:10,color:C.t4,marginBottom:8,fontWeight:600,letterSpacing:0.5}}>ESTIMATED CASH VALUE</div>
+          <div style={{display:'flex',alignItems:'baseline',gap:10,flexWrap:'wrap'}}>
+            <span style={{fontSize:28,fontWeight:800,color:C.t2,fontFamily:"'DM Mono',monospace"}}>{fmt(d.low)}</span>
+            <span style={{fontSize:18,color:C.t4,fontWeight:400}}>–</span>
+            <span style={{fontSize:28,fontWeight:800,color:amber,fontFamily:"'DM Mono',monospace"}}>{fmt(d.high)}</span>
           </div>
-          <div style={{background:C.bg2,border:'1px solid rgba(245,158,11,0.35)',borderRadius:10,padding:'12px 14px'}}>
-            <div style={{fontSize:9,color:amber,marginBottom:6,fontWeight:700,letterSpacing:1.2,textTransform:'uppercase'}}>Target · 5%</div>
-            <div style={{fontSize:20,fontWeight:800,color:amber,fontFamily:"'DM Mono',monospace"}}>{fmt(d.high)}</div>
-          </div>
-          <div style={{background:`rgba(52,211,153,0.07)`,border:'1px solid rgba(52,211,153,0.3)',borderRadius:10,padding:'12px 14px'}}>
-            <div style={{fontSize:9,color:green,marginBottom:6,fontWeight:700,letterSpacing:1.2,textTransform:'uppercase'}}>Est. Range</div>
-            <div style={{fontSize:20,fontWeight:800,color:green,fontFamily:"'DM Mono',monospace"}}>{fmt(range)}</div>
-          </div>
+          <div style={{fontSize:11,color:C.t4,marginTop:6}}>Conservative (3%) · Target (5%)</div>
         </div>
 
         {/* Visual bar */}
@@ -2399,8 +2394,8 @@ export default function QuoteMark() {
                             <strong style={{color:'#F59E0B',fontFamily:"'DM Mono',monospace"}}>${Math.round(d.high).toLocaleString()}</strong>
                           </div>
                           <div style={{display:'flex',justifyContent:'space-between',fontSize:13,marginBottom:6}}>
-                            <span style={{color:C.t3}}>Est. Range</span>
-                            <strong style={{color:'#34D399',fontFamily:"'DM Mono',monospace"}}>${Math.round(d.high-d.low).toLocaleString()}</strong>
+                            <span style={{color:C.t3}}>Est. Cash Value</span>
+                            <strong style={{color:'#F59E0B',fontFamily:"'DM Mono',monospace"}}>${Math.round(d.low).toLocaleString()} – ${Math.round(d.high).toLocaleString()}</strong>
                           </div>
                           <div style={{display:'flex',justifyContent:'space-between',fontSize:13}}>
                             <span style={{color:C.t3}}>Total Paid</span>
