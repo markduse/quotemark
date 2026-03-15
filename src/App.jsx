@@ -914,6 +914,17 @@ const CashValueProjection = ({ monthlyPremium, policyYears, issueAge, C, isDark 
         </div>
       </div>
 
+      {/* Early-year warning */}
+      {policyYears <= 2 && (
+        <div style={{display:'flex',alignItems:'flex-start',gap:10,background:'rgba(239,68,68,0.08)',border:'1px solid rgba(239,68,68,0.3)',borderRadius:10,padding:'10px 14px'}}>
+          <span style={{fontSize:16,flexShrink:0}}>⏳</span>
+          <div>
+            <div style={{fontSize:12,fontWeight:700,color:'#F87171',marginBottom:3}}>Early Policy Period</div>
+            <div style={{fontSize:11,color:'#CBD5E1',lineHeight:1.6}}>Most whole life policies accumulate little or no cash value during the first 2 years. Front-loaded carrier charges and mortality costs absorb the majority of early premiums. Significant accumulation typically begins in year 3+.</div>
+          </div>
+        </div>
+      )}
+
       {/* Disclaimer */}
       <div style={{fontSize:10,color:C.t4,lineHeight:1.8,background:C.bg3,borderRadius:8,padding:'10px 14px',border:`1px solid ${C.bd}`}}>
         ⚠️ <strong style={{color:C.t3}}>Agent reference only.</strong> Estimates calibrated to real whole life carrier illustrations (Americo, Royal Neighbors, LifeShield). Actual cash value depends on your specific carrier, policy form, dividends, and loan history. Always pull the carrier's in-force illustration before discussing numbers with a client.
@@ -2448,7 +2459,7 @@ export default function QuoteMark() {
                           <span style={{color:C.t3}}>Total Premiums Paid</span>
                           <strong style={{color:C.t2,fontFamily:"'DM Mono',monospace"}}>${Math.round(d.totalPaid).toLocaleString()}</strong>
                         </div>
-                        {d.low===0&&<div style={{fontSize:11,color:C.t4,marginTop:8,textAlign:'center'}}>Dry period — CV not yet accumulated</div>}
+                        {Number(cvPolicyYrs)<=2&&<div style={{fontSize:11,color:'#F87171',marginTop:8,lineHeight:1.5}}>⏳ Most policies accumulate little or no CV in years 1–2. Significant growth typically starts year 3+.</div>}
                       </div>
                     );
                   })()}
@@ -3455,6 +3466,7 @@ export default function QuoteMark() {
                       <span style={{color:C.t3}}>Total Paid</span>
                       <strong style={{color:C.t2,fontFamily:"'DM Mono',monospace"}}>${Math.round(d.totalPaid).toLocaleString()}</strong>
                     </div>
+                    {Number(cvPolicyYrs)<=2&&<div style={{fontSize:10,color:'#F87171',marginTop:8,lineHeight:1.5}}>⏳ Most policies accumulate little or no CV in years 1–2. Significant growth typically starts year 3+.</div>}
                   </div>
                 );
               })()}
