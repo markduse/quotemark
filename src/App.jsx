@@ -1725,7 +1725,8 @@ export default function QuoteMark() {
     const pName=carr.product[uwTier];
     if(!pName){const reason=uwTier==='E'?'No GI product offered':uwTier==='D'?'Level plans only':'Not available for this tier';return{...carr,face:null,prem:null,productName:null,reason};}
     const cappedFace=Math.min(face,maxFace);
-    const prem=carr.fn(a,male,smoker,uwTier,cappedFace);
+    let prem=null;
+    try{prem=carr.fn(a,male,smoker,uwTier,cappedFace);}catch(e){console.error(`[QuoteMark] ${carr.id} threw:`,e);prem=null;}
     let reason;
     if(prem==null){if(uwTier==='D'&&a>75)reason='Modified not available after 75';else if(uwTier==='E'&&a>80)reason='GI not available after 80';else reason='Not available for this profile';}
     const isCapped = cappedFace < face;
@@ -1784,7 +1785,7 @@ export default function QuoteMark() {
     
     // Build results for all active term carriers
     const results = activeCarriers.filter(c => c.termOnly).map(carr => {
-      const prem = carr.fn(termAgeNum, male, smoker, 'B', termFace, termLength);
+      let prem=null;try{prem=carr.fn(termAgeNum,male,smoker,'B',termFace,termLength);}catch(e){console.error(`[QuoteMark] term ${carr.id} threw:`,e);}
       const healthLabel = termHealth==='pp'?'Preferred Plus':termHealth==='p'?'Preferred':termHealth==='sp'?'Standard Plus':'Standard';
       
       if(prem == null) {
