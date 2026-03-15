@@ -1398,22 +1398,22 @@ const CompBadge = ({carrierId, tier}) => {
   );
 };
 
-// Carrier logo — monochrome/grayscale filter so logos don't clash with dark UI
+// Carrier logo — white badge container so logos render in their natural colors
 const CarrierLogo = ({carrierId, name, small=false}) => {
   const meta = CARRIER_META[carrierId];
   const [err,setErr] = React.useState(false);
-  const w = small ? 48 : 72;
-  const h = small ? 20 : 28;
+  const w = small ? 56 : 80;
+  const h = small ? 26 : 32;
   if(!meta?.img || err) {
-    return null; // No fallback abbr badge — cleaner cards
+    return null;
   }
   return (
-    <div style={{width:w,height:h,borderRadius:5,background:'rgba(255,255,255,0.06)',display:'flex',alignItems:'center',justifyContent:'center',overflow:'hidden',flexShrink:0,padding:'2px 4px',boxSizing:'border-box'}}>
+    <div style={{width:w,height:h,borderRadius:4,background:'#FFFFFF',display:'flex',alignItems:'center',justifyContent:'center',overflow:'hidden',flexShrink:0,padding:'3px 6px',boxSizing:'border-box',boxShadow:'0 1px 3px rgba(0,0,0,0.18)'}}>
       <img
         src={meta.img}
         alt={name}
         onError={()=>setErr(true)}
-        style={{width:'100%',height:'100%',objectFit:'contain',opacity:0.85,filter:'brightness(0) invert(1) opacity(0.7)'}}
+        style={{width:'100%',height:'100%',objectFit:'contain'}}
       />
     </div>
   );
@@ -2428,7 +2428,7 @@ export default function QuoteMark() {
                           <div style={{display:'flex',justifyContent:'space-between',alignItems:'flex-start',marginBottom:isGhost?0:12,marginTop:isBest?10:0}}>
                             <div style={{flex:1,minWidth:0}}>
                               <div style={{fontSize:18,fontWeight:700,color:C.t0}}>{r.name}</div>
-                              <div style={{fontSize:11,color:C.t3,marginTop:2}}>{r.sub}</div>
+                              <div style={{fontSize:11,color:C.t4,marginTop:2}}>{r.sub}</div>
                             </div>
                             <div style={{display:'flex',flexDirection:'column',alignItems:'flex-end',gap:6,flexShrink:0,marginLeft:10}}>
                               <CarrierLogo carrierId={r.id} name={r.name} small={true}/>
@@ -2438,7 +2438,7 @@ export default function QuoteMark() {
                           {!isGhost ? (
                             <>
                               <div style={{display:'flex',alignItems:'baseline',gap:5,marginBottom:8}}>
-                                <span style={{fontSize:32,fontWeight:700,color:premColor,fontFamily:"'DM Mono',monospace"}}>${r.prem}</span>
+                                <span style={{fontSize:32,fontWeight:800,color:premColor,fontFamily:"'DM Mono',monospace"}}>${r.prem}</span>
                                 <span style={{fontSize:13,color:C.t4}}>/mo</span>
                               </div>
                               <div style={{display:'flex',gap:6,marginBottom:10,flexWrap:'wrap'}}>
@@ -3287,7 +3287,7 @@ export default function QuoteMark() {
                           {/* Card header: name only — no logo */}
                           <div style={{marginBottom:14}}>
                             <div style={{fontSize:18,fontWeight:700,color:C.t0,letterSpacing:'-0.3px',lineHeight:1.2}}>{r.name}</div>
-                            <div style={{fontSize:11,color:C.t3,marginTop:3}}>{r.sub}</div>
+                            <div style={{fontSize:11,color:C.t4,marginTop:3}}>{r.sub}</div>
                           </div>
                           {/* Three tier boxes — tighter gap */}
                           <div style={{display:'grid',gridTemplateColumns:'1fr 1fr 1fr',gap:5}}>
@@ -3378,7 +3378,7 @@ export default function QuoteMark() {
                         <div style={{display:'flex',justifyContent:'space-between',alignItems:'flex-start',marginBottom:isGhost?0:14,marginTop:isBest?10:0}}>
                           <div style={{flex:1,minWidth:0}}>
                             <div style={{fontSize:18,fontWeight:700,color:C.t0,letterSpacing:'-0.3px',lineHeight:1.2}}>{r.name}</div>
-                            <div style={{fontSize:11,color:C.t3,marginTop:3}}>{r.sub}</div>
+                            <div style={{fontSize:11,color:C.t4,marginTop:3}}>{r.sub}</div>
                           </div>
                           <div style={{display:'flex',flexDirection:'column',alignItems:'flex-end',gap:6,flexShrink:0,marginLeft:10}}>
                             <CarrierLogo carrierId={r.id} name={r.name} small={true}/>
@@ -3392,7 +3392,7 @@ export default function QuoteMark() {
                             {/* Premium */}
                             <div style={{marginBottom:14}}>
                               <div style={{display:'flex',alignItems:'baseline',gap:8}}>
-                                <span style={{fontFamily:"'DM Mono',monospace",fontSize:30,fontWeight:700,color:isBest?C.gold:(isDark?premColor:C.t0),letterSpacing:'-1px',lineHeight:1}}>
+                                <span style={{fontFamily:"'DM Mono',monospace",fontSize:30,fontWeight:800,color:isBest?C.gold:(isDark?premColor:C.t0),letterSpacing:'-1px',lineHeight:1}}>
                                   {fmt$(r.prem)}
                                 </span>
                                 <span style={{fontSize:11,color:C.t3}}>/mo EFT</span>
