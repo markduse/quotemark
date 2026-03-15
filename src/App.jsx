@@ -1239,28 +1239,29 @@ const COMP_RATES = {
 
 // ── CARRIER META: logo domain (Clearbit) + eApp link ──
 const CARRIER_META = {
-  acc:  { img:'/logos/cvs2.jpg',   eapp:'https://www.aetnaseniorproducts.com/ssi/index.html', brand:'#DC2626' }, // CVS/Accendo — Standard Red
-  ahl:  { img:'/logos/ahl2.png',   eapp:'https://ahlpatriotseries.com/',                       brand:'#3B82F6' }, // AHL — Bright Blue
-  cont: { img:'/logos/aetna2.png', eapp:'https://www.aetnaseniorproducts.com/ssi/index.html', brand:'#7C3AED' }, // Continental/Aetna — Purple
-  rn:   { img:'/logos/rn2.png',    eapp:'https://agent.royalneighbors.org/login',              brand:'#16A34A' }, // Royal Neighbors — Green
-  ta:   { img:'/logos/ta.png',     eapp:'https://www.transamerica.com/financial-professionals/', brand:'#EF4444' }, // Transamerica — Lighter Red
-  fid:  { img:'/logos/fid2.png',   eapp:'https://portal.instabrain.io/App/?redirected=true',   brand:'#38BDF8' }, // Fidelity/InstaBrain — Light Blue
-  cbg:  { img:'/logos/cbg2.png',   eapp:'https://www.connext.corebridgefinancial.com/life/connext-portal/public/login', brand:'#9333EA' }, // Corebridge — Deep Purple
-  uhl:  { img:'/logos/uhl2.png',   eapp:'https://agentportal.unitedhomelife.com/home',          brand:'#B91C1C' }, // UHL — Slightly Dark Red
-  moo:  { img:'/logos/moo.png',    eapp:'https://www.mutualofomaha.com/agent-login',            brand:'#2563EB' }, // Mutual of Omaha — Royal Blue
-  laf:  { img:'/logos/laf.png',    eapp:'https://www.lafayettelife.com/agent-resources',        brand:'#8B5CF6' }, // Lafayette — Medium Purple
-  for:  { img:'/logos/for.png',    eapp:'https://www.forestersfinancial.com/us/agent-portal',   brand:'#7E22CE' }, // Foresters — Plum
-  amr:  { img:'/logos/amr.png',    eapp:'https://www.americo.com/agent-access',                brand:'#60A5FA' }, // Americo — Vivid Cobalt
-  amam: { img:'/logos/amam.png',   eapp:'https://www.insuranceapplication.com',                  brand:'#CBD5E1' }, // American Amicable — Light Gray
-  bl_sg:{ img:'',                    eapp:'https://www.baltlife.com',                       brand:'#1D4ED8' }, // Baltimore Life Silver Guard
-  ts:   { img:'/logos/ts.png',     eapp:'https://www.trustage.com/agents',                     brand:'#FDE68A' }, // TruStage — Pale Yellow
-  ls:   { img:'/logos/ls.png',     eapp:'https://www.lifeshield.com/agent',                    brand:'#64748B' }, // LifeShield — Gray
-  bl:   { img:'',                    eapp:'https://www.betterlifeins.com/agents',               brand:'#EAB308' }, // Better Life — Yellow
-  elco: { img:'',                    eapp:'https://www.elcomutual.com/agent-portal',            brand:'#059669' }, // Elco Mutual — Emerald Green
-  balt_sg: { img:'',                 eapp:'https://www.baltlife.com/agent-portal',              brand:'#0369A1' }, // Baltimore Life — Sky Blue
-  sl_pp: { img:'',                   eapp:'https://www.seniorlife.com/agent-portal',            brand:'#7C3AED' }, // Senior Life — Purple
-  sl:    { img:'',                   eapp:'https://www.seniorlife.com/agent-portal',            brand:'#7C3AED' }, // Senior Life WL — Purple
-  ail:   { img:'',                   eapp:'https://www.ailife.com/agent',                       brand:'#1D4ED8' }, // American Income Life — Blue
+  acc:  { img:'/logos/acc_new.png',   eapp:'https://www.aetnaseniorproducts.com/ssi/index.html', brand:'#DC2626' }, // CVS/Accendo
+  ahl:  { img:'/logos/ahl_new.png',   eapp:'https://ahlpatriotseries.com/',                       brand:'#1D4ED8' }, // AHL
+  cont: { img:'/logos/aetna_new.png', eapp:'https://www.aetnaseniorproducts.com/ssi/index.html', brand:'#7C3AED' }, // Continental/Aetna
+  rn:   { img:'/logos/rn_new.png',    eapp:'https://agent.royalneighbors.org/login',              brand:'#16A34A' }, // Royal Neighbors
+  ta:   { img:'/logos/ta.png',        eapp:'https://www.transamerica.com/financial-professionals/', brand:'#EF4444' }, // Transamerica
+  fid:  { img:'/logos/fid_new.png',   eapp:'https://portal.instabrain.io/App/?redirected=true',   brand:'#1E40AF' }, // Fidelity Life
+  cbg:  { img:'/logos/cbg_new.avif',  eapp:'https://www.connext.corebridgefinancial.com/life/connext-portal/public/login', brand:'#9333EA' }, // Corebridge
+  uhl:  { img:'/logos/uhl_new.png',   eapp:'https://agentportal.unitedhomelife.com/home',          brand:'#B91C1C' }, // UHL
+  moo:  { img:'/logos/moo_new.jpg',   eapp:'https://www.mutualofomaha.com/agent-login',            brand:'#1D4ED8' }, // Mutual of Omaha
+  laf:  { img:'/logos/laf.png',       eapp:'https://www.lafayettelife.com/agent-resources',        brand:'#8B5CF6' }, // Lafayette
+  for:  { img:'/logos/for_new.jpg',   eapp:'https://www.forestersfinancial.com/us/agent-portal',   brand:'#6B21A8' }, // Foresters
+  amr:  { img:'/logos/amr.png',       eapp:'https://www.americo.com/agent-access',                brand:'#60A5FA' }, // Americo
+  amam: { img:'/logos/amam_new.webp', eapp:'https://www.insuranceapplication.com',                brand:'#0F172A' }, // American Amicable
+  bl_sg:{ img:'',                     eapp:'https://www.baltlife.com',                       brand:'#1D4ED8' }, // Baltimore Life Silver Guard
+  ts:   { img:'/logos/ts.png',        eapp:'https://www.trustage.com/agents',                brand:'#FDE68A' }, // TruStage
+  ls:   { img:'/logos/ls_new.jpg',    eapp:'https://www.lifeshield.com/agent',               brand:'#1D4ED8' }, // LifeShield
+  lb:   { img:'/logos/lb_new.png',    eapp:'https://www.libertybankers.com/agent-portal',    brand:'#1D4ED8' }, // Liberty Bankers
+  bl:   { img:'',                     eapp:'https://www.betterlifeins.com/agents',            brand:'#EAB308' }, // Better Life
+  elco: { img:'',                     eapp:'https://www.elcomutual.com/agent-portal',         brand:'#059669' }, // Elco Mutual
+  balt_sg: { img:'',                  eapp:'https://www.baltlife.com/agent-portal',           brand:'#0369A1' }, // Baltimore Life
+  sl_pp: { img:'/logos/sl_new.png',   eapp:'https://www.seniorlife.com/agent-portal',         brand:'#7C3AED' }, // Senior Life PP
+  sl:    { img:'/logos/sl_new.png',   eapp:'https://www.seniorlife.com/agent-portal',         brand:'#7C3AED' }, // Senior Life WL
+  ail:   { img:'',                    eapp:'https://www.ailife.com/agent',                    brand:'#1D4ED8' }, // American Income Life
   // ── TERM LIFE CARRIERS ──
   american_amicable: { img:'',        eapp:'https://www.insuranceapplication.com',              brand:'#CBD5E1' }, // American Amicable — Light Gray
   instabrain: { img:'',              eapp:'https://portal.instabrain.io/App/?redirected=true',  brand:'#38BDF8' }, // Instabrain — Light Blue
