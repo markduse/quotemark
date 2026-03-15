@@ -33,7 +33,7 @@ const STATE_RULES = {
   balt_sg: { excludeStates: [] },
   sl_pp: { excludeStates: [] },
   sl:    { excludeStates: [] },
-  ail:   { excludeStates: ['MA','MN','NH','NJ','NC','WA','WV'] },
+  ail:   { excludeStates: ['MA','MN','NH','NJ','NC','WA'] },
 };
 const FACE_CAPS = {
   acc:40000, ahl:35000, cont:40000, rn:40000,
@@ -507,17 +507,17 @@ const AIL_SRGWL={
 function ailQuote(age,male,smoker,tier,face){
   const ri=(male?0:2)+(smoker?1:0);
   const f=Math.min(face,30000);
+  // Ages 50-59: WL Regular level benefit — show on Tier B and C (tobacco handled by smoker toggle)
   if(tier==='B'||tier==='C'){
     if(age<50||age>59)return null;
-    if(tier==='C'&&!smoker)return null; // C=TU only
-    if(tier==='B'&&smoker)return null;  // B=NTU only
     const row=AIL_WL[age];if(!row||row[ri]==null)return null;
     return Math.ceil(row[ri]*f/1000/12*100)/100;
   }
+  // Ages 60-80: Senior Graded WL — Tier D only (TU not available 76+)
   if(tier==='D'){
     if(age<60||age>80)return null;
     const row=AIL_SRGWL[age];if(!row)return null;
-    const r=row[ri];if(r==null)return null; // TU not available 76+
+    const r=row[ri];if(r==null)return null;
     return Math.ceil(r*f/1000/12*100)/100;
   }
   return null;
