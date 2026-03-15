@@ -537,16 +537,19 @@ function slPpQuote(age, male, smoker, tier, face) {
   return scaleRate(tbl, age, Math.min(face, 25000));
 }
 
-// ── Corebridge SIWL (Simplified Issue Whole Life) — rates at $10k face ──
-// Tier B and C use same rates (no separate standard rate in data)
-const CBG_SIWL_MN={50:27.35,55:32.78,60:41.74,65:53.75,70:69.23,75:96.58,80:145.79};
-const CBG_SIWL_MT={50:37.38,55:45.44,60:58.73,65:75.45,70:104.47,75:133.5,80:188};
-const CBG_SIWL_FN={50:21.78,55:26.26,60:32.6,65:41.28,70:52.03,75:71.64,80:104.83};
-const CBG_SIWL_FT={50:29.89,55:37.88,60:45.87,65:56.66,70:70.64,75:93.65,80:142.21};
+// ── Corebridge SIWL (SimpliNow Legacy Max) — verified rates from InsuranceToolkits API 2025 ──
+// Source: POST https://api.insurancetoolkits.com/quoter/ — $10k face, IL, Bank Draft/EFT
+// Tobacco unavailable at ages 75+ (carrier exclusion)
+const CBG_SIWL_MN={50:33.43,55:39.22,60:47.82,65:61.81,70:81.75,75:109.65,80:153.38};
+const CBG_SIWL_FN={50:26.42,55:30.15,60:35.83,65:44.79,70:58.24,75:79.34,80:107.96};
+const CBG_SIWL_MT={50:41.78,55:52.23,60:65.28,65:87.50,70:117.77};
+const CBG_SIWL_FT={50:34.37,55:42.16,60:49.39,65:62.01,70:81.60};
 
 function cbgSiwlQuote(age, male, smoker, face) {
   if (age < 50 || age > 80) return null;
-  const tbl = male ? (smoker ? CBG_SIWL_MT : CBG_SIWL_MN) : (smoker ? CBG_SIWL_FT : CBG_SIWL_FN);
+  // Tobacco rates not available at 75+ — fall back to non-tobacco
+  const useSmoker = smoker && age <= 70;
+  const tbl = male ? (useSmoker ? CBG_SIWL_MT : CBG_SIWL_MN) : (useSmoker ? CBG_SIWL_FT : CBG_SIWL_FN);
   return scaleRate(tbl, age, Math.min(face, 25000));
 }
 
