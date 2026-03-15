@@ -800,6 +800,147 @@ const SBLI_TERM_RATES = {"10":{"mn":{"18":7.81,"19":7.81,"20":7.81,"21":7.81,"22
 const ROYAL_NEIGHBORS_TERM_RATES = {"10":{"mn":{"18":11.07,"19":11.08,"20":11.1,"21":11.12,"22":11.13,"23":11.15,"24":11.16,"25":11.18,"30":11.26,"35":11.35,"40":12.76,"45":14.17,"50":14.17,"55":14.17,"60":14.17,"65":69.78,"70":137.9,"75":207.68},"mt":{"18":20.15,"19":20.32,"20":20.5,"21":20.68,"22":20.85,"23":21.03,"24":21.2,"25":21.38,"30":22.26,"35":22.26,"40":22.26,"45":22.26,"50":22.26,"55":114.49,"60":187.44,"65":187.44,"70":485.58,"75":708.05},"fn":{"18":10.3,"19":10.3,"20":10.3,"21":10.3,"22":10.3,"23":10.3,"24":10.3,"25":10.3,"30":10.3,"35":10.3,"40":10.3,"45":14.08,"50":14.08,"55":24.46,"60":39.86,"65":39.86,"70":110.62,"75":165.97},"ft":{"18":14.66,"19":15.03,"20":15.4,"21":15.77,"22":16.14,"23":16.51,"24":16.88,"25":17.25,"30":19.1,"35":20.86,"40":28.6,"45":36.34,"50":63.1,"55":89.85,"60":155.23,"65":219.82,"70":345.93,"75":470.27}},"15":{"mn":{"18":12.58,"19":12.58,"20":12.58,"21":12.58,"22":12.58,"23":12.58,"24":12.58,"25":12.58,"30":12.58,"35":12.76,"40":12.76,"45":12.76,"50":27.98,"55":37.14,"60":64.06,"65":91.08,"70":230.12,"75":371.54},"mt":{"18":18.26,"19":18.72,"20":19.18,"21":19.64,"22":20.1,"23":20.55,"24":21.01,"25":21.47,"30":23.76,"35":26.05,"40":39.25,"45":52.36,"50":91.96,"55":131.74,"60":222.73,"65":314.6,"70":529.94},"fn":{"18":10.64,"19":10.73,"20":10.82,"21":10.91,"22":11,"23":11.08,"24":11.17,"25":11.26,"30":11.7,"35":11.7,"40":14.52,"45":14.52,"50":14.52,"55":29.83,"60":29.83,"65":68.82,"70":68.82,"75":68.82},"ft":{"18":14.52,"19":15.05,"20":15.58,"21":16.11,"22":16.64,"23":17.16,"24":17.69,"25":18.22,"30":20.86,"35":20.86,"40":35.29,"45":46.99,"50":79.55,"55":112.46,"60":180.05,"65":180.05,"70":397.67}},"20":{"mn":{"18":11.62,"19":11.79,"20":11.97,"21":12.15,"22":12.32,"23":12.5,"24":12.67,"25":12.85,"30":13.73,"35":14.7,"40":18.39,"45":22.18,"50":32.91,"55":43.74,"60":82.98,"65":122.67,"70":236.28},"mt":{"18":9.63,"19":9.87,"20":10.12,"21":10.37,"22":10.61,"23":10.86,"24":11.1,"25":11.35,"30":12.58,"35":13.73,"40":16.81,"45":16.81,"50":28.25,"55":36.7,"60":36.7,"65":90.29,"70":193.25},"fn":{"18":10.51,"19":10.75,"20":11,"21":11.25,"22":11.49,"23":11.74,"24":11.98,"25":12.23,"30":13.46,"35":13.46,"40":13.46,"45":13.46,"50":13.46,"55":40.92,"60":73.04,"65":73.04,"70":73.04},"ft":{"18":14.24,"19":14.91,"20":15.58,"21":16.25,"22":16.92,"23":17.58,"24":18.25,"25":18.92,"30":22.26,"35":25.78,"40":41.1,"45":56.5,"50":56.5,"55":56.5,"60":211.55,"65":291.1}},"30":{"mn":{"18":17.87,"19":18,"20":18.12,"21":18.24,"22":18.37,"23":18.49,"24":18.62,"25":18.74,"30":19.36,"35":19.36,"40":19.36,"45":37.22,"50":63.98,"55":91.96},"mt":{"18":19.63,"19":21.08,"20":22.52,"21":23.96,"22":25.41,"23":26.85,"24":28.3,"25":29.74,"30":36.96,"35":44,"40":71.02,"45":97.86,"50":137.54},"fn":{"18":15.4,"19":15.4,"20":15.4,"21":15.4,"22":15.4,"23":15.4,"24":15.4,"25":15.4,"30":15.4,"35":17.16,"40":17.16,"45":17.16,"50":17.16,"55":17.16,"60":17.16},"ft":{"18":21.44,"19":22.16,"20":22.88,"21":23.6,"22":24.32,"23":25.05,"24":25.77,"25":26.49,"30":30.1,"35":34.14,"40":34.14,"45":79.02,"50":121.53}}};
 const TRANSAMERICA_TERM_RATES = {"10":{"mn":{"18":7.95,"19":7.98,"20":8.01,"21":8.04,"22":8.07,"23":8.1,"24":8.13,"25":8.16,"30":8.31,"35":8.31,"40":9.61,"45":11.46,"50":11.46,"55":11.46,"60":11.46,"65":43.66,"70":81.9,"75":138.34},"mt":{"18":18.44,"19":18.52,"20":18.61,"21":18.7,"22":18.78,"23":18.87,"24":18.95,"25":19.04,"30":19.47,"35":19.47,"40":19.47,"45":19.47,"50":19.47,"55":79.22,"60":122.57,"65":122.57,"70":274.98,"75":476.09},"fn":{"18":6.97,"19":6.97,"20":6.97,"21":6.97,"22":6.97,"23":6.97,"24":6.97,"25":6.97,"30":6.97,"35":6.97,"40":6.97,"45":9.95,"50":9.95,"55":17.41,"60":25.46,"65":25.46,"70":56.26,"75":97.56},"ft":{"18":14.79,"19":14.96,"20":15.13,"21":15.3,"22":15.47,"23":15.64,"24":15.81,"25":15.98,"30":16.83,"35":18.19,"40":23.63,"45":29.92,"50":40.46,"55":57.38,"60":90.7,"65":135.58,"70":197.88,"75":299.71}},"15":{"mn":{"18":8.75,"19":8.75,"20":8.75,"21":8.75,"22":8.75,"23":8.75,"24":8.75,"25":8.75,"30":8.75,"35":8.93,"40":8.93,"45":8.93,"50":17.94,"55":26.25,"60":42.88,"65":66.76,"70":104.65,"75":280.84},"mt":{"18":19.64,"19":19.64,"20":19.64,"21":19.64,"22":19.64,"23":19.64,"24":19.64,"25":19.64,"30":19.64,"35":23.29,"40":30.18,"45":41.06,"50":59.59,"55":92.14,"60":131.41,"65":204.34,"70":354.88},"fn":{"18":7.24,"19":7.28,"20":7.31,"21":7.34,"22":7.38,"23":7.41,"24":7.45,"25":7.48,"30":7.65,"35":7.65,"40":9.01,"45":9.01,"50":9.01,"55":20.4,"60":20.4,"65":46.99,"70":46.99,"75":46.99},"ft":{"18":15.81,"19":15.98,"20":16.15,"21":16.32,"22":16.49,"23":16.66,"24":16.83,"25":17,"30":17.85,"35":17.85,"40":25.84,"45":35.62,"50":48.54,"55":68.68,"60":102.51,"65":102.51,"70":242.76}},"20":{"mn":{"18":9.06,"19":9.08,"20":9.1,"21":9.12,"22":9.14,"23":9.15,"24":9.17,"25":9.19,"30":9.28,"35":9.35,"40":11.05,"45":15.64,"50":21.76,"55":32.64,"60":50.93,"65":91.53,"70":202.47},"mt":{"18":17.08,"19":17.64,"20":18.2,"21":18.76,"22":19.32,"23":19.88,"24":20.44,"25":21,"30":23.8,"35":27.03,"40":36.55,"45":36.55,"50":76.93,"55":124.44,"60":124.44,"65":267.24},"fn":{"18":7.81,"19":7.88,"20":7.95,"21":8.02,"22":8.09,"23":8.17,"24":8.24,"25":8.31,"30":8.67,"35":8.67,"40":8.67,"45":8.67,"50":8.67,"55":25.55,"60":39.03,"65":39.03,"70":39.03},"ft":{"18":14.33,"19":14.82,"20":15.31,"21":15.8,"22":16.29,"23":16.79,"24":17.28,"25":17.77,"30":20.23,"35":23.8,"40":30.86,"45":43.61,"50":43.61,"55":43.61,"60":132.18,"65":216.33}},"30":{"mn":{"18":11.19,"19":11.28,"20":11.37,"21":11.46,"22":11.55,"23":11.63,"24":11.72,"25":11.81,"30":12.25,"35":12.25,"40":12.25,"45":25.11,"50":36.66,"55":59.94},"mt":{"18":23.35,"19":24.13,"20":24.91,"21":25.69,"22":26.47,"23":27.26,"24":28.04,"25":28.82,"30":32.73,"35":39.78,"40":56.87,"45":86.87,"50":122.4},"fn":{"18":10.33,"19":10.33,"20":10.33,"21":10.33,"22":10.33,"23":10.33,"24":10.33,"25":10.33,"30":10.33,"35":12.16,"40":12.16,"45":12.16,"50":12.16,"55":12.16,"60":12.16},"ft":{"18":18.13,"19":18.76,"20":19.39,"21":20.02,"22":20.65,"23":21.27,"24":21.9,"25":22.53,"30":25.67,"35":31.03,"40":31.03,"45":64.35,"50":98.43}}};
 
+
+// ── CASH VALUE CORRIDOR ESTIMATOR ──────────────────────────────────────────
+function calculateCVCorridor(age, monthlyPremium, policyYear) {
+  const totalPaid = Math.round(monthlyPremium * 12 * policyYear);
+  if (policyYear <= 2) return { low: 0, high: 0, totalPaid };
+  const netFactor = age < 40 ? 0.90 : age <= 60 ? 0.80 : 0.70;
+  const annualNet = monthlyPremium * 12 * netFactor;
+  const n = policyYear - 2;
+  const low  = Math.round(annualNet * (Math.pow(1.03, n) - 1) / 0.03);
+  const high = Math.round(annualNet * (Math.pow(1.05, n) - 1) / 0.05);
+  return { low, high, totalPaid };
+}
+
+const CashValueProjection = ({ age, monthlyPremium, C, isDark }) => {
+  const [sliderYear, setSliderYear] = React.useState(10);
+  const fmt = n => '$' + Math.round(n).toLocaleString();
+  const snapshots = [5, 10, 20];
+  const current = calculateCVCorridor(age, monthlyPremium, sliderYear);
+
+  let breakEvenYear = null;
+  for (let y = 3; y <= 30; y++) {
+    const { high, totalPaid } = calculateCVCorridor(age, monthlyPremium, y);
+    if (high >= totalPaid) { breakEvenYear = y; break; }
+  }
+
+  const netPct = age < 40 ? 90 : age <= 60 ? 80 : 70;
+  const amber = '#F59E0B';
+  const green = '#34D399';
+
+  return (
+    <div style={{display:'flex',flexDirection:'column',gap:16,padding:24,maxWidth:720,margin:'0 auto',width:'100%'}}>
+      {/* Header */}
+      <div style={{display:'flex',alignItems:'center',gap:12,paddingBottom:12,borderBottom:`1px solid ${C.bd}`}}>
+        <span style={{fontSize:28}}>💰</span>
+        <div>
+          <div style={{fontSize:18,fontWeight:800,color:C.t0,fontFamily:"'DM Sans',sans-serif"}}>Cash Value Projection</div>
+          <div style={{fontSize:12,color:C.t4,marginTop:2}}>Whole life policies · Agent reference only · {age} y/o · ${monthlyPremium.toLocaleString()}/mo</div>
+        </div>
+        <div style={{marginLeft:'auto',background:'rgba(245,158,11,0.1)',border:'1px solid rgba(245,158,11,0.25)',borderRadius:8,padding:'4px 10px',fontSize:11,color:amber,fontWeight:700}}>
+          {netPct}% net contribution
+        </div>
+      </div>
+
+      {/* Slider */}
+      <div style={{background:C.bg3,border:`1px solid ${C.bd}`,borderRadius:12,padding:16}}>
+        <div style={{display:'flex',justifyContent:'space-between',alignItems:'center',marginBottom:10}}>
+          <span style={{fontSize:12,fontWeight:600,color:C.t3,textTransform:'uppercase',letterSpacing:1.2}}>Policy Year</span>
+          <span style={{fontSize:22,fontWeight:800,color:amber,fontFamily:"'DM Mono',monospace"}}>Year {sliderYear}</span>
+        </div>
+        <input type="range" min="1" max="30" value={sliderYear}
+          onChange={e=>setSliderYear(Number(e.target.value))}
+          style={{width:'100%',accentColor:amber,cursor:'pointer',height:6}}/>
+        <div style={{display:'flex',justifyContent:'space-between',fontSize:10,color:C.t4,marginTop:6}}>
+          {[1,5,10,15,20,25,30].map(y=>(
+            <span key={y} onClick={()=>setSliderYear(y)} style={{cursor:'pointer',color:sliderYear===y?amber:C.t4,fontWeight:sliderYear===y?700:400}}>{y}</span>
+          ))}
+        </div>
+      </div>
+
+      {/* Current year big card */}
+      <div style={{background:isDark?'rgba(245,158,11,0.07)':'rgba(245,158,11,0.05)',border:'1px solid rgba(245,158,11,0.28)',borderRadius:12,padding:18}}>
+        <div style={{fontSize:10,fontWeight:700,letterSpacing:1.8,color:amber,textTransform:'uppercase',marginBottom:14}}>
+          Year {sliderYear} · Estimated Cash Value
+        </div>
+        {sliderYear <= 2 ? (
+          <div style={{textAlign:'center',padding:'16px 0'}}>
+            <div style={{fontSize:28,marginBottom:8}}>⏳</div>
+            <div style={{color:C.t3,fontSize:14,fontWeight:600}}>2-Year Dry Period</div>
+            <div style={{color:C.t4,fontSize:12,marginTop:4}}>Cash value begins accumulating after month 24</div>
+          </div>
+        ) : (
+          <>
+            <div style={{display:'flex',gap:10,marginBottom:14}}>
+              <div style={{flex:1,background:C.bg2,border:`1px solid ${C.bd}`,borderRadius:10,padding:'12px 14px'}}>
+                <div style={{fontSize:10,color:C.t4,marginBottom:6,fontWeight:600}}>CONSERVATIVE · 3%</div>
+                <div style={{fontSize:22,fontWeight:800,color:C.t1,fontFamily:"'DM Mono',monospace"}}>{fmt(current.low)}</div>
+              </div>
+              <div style={{flex:1,background:C.bg2,border:'1px solid rgba(245,158,11,0.4)',borderRadius:10,padding:'12px 14px'}}>
+                <div style={{fontSize:10,color:amber,marginBottom:6,fontWeight:600}}>TARGET · 5%</div>
+                <div style={{fontSize:22,fontWeight:800,color:amber,fontFamily:"'DM Mono',monospace"}}>{fmt(current.high)}</div>
+              </div>
+            </div>
+            <div style={{display:'flex',alignItems:'center',justifyContent:'space-between',fontSize:12}}>
+              <span style={{color:C.t4}}>Total premiums paid: <strong style={{color:C.t2,fontFamily:"'DM Mono',monospace"}}>{fmt(current.totalPaid)}</strong></span>
+              {breakEvenYear && sliderYear >= breakEvenYear && (
+                <span style={{background:'rgba(16,185,129,0.15)',border:'1px solid rgba(16,185,129,0.35)',color:green,borderRadius:20,padding:'3px 10px',fontWeight:700,fontSize:11}}>
+                  ✓ Break-even reached Yr {breakEvenYear}
+                </span>
+              )}
+            </div>
+          </>
+        )}
+      </div>
+
+      {/* Snapshot table */}
+      <div style={{background:C.bg3,border:`1px solid ${C.bd}`,borderRadius:12,overflow:'hidden'}}>
+        <div style={{padding:'10px 16px',borderBottom:`1px solid ${C.bd}`,display:'flex',alignItems:'center',justifyContent:'space-between'}}>
+          <span style={{fontSize:10,fontWeight:700,letterSpacing:1.8,color:C.t4,textTransform:'uppercase'}}>Performance Corridor</span>
+          <span style={{fontSize:10,color:C.t4}}>5 · 10 · 20 year snapshots</span>
+        </div>
+        <table style={{width:'100%',borderCollapse:'collapse'}}>
+          <thead>
+            <tr style={{background:isDark?'rgba(255,255,255,0.025)':'rgba(0,0,0,0.025)'}}>
+              {['Year','Conservative (3%)','Target (5%)','Total Paid'].map(h=>(
+                <th key={h} style={{padding:'8px 16px',textAlign:h==='Year'?'left':'right',fontSize:11,color:C.t4,fontWeight:600}}>{h}</th>
+              ))}
+            </tr>
+          </thead>
+          <tbody>
+            {snapshots.map((yr,i)=>{
+              const d = calculateCVCorridor(age, monthlyPremium, yr);
+              const isBE = breakEvenYear === yr;
+              const pastBE = breakEvenYear && yr >= breakEvenYear;
+              const isActive = sliderYear === yr;
+              return (
+                <tr key={yr} onClick={()=>setSliderYear(yr)}
+                  style={{borderTop:i>0?`1px solid ${C.bd}`:'none',cursor:'pointer',
+                    background:isActive?(isDark?'rgba(245,158,11,0.07)':'rgba(245,158,11,0.05)'):'transparent',
+                    transition:'background 0.15s'}}>
+                  <td style={{padding:'11px 16px',fontSize:13,fontWeight:700,color:isActive?amber:C.t1}}>
+                    Year {yr}
+                    {isBE&&<span style={{marginLeft:8,fontSize:10,background:'rgba(16,185,129,0.15)',border:'1px solid rgba(16,185,129,0.35)',color:green,borderRadius:10,padding:'1px 7px',fontWeight:700}}>Break-even</span>}
+                  </td>
+                  <td style={{padding:'11px 16px',textAlign:'right',fontSize:12,color:C.t2,fontFamily:"'DM Mono',monospace"}}>{yr<=2?'—':fmt(d.low)}</td>
+                  <td style={{padding:'11px 16px',textAlign:'right',fontSize:12,fontWeight:700,color:pastBE?green:amber,fontFamily:"'DM Mono',monospace"}}>{yr<=2?'—':fmt(d.high)}</td>
+                  <td style={{padding:'11px 16px',textAlign:'right',fontSize:12,color:C.t3,fontFamily:"'DM Mono',monospace"}}>{fmt(d.totalPaid)}</td>
+                </tr>
+              );
+            })}
+          </tbody>
+        </table>
+      </div>
+
+      {/* Disclaimer */}
+      <div style={{fontSize:10,color:C.t4,lineHeight:1.7,background:C.bg3,borderRadius:8,padding:'10px 14px',border:`1px solid ${C.bd}`}}>
+        ⚠️ <strong>Agent reference only.</strong> Net contribution {netPct}% applied for age {age}. Growth modeled as future value of annuity (3–5% corridors). Actual cash values depend on carrier-specific accumulation tables, policy fees, loan activity, and dividend participation. Always refer to the carrier's official policy illustration before presenting to client.
+      </div>
+    </div>
+  );
+};
+
 // ── TERM CARRIER ARRAY ──
 const TERM_CARRIERS = [
   {id:'american_amicable', name:'American Amicable', sub:'Term Life', abbr:'AA', enabled:true, termOnly:true, supportedTerms:['10','15','20','30'],
@@ -1566,7 +1707,9 @@ export default function QuoteMark() {
   const [reqSent,setReqSent]   = useState(false);
 
   // ── TERM MODE STATE ──
-  const [quoteMode,setQuoteMode] = useState('fe'); // 'fe' | 'term'
+  const [quoteMode,setQuoteMode] = useState('fe'); // 'fe' | 'term' | 'cv'
+  const [cvMonthly,setCvMonthly] = useState('');
+  const [cvAge,setCvAge]         = useState('');
   const [termLength,setTermLength] = useState('10'); // '10' | '15' | '20' | '30'
   const [termFace,setTermFace] = useState(100000); // $25k-$300k
   const [termHealth,setTermHealth] = useState('pp'); // 'pp'=Preferred Plus, 'p'=Preferred, 'sp'=Standard Plus, 's'=Standard
@@ -1871,6 +2014,13 @@ export default function QuoteMark() {
               fontSize:13,fontWeight:700,cursor:'pointer',fontFamily:"'DM Sans',sans-serif",
               transition:'all 0.18s'
             }}>⏱️ Term Life</button>
+            <button onClick={()=>setQuoteMode('cv')} style={{
+              flex:1,padding:'10px 0',borderRadius:18,border:'none',
+              background:quoteMode==='cv'?'#F59E0B':'transparent',
+              color:quoteMode==='cv'?'#0B1120':C.t3,
+              fontSize:13,fontWeight:700,cursor:'pointer',fontFamily:"'DM Sans',sans-serif",
+              transition:'all 0.18s'
+            }}>💰 Cash Value</button>
           </div>
         </div>
 
@@ -2763,6 +2913,13 @@ export default function QuoteMark() {
             fontSize:12,fontWeight:700,cursor:'pointer',fontFamily:"'DM Sans',sans-serif",
             transition:'all 0.18s',letterSpacing:0.3,whiteSpace:'nowrap'
           }}>⏱️ Term Life</button>
+          <button onClick={()=>setQuoteMode('cv')} style={{
+            padding:'7px 20px',borderRadius:20,border:'none',
+            background:quoteMode==='cv'?'#F59E0B':'transparent',
+            color:quoteMode==='cv'?'#0B1120':C.t3,
+            fontSize:12,fontWeight:700,cursor:'pointer',fontFamily:"'DM Sans',sans-serif",
+            transition:'all 0.18s',letterSpacing:0.3,whiteSpace:'nowrap'
+          }}>💰 Cash Value</button>
         </div>
         <div style={{display:'flex',alignItems:'center',gap:10}}>
 
@@ -3155,11 +3312,57 @@ export default function QuoteMark() {
 
           </>
           )}
+
+          {quoteMode==='cv' && (
+            <div style={{display:'flex',flexDirection:'column',gap:12}}>
+              <div style={{fontSize:10,fontWeight:700,letterSpacing:1.8,color:'#F59E0B',textTransform:'uppercase',marginBottom:2}}>Cash Value Estimator</div>
+              <div style={{background:'rgba(245,158,11,0.07)',border:'1px solid rgba(245,158,11,0.25)',borderRadius:12,padding:14}}>
+                <div style={{fontSize:11,color:C.t3,marginBottom:10,lineHeight:1.5}}>Enter the policy details to project the cash value corridor over time.</div>
+                <div style={{marginBottom:12}}>
+                  <div style={{fontSize:11,color:C.t3,marginBottom:6,fontWeight:600}}>Monthly Premium ($)</div>
+                  <input type="number" placeholder="e.g. 52" value={cvMonthly}
+                    onChange={e=>setCvMonthly(e.target.value)}
+                    style={{...inp,fontFamily:"'DM Mono',monospace",fontSize:15}}/>
+                </div>
+                <div>
+                  <div style={{fontSize:11,color:C.t3,marginBottom:6,fontWeight:600}}>Client Age</div>
+                  <input type="number" placeholder="e.g. 65" value={cvAge}
+                    onChange={e=>setCvAge(e.target.value)}
+                    style={{...inp,fontFamily:"'DM Mono',monospace",fontSize:15}}/>
+                </div>
+              </div>
+              {cvMonthly && cvAge && Number(cvMonthly)>0 && Number(cvAge)>0 && (
+                <div style={{background:'rgba(245,158,11,0.06)',border:'1px solid rgba(245,158,11,0.2)',borderRadius:10,padding:'10px 14px'}}>
+                  <div style={{fontSize:10,color:'#F59E0B',fontWeight:700,marginBottom:6,letterSpacing:1}}>QUICK LOOK · Year 10</div>
+                  {(()=>{
+                    const d = calculateCVCorridor(Number(cvAge), Number(cvMonthly), 10);
+                    return (<>
+                      <div style={{fontSize:13,color:C.t2}}>Conservative: <strong style={{color:C.t1,fontFamily:"'DM Mono',monospace"}}>${Math.round(d.low).toLocaleString()}</strong></div>
+                      <div style={{fontSize:13,color:C.t2,marginTop:4}}>Target: <strong style={{color:'#F59E0B',fontFamily:"'DM Mono',monospace"}}>${Math.round(d.high).toLocaleString()}</strong></div>
+                    </>);
+                  })()}
+                </div>
+              )}
+            </div>
+          )}
+
         </div>
 
         {/* ── RESULTS PANEL ── */}
         <div style={{padding:'0',overflowY:'auto',display:'flex',flexDirection:'column'}}>
-          {quoteMode==='term'?(
+          {quoteMode==='cv'?(
+            <div style={{display:'flex',justifyContent:'center',width:'100%',overflowY:'auto'}}>
+              {cvMonthly && cvAge && Number(cvMonthly)>0 && Number(cvAge)>0 ? (
+                <CashValueProjection age={Number(cvAge)} monthlyPremium={Number(cvMonthly)} C={C} isDark={isDark}/>
+              ) : (
+                <div style={{display:'flex',flexDirection:'column',alignItems:'center',justifyContent:'center',height:'60vh',gap:16}}>
+                  <span style={{fontSize:52}}>💰</span>
+                  <div style={{fontSize:18,fontWeight:700,color:C.t2}}>Cash Value Estimator</div>
+                  <div style={{fontSize:13,textAlign:'center',maxWidth:280,lineHeight:1.6,color:C.t4}}>Enter a monthly premium and client age in the sidebar to project the performance corridor.</div>
+                </div>
+              )}
+            </div>
+          ):quoteMode==='term'?(
             <div style={{display:'flex',flexDirection:'column',height:'100%'}}>
               <div style={{background:C.bg3,borderBottom:`1px solid ${C.bd}`,padding:'11px 24px',display:'flex',alignItems:'center',justifyContent:'space-between',gap:12,flexWrap:'wrap',position:'sticky',top:0,zIndex:10}}>
                 <div style={{display:'flex',alignItems:'center',gap:10,flexWrap:'wrap'}}>
