@@ -1212,7 +1212,7 @@ const CARRIERS = [
    product:{B:'Level',C:null,D:null,E:null},
    fn:(age,male,smoker,tier,face)=>slPpQuote(age,male,smoker,tier,face)},
   {id:'sl',    name:'Senior Life',          sub:'Whole Life (EI)', abbr:'SL', enabled:true,
-   product:{B:'Level — Super Preferred',C:'Level — Standard',D:'Modified',E:'Guaranteed Issue'},
+   product:{B:null,C:'Level — Standard',D:'Modified',E:'Guaranteed Issue'},
    fn:(age,male,smoker,tier,face)=>slWlQuote(age,male,smoker,tier,face)},
   {id:'ail',   name:'American Income Life', sub:'Whole Life / Graded', abbr:'AI', enabled:true,
    product:{B:'Level — Non-Tobacco',C:'Level — Tobacco',D:'Senior Graded (3-yr)',E:null},
