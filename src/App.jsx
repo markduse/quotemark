@@ -1254,14 +1254,28 @@ function transamericaTerm10(age, male, smoker, face) {
 // Source: InsuranceToolkits API — Illinois, EFT, verified 2025
 function fexLookup(company, planName, age, male, smoker, face, isGI=false) {
   const gender = male ? 'Male' : 'Female';
-  // GI products store all rates under 'Smoker' key regardless of tobacco status
-  const smokeKey = isGI ? 'Smoker' : (smoker ? 'Smoker' : 'NonSmoker');
   const ageStr = String(age);
-  let rf = FEX_RATES?.[company]?.[planName]?.[gender]?.[smokeKey]?.[ageStr];
-  // Fallback: smoker rates cap at 65 for most carriers — use NS rate for older smokers
-  if (!rf && smoker && !isGI) {
-    rf = FEX_RATES?.[company]?.[planName]?.[gender]?.['NonSmoker']?.[ageStr];
+  let rf = null;
+
+  if (isGI) {
+    // GI: all rates stored under 'Smoker' regardless of tobacco
+    rf = FEX_RATES?.[company]?.[planName]?.[gender]?.['Smoker']?.[ageStr];
+  } else if (male) {
+    // Male: try actual tobacco status, fall back to NonSmoker for older smokers (cap at 65)
+    rf = FEX_RATES?.[company]?.[planName]?.['Male']?.[smoker ? 'Smoker' : 'NonSmoker']?.[ageStr];
+    if (!rf && smoker) {
+      rf = FEX_RATES?.[company]?.[planName]?.['Male']?.['NonSmoker']?.[ageStr];
+    }
+  } else {
+    // Female: source data stores female rates under 'Smoker' key (ITK data structure)
+    // Both smoker and non-smoker females use this rate — only one female rate per plan
+    rf = FEX_RATES?.[company]?.[planName]?.['Female']?.['Smoker']?.[ageStr];
+    if (!rf) {
+      // Some carriers do have Female NonSmoker rows (graded products)
+      rf = FEX_RATES?.[company]?.[planName]?.['Female']?.['NonSmoker']?.[ageStr];
+    }
   }
+
   if (!rf) return null;
   // Enforce face amount restrictions
   const key = `${company}||${planName}`;
