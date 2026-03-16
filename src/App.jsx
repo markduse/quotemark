@@ -1579,22 +1579,23 @@ const fmtF = n => n!=null ? `$${n.toLocaleString()}` : '—';
 const C_DARK = {
   bg0:'#020617', bg1:'#0B1120', bg2:'#0F172A', bg3:'#1E293B', bg4:'#263347',
   bd:'#1E293B', bd2:'#334155',
-  t0:'#F8FAFC', t1:'#E2E8F0', t2:'#CBD5E1', t3:'#94A3B8', t4:'#64748B',
+  t0:'#FAF9F6', t1:'#E2E8F0', t2:'#CBD5E1', t3:'#94A3B8', t4:'#64748B',
   blue:'#38BDF8', blueBg:'rgba(56,189,248,0.1)', blueBd:'rgba(56,189,248,0.25)',
-  gold:'#F59E0B', goldBg:'rgba(245,158,11,0.1)', goldBd:'rgba(245,158,11,0.25)',
+  gold:'#C5A059', goldBg:'rgba(197,160,89,0.12)', goldBd:'rgba(197,160,89,0.3)',
   green:'#22C55E',
   selActive:'#38BDF8', selActiveTxt:'#0B1120',
 };
 
 const C_LIGHT = {
-  bg0:'#F8FAFC', bg1:'#F8FAFC', bg2:'#FFFFFF', bg3:'#F1F5F9', bg4:'#E2E8F0',
-  bd:'#E2E8F0', bd2:'#CBD5E1',
-  t0:'#0F172A', t1:'#1E293B', t2:'#334155', t3:'#64748B', t4:'#94A3B8',
-  blue:'#2563EB', blueBg:'rgba(37,99,235,0.07)', blueBd:'rgba(37,99,235,0.2)',
-  gold:'#F59E0B', goldBg:'rgba(245,158,11,0.08)', goldBd:'rgba(245,158,11,0.25)',
+  // Executive warm palette — bone/cream backgrounds, deep navy text, champagne gold accents
+  bg0:'#FAF9F6', bg1:'#FAF9F6', bg2:'#FFFFFF', bg3:'#F2F1EC', bg4:'#E8E6DF',
+  bd:'#E5E3DB', bd2:'#D0CDBE',
+  t0:'#0A192F', t1:'#1A2B42', t2:'#3E4A59', t3:'#6B7280', t4:'#9CA3AF',
+  blue:'#0A192F', blueBg:'rgba(10,25,47,0.06)', blueBd:'rgba(10,25,47,0.18)',
+  gold:'#C5A059', goldBg:'rgba(197,160,89,0.1)', goldBd:'rgba(197,160,89,0.3)',
   green:'#16A34A',
-  cardBg:'#FFFFFF', cardShadow:'0 4px 6px -1px rgba(0,0,0,0.07),0 2px 4px -2px rgba(0,0,0,0.05)',
-  selActive:'#0F172A', selActiveTxt:'#FFFFFF', selInactive:'#F1F5F9', selInactiveTxt:'#64748B',
+  cardBg:'#FFFFFF', cardShadow:'0 4px 12px -2px rgba(10,25,47,0.08),0 2px 4px -2px rgba(10,25,47,0.04)',
+  selActive:'#0A192F', selActiveTxt:'#FFFFFF', selInactive:'#F2F1EC', selInactiveTxt:'#6B7280',
 };
 
 
@@ -1722,12 +1723,12 @@ const EAppBtn = ({carrierId, compact=false, lightMode=false}) => {
           display:'inline-flex',alignItems:'center',gap:5,
           padding:'5px 14px',borderRadius:6,
           border:'none',
-          background:hov?'#059669':'#10B981',
-          color:'#FFFFFF',
+          background:hov?'#22C55E':'#4ADE80',
+          color:'#0A192F',
           fontSize:11,fontWeight:700,textDecoration:'none',
           letterSpacing:0.3,transition:'all 0.15s',
           transform:hov?'translateY(-1px)':'translateY(0)',
-          boxShadow:hov?'0 4px 10px rgba(16,185,129,0.4)':'0 1px 4px rgba(16,185,129,0.2)',
+          boxShadow:hov?'0 4px 10px rgba(74,222,128,0.45)':'0 1px 4px rgba(74,222,128,0.2)',
           whiteSpace:'nowrap',flexShrink:0
         }}>
         📋 e-App
@@ -1743,11 +1744,11 @@ const EAppBtn = ({carrierId, compact=false, lightMode=false}) => {
           display:'flex',alignItems:'center',justifyContent:'center',gap:7,
           width:'100%',padding:'11px 0',
           borderRadius:8,border:'none',
-          background:hov?'#059669':'#10B981',
-          color:'#FFFFFF',
+          background:hov?'#22C55E':'#4ADE80',
+          color:'#0A192F',
           fontSize:13,fontWeight:700,textDecoration:'none',
           letterSpacing:0.3,transition:'all 0.15s',
-          boxShadow:hov?'0 6px 16px rgba(16,185,129,0.45)':'0 2px 8px rgba(16,185,129,0.25)',
+          boxShadow:hov?'0 6px 18px rgba(74,222,128,0.45)':'0 2px 8px rgba(74,222,128,0.25)',
           transform:hov?'translateY(-1px)':'translateY(0)',
         }}>
         📋 e-App
@@ -2124,7 +2125,7 @@ export default function QuoteMark() {
         {/* ── MOBILE HEADER ── */}
         <div style={{background:C.bg1,borderBottom:`1px solid ${C.bd}`,padding:'12px 18px',display:'flex',alignItems:'center',justifyContent:'space-between',position:'sticky',top:0,zIndex:50}}>
           <div style={{fontFamily:"'Barlow Condensed',sans-serif",fontSize:26,fontWeight:800,color:C.t0,letterSpacing:'-0.5px'}}>
-            Quote<span style={{color:C.gold}}>Mark</span>
+            <span style={{color:isDark?'#E2E8F0':'#0A192F',fontFamily:"'Barlow Condensed',sans-serif"}}>Quote</span><span style={{color:'#C5A059',fontFamily:"'Barlow Condensed',sans-serif"}}>Mark</span>
           </div>
           <div style={{display:'flex',alignItems:'center',gap:6}}>
             <button onClick={toggleDarkMode} title={isDark?'Switch to Light Mode':'Switch to Dark Mode'} style={{padding:'8px 10px',borderRadius:8,border:`1px solid ${C.bd2}`,background:C.bg3,color:C.t2,fontSize:16,cursor:'pointer',lineHeight:1,display:'flex',alignItems:'center'}}>
@@ -2244,7 +2245,7 @@ export default function QuoteMark() {
                       : isDark?'#374151':'#CBD5E1'}`,
                     background:gsbOn
                       ? (isDark?'linear-gradient(135deg,rgba(245,158,11,0.18) 0%,rgba(148,115,52,0.12) 50%,rgba(180,100,30,0.12) 100%)':'linear-gradient(135deg,rgba(245,158,11,0.12) 0%,rgba(180,130,60,0.08) 100%)')
-                      : (isDark?'#0F172A':'#F8FAFC'),
+                      : (isDark?'#0F172A':'#FAF9F6'),
                     color:gsbOn?C.gold:C.t3,
                     fontSize:11,fontWeight:700,cursor:'pointer',fontFamily:"'DM Sans',sans-serif",
                     boxShadow:gsbOn?(isDark?'0 0 12px rgba(245,158,11,0.2),0 2px 8px rgba(0,0,0,0.3)':'0 2px 8px rgba(217,119,6,0.15)'):'none'
@@ -2680,10 +2681,10 @@ export default function QuoteMark() {
                           <div style={{fontSize:12,color:C.t2,marginBottom:14,fontFamily:"'DM Mono',monospace"}}>${(result.prem*12).toFixed(0)} / year</div>
                           <div style={{display:'flex',gap:6,flexWrap:'wrap',paddingTop:12,borderTop:`1px solid ${isDark?'rgba(16,185,129,0.2)':'#D1FAE5'}`,marginBottom:14}}>
                             <span style={{background:isDark?'rgba(16,185,129,0.1)':'#ECFDF5',border:`1px solid ${isDark?'rgba(16,185,129,0.25)':'#6EE7B7'}`,borderRadius:6,padding:'4px 10px',fontSize:11,color:isDark?'#6EE7B7':'#065F46',fontWeight:600}}>{fmtF(result.face)}</span>
-                            <span style={{background:isDark?C.bg3:'#F8FAFC',border:`1px solid ${C.bd}`,borderRadius:6,padding:'4px 10px',fontSize:11,color:C.t3}}>{result.healthClass}</span>
-                            <span style={{background:isDark?C.bg3:'#F8FAFC',border:`1px solid ${C.bd}`,borderRadius:6,padding:'4px 10px',fontSize:11,color:C.t3}}>{gender==='male'?'Male':'Female'} · {smoker?'Tobacco':'NS'} · Age {termAge}</span>
+                            <span style={{background:isDark?C.bg3:'#FAF9F6',border:`1px solid ${C.bd}`,borderRadius:6,padding:'4px 10px',fontSize:11,color:C.t3}}>{result.healthClass}</span>
+                            <span style={{background:isDark?C.bg3:'#FAF9F6',border:`1px solid ${C.bd}`,borderRadius:6,padding:'4px 10px',fontSize:11,color:C.t3}}>{gender==='male'?'Male':'Female'} · {smoker?'Tobacco':'NS'} · Age {termAge}</span>
                           </div>
-                          <a href={CARRIER_META[result.id]?.eapp||'#'} target="_blank" rel="noopener noreferrer" style={{display:'block',padding:'13px 0',borderRadius:9,textAlign:'center',background:'#10B981',color:'#FFFFFF',fontSize:14,fontWeight:700,textDecoration:'none',boxShadow:'0 2px 8px rgba(16,185,129,0.3)'}}>Open e-App →</a>
+                          <a href={CARRIER_META[result.id]?.eapp||'#'} target="_blank" rel="noopener noreferrer" style={{display:'block',padding:'13px 0',borderRadius:9,textAlign:'center',background:'#4ADE80',color:'#0A192F',fontSize:14,fontWeight:700,textDecoration:'none',boxShadow:'0 2px 8px rgba(74,222,128,0.3)'}}>Open e-App →</a>
                         </div>
                       ))}
                       {termResults.filter(r => !r.available).map(result => (
@@ -3151,7 +3152,7 @@ export default function QuoteMark() {
       {/* ── HEADER ── */}
       <div style={{background:C.bg1,borderBottom:`1px solid ${C.bd}`,padding:'11px 24px',display:'flex',alignItems:'center',justifyContent:'space-between',position:'sticky',top:0,zIndex:50}}>
         <div style={{fontFamily:"'Barlow Condensed',sans-serif",fontSize:26,fontWeight:800,color:C.t0,letterSpacing:'-0.5px'}}>
-          Quote<span style={{color:C.gold}}>Mark</span>
+          <span style={{color:isDark?'#E2E8F0':'#0A192F',fontFamily:"'Barlow Condensed',sans-serif"}}>Quote</span><span style={{color:'#C5A059',fontFamily:"'Barlow Condensed',sans-serif"}}>Mark</span>
         </div>
         {/* ── FEX / TERM TOGGLE ── */}
         <div style={{display:'flex',background:isDark?'rgba(11,17,32,0.8)':'#F1F5F9',borderRadius:24,padding:3,border:`1px solid ${C.bd}`,gap:2}}>
@@ -3267,7 +3268,7 @@ export default function QuoteMark() {
                   : isDark?'#374151':'#CBD5E1'}`,
                 background:gsbOn
                   ? (isDark?'linear-gradient(135deg,rgba(245,158,11,0.18) 0%,rgba(148,115,52,0.12) 50%,rgba(180,100,30,0.12) 100%)':'linear-gradient(135deg,rgba(245,158,11,0.12) 0%,rgba(180,130,60,0.08) 100%)')
-                  : (isDark?'#0F172A':'#F8FAFC'),
+                  : (isDark?'#0F172A':'#FAF9F6'),
                 color:gsbOn?C.gold:C.t3,
                 fontSize:11,fontWeight:700,cursor:'pointer',fontFamily:"'DM Sans',sans-serif",
                 boxShadow:gsbOn?(isDark?'0 0 14px rgba(245,158,11,0.22),0 2px 8px rgba(0,0,0,0.3)':'0 2px 10px rgba(217,119,6,0.18)'):'none'
