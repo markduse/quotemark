@@ -1254,30 +1254,16 @@ function transamericaTerm10(age, male, smoker, face) {
 // Source: InsuranceToolkits API — Illinois, EFT, verified 2025
 function fexLookup(company, planName, age, male, smoker, face, isGI=false) {
   const gender = male ? 'Male' : 'Female';
+  // GI products only have one rate key ('Smoker') regardless of tobacco status
+  const smokeKey = isGI ? 'Smoker' : (smoker ? 'Smoker' : 'NonSmoker');
   const ageStr = String(age);
-  let rf = null;
-
-  if (isGI) {
-    // GI: all rates stored under 'Smoker' regardless of tobacco
-    rf = FEX_RATES?.[company]?.[planName]?.[gender]?.['Smoker']?.[ageStr];
-  } else if (male) {
-    // Male: try actual tobacco status, fall back to NonSmoker for older smokers (cap at 65)
-    rf = FEX_RATES?.[company]?.[planName]?.['Male']?.[smoker ? 'Smoker' : 'NonSmoker']?.[ageStr];
-    if (!rf && smoker) {
-      rf = FEX_RATES?.[company]?.[planName]?.['Male']?.['NonSmoker']?.[ageStr];
-    }
-  } else {
-    // Female: source data stores female rates under 'Smoker' key (ITK data structure)
-    // Both smoker and non-smoker females use this rate — only one female rate per plan
-    rf = FEX_RATES?.[company]?.[planName]?.['Female']?.['Smoker']?.[ageStr];
-    if (!rf) {
-      // Some carriers do have Female NonSmoker rows (graded products)
-      rf = FEX_RATES?.[company]?.[planName]?.['Female']?.['NonSmoker']?.[ageStr];
-    }
+  let rf = FEX_RATES?.[company]?.[planName]?.[gender]?.[smokeKey]?.[ageStr];
+  // Smoker rates cap at age 65 for most carriers — fall back to NS rate for 66+
+  if (!rf && smoker && !isGI) {
+    rf = FEX_RATES?.[company]?.[planName]?.[gender]?.['NonSmoker']?.[ageStr];
   }
-
   if (!rf) return null;
-  // Enforce face amount restrictions
+  // Enforce face amount + state restrictions
   const key = `${company}||${planName}`;
   const r = RESTRICTIONS?.[key];
   if (r) {
@@ -1286,9 +1272,23 @@ function fexLookup(company, planName, age, male, smoker, face, isGI=false) {
   return Math.round(rf * face / 1000 * 100) / 100;
 }
 
+// State check: returns true if carrier/plan is available in given state
+function fexStateOK(company, planName, state) {
+  if (!state) return true;
+  const key = `${company}||${planName}`;
+  const r = RESTRICTIONS?.[key];
+  if (!r) return true; // no restriction data = allow
+  if (r.blockedStates && r.blockedStates.includes(state)) return false;
+  if (r.availableStates && r.availableStates.length > 0) {
+    return r.availableStates.includes(state);
+  }
+  return true;
+}
+
 const CARRIERS = [
   {id:'acc',  name:'Accendo / CVS',  sub:'Protection Series FE', abbr:'AC', enabled:true,
    product:{B:'Preferred',C:'Standard',D:'Modified',E:null},
+   stateCheck:(s)=>(fexStateOK('CVS (Aetna Accendo)','Accendo Preferred',s)),
    fn:(age,male,smoker,tier,face)=>{
      if(tier==='B') return fexLookup('CVS (Aetna Accendo)','Accendo Preferred',age,male,smoker,face);
      if(tier==='C') return fexLookup('CVS (Aetna Accendo)','Accendo Standard',age,male,smoker,face);
@@ -1297,6 +1297,7 @@ const CARRIERS = [
    }},
   {id:'ahl',  name:'American Home Life', sub:'Patriot Series FE', abbr:'AH', enabled:true,
    product:{B:'Preferred',C:'Standard',D:'Modified',E:null},
+   stateCheck:(s)=>(fexStateOK('American Home Life (Patriot Series)','Patriot Series Preferred',s)),
    fn:(age,male,smoker,tier,face)=>{
      if(tier==='B') return fexLookup('American Home Life (Patriot Series)','Patriot Series Preferred',age,male,smoker,face);
      if(tier==='C') return fexLookup('American Home Life (Patriot Series)','Patriot Series Standard',age,male,smoker,face);
@@ -1305,12 +1306,14 @@ const CARRIERS = [
    }},
   {id:'cont', name:'Aetna / Continental', sub:'Protection Series FE', abbr:'CL', enabled:true,
    product:{B:'Preferred',C:null,D:null,E:null},
+   stateCheck:(s)=>(fexStateOK('Aetna (Protection Series)','Protection Series Preferred',s)),
    fn:(age,male,smoker,tier,face)=>{
      if(tier==='B') return fexLookup('Aetna (Protection Series)','Protection Series Preferred',age,male,smoker,face);
      return null;
    }},
   {id:'rn',   name:'Royal Neighbors',    sub:'Ensured Legacy FE', abbr:'RN', enabled:true,
    product:{B:'Standard',C:'Standard',D:'Graded',E:'Guaranteed Issue'},
+   stateCheck:(s)=>(fexStateOK('Royal Neighbors (Ensured Legacy)','Ensured Legacy Standard',s)),
    fn:(age,male,smoker,tier,face)=>{
      if(tier==='B'||tier==='C') return fexLookup('Royal Neighbors (Ensured Legacy)','Ensured Legacy Standard',age,male,smoker,face);
      if(tier==='D') return fexLookup('Royal Neighbors (Ensured Legacy)','Ensured Legacy Graded',age,male,smoker,face);
@@ -1320,6 +1323,7 @@ const CARRIERS = [
   // ── NEW CARRIERS ──
   {id:'moo',  name:'Mutual of Omaha',    sub:'Living Promise', abbr:'MO', enabled:true,
    product:{B:'Level',C:'Level',D:'Graded',E:null},
+   stateCheck:(s)=>(fexStateOK('Mutual of Omaha (Living Promise)','Living Promise Level',s)),
    fn:(age,male,smoker,tier,face)=>{
      if(tier==='B'||tier==='C') return fexLookup('Mutual of Omaha (Living Promise)','Living Promise Level',age,male,smoker,face);
      if(tier==='D') return fexLookup('Mutual of Omaha (Living Promise)','Living Promise Graded',age,male,smoker,face);
@@ -1327,6 +1331,7 @@ const CARRIERS = [
    }},
   {id:'ta',   name:'Transamerica',       sub:'Immediate Solution', abbr:'TA', enabled:true,
    product:{B:'Preferred',C:'Standard',D:'Graded',E:null},
+   stateCheck:(s)=>(fexStateOK('Transamerica (Solutions)','Immediate Solution Preferred',s)),
    fn:(age,male,smoker,tier,face)=>{
      if(tier==='B') return fexLookup('Transamerica (Solutions)','Immediate Solution Preferred',age,male,smoker,face);
      if(tier==='C') return fexLookup('Transamerica (Solutions)','Immediate Solution Standard',age,male,smoker,face);
@@ -1338,6 +1343,7 @@ const CARRIERS = [
    fn:(age,male,smoker,tier,face)=>{if(tier!=='B'&&tier!=='C')return null;return csvLookup(LAF,LAF_M,age,male,smoker,face);}},
   {id:'for',  name:'Foresters',          sub:'PlanRight Whole Life', abbr:'FR', enabled:true,
    product:{B:'Preferred',C:'Standard',D:'Basic',E:null},
+   stateCheck:(s)=>(fexStateOK('Foresters (PlanRight)','PlanRight Preferred',s)),
    fn:(age,male,smoker,tier,face)=>{
      if(tier==='B') return fexLookup('Foresters (PlanRight)','PlanRight Preferred',age,male,smoker,face);
      if(tier==='C') return fexLookup('Foresters (PlanRight)','PlanRight Standard',age,male,smoker,face);
@@ -1352,6 +1358,7 @@ const CARRIERS = [
    fn:(age,male,smoker,tier,face)=>{if(tier==='B')return csvLookup(AMRP,AMRP_M,age,male,smoker,face);if(tier==='C')return csvLookup(AMRS,AMRS_M,age,male,smoker,face);return null;}},
   {id:'uhl',  name:'United Home Life',   sub:'Premier / Deluxe / GI', abbr:'UH', enabled:true,
    product:{B:'Premier',C:'Deluxe',D:'Graded (EIWL)',E:'Guaranteed Issue'},
+   stateCheck:(s)=>(fexStateOK('UHL','Premier',s)),
    fn:(age,male,smoker,tier,face)=>{
      if(tier==='B') return fexLookup('UHL','Premier',age,male,smoker,face);
      if(tier==='C') return fexLookup('UHL','Deluxe',age,male,smoker,face);
@@ -1361,6 +1368,7 @@ const CARRIERS = [
    }},
   {id:'fid',  name:'Fidelity Life',      sub:'RAPIDecision FE / GI', abbr:'FD', enabled:true,
    product:{B:'Level',C:'Level',D:null,E:'Guaranteed Issue'},
+   stateCheck:(s)=>(fexStateOK('Fidelity (RAPIDecision Final Expense)','Level',s)),
    fn:(age,male,smoker,tier,face)=>{
      if(tier==='B'||tier==='C') return fexLookup('Fidelity (RAPIDecision Final Expense)','Level',age,male,smoker,face);
      if(tier==='E') return fexLookup('Fidelity (RAPIDecision Final Expense)','Guaranteed',age,male,smoker,face,true);
@@ -1368,6 +1376,7 @@ const CARRIERS = [
    }},
   {id:'cbg',  name:'Corebridge Financial', sub:'SIWL / GIWL', abbr:'CB', enabled:true,
    product:{B:'SimpliNow Legacy Max',C:'SimpliNow Legacy Max',D:null,E:'Guaranteed Issue'},
+   stateCheck:(s)=>(fexStateOK('AIG (SIWL)','SimpliNow Legacy Max',s)),
    fn:(age,male,smoker,tier,face)=>{
      if(tier==='B'||tier==='C') return fexLookup('AIG (SIWL)','SimpliNow Legacy Max',age,male,smoker,face);
      if(tier==='E') return fexLookup('AIG (GIWL)','Guaranteed Issue',age,male,smoker,face,true);
@@ -1375,6 +1384,7 @@ const CARRIERS = [
    }},
   {id:'lb',   name:'Liberty Bankers',    sub:'SIMPL Whole Life', abbr:'LB', enabled:true,
    product:{B:'SIMPL Preferred',C:'SIMPL Standard',D:'SIMPL Modified',E:null},
+   stateCheck:(s)=>(fexStateOK('Liberty Bankers','SIMPL Preferred',s)),
    fn:(age,male,smoker,tier,face)=>{
      if(tier==='B') return fexLookup('Liberty Bankers','SIMPL Preferred',age,male,smoker,face);
      if(tier==='C') return fexLookup('Liberty Bankers','SIMPL Standard',age,male,smoker,face);
@@ -1383,6 +1393,7 @@ const CARRIERS = [
    }},
   {id:'amam', name:'American Amicable',  sub:'Senior Choice', abbr:'AA', enabled:true,
    product:{B:'Immediate',C:'Immediate',D:'Graded',E:null},
+   stateCheck:(s)=>(fexStateOK('American Amicable (Senior Choice)','Senior Choice Immediate',s)),
    fn:(age,male,smoker,tier,face)=>{
      if(tier==='B'||tier==='C') return fexLookup('American Amicable (Senior Choice)','Senior Choice Immediate',age,male,smoker,face);
      if(tier==='D') return fexLookup('American Amicable (Senior Choice)','Senior Choice Graded',age,male,smoker,face);
@@ -1393,6 +1404,7 @@ const CARRIERS = [
    fn:(age,male,smoker,tier,face)=>{if(tier!=='B'&&tier!=='C')return null;return csvLookup(RA,RA_M,age,male,smoker,face);}},
   {id:'bl_sg', name:'Baltimore Life',    sub:'iProvide FE', abbr:'BL', enabled:true,
    product:{B:'Preferred',C:'Standard',D:'Modified',E:null},
+   stateCheck:(s)=>(fexStateOK('Baltimore Life (iProvide 45-69)','iProvide (45-69) Preferred',s)),
    fn:(age,male,smoker,tier,face)=>{
      // iProvide 45-69 for ages 50-69, iProvide 70+ for ages 70-80
      const co = age<=69 ? 'Baltimore Life (iProvide 45-69)' : 'Baltimore Life (iProvide 70+)';
@@ -1406,6 +1418,7 @@ const CARRIERS = [
    }},
   {id:'ls',   name:'Lifeshield',         sub:'Survivor Level / Graded', abbr:'LS', enabled:true,
    product:{B:'Level',C:'Level',D:'Graded',E:null},
+   stateCheck:(s)=>(fexStateOK('Lifeshield','Survivor Level',s)),
    fn:(age,male,smoker,tier,face)=>{
      if(tier==='B'||tier==='C') return fexLookup('Lifeshield','Survivor Level',age,male,smoker,face);
      if(tier==='D') return fexLookup('Lifeshield','Survivor Graded',age,male,smoker,face);
@@ -1423,6 +1436,7 @@ const CARRIERS = [
    }},
   {id:'elco', name:'Elco Mutual',          sub:'Silver Eagle', abbr:'EM', enabled:true,
    product:{B:'Premier',C:'Standard',D:'Graded',E:'Guaranteed Issue'},
+   stateCheck:(s)=>(fexStateOK('Elco (Silver Eagle)','Silver Eagle Premier',s)),
    fn:(age,male,smoker,tier,face)=>{
      if(tier==='B') return fexLookup('Elco (Silver Eagle)','Silver Eagle Premier',age,male,smoker,face);
      if(tier==='C') return fexLookup('Elco (Silver Eagle)','Silver Eagle Standard',age,male,smoker,face);
@@ -1439,6 +1453,7 @@ const CARRIERS = [
    }},
   {id:'sl_pp', name:'Senior Life',         sub:'Platinum Protection', abbr:'SL', enabled:true,
    product:{B:'Level',C:null,D:null,E:null},
+   stateCheck:(s)=>(fexStateOK('Senior Life (Platinum Protection)','Platinum Protection',s)),
    fn:(age,male,smoker,tier,face)=>{
      if(tier!=='B') return null;
      return fexLookup('Senior Life (Platinum Protection)','Platinum Protection',age,male,smoker,face);
@@ -1452,6 +1467,7 @@ const CARRIERS = [
   // ── NEW CARRIERS FROM RATE SHEET ──
   {id:'ta_exp', name:'Transamerica',  sub:'Express Select', abbr:'TX', enabled:true,
    product:{B:'Select',C:null,D:'Graded',E:null},
+   stateCheck:(s)=>(fexStateOK('Transamerica (Express)','Express Select',s)),
    fn:(age,male,smoker,tier,face)=>{
      if(tier==='B') return fexLookup('Transamerica (Express)','Express Select',age,male,smoker,face);
      if(tier==='D') return fexLookup('Transamerica (Express)','Express Graded',age,male,smoker,face);
@@ -1459,6 +1475,7 @@ const CARRIERS = [
    }},
   {id:'ahl_gs', name:'American Home Life', sub:'GuideStar 45+', abbr:'AG', enabled:true,
    product:{B:'Level',C:'Level',D:'Graded',E:null},
+   stateCheck:(s)=>(fexStateOK('American Home Life (GuideStar 45+)','GuideStar Level',s)),
    fn:(age,male,smoker,tier,face)=>{
      if(tier==='B'||tier==='C') return fexLookup('American Home Life (GuideStar 45+)','GuideStar Level',age,male,smoker,face);
      if(tier==='D') return fexLookup('American Home Life (GuideStar 45+)','GuideStar Graded',age,male,smoker,face);
@@ -1466,6 +1483,7 @@ const CARRIERS = [
    }},
   {id:'amam_gs', name:'American Amicable', sub:'Golden Solution', abbr:'AG', enabled:true,
    product:{B:'Immediate',C:'Immediate',D:'Graded',E:null},
+   stateCheck:(s)=>(fexStateOK('American Amicable (Golden Solution)','Golden Solution Immediate',s)),
    fn:(age,male,smoker,tier,face)=>{
      if(tier==='B'||tier==='C') return fexLookup('American Amicable (Golden Solution)','Golden Solution Immediate',age,male,smoker,face);
      if(tier==='D') return fexLookup('American Amicable (Golden Solution)','Golden Solution Graded',age,male,smoker,face);
@@ -1473,6 +1491,7 @@ const CARRIERS = [
    }},
   {id:'rna_gi', name:'Royal Neighbors',   sub:'Guaranteed Issue', abbr:'RG', enabled:true,
    product:{B:null,C:null,D:null,E:'Guaranteed Issue'},
+   stateCheck:(s)=>(fexStateOK('Royal Neighbors (Ensured Legacy)','Ensured Legacy Guaranteed Issue',s)),
    fn:(age,male,smoker,tier,face)=>{
      if(tier==='E') return fexLookup('Royal Neighbors (Ensured Legacy)','Ensured Legacy Guaranteed Issue',age,male,smoker,face,true);
      return null;
@@ -1989,7 +2008,11 @@ export default function QuoteMark() {
   function buildResult(carr, a, male, face) {
     if(!carr.enabled) return {...carr,prem:null,face:null,productName:null,reason:'Carrier disabled'};
     const maxAge=AGE_MAX[carr.id],maxFace=FACE_CAPS[carr.id],stateRule=STATE_RULES[carr.id];
-    if(usState&&stateRule?.excludeStates?.includes(usState)) return{...carr,prem:null,face:null,productName:null,reason:`Not licensed in ${STATE_NAMES[usState]||usState}`};
+    // State check: new data-driven check (fexStateOK) + legacy STATE_RULES fallback
+    if(usState) {
+      if(carr.stateCheck && !carr.stateCheck(usState)) return{...carr,prem:null,face:null,productName:null,reason:`Not available in ${STATE_NAMES[usState]||usState}`};
+      else if(!carr.stateCheck && stateRule?.excludeStates?.includes(usState)) return{...carr,prem:null,face:null,productName:null,reason:`Not licensed in ${STATE_NAMES[usState]||usState}`};
+    }
     if(a>maxAge) return{...carr,prem:null,face:null,productName:null,reason:`Maximum age is ${maxAge}`};
     if(a>85&&(carr.id==='acc'||carr.id==='cont')) return{...carr,prem:null,face:null,productName:null,reason:'Ages 86–89 rate data pending'};
     const pName=carr.product[uwTier];
