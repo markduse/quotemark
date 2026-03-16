@@ -1254,13 +1254,20 @@ function transamericaTerm10(age, male, smoker, face) {
 // Source: InsuranceToolkits API — Illinois, EFT, verified 2025
 function fexLookup(company, planName, age, male, smoker, face, isGI=false) {
   const gender = male ? 'Male' : 'Female';
-  // GI products only have one rate key ('Smoker') regardless of tobacco status
-  const smokeKey = isGI ? 'Smoker' : (smoker ? 'Smoker' : 'NonSmoker');
   const ageStr = String(age);
-  let rf = FEX_RATES?.[company]?.[planName]?.[gender]?.[smokeKey]?.[ageStr];
-  // Smoker rates cap at age 65 for most carriers — fall back to NS rate for 66+
-  if (!rf && smoker && !isGI) {
-    rf = FEX_RATES?.[company]?.[planName]?.[gender]?.['NonSmoker']?.[ageStr];
+  let rf = null;
+  if (isGI) {
+    // GI products only have 'Smoker' key regardless of tobacco
+    rf = FEX_RATES?.[company]?.[planName]?.[gender]?.['Smoker']?.[ageStr];
+  } else if (male) {
+    rf = FEX_RATES?.[company]?.[planName]?.['Male']?.[smoker?'Smoker':'NonSmoker']?.[ageStr];
+    // Male smoker rates cap at 65 — fall back to NS for older ages
+    if (!rf && smoker) rf = FEX_RATES?.[company]?.[planName]?.['Male']?.['NonSmoker']?.[ageStr];
+  } else {
+    // Female: some ages (50-57) stored under 'Smoker' key, ages 58+ under 'NonSmoker'
+    // Try both, prefer whichever key has actual data for this age
+    rf = FEX_RATES?.[company]?.[planName]?.['Female']?.[smoker?'Smoker':'NonSmoker']?.[ageStr];
+    if (!rf) rf = FEX_RATES?.[company]?.[planName]?.['Female']?.[smoker?'NonSmoker':'Smoker']?.[ageStr];
   }
   if (!rf) return null;
   // Enforce face amount + state restrictions
@@ -1530,7 +1537,7 @@ const CARRIER_META = {
   laf:  { img:'/logos/laf.png',       eapp:'https://www.lafayettelife.com/agent-resources',        brand:'#8B5CF6' }, // Lafayette
   for:  { img:'/logos/for.png',   eapp:'https://www.forestersfinancial.com/us/agent-portal',   brand:'#6B21A8' }, // Foresters
   amr:  { img:'/logos/amr.png',       eapp:'https://www.americo.com/agent-access',                brand:'#60A5FA' }, // Americo
-  amam: { img:'/logos/amam.png', eapp:'https://www.insuranceapplication.com',                brand:'#0F172A' }, // American Amicable
+  amam: { img:'/logos/amam.png', eapp:'https://www.insuranceapplication.com',                brand:'#3B82F6' }, // American Amicable
   bl_sg:{ img:'/logos/balt.png',                     eapp:'https://www.baltlife.com',                       brand:'#1D4ED8' }, // Baltimore Life Silver Guard
   ts:   { img:'/logos/ts.png',        eapp:'https://www.trustage.com/agents',                brand:'#FDE68A' }, // TruStage
   ls:   { img:'/logos/ls.jpg',    eapp:'https://www.lifeshield.com/agent',               brand:'#1D4ED8' }, // LifeShield
@@ -1616,7 +1623,7 @@ const TierBadge = ({tier, productName}) => {
         {s.label}
       </span>
       {hov&&(
-        <span style={{position:'absolute',bottom:'calc(100% + 6px)',left:0,background:'#1E3A5A',border:'1px solid #2A4F78',color:'#CBD5E1',fontSize:10,borderRadius:6,padding:'7px 10px',width:200,lineHeight:1.5,zIndex:50,pointerEvents:'none',boxShadow:'0 4px 16px rgba(0,0,0,0.5)'}}>
+        <span style={{position:'absolute',bottom:'calc(100% + 6px)',left:0,background:'#1E3A5A',border:'1px solid #2A4F78',color:'#CBD5E1',fontSize:10,borderRadius:6,padding:'7px 10px',width:200,lineHeight:1.5,zIndex:9999,pointerEvents:'none',boxShadow:'0 4px 16px rgba(0,0,0,0.5)'}}>
           {s.tip}
         </span>
       )}
@@ -1808,10 +1815,12 @@ export default function QuoteMark() {
   const [age,setAge]           = useState('');
   const [dob,setDob]           = useState({mm:'',dd:'',yyyy:''});
   const [usState,setUsState]   = useState('');
-  const [gender,setGender]     = useState('male');
-  const [smoker,setSmoker]     = useState(false);
-  const [mode,setMode]         = useState('face');
-  const [faceAmt,setFaceAmt]   = useState(10000);
+  const [gender,setGender]     = useState(_lq.gender||'male');
+  const [smoker,setSmoker]     = useState(_lq.smoker||false);
+  // ── Session persistence: restore last quote on reload ──
+  const _lq = (() => { try { return JSON.parse(sessionStorage.getItem('qm_last_quote')||'{}'); } catch(e) { return {}; } })();
+  const [mode,setMode]         = useState(_lq.mode||'face');
+  const [faceAmt,setFaceAmt]   = useState(_lq.faceAmt||10000);
   const [budget,setBudget]     = useState(60);
   const [gsbOn,setGsbOn]       = useState(false);
   const [gsbFace,setGsbFace]   = useState({gold:15000,silver:10000,bronze:5000});
@@ -1834,6 +1843,7 @@ export default function QuoteMark() {
   const [tierOvr,setTierOvr]   = useState(null);
   const [uwOpen,setUwOpen]     = useState(false);
   const [carrierPanel,setCarrierPanel] = useState(false);
+  const [carrierPanelTab,setCarrierPanelTab] = useState('fex'); // 'fex'|'term'|'iul'
   const [carriers,setCarriers] = useState(CARRIERS.map(c=>({...c})));
   const [reqForm,setReqForm]   = useState({name:'',state:'',notes:''});
   const mobileResultsRef = React.useRef(null);
@@ -1968,6 +1978,10 @@ export default function QuoteMark() {
   const ageOK    = age && ageNum>=50 && ageNum<=89;
 
   const toggleOvr = (t) => { setTierOvr(p=>p===t?null:t); ; };
+  // Persist last quote params to sessionStorage whenever they change
+  useEffect(() => {
+    try { sessionStorage.setItem('qm_last_quote', JSON.stringify({mode,faceAmt,gender,smoker})); } catch(e){}
+  }, [mode, faceAmt, gender, smoker]);
   const toggleCond = (id) => {
     ; setTierOvr(null);
     if(id==='none'){setSelected(['none']);return;}
@@ -2286,7 +2300,7 @@ export default function QuoteMark() {
                             setFaceAmt(+e.target.value);
                             if(navigator.vibrate) navigator.vibrate(4);
                           }}
-                          style={{width:'100%',accentColor:C.gold,height:35,cursor:'pointer',marginBottom:6}}/>
+                          style={{width:'100%',accentColor:C.gold,height:42,cursor:'pointer',marginBottom:6}}/>
                         <div style={{display:'flex',justifyContent:'space-between',fontSize:11,color:C.t4}}>
                           <span>$2,000</span><span>$100,000</span>
                         </div>
@@ -2499,7 +2513,7 @@ export default function QuoteMark() {
                 </div>
                 <input type="range" min="25000" max="300000" step="25000" value={termFace}
                   onChange={e=>setTermFace(+e.target.value)}
-                  style={{width:'100%',accentColor:'#10B981',height:35,cursor:'pointer',marginBottom:6}}/>
+                  style={{width:'100%',accentColor:'#10B981',height:42,cursor:'pointer',marginBottom:6}}/>
                 <div style={{display:'flex',justifyContent:'space-between',fontSize:11,color:C.t4}}>
                   <span>$25,000</span><span style={{color:'#10B981',fontWeight:600}}>$300K max (no exam)</span>
                 </div>
@@ -3052,8 +3066,26 @@ export default function QuoteMark() {
                 <div style={{fontSize:15,fontWeight:700,color:C.t0}}>Active Carriers</div>
                 <button onClick={()=>setCarrierPanel(false)} style={{background:'transparent',border:'none',color:C.t3,fontSize:22,cursor:'pointer',lineHeight:1}}>×</button>
               </div>
+              {/* Tab bar */}
+              <div style={{display:'flex',borderBottom:`1px solid ${C.bd}`,background:C.bg2}}>
+                {[['fex','🏛️ FEX'],['term','⏱️ Term'],['iul','📈 IUL']].map(([tab,label])=>(
+                  <button key={tab} onClick={()=>setCarrierPanelTab(tab)} style={{
+                    flex:1,padding:'10px 0',border:'none',background:'transparent',
+                    color:carrierPanelTab===tab?C.t0:C.t4,fontSize:12,fontWeight:carrierPanelTab===tab?700:500,
+                    cursor:'pointer',borderBottom:carrierPanelTab===tab?`2px solid ${C.blue}`:'2px solid transparent',
+                    fontFamily:"'DM Sans',sans-serif",transition:'all 0.15s'
+                  }}>{label}</button>
+                ))}
+              </div>
               <div style={{overflowY:'auto',padding:'12px 16px',flex:1}}>
-                {carriers.filter(c => !c.linkedId).map(c=>{
+                {carriers
+                  .filter(c => !c.linkedId && (
+                    carrierPanelTab==='fex'  ? !c.termOnly && !c.iulOnly :
+                    carrierPanelTab==='term' ? c.termOnly :
+                    carrierPanelTab==='iul'  ? c.iulOnly : false
+                  ))
+                  .sort((a,b)=>a.name.localeCompare(b.name))
+                  .map(c=>{
                   const active=c.enabled;
                   return(
                     <div key={c.id} style={{display:'flex',alignItems:'center',gap:12,padding:'12px 0',borderBottom:`1px solid ${C.bd}`}} onClick={()=>toggleCarrier(c.id)}>
@@ -3827,7 +3859,12 @@ export default function QuoteMark() {
                     }
                     // Single mode
                     const brandColor = (!isGhost&&!isBest) ? (CARRIER_META[r.id]?.brand||C.bd2) : null;
-                    const premColor  = isBest ? C.gold : (CARRIER_META[r.id]?.brand || C.t0);
+                    const premColor  = isBest ? C.gold : (() => {
+                      const b = CARRIER_META[r.id]?.brand;
+                      // Ensure brand color is readable in dark mode (not near-black)
+                      if (!b || b === '#0F172A' || b === '#000000') return C.t0;
+                      return b;
+                    })();
                     return(
                       <div key={r.id}
                         onMouseEnter={()=>setHovCard(r.id)}
@@ -4174,8 +4211,25 @@ export default function QuoteMark() {
 
             {/* Active carriers */}
             <div>
-              <div style={{fontSize:10,fontWeight:700,color:C.t4,letterSpacing:1.8,textTransform:'uppercase',marginBottom:12}}>Active Carriers</div>
-              {CARRIERS.map(c=>{
+              {/* Tab bar */}
+              <div style={{display:'flex',gap:4,marginBottom:14,background:C.bg3,borderRadius:8,padding:3}}>
+                {[['fex','🏛️ FEX'],['term','⏱️ Term'],['iul','📈 IUL']].map(([tab,label])=>(
+                  <button key={tab} onClick={()=>setCarrierPanelTab(tab)} style={{
+                    flex:1,padding:'6px 0',border:'none',borderRadius:6,fontSize:11,fontWeight:700,cursor:'pointer',
+                    background:carrierPanelTab===tab?(isDark?C.blue:'#0F172A'):'transparent',
+                    color:carrierPanelTab===tab?'#FFFFFF':C.t4,
+                    fontFamily:"'DM Sans',sans-serif",transition:'all 0.15s'
+                  }}>{label}</button>
+                ))}
+              </div>
+              {CARRIERS
+                .filter(c => !c.linkedId && (
+                  carrierPanelTab==='fex'  ? !c.termOnly && !c.iulOnly :
+                  carrierPanelTab==='term' ? c.termOnly :
+                  carrierPanelTab==='iul'  ? c.iulOnly : false
+                ))
+                .sort((a,b)=>a.name.localeCompare(b.name))
+                .map(c=>{
                 const active=carriers.find(x=>x.id===c.id)?.enabled;
                 return(
                   <div key={c.id} style={{display:'flex',alignItems:'center',gap:12,padding:'12px 14px',borderRadius:10,marginBottom:6,background:active?C.bg3:C.bg1,border:`1px solid ${active?C.bd2:C.bd}`,cursor:'pointer',transition:'all 0.1s'}}
