@@ -2788,9 +2788,9 @@ export default function QuoteMark() {
                             {r.anyPrem && CARRIER_META[r.id]?.eapp && (
                               <a href={CARRIER_META[r.id].eapp} target="_blank" rel="noopener noreferrer" style={{
                                 display:'block',marginTop:10,padding:'11px 0',borderRadius:9,textAlign:'center',
-                                background:isDark?'#38BDF8':'#2563EB',border:'none',
-                                color:isDark?'#0B1120':'#FFFFFF',fontSize:13,fontWeight:700,textDecoration:'none',
-                                boxShadow:isDark?'0 2px 8px rgba(56,189,248,0.3)':'0 2px 6px rgba(37,99,235,0.2)'
+                                background:'#4ADE80',border:'none',
+                                color:'#0A192F',fontSize:13,fontWeight:700,textDecoration:'none',
+                                boxShadow:'0 2px 8px rgba(74,222,128,0.3)'
                               }}>Open e-App →</a>
                             )}
                           </div>
@@ -2840,16 +2840,16 @@ export default function QuoteMark() {
                                 isDark ? (
                                   <a href={CARRIER_META[r.id].eapp} target="_blank" rel="noopener noreferrer" style={{
                                     display:'block',padding:'12px 0',borderRadius:9,textAlign:'center',
-                                    background:'#38BDF8',border:'none',
-                                    color:'#0B1120',fontSize:14,fontWeight:700,textDecoration:'none',
-                                    boxShadow:'0 2px 8px rgba(56,189,248,0.3)'
+                                    background:'#4ADE80',border:'none',
+                                    color:'#0A192F',fontSize:14,fontWeight:700,textDecoration:'none',
+                                    boxShadow:'0 2px 8px rgba(74,222,128,0.3)'
                                   }}>Open e-App →</a>
                                 ) : (
                                   <a href={CARRIER_META[r.id].eapp} target="_blank" rel="noopener noreferrer" style={{
                                     display:'block',padding:'12px 0',borderRadius:9,textAlign:'center',
-                                    background:'#2563EB',border:'none',
-                                    color:'#FFFFFF',fontSize:14,fontWeight:700,textDecoration:'none',
-                                    boxShadow:'0 2px 6px rgba(37,99,235,0.25)'
+                                    background:'#4ADE80',border:'none',
+                                    color:'#0A192F',fontSize:14,fontWeight:700,textDecoration:'none',
+                                    boxShadow:'0 2px 8px rgba(74,222,128,0.3)'
                                   }}>Open e-App →</a>
                                 )
                               )}
