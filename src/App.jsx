@@ -1815,12 +1815,12 @@ export default function QuoteMark() {
   const [age,setAge]           = useState('');
   const [dob,setDob]           = useState({mm:'',dd:'',yyyy:''});
   const [usState,setUsState]   = useState('');
-  const [gender,setGender]     = useState(_lq.gender||'male');
-  const [smoker,setSmoker]     = useState(_lq.smoker||false);
   // ── Session persistence: restore last quote on reload ──
   const _lq = (() => { try { return JSON.parse(sessionStorage.getItem('qm_last_quote')||'{}'); } catch(e) { return {}; } })();
   const [mode,setMode]         = useState(_lq.mode||'face');
   const [faceAmt,setFaceAmt]   = useState(_lq.faceAmt||10000);
+  const [gender,setGender]     = useState(_lq.gender||'male');
+  const [smoker,setSmoker]     = useState(_lq.smoker||false);
   const [budget,setBudget]     = useState(60);
   const [gsbOn,setGsbOn]       = useState(false);
   const [gsbFace,setGsbFace]   = useState({gold:15000,silver:10000,bronze:5000});
@@ -3859,12 +3859,8 @@ export default function QuoteMark() {
                     }
                     // Single mode
                     const brandColor = (!isGhost&&!isBest) ? (CARRIER_META[r.id]?.brand||C.bd2) : null;
-                    const premColor  = isBest ? C.gold : (() => {
-                      const b = CARRIER_META[r.id]?.brand;
-                      // Ensure brand color is readable in dark mode (not near-black)
-                      if (!b || b === '#0F172A' || b === '#000000') return C.t0;
-                      return b;
-                    })();
+                    const _b = CARRIER_META[r.id]?.brand;
+                    const premColor  = isBest ? C.gold : (!_b || _b === '#0F172A' || _b === '#000000' ? C.t0 : _b);
                     return(
                       <div key={r.id}
                         onMouseEnter={()=>setHovCard(r.id)}
