@@ -855,7 +855,7 @@ function calculateCVCorridor(monthlyPremium, policyYears, issueAge) {
 
 const CashValueProjection = ({ monthlyPremium, policyYears, issueAge, C, isDark }) => {
   const fmt = n => '$' + Math.round(n).toLocaleString();
-  const amber = '#F59E0B';
+  const amber = '#C5A059';
   const green = '#34D399';
   const d = calculateCVCorridor(monthlyPremium, policyYears, issueAge || 65);
   const range = d.high - d.low;
@@ -2108,7 +2108,7 @@ export default function QuoteMark() {
 
   // ── INPUT STYLES ──
   const inp = {background:C.bg2,border:`1px solid ${C.bd}`,color:C.t1,borderRadius:8,padding:'9px 12px',fontSize:13,width:'100%',boxSizing:'border-box',outline:'none',fontFamily:"'DM Sans',sans-serif"};
-  const togBtn = (active) => isDark ? {flex:1,padding:'9px 0',minHeight:40,borderRadius:7,border:`2px solid ${active?'#38BDF8':'#374151'}`,cursor:'pointer',fontSize:12,fontWeight:600,background:active?'#38BDF8':'#0F172A',color:active?'#0B1120':'#94A3B8',fontFamily:"'DM Sans',sans-serif"} : {flex:1,padding:'9px 0',minHeight:40,borderRadius:7,border:`2px solid ${active?'#0F172A':'#CBD5E1'}`,cursor:'pointer',fontSize:12,fontWeight:600,background:active?'#0F172A':C.selInactive,color:active?'#FFFFFF':'#64748B',fontFamily:"'DM Sans',sans-serif"};
+  const togBtn = (active) => isDark ? {flex:1,padding:'9px 0',minHeight:40,borderRadius:7,border:`2px solid ${active?'#C5A059':'#374151'}`,cursor:'pointer',fontSize:12,fontWeight:600,background:active?'#C5A059':'#0F172A',color:active?'#0A192F':'#94A3B8',fontFamily:"'DM Sans',sans-serif"} : {flex:1,padding:'9px 0',minHeight:40,borderRadius:7,border:`2px solid ${active?'#0A192F':'#D0CDBE'}`,cursor:'pointer',fontSize:12,fontWeight:600,background:active?'#0A192F':C.selInactive,color:active?'#FFFFFF':'#6B7280',fontFamily:"'DM Sans',sans-serif"};
   const sec = {background:C.bg3,border:`1px solid ${C.bd}`,borderRadius:12,padding:16};
   const lbl = {fontSize:10,fontWeight:700,letterSpacing:1.8,color:C.t4,textTransform:'uppercase',marginBottom:10};
 
@@ -2117,10 +2117,10 @@ export default function QuoteMark() {
   // ─────────────────────────────────────────────────
   if (isMobile) {
     const mInp = {background:C.bg2,border:`1px solid ${C.bd}`,color:C.t1,borderRadius:10,padding:'12px 14px',fontSize:15,width:'100%',boxSizing:'border-box',outline:'none',fontFamily:"'DM Sans',sans-serif",WebkitAppearance:'none'};
-    const mTogBtn = (active,color) => isDark ? {flex:1,padding:'14px 0',minHeight:48,borderRadius:10,border:`2px solid ${active?'#38BDF8':'#374151'}`,cursor:'pointer',fontSize:14,fontWeight:600,background:active?'#38BDF8':'#0F172A',color:active?'#0B1120':'#94A3B8',fontFamily:"'DM Sans',sans-serif"} : {flex:1,padding:'14px 0',minHeight:48,borderRadius:10,border:`2px solid ${active?'#0F172A':'#CBD5E1'}`,cursor:'pointer',fontSize:14,fontWeight:600,background:active?'#0F172A':'#F1F5F9',color:active?'#FFFFFF':'#64748B',fontFamily:"'DM Sans',sans-serif"};
+    const mTogBtn = (active,color) => isDark ? {flex:1,padding:'14px 0',minHeight:48,borderRadius:10,border:`2px solid ${active?'#C5A059':'#374151'}`,cursor:'pointer',fontSize:14,fontWeight:600,background:active?'#C5A059':'#0F172A',color:active?'#0A192F':'#94A3B8',fontFamily:"'DM Sans',sans-serif"} : {flex:1,padding:'14px 0',minHeight:48,borderRadius:10,border:`2px solid ${active?'#0A192F':'#D0CDBE'}`,cursor:'pointer',fontSize:14,fontWeight:600,background:active?'#0A192F':'#F2F1EC',color:active?'#FFFFFF':'#6B7280',fontFamily:"'DM Sans',sans-serif"};
 
     return (
-      <div style={{fontFamily:"'DM Sans',sans-serif",background:C.bg0,minHeight:'100vh',color:C.t1,position:'relative',paddingBottom:100,backgroundImage:isDark?'radial-gradient(circle,#1E293B 1px,transparent 1px)':'radial-gradient(circle,#CBD5E1 1px,transparent 1px)',backgroundSize:'24px 24px'}}>
+      <div style={{fontFamily:"'DM Sans',sans-serif",background:C.bg0,minHeight:'100vh',color:C.t1,position:'relative',paddingBottom:100,backgroundImage:isDark?'radial-gradient(circle,#1E293B 1px,transparent 1px)':'radial-gradient(circle,#D8D5CC 1px,transparent 1px)',backgroundSize:'24px 24px'}}>
 
         {/* ── MOBILE HEADER ── */}
         <div style={{background:C.bg1,borderBottom:`1px solid ${C.bd}`,padding:'12px 18px',display:'flex',alignItems:'center',justifyContent:'space-between',position:'sticky',top:0,zIndex:50}}>
@@ -2145,8 +2145,8 @@ export default function QuoteMark() {
           <div style={{display:'flex',background:isDark?'rgba(11,17,32,0.9)':'#F1F5F9',borderRadius:22,padding:3,border:`1px solid ${C.bd}`,gap:2}}>
             <button onClick={()=>setQuoteMode('fe')} style={{
               flex:1,padding:'10px 0',borderRadius:18,border:'none',
-              background:quoteMode==='fe'?(isDark?'#38BDF8':'#0F172A'):'transparent',
-              color:quoteMode==='fe'?(isDark?'#0B1120':'#FFFFFF'):C.t3,
+              background:quoteMode==='fe'?(isDark?'#C5A059':'#0A192F'):'transparent',
+              color:quoteMode==='fe'?(isDark?'#0A192F':'#FFFFFF'):C.t3,
               fontSize:13,fontWeight:700,cursor:'pointer',fontFamily:"'DM Sans',sans-serif",
               transition:'all 0.18s'
             }}>🏛️ Final Expense</button>
@@ -2159,7 +2159,7 @@ export default function QuoteMark() {
             }}>⏱️ Term Life</button>
             <button onClick={()=>setQuoteMode('cv')} style={{
               flex:1,padding:'10px 0',borderRadius:18,border:'none',
-              background:quoteMode==='cv'?'#F59E0B':'transparent',
+              background:quoteMode==='cv'?'#C5A059':'transparent',
               color:quoteMode==='cv'?'#0B1120':C.t3,
               fontSize:13,fontWeight:700,cursor:'pointer',fontFamily:"'DM Sans',sans-serif",
               transition:'all 0.18s'
@@ -2242,7 +2242,7 @@ export default function QuoteMark() {
                     padding:'6px 12px 6px 8px',borderRadius:20,
                     border:`2px solid ${gsbOn
                       ? isDark?'rgba(245,158,11,0.7)':'#D97706'
-                      : isDark?'#374151':'#CBD5E1'}`,
+                      : isDark?'#374151':'#D0CDBE'}`,
                     background:gsbOn
                       ? (isDark?'linear-gradient(135deg,rgba(245,158,11,0.18) 0%,rgba(148,115,52,0.12) 50%,rgba(180,100,30,0.12) 100%)':'linear-gradient(135deg,rgba(245,158,11,0.12) 0%,rgba(180,130,60,0.08) 100%)')
                       : (isDark?'#0F172A':'#FAF9F6'),
@@ -2254,7 +2254,7 @@ export default function QuoteMark() {
                       background:gsbOn
                         ? (isDark?'linear-gradient(90deg,#B45309,#D97706,#92400E)':'linear-gradient(90deg,#B45309,#D97706)')
                         : (isDark?'#1E293B':'#E2E8F0'),
-                      border:`1px solid ${gsbOn?'rgba(245,158,11,0.5)':isDark?'#374151':'#CBD5E1'}`,
+                      border:`1px solid ${gsbOn?'rgba(245,158,11,0.5)':isDark?'#374151':'#D0CDBE'}`,
                       boxShadow:gsbOn?'0 0 6px rgba(245,158,11,0.4)':'none',
                       transition:'all 0.2s',flexShrink:0}}>
                       <span style={{position:'absolute',top:2,left:gsbOn?13:2,width:10,height:10,borderRadius:'50%',background:'white',transition:'left 0.2s',boxShadow:'0 1px 3px rgba(0,0,0,0.3)'}}/>
@@ -2266,8 +2266,8 @@ export default function QuoteMark() {
                 {!gsbOn ? (
                   <>
                     <div style={{display:'flex',gap:6,marginBottom:14}}>
-                      <button className='qm-btn' style={{...mTogBtn(mode==='face'),border:`2px solid ${mode==='face'?C.gold:isDark?'#374151':'#CBD5E1'}`,background:mode==='face'?C.goldBg:C.bg2,color:mode==='face'?C.gold:C.t3}} onClick={()=>setMode('face')}>Face Amount</button>
-                      <button className='qm-btn' style={{...mTogBtn(mode==='budget'),border:`2px solid ${mode==='budget'?C.gold:isDark?'#374151':'#CBD5E1'}`,background:mode==='budget'?C.goldBg:C.bg2,color:mode==='budget'?C.gold:C.t3}} onClick={()=>setMode('budget')}>Monthly Budget</button>
+                      <button className='qm-btn' style={{...mTogBtn(mode==='face'),border:`2px solid ${mode==='face'?C.gold:isDark?'#374151':'#D0CDBE'}`,background:mode==='face'?C.goldBg:C.bg2,color:mode==='face'?C.gold:C.t3}} onClick={()=>setMode('face')}>Face Amount</button>
+                      <button className='qm-btn' style={{...mTogBtn(mode==='budget'),border:`2px solid ${mode==='budget'?C.gold:isDark?'#374151':'#D0CDBE'}`,background:mode==='budget'?C.goldBg:C.bg2,color:mode==='budget'?C.gold:C.t3}} onClick={()=>setMode('budget')}>Monthly Budget</button>
                     </div>
                     {mode==='face' ? (
                       <>
@@ -2430,7 +2430,7 @@ export default function QuoteMark() {
               <button onClick={()=>{if(ageOK){setHasQuoted(true);if(isMobile){setMobileTab('results');setTimeout(()=>window.scrollTo({top:0,behavior:'instant'}),0);}}}  } style={{
                 width:'100%',padding:'18px 0',borderRadius:12,border:'none',
                 cursor:ageOK?'pointer':'not-allowed',
-                background:ageOK?C.gold:'#1A3050',
+                background:ageOK?C.gold:'#2A3547',
                 color:ageOK?C.bg0:C.t4,
                 fontSize:17,fontWeight:700,letterSpacing:0.5,
                 opacity:ageOK?1:0.4,
@@ -2493,8 +2493,8 @@ export default function QuoteMark() {
                   {['10','15','20','30'].map(t=>(
                     <button key={t} className="qm-btn" onClick={()=>setTermLength(t)} style={{
                       ...mTogBtn(termLength===t),
-                      border:`2px solid ${termLength===t?(isDark?'#10B981':'#059669'):(isDark?'#374151':'#CBD5E1')}`,
-                      background:termLength===t?(isDark?'#10B981':'#059669'):(isDark?'#0F172A':'#F1F5F9'),
+                      border:`2px solid ${termLength===t?(isDark?'#4ADE80':'#0A192F'):(isDark?'#374151':'#D0CDBE')}`,
+                      background:termLength===t?(isDark?'#4ADE80':'#0A192F'):(isDark?'#0F172A':'#F2F1EC'),
                       color:termLength===t?'#FFFFFF':(isDark?'#94A3B8':'#64748B')
                     }}>{t}yr</button>
                   ))}
@@ -2522,8 +2522,8 @@ export default function QuoteMark() {
                     <button key={h.k} className="qm-btn" onClick={()=>setTermHealth(h.k)} style={{
                       ...mTogBtn(termHealth===h.k),
                       padding:'12px 8px',fontSize:12,
-                      border:`2px solid ${termHealth===h.k?(isDark?'#10B981':'#059669'):(isDark?'#374151':'#CBD5E1')}`,
-                      background:termHealth===h.k?(isDark?'#10B981':'#059669'):(isDark?'#0F172A':'#F1F5F9'),
+                      border:`2px solid ${termHealth===h.k?(isDark?'#4ADE80':'#0A192F'):(isDark?'#374151':'#D0CDBE')}`,
+                      background:termHealth===h.k?(isDark?'#4ADE80':'#0A192F'):(isDark?'#0F172A':'#F2F1EC'),
                       color:termHealth===h.k?'#FFFFFF':(isDark?'#94A3B8':'#64748B')
                     }}>{h.l}</button>
                   ))}
@@ -2536,8 +2536,8 @@ export default function QuoteMark() {
               <button onClick={()=>{ if(termAgeOK){ setHasQuoted(true); setMobileTab('results'); setTimeout(()=>window.scrollTo({top:0,behavior:'instant'}),0); } }} style={{
                 width:'100%',padding:'18px 0',borderRadius:12,border:'none',
                 cursor:termAgeOK?'pointer':'not-allowed',
-                background:termAgeOK?'#10B981':'#1A3050',
-                color:termAgeOK?'#FFFFFF':C.t4,
+                background:termAgeOK?'#4ADE80':'#2A3547',
+                color:termAgeOK?'#0A192F':C.t4,
                 fontSize:17,fontWeight:700,letterSpacing:0.5,
                 opacity:termAgeOK?1:0.4,
                 fontFamily:"'DM Sans',sans-serif"
@@ -2550,7 +2550,7 @@ export default function QuoteMark() {
               {/* ── CV MOBILE INPUTS ── */}
               {quoteMode==='cv' && (
                 <div style={{display:'flex',flexDirection:'column',gap:12}}>
-                  <div style={{fontSize:10,fontWeight:700,letterSpacing:1.8,color:'#F59E0B',textTransform:'uppercase'}}>Policy Details</div>
+                  <div style={{fontSize:10,fontWeight:700,letterSpacing:1.8,color:'#C5A059',textTransform:'uppercase'}}>Policy Details</div>
                   <div style={{background:C.bg3,border:`1px solid ${C.bd}`,borderRadius:12,padding:14,display:'flex',flexDirection:'column',gap:14}}>
 
                     {/* Age entry */}
@@ -2558,7 +2558,7 @@ export default function QuoteMark() {
                       <div style={{display:'flex',justifyContent:'space-between',alignItems:'center',marginBottom:8}}>
                         <span style={{fontSize:12,color:C.t3,fontWeight:600}}>{cvAgeMode==='dob'?'Date of Birth':'Issue Age'}</span>
                         <button onClick={()=>{setCvAgeMode(m=>m==='dob'?'age':'dob');setCvAgeInput('');setCvDob({mm:'',dd:'',yyyy:''}); }}
-                          style={{fontSize:11,color:'#F59E0B',background:'none',border:'none',cursor:'pointer',padding:0,fontFamily:"'DM Sans',sans-serif",textDecoration:'underline'}}>
+                          style={{fontSize:11,color:'#C5A059',background:'none',border:'none',cursor:'pointer',padding:0,fontFamily:"'DM Sans',sans-serif",textDecoration:'underline'}}>
                           {cvAgeMode==='dob'?'Enter age':'Enter DOB'}
                         </button>
                       </div>
@@ -2577,7 +2577,7 @@ export default function QuoteMark() {
                               onChange={e=>{const v=e.target.value.replace(/[^0-9]/g,'');setCvDob(p=>({...p,yyyy:v}));}}
                               style={{...mInp,flex:1,textAlign:'center',padding:'12px 4px',fontSize:16}}/>
                           </div>
-                          {(()=>{const a=cvDob.mm&&cvDob.dd&&cvDob.yyyy&&cvDob.yyyy.length===4?Math.floor((Date.now()-new Date(`${cvDob.yyyy}-${cvDob.mm}-${cvDob.dd}`))/31557600000):null;return a>0&&a<120?<div style={{fontSize:12,color:'#F59E0B',marginTop:6,fontWeight:600}}>✓ Age {a}</div>:null;})()}
+                          {(()=>{const a=cvDob.mm&&cvDob.dd&&cvDob.yyyy&&cvDob.yyyy.length===4?Math.floor((Date.now()-new Date(`${cvDob.yyyy}-${cvDob.mm}-${cvDob.dd}`))/31557600000):null;return a>0&&a<120?<div style={{fontSize:12,color:'#C5A059',marginTop:6,fontWeight:600}}>✓ Age {a}</div>:null;})()}
                         </>
                       ) : (
                         <input inputMode="numeric" placeholder="e.g. 65" value={cvAgeInput}
@@ -2608,11 +2608,11 @@ export default function QuoteMark() {
                     const d=calculateCVCorridor(Number(cvMonthly),Number(cvPolicyYrs),age);
                     return (
                       <div style={{background:'rgba(245,158,11,0.06)',border:'1px solid rgba(245,158,11,0.22)',borderRadius:10,padding:'14px 16px'}}>
-                        <div style={{fontSize:9,color:'#F59E0B',fontWeight:700,marginBottom:10,letterSpacing:1.2,textTransform:'uppercase'}}>Estimated Cash Value · Age {age}</div>
+                        <div style={{fontSize:9,color:'#C5A059',fontWeight:700,marginBottom:10,letterSpacing:1.2,textTransform:'uppercase'}}>Estimated Cash Value · Age {age}</div>
                         <div style={{display:'flex',alignItems:'baseline',gap:8,marginBottom:10,flexWrap:'wrap'}}>
                           <span style={{fontSize:22,fontWeight:800,color:C.t1,fontFamily:"'DM Mono',monospace"}}>${Math.round(d.low).toLocaleString()}</span>
                           <span style={{fontSize:16,color:C.t4}}>–</span>
-                          <span style={{fontSize:22,fontWeight:800,color:'#F59E0B',fontFamily:"'DM Mono',monospace"}}>${Math.round(d.high).toLocaleString()}</span>
+                          <span style={{fontSize:22,fontWeight:800,color:'#C5A059',fontFamily:"'DM Mono',monospace"}}>${Math.round(d.high).toLocaleString()}</span>
                         </div>
                         <div style={{display:'flex',justifyContent:'space-between',fontSize:12,paddingTop:8,borderTop:`1px solid ${C.bd}`}}>
                           <span style={{color:C.t3}}>Total Premiums Paid</span>
@@ -3148,7 +3148,7 @@ export default function QuoteMark() {
   // ─────────────────────────────────────────────────
 
   return (
-    <div style={{fontFamily:"'DM Sans',sans-serif",background:C.bg0,minHeight:'100vh',color:C.t1,position:'relative',backgroundImage:isDark?'radial-gradient(circle,#1E293B 1px,transparent 1px)':'radial-gradient(circle,#CBD5E1 1px,transparent 1px)',backgroundSize:'24px 24px'}}>
+    <div style={{fontFamily:"'DM Sans',sans-serif",background:C.bg0,minHeight:'100vh',color:C.t1,position:'relative',backgroundImage:isDark?'radial-gradient(circle,#1E293B 1px,transparent 1px)':'radial-gradient(circle,#D8D5CC 1px,transparent 1px)',backgroundSize:'24px 24px'}}>
       {/* ── HEADER ── */}
       <div style={{background:C.bg1,borderBottom:`1px solid ${C.bd}`,padding:'11px 24px',display:'flex',alignItems:'center',justifyContent:'space-between',position:'sticky',top:0,zIndex:50}}>
         <div style={{fontFamily:"'Barlow Condensed',sans-serif",fontSize:26,fontWeight:800,color:C.t0,letterSpacing:'-0.5px'}}>
@@ -3158,7 +3158,7 @@ export default function QuoteMark() {
         <div style={{display:'flex',background:isDark?'rgba(11,17,32,0.8)':'#F1F5F9',borderRadius:24,padding:3,border:`1px solid ${C.bd}`,gap:2}}>
           <button onClick={()=>setQuoteMode('fe')} style={{
             padding:'7px 20px',borderRadius:20,border:'none',
-            background:quoteMode==='fe'?(isDark?'#38BDF8':'#0F172A'):'transparent',
+            background:quoteMode==='fe'?(isDark?'#C5A059':'#0A192F'):'transparent',
             color:quoteMode==='fe'?(isDark?'#0B1120':'#FFFFFF'):C.t3,
             fontSize:12,fontWeight:700,cursor:'pointer',fontFamily:"'DM Sans',sans-serif",
             transition:'all 0.18s',letterSpacing:0.3,whiteSpace:'nowrap'
@@ -3172,7 +3172,7 @@ export default function QuoteMark() {
           }}>⏱️ Term Life</button>
           <button onClick={()=>setQuoteMode('cv')} style={{
             padding:'7px 20px',borderRadius:20,border:'none',
-            background:quoteMode==='cv'?'#F59E0B':'transparent',
+            background:quoteMode==='cv'?'#C5A059':'transparent',
             color:quoteMode==='cv'?'#0B1120':C.t3,
             fontSize:12,fontWeight:700,cursor:'pointer',fontFamily:"'DM Sans',sans-serif",
             transition:'all 0.18s',letterSpacing:0.3,whiteSpace:'nowrap'
@@ -3265,7 +3265,7 @@ export default function QuoteMark() {
                 padding:'6px 12px 6px 8px',borderRadius:20,
                 border:`2px solid ${gsbOn
                   ? isDark?'rgba(245,158,11,0.7)':'#D97706'
-                  : isDark?'#374151':'#CBD5E1'}`,
+                  : isDark?'#374151':'#D0CDBE'}`,
                 background:gsbOn
                   ? (isDark?'linear-gradient(135deg,rgba(245,158,11,0.18) 0%,rgba(148,115,52,0.12) 50%,rgba(180,100,30,0.12) 100%)':'linear-gradient(135deg,rgba(245,158,11,0.12) 0%,rgba(180,130,60,0.08) 100%)')
                   : (isDark?'#0F172A':'#FAF9F6'),
@@ -3279,7 +3279,7 @@ export default function QuoteMark() {
                   background:gsbOn
                     ? (isDark?'linear-gradient(90deg,#B45309,#D97706,#92400E)':'linear-gradient(90deg,#B45309,#D97706)')
                     : (isDark?'#1E293B':'#E2E8F0'),
-                  border:`1px solid ${gsbOn?'rgba(245,158,11,0.5)':isDark?'#374151':'#CBD5E1'}`,
+                  border:`1px solid ${gsbOn?'rgba(245,158,11,0.5)':isDark?'#374151':'#D0CDBE'}`,
                   boxShadow:gsbOn?'0 0 6px rgba(245,158,11,0.4)':'none',
                   transition:'all 0.2s',flexShrink:0
                 }}>
@@ -3297,8 +3297,8 @@ export default function QuoteMark() {
             {!gsbOn?(
               <>
                 <div style={{display:'flex',gap:6,marginBottom:14}}>
-                  <button className='qm-btn' style={{...togBtn(mode==='face'),border:`2px solid ${mode==='face'?C.gold:isDark?'#374151':'#CBD5E1'}`,background:mode==='face'?C.goldBg:C.bg2,color:mode==='face'?C.gold:C.t3}} onClick={()=>{setMode('face');}}>Face amount</button>
-                  <button className='qm-btn' style={{...togBtn(mode==='budget'),border:`2px solid ${mode==='budget'?C.gold:isDark?'#374151':'#CBD5E1'}`,background:mode==='budget'?C.goldBg:C.bg2,color:mode==='budget'?C.gold:C.t3}} onClick={()=>{setMode('budget');}}>Monthly budget</button>
+                  <button className='qm-btn' style={{...togBtn(mode==='face'),border:`2px solid ${mode==='face'?C.gold:isDark?'#374151':'#D0CDBE'}`,background:mode==='face'?C.goldBg:C.bg2,color:mode==='face'?C.gold:C.t3}} onClick={()=>{setMode('face');}}>Face amount</button>
+                  <button className='qm-btn' style={{...togBtn(mode==='budget'),border:`2px solid ${mode==='budget'?C.gold:isDark?'#374151':'#D0CDBE'}`,background:mode==='budget'?C.goldBg:C.bg2,color:mode==='budget'?C.gold:C.t3}} onClick={()=>{setMode('budget');}}>Monthly budget</button>
                 </div>
                 {mode==='face'?(
                   <>
@@ -3469,7 +3469,7 @@ export default function QuoteMark() {
           <button onClick={()=>{if(ageOK){setHasQuoted(true);if(isMobile){setMobileTab('results');setTimeout(()=>window.scrollTo({top:0,behavior:'instant'}),0);}}}  } style={{
             width:'100%',padding:'13px 0',borderRadius:10,border:'none',
             cursor:ageOK?'pointer':'not-allowed',
-            background:ageOK?C.gold:'#1A3050',
+            background:ageOK?C.gold:'#2A3547',
             color:ageOK?C.bg0:C.t4,
             fontSize:14,fontWeight:700,letterSpacing:0.5,
             transition:'all 0.15s',opacity:ageOK?1:0.4,
@@ -3531,8 +3531,8 @@ export default function QuoteMark() {
               {['10','15','20','30'].map(t=>(
                 <button key={t} className="qm-btn" onClick={()=>setTermLength(t)} style={{
                   ...togBtn(termLength===t),
-                  border:`2px solid ${termLength===t?(isDark?'#10B981':'#059669'):(isDark?'#374151':'#CBD5E1')}`,
-                  background:termLength===t?(isDark?'#10B981':'#059669'):(isDark?'#0F172A':'#F1F5F9'),
+                  border:`2px solid ${termLength===t?(isDark?'#4ADE80':'#0A192F'):(isDark?'#374151':'#D0CDBE')}`,
+                  background:termLength===t?(isDark?'#4ADE80':'#0A192F'):(isDark?'#0F172A':'#F2F1EC'),
                   color:termLength===t?'#FFFFFF':(isDark?'#94A3B8':'#64748B')
                 }}>{t} Year</button>
               ))}
@@ -3560,8 +3560,8 @@ export default function QuoteMark() {
                 <button key={h.k} className="qm-btn" onClick={()=>setTermHealth(h.k)} style={{
                   ...togBtn(termHealth===h.k),
                   padding:'10px 8px',fontSize:11,
-                  border:`2px solid ${termHealth===h.k?(isDark?'#10B981':'#059669'):(isDark?'#374151':'#CBD5E1')}`,
-                  background:termHealth===h.k?(isDark?'#10B981':'#059669'):(isDark?'#0F172A':'#F1F5F9'),
+                  border:`2px solid ${termHealth===h.k?(isDark?'#4ADE80':'#0A192F'):(isDark?'#374151':'#D0CDBE')}`,
+                  background:termHealth===h.k?(isDark?'#4ADE80':'#0A192F'):(isDark?'#0F172A':'#F2F1EC'),
                   color:termHealth===h.k?'#FFFFFF':(isDark?'#94A3B8':'#64748B')
                 }}>{h.l}</button>
               ))}
@@ -3574,8 +3574,8 @@ export default function QuoteMark() {
           <button onClick={()=>{ if(termAgeOK){ setHasQuoted(true); } }} style={{
             width:'100%',padding:'13px 0',borderRadius:10,border:'none',
             cursor:termAgeOK?'pointer':'not-allowed',
-            background:termAgeOK?'#10B981':'#1A3050',
-            color:termAgeOK?'#FFFFFF':C.t4,
+            background:termAgeOK?'#4ADE80':'#2A3547',
+            color:termAgeOK?'#0A192F':C.t4,
             fontSize:14,fontWeight:700,letterSpacing:0.5,
             transition:'all 0.15s',opacity:termAgeOK?1:0.4,
             fontFamily:"'DM Sans',sans-serif"
@@ -3588,7 +3588,7 @@ export default function QuoteMark() {
 
           {quoteMode==='cv' && (
             <div style={{display:'flex',flexDirection:'column',gap:12}}>
-              <div style={{fontSize:10,fontWeight:700,letterSpacing:1.8,color:'#F59E0B',textTransform:'uppercase',marginBottom:2}}>Policy Details</div>
+              <div style={{fontSize:10,fontWeight:700,letterSpacing:1.8,color:'#C5A059',textTransform:'uppercase',marginBottom:2}}>Policy Details</div>
               <div style={{background:C.bg3,border:`1px solid ${C.bd}`,borderRadius:12,padding:14,display:'flex',flexDirection:'column',gap:12}}>
 
                 {/* Age entry — DOB or direct age toggle */}
@@ -3596,7 +3596,7 @@ export default function QuoteMark() {
                   <div style={{display:'flex',justifyContent:'space-between',alignItems:'center',marginBottom:6}}>
                     <span style={{fontSize:11,color:C.t3,fontWeight:600}}>{cvAgeMode==='dob'?'Date of Birth':'Issue Age'}</span>
                     <button onClick={()=>{setCvAgeMode(m=>m==='dob'?'age':'dob');setCvAgeInput('');setCvDob({mm:'',dd:'',yyyy:''});}}
-                      style={{fontSize:10,color:'#F59E0B',background:'none',border:'none',cursor:'pointer',padding:0,fontFamily:"'DM Sans',sans-serif",textDecoration:'underline'}}>
+                      style={{fontSize:10,color:'#C5A059',background:'none',border:'none',cursor:'pointer',padding:0,fontFamily:"'DM Sans',sans-serif",textDecoration:'underline'}}>
                       {cvAgeMode==='dob'?'Enter age instead':'Enter DOB instead'}
                     </button>
                   </div>
@@ -3615,7 +3615,7 @@ export default function QuoteMark() {
                           onChange={e=>{const v=e.target.value.replace(/\D/g,'');setCvDob(p=>({...p,yyyy:v}));}}
                           style={{...inp,flex:1,textAlign:'center',padding:'8px 4px'}}/>
                       </div>
-                      {(()=>{const a=cvDob.mm&&cvDob.dd&&cvDob.yyyy&&cvDob.yyyy.length===4?Math.floor((Date.now()-new Date(`${cvDob.yyyy}-${cvDob.mm}-${cvDob.dd}`))/31557600000):null;return a>0&&a<120?<div style={{fontSize:11,color:'#F59E0B',marginTop:4,fontWeight:600}}>✓ Age {a}</div>:null;})()}
+                      {(()=>{const a=cvDob.mm&&cvDob.dd&&cvDob.yyyy&&cvDob.yyyy.length===4?Math.floor((Date.now()-new Date(`${cvDob.yyyy}-${cvDob.mm}-${cvDob.dd}`))/31557600000):null;return a>0&&a<120?<div style={{fontSize:11,color:'#C5A059',marginTop:4,fontWeight:600}}>✓ Age {a}</div>:null;})()}
                     </>
                   ) : (
                     <input inputMode="numeric" placeholder="e.g. 65" value={cvAgeInput}
@@ -3646,14 +3646,14 @@ export default function QuoteMark() {
                 const d=calculateCVCorridor(Number(cvMonthly),Number(cvPolicyYrs),age);
                 return (
                   <div style={{background:'rgba(245,158,11,0.06)',border:'1px solid rgba(245,158,11,0.22)',borderRadius:10,padding:'12px 14px'}}>
-                    <div style={{fontSize:9,color:'#F59E0B',fontWeight:700,marginBottom:8,letterSpacing:1.2,textTransform:'uppercase'}}>Quick Look · Age {age}</div>
+                    <div style={{fontSize:9,color:'#C5A059',fontWeight:700,marginBottom:8,letterSpacing:1.2,textTransform:'uppercase'}}>Quick Look · Age {age}</div>
                     <div style={{display:'flex',justifyContent:'space-between',fontSize:12,marginBottom:4}}>
                       <span style={{color:C.t3}}>Conservative</span>
                       <strong style={{color:C.t1,fontFamily:"'DM Mono',monospace"}}>${Math.round(d.low).toLocaleString()}</strong>
                     </div>
                     <div style={{display:'flex',justifyContent:'space-between',fontSize:12,marginBottom:4}}>
                       <span style={{color:C.t3}}>Target</span>
-                      <strong style={{color:'#F59E0B',fontFamily:"'DM Mono',monospace"}}>${Math.round(d.high).toLocaleString()}</strong>
+                      <strong style={{color:'#C5A059',fontFamily:"'DM Mono',monospace"}}>${Math.round(d.high).toLocaleString()}</strong>
                     </div>
                     <div style={{display:'flex',justifyContent:'space-between',fontSize:12}}>
                       <span style={{color:C.t3}}>Total Paid</span>
