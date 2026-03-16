@@ -2152,8 +2152,8 @@ export default function QuoteMark() {
             }}>🏛️ Final Expense</button>
             <button onClick={()=>setQuoteMode('term')} style={{
               flex:1,padding:'10px 0',borderRadius:18,border:'none',
-              background:quoteMode==='term'?'#10B981':'transparent',
-              color:quoteMode==='term'?'#FFFFFF':C.t3,
+              background:quoteMode==='term'?'#C5A059':'transparent',
+              color:quoteMode==='term'?'#0A192F':C.t3,
               fontSize:13,fontWeight:700,cursor:'pointer',fontFamily:"'DM Sans',sans-serif",
               transition:'all 0.18s'
             }}>⏱️ Term Life</button>
@@ -2493,9 +2493,9 @@ export default function QuoteMark() {
                   {['10','15','20','30'].map(t=>(
                     <button key={t} className="qm-btn" onClick={()=>setTermLength(t)} style={{
                       ...mTogBtn(termLength===t),
-                      border:`2px solid ${termLength===t?(isDark?'#4ADE80':'#0A192F'):(isDark?'#374151':'#D0CDBE')}`,
-                      background:termLength===t?(isDark?'#4ADE80':'#0A192F'):(isDark?'#0F172A':'#F2F1EC'),
-                      color:termLength===t?'#FFFFFF':(isDark?'#94A3B8':'#64748B')
+                      border:`2px solid ${termLength===t?'#C5A059':(isDark?'#374151':'#D0CDBE')}`,
+                      background:termLength===t?'#C5A059':(isDark?'#0F172A':'#F2F1EC'),
+                      color:termLength===t?'#0A192F':(isDark?'#94A3B8':'#6B7280')
                     }}>{t}yr</button>
                   ))}
                 </div>
@@ -2522,9 +2522,9 @@ export default function QuoteMark() {
                     <button key={h.k} className="qm-btn" onClick={()=>setTermHealth(h.k)} style={{
                       ...mTogBtn(termHealth===h.k),
                       padding:'12px 8px',fontSize:12,
-                      border:`2px solid ${termHealth===h.k?(isDark?'#4ADE80':'#0A192F'):(isDark?'#374151':'#D0CDBE')}`,
-                      background:termHealth===h.k?(isDark?'#4ADE80':'#0A192F'):(isDark?'#0F172A':'#F2F1EC'),
-                      color:termHealth===h.k?'#FFFFFF':(isDark?'#94A3B8':'#64748B')
+                      border:`2px solid ${termHealth===h.k?'#C5A059':(isDark?'#374151':'#D0CDBE')}`,
+                      background:termHealth===h.k?'#C5A059':(isDark?'#0F172A':'#F2F1EC'),
+                      color:termHealth===h.k?'#0A192F':(isDark?'#94A3B8':'#6B7280')
                     }}>{h.l}</button>
                   ))}
                 </div>
@@ -3165,8 +3165,8 @@ export default function QuoteMark() {
           }}>🏛️ Final Expense</button>
           <button onClick={()=>setQuoteMode('term')} style={{
             padding:'7px 20px',borderRadius:20,border:'none',
-            background:quoteMode==='term'?'#10B981':'transparent',
-            color:quoteMode==='term'?'#FFFFFF':C.t3,
+            background:quoteMode==='term'?'#C5A059':'transparent',
+            color:quoteMode==='term'?'#0A192F':C.t3,
             fontSize:12,fontWeight:700,cursor:'pointer',fontFamily:"'DM Sans',sans-serif",
             transition:'all 0.18s',letterSpacing:0.3,whiteSpace:'nowrap'
           }}>⏱️ Term Life</button>
@@ -3531,9 +3531,9 @@ export default function QuoteMark() {
               {['10','15','20','30'].map(t=>(
                 <button key={t} className="qm-btn" onClick={()=>setTermLength(t)} style={{
                   ...togBtn(termLength===t),
-                  border:`2px solid ${termLength===t?(isDark?'#4ADE80':'#0A192F'):(isDark?'#374151':'#D0CDBE')}`,
-                  background:termLength===t?(isDark?'#4ADE80':'#0A192F'):(isDark?'#0F172A':'#F2F1EC'),
-                  color:termLength===t?'#FFFFFF':(isDark?'#94A3B8':'#64748B')
+                  border:`2px solid ${termLength===t?'#C5A059':(isDark?'#374151':'#D0CDBE')}`,
+                  background:termLength===t?'#C5A059':(isDark?'#0F172A':'#F2F1EC'),
+                  color:termLength===t?'#0A192F':(isDark?'#94A3B8':'#6B7280')
                 }}>{t} Year</button>
               ))}
             </div>
@@ -3560,9 +3560,9 @@ export default function QuoteMark() {
                 <button key={h.k} className="qm-btn" onClick={()=>setTermHealth(h.k)} style={{
                   ...togBtn(termHealth===h.k),
                   padding:'10px 8px',fontSize:11,
-                  border:`2px solid ${termHealth===h.k?(isDark?'#4ADE80':'#0A192F'):(isDark?'#374151':'#D0CDBE')}`,
-                  background:termHealth===h.k?(isDark?'#4ADE80':'#0A192F'):(isDark?'#0F172A':'#F2F1EC'),
-                  color:termHealth===h.k?'#FFFFFF':(isDark?'#94A3B8':'#64748B')
+                  border:`2px solid ${termHealth===h.k?'#C5A059':(isDark?'#374151':'#D0CDBE')}`,
+                  background:termHealth===h.k?'#C5A059':(isDark?'#0F172A':'#F2F1EC'),
+                  color:termHealth===h.k?'#0A192F':(isDark?'#94A3B8':'#6B7280')
                 }}>{h.l}</button>
               ))}
             </div>
