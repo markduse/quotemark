@@ -1713,68 +1713,42 @@ const EAppBtn = ({carrierId, compact=false, lightMode=false}) => {
   if(!meta?.eapp) return null;
   const brand = meta.brand || '#3B82F6';
   // Light mode uses solid blue CTA, dark uses brand-tinted ghost
+  // Green action button — compact variant
   if(compact) {
-    const lStyle = {
-      display:'inline-flex',alignItems:'center',gap:5,
-      padding:'5px 14px',borderRadius:6,
-      border:'1.5px solid #2563EB',
-      background:hov?'#1D4ED8':'#2563EB',
-      color:'#FFFFFF',
-      fontSize:11,fontWeight:700,textDecoration:'none',
-      letterSpacing:0.3,transition:'all 0.15s',
-      transform:hov?'translateY(-1px)':'translateY(0)',
-      boxShadow:hov?'0 4px 10px rgba(37,99,235,0.3)':'0 1px 3px rgba(37,99,235,0.15)',
-      whiteSpace:'nowrap',flexShrink:0
-    };
-    const dStyle = {
-      display:'inline-flex',alignItems:'center',gap:5,
-      padding:'5px 14px',borderRadius:6,
-      border:'none',
-      background:hov?'#0EA5E9':'#38BDF8',
-      color:'#0B1120',
-      fontSize:11,fontWeight:700,textDecoration:'none',
-      letterSpacing:0.3,transition:'all 0.15s',
-      transform:hov?'translateY(-1px)':'translateY(0)',
-      boxShadow:hov?'0 4px 12px rgba(56,189,248,0.4)':'0 1px 4px rgba(56,189,248,0.2)',
-      whiteSpace:'nowrap',flexShrink:0
-    };
     return (
       <a href={meta.eapp} target="_blank" rel="noopener noreferrer"
         onMouseEnter={()=>setHov(true)} onMouseLeave={()=>setHov(false)}
-        style={lightMode?lStyle:dStyle}>
+        style={{
+          display:'inline-flex',alignItems:'center',gap:5,
+          padding:'5px 14px',borderRadius:6,
+          border:'none',
+          background:hov?'#059669':'#10B981',
+          color:'#FFFFFF',
+          fontSize:11,fontWeight:700,textDecoration:'none',
+          letterSpacing:0.3,transition:'all 0.15s',
+          transform:hov?'translateY(-1px)':'translateY(0)',
+          boxShadow:hov?'0 4px 10px rgba(16,185,129,0.4)':'0 1px 4px rgba(16,185,129,0.2)',
+          whiteSpace:'nowrap',flexShrink:0
+        }}>
         📋 e-App
       </a>
     );
   }
-  const lFullStyle = {
-    display:'flex',alignItems:'center',justifyContent:'center',gap:7,
-    width:'100%',padding:'10px 0',
-    borderRadius:8,
-    background:hov?'#1D4ED8':'#2563EB',
-    border:'none',
-    color:'#FFFFFF',
-    fontSize:13,fontWeight:700,textDecoration:'none',
-    letterSpacing:0.3,
-    transition:'all 0.15s',
-    boxShadow:hov?'0 6px 16px rgba(37,99,235,0.35)':'0 2px 6px rgba(37,99,235,0.2)',
-    transform:hov?'translateY(-1px)':'translateY(0)',
-  };
+  // Full-width variant — green, marginTop:auto keeps it pinned to bottom of card
   return (
-    <div style={{marginTop:'auto',paddingTop:12,borderTop:lightMode?'1px solid #E2E8F0':'1px solid rgba(255,255,255,0.06)'}}>
+    <div style={{marginTop:'auto',paddingTop:12,borderTop:'1px solid rgba(255,255,255,0.06)'}}>
       <a href={meta.eapp} target="_blank" rel="noopener noreferrer"
         onMouseEnter={()=>setHov(true)} onMouseLeave={()=>setHov(false)}
-        style={lightMode ? lFullStyle : {
+        style={{
           display:'flex',alignItems:'center',justifyContent:'center',gap:7,
-          width:'100%',padding:'10px 0',
-          borderRadius:8,
-          border:'none',
-          background:hov?'#0EA5E9':'#38BDF8',
-          color:'#0B1120',
-          fontSize:12,fontWeight:700,textDecoration:'none',
-          letterSpacing:0.3,
-          transition:'all 0.15s',
+          width:'100%',padding:'11px 0',
+          borderRadius:8,border:'none',
+          background:hov?'#059669':'#10B981',
+          color:'#FFFFFF',
+          fontSize:13,fontWeight:700,textDecoration:'none',
+          letterSpacing:0.3,transition:'all 0.15s',
+          boxShadow:hov?'0 6px 16px rgba(16,185,129,0.45)':'0 2px 8px rgba(16,185,129,0.25)',
           transform:hov?'translateY(-1px)':'translateY(0)',
-          boxShadow:hov?'0 6px 16px rgba(56,189,248,0.4)':'0 2px 6px rgba(56,189,248,0.2)',
         }}>
         📋 e-App
       </a>
@@ -1852,6 +1826,10 @@ export default function QuoteMark() {
   const dobYyyyRef = React.useRef(null);
   const dobDdRefD  = React.useRef(null);
   const dobYyyyRefD = React.useRef(null);
+  const termDobDdRef   = React.useRef(null);
+  const termDobYyyyRef = React.useRef(null);
+  const termDobDdRefM  = React.useRef(null);
+  const termDobYyyyRefM= React.useRef(null);
   const [reqSent,setReqSent]   = useState(false);
 
   // ── TERM MODE STATE ──
@@ -1869,6 +1847,7 @@ export default function QuoteMark() {
   const [termFace,setTermFace] = useState(100000); // $25k-$300k
   const [termHealth,setTermHealth] = useState('pp'); // 'pp'=Preferred Plus, 'p'=Preferred, 'sp'=Standard Plus, 's'=Standard
   const [termAge,setTermAge] = useState(''); // term allows 18-75
+  const [termDob,setTermDob] = useState({mm:'',dd:'',yyyy:''});
 
   // ── PROFILE STATE ──
   const [mobileTab2, setMobileTab2] = useState(null); // null | 'profile'
@@ -2466,12 +2445,28 @@ export default function QuoteMark() {
                 <div style={{fontSize:11,fontWeight:700,letterSpacing:1.8,color:C.t4,textTransform:'uppercase',marginBottom:12}}>Term Life Quote</div>
 
                 <div style={{marginBottom:14}}>
-                  <div style={{fontSize:12,color:C.t3,marginBottom:8}}>Age <span style={{color:C.t4}}>· 18-75</span></div>
-                  <input type="text" inputMode="numeric" maxLength="2" placeholder="age" value={termAge}
-                    onChange={e=>setTermAge(e.target.value)}
-                    style={{...mInp,width:80,borderColor:termAge&&!termAgeOK?'#EF4444':C.bd}}/>
-                  {termAge&&termAgeOK&&<span style={{fontSize:11,color:C.green,marginLeft:8}}>✓ Age {termAge}</span>}
-                  {termAge&&!termAgeOK&&parseInt(termAge)>0&&<span style={{fontSize:11,color:'#EF4444',marginLeft:8}}>Age must be 18–75</span>}
+                  <div style={{display:'flex',justifyContent:'space-between',alignItems:'center',marginBottom:6}}>
+                    <span style={{fontSize:12,color:C.t3}}>Date of birth <span style={{color:C.t4}}>· or age →</span></span>
+                  </div>
+                  <div style={{display:'flex',gap:6,alignItems:'center',marginBottom:6}}>
+                    <input inputMode="numeric" maxLength="2" placeholder="MM" value={termDob.mm}
+                      onChange={e=>{const v=e.target.value.replace(/[^0-9]/g,'');setTermDob(p=>({...p,mm:v}));if(v.length===2)termDobDdRefM.current?.focus();}}
+                      style={{...mInp,width:52,textAlign:'center',padding:'12px 4px',fontSize:16}}/>
+                    <span style={{color:C.t4,fontSize:16}}>/</span>
+                    <input ref={termDobDdRefM} inputMode="numeric" maxLength="2" placeholder="DD" value={termDob.dd}
+                      onChange={e=>{const v=e.target.value.replace(/[^0-9]/g,'');setTermDob(p=>({...p,dd:v}));if(v.length===2)termDobYyyyRefM.current?.focus();}}
+                      style={{...mInp,width:52,textAlign:'center',padding:'12px 4px',fontSize:16}}/>
+                    <span style={{color:C.t4,fontSize:16}}>/</span>
+                    <input ref={termDobYyyyRefM} inputMode="numeric" maxLength="4" placeholder="YYYY" value={termDob.yyyy}
+                      onChange={e=>{const v=e.target.value.replace(/[^0-9]/g,'');setTermDob(p=>({...p,yyyy:v}));if(v.length===4){const a=Math.floor((Date.now()-new Date(`${v}-${termDob.mm}-${termDob.dd}`))/31557600000);if(a>=18&&a<=75)setTermAge(String(a));}}}
+                      style={{...mInp,flex:1,textAlign:'center',padding:'12px 4px',fontSize:16}}/>
+                    <span style={{color:C.t4,fontSize:13}}>or</span>
+                    <input inputMode="numeric" maxLength="2" placeholder="age" value={termAge}
+                      onChange={e=>{setTermAge(e.target.value.replace(/[^0-9]/g,''));setTermDob({mm:'',dd:'',yyyy:''});}}
+                      style={{...mInp,width:54,textAlign:'center',padding:'12px 4px',fontSize:16,borderColor:termAge&&!termAgeOK?'#EF4444':C.bd}}/>
+                  </div>
+                  {termAge&&termAgeOK&&<div style={{fontSize:11,color:C.green,fontWeight:600}}>✓ Age {termAge}</div>}
+                  {termAge&&!termAgeOK&&parseInt(termAge)>0&&<div style={{fontSize:11,color:'#EF4444'}}>Age must be 18–75</div>}
                 </div>
 
                 <div style={{marginBottom:14}}>
@@ -3488,12 +3483,28 @@ export default function QuoteMark() {
           <div style={sec}>
             <div style={lbl}>Term Life Quote</div>
             <div style={{marginBottom:14}}>
-              <div style={{fontSize:11,color:C.t3,marginBottom:6}}>Age <span style={{color:C.t4}}>· 18-75</span></div>
-              <input type="number" min="18" max="75" placeholder="age" value={termAge}
-                onChange={e=>setTermAge(e.target.value)}
-                style={{...inp,width:80,padding:'9px 12px',borderColor:termAge&&!termAgeOK?'#EF4444':C.bd}}/>
-              {termAge&&termAgeOK&&<span style={{fontSize:10,color:C.green,marginLeft:8}}>✓ Age {termAge}</span>}
-              {termAge&&!termAgeOK&&parseInt(termAge)>0&&<span style={{fontSize:10,color:'#EF4444',marginLeft:8}}>Age must be 18–75</span>}
+              <div style={{display:'flex',justifyContent:'space-between',alignItems:'center',marginBottom:6}}>
+                <span style={{fontSize:11,color:C.t3}}>Date of birth <span style={{color:C.t4}}>· or enter age →</span></span>
+              </div>
+              <div style={{display:'flex',gap:5,alignItems:'center',marginBottom:6}}>
+                <input inputMode="numeric" maxLength="2" placeholder="mm" value={termDob.mm}
+                  onChange={e=>{const v=e.target.value.replace(/[^0-9]/g,'');setTermDob(p=>({...p,mm:v}));if(v.length===2)termDobDdRef.current?.focus();}}
+                  style={{...inp,width:44,textAlign:'center',padding:'8px 4px'}}/>
+                <span style={{color:C.t4,fontSize:12}}>/</span>
+                <input ref={termDobDdRef} inputMode="numeric" maxLength="2" placeholder="dd" value={termDob.dd}
+                  onChange={e=>{const v=e.target.value.replace(/[^0-9]/g,'');setTermDob(p=>({...p,dd:v}));if(v.length===2)termDobYyyyRef.current?.focus();}}
+                  style={{...inp,width:44,textAlign:'center',padding:'8px 4px'}}/>
+                <span style={{color:C.t4,fontSize:12}}>/</span>
+                <input ref={termDobYyyyRef} inputMode="numeric" maxLength="4" placeholder="yyyy" value={termDob.yyyy}
+                  onChange={e=>{const v=e.target.value.replace(/[^0-9]/g,'');setTermDob(p=>({...p,yyyy:v}));if(v.length===4){const a=Math.floor((Date.now()-new Date(`${v}-${termDob.mm}-${termDob.dd}`))/31557600000);if(a>=18&&a<=75)setTermAge(String(a));}}}
+                  style={{...inp,flex:1,textAlign:'center',padding:'8px 4px'}}/>
+                <span style={{color:C.t4,fontSize:11}}>or</span>
+                <input inputMode="numeric" maxLength="2" placeholder="age" value={termAge}
+                  onChange={e=>{setTermAge(e.target.value.replace(/[^0-9]/g,''));setTermDob({mm:'',dd:'',yyyy:''}); }}
+                  style={{...inp,width:50,textAlign:'center',padding:'8px 4px',borderColor:termAge&&!termAgeOK?'#EF4444':C.bd}}/>
+              </div>
+              {termAge&&termAgeOK&&<div style={{fontSize:10,color:C.green,fontWeight:600}}>✓ Age {termAge}</div>}
+              {termAge&&!termAgeOK&&parseInt(termAge)>0&&<div style={{fontSize:10,color:'#EF4444'}}>Age must be 18–75</div>}
             </div>
             <div style={{display:'grid',gridTemplateColumns:'1fr 1fr',gap:10,marginBottom:14}}>
               <div>
@@ -3700,30 +3711,50 @@ export default function QuoteMark() {
                     <div style={{display:'grid',gridTemplateColumns:'repeat(auto-fill,minmax(300px,1fr))',gap:14,marginBottom:20}}>
                       {termResults && termResults.filter(r => r.available && r.prem != null).map((result,idx) => (
                         <div key={result.id} style={{
-                          background:isDark?'linear-gradient(135deg,rgba(16,185,129,0.12) 0%,rgba(5,150,105,0.08) 100%)':'#FFFFFF',
-                          border:`1px solid ${isDark?'#10B981':'#D1FAE5'}`,
-                          borderTop:'3px solid #10B981',
-                          borderRadius:14,padding:20,display:'flex',flexDirection:'column',
-                          boxShadow:isDark?'0 0 0 1px rgba(16,185,129,0.15)':'0 4px 12px rgba(16,185,129,0.1)'
+                          background:isDark?'#1E293B':'#FFFFFF',
+                          border:`1px solid ${C.bd2}`,
+                          borderTop:`3px solid ${CARRIER_META[result.id]?.brand||'#10B981'}`,
+                          borderRadius:12,padding:18,
+                          display:'flex',flexDirection:'column',
+                          position:'relative',
+                          transition:'transform 0.18s,box-shadow 0.18s',
+                          boxShadow:isDark?`0 0 0 1px ${C.bd}`:'0 4px 6px -1px rgba(0,0,0,0.07)',
                         }}>
-                          <div style={{display:'flex',justifyContent:'space-between',alignItems:'flex-start',marginBottom:16}}>
-                            <div style={{flex:1}}>
-                              <div style={{fontSize:19,fontWeight:700,color:C.t0,letterSpacing:'-0.3px'}}>{result.name}</div>
-                              <div style={{fontSize:12,color:C.t3,marginTop:3}}>Term {termLength}-Year</div>
+                          {idx===0&&(
+                            <div style={{position:'absolute',top:-1,left:16,background:C.gold,color:C.bg0,fontSize:10,fontWeight:700,padding:'2px 10px',borderRadius:'0 0 7px 7px',letterSpacing:0.5}}>
+                              Best Rate
                             </div>
-                            {idx === 0 && <div style={{background:'rgba(16,185,129,0.15)',border:'1px solid rgba(16,185,129,0.3)',borderRadius:7,padding:'3px 10px',fontSize:10,fontWeight:700,color:'#10B981',letterSpacing:0.5}}>Best Rate</div>}
+                          )}
+                          {/* Header: name + logo */}
+                          <div style={{display:'flex',justifyContent:'space-between',alignItems:'flex-start',marginBottom:14,marginTop:idx===0?10:0}}>
+                            <div style={{flex:1,minWidth:0}}>
+                              <div style={{fontSize:18,fontWeight:700,color:C.t0,letterSpacing:'-0.3px',lineHeight:1.2}}>{result.name}</div>
+                              <div style={{fontSize:11,color:C.t4,marginTop:3}}>Term {termLength}-Year</div>
+                            </div>
+                            <CarrierLogo carrierId={result.id} name={result.name} small={true}/>
                           </div>
-                          <div style={{display:'flex',alignItems:'baseline',gap:8,marginBottom:6}}>
-                            <span style={{fontFamily:"'DM Mono',monospace",fontSize:36,fontWeight:700,color:'#10B981',letterSpacing:'-1px',lineHeight:1}}>${result.prem.toFixed(2)}</span>
-                            <span style={{fontSize:13,color:C.t3}}>/mo</span>
+                          {/* Premium */}
+                          <div style={{marginBottom:14}}>
+                            <div style={{display:'flex',alignItems:'baseline',gap:8}}>
+                              <span style={{fontFamily:"'DM Mono',monospace",fontSize:30,fontWeight:800,color:'#10B981',letterSpacing:'-1px',lineHeight:1}}>${result.prem.toFixed(2)}</span>
+                              <span style={{fontSize:11,color:C.t3}}>/mo</span>
+                            </div>
+                            <div style={{fontSize:12,color:C.t2,marginTop:4,fontFamily:"'DM Mono',monospace"}}>${(result.prem*12).toFixed(0)} / year</div>
                           </div>
-                          <div style={{fontSize:12,color:C.t2,marginBottom:14,fontFamily:"'DM Mono',monospace"}}>${(result.prem*12).toFixed(0)} / year</div>
-                          <div style={{display:'flex',gap:6,flexWrap:'wrap',paddingTop:12,borderTop:`1px solid ${isDark?'rgba(16,185,129,0.15)':'#D1FAE5'}`,marginBottom:14}}>
-                            <span style={{background:isDark?'rgba(16,185,129,0.1)':'#ECFDF5',border:`1px solid ${isDark?'rgba(16,185,129,0.25)':'#6EE7B7'}`,borderRadius:6,padding:'4px 10px',fontSize:11,color:isDark?'#6EE7B7':'#065F46',fontWeight:600}}>{fmtF(result.face)} coverage</span>
-                            <span style={{background:isDark?C.bg3:'#F8FAFC',border:`1px solid ${C.bd}`,borderRadius:6,padding:'4px 10px',fontSize:11,color:C.t3}}>{result.healthClass}</span>
-                            <span style={{background:isDark?C.bg3:'#F8FAFC',border:`1px solid ${C.bd}`,borderRadius:6,padding:'4px 10px',fontSize:11,color:C.t3}}>{gender==='male'?'Male':'Female'} · {smoker?'Tobacco':'Non-Tobacco'} · Age {termAge}</span>
+                          {/* Details row */}
+                          <div style={{display:'flex',alignItems:'center',gap:0,paddingTop:12,borderTop:`1px solid ${C.bd}`,marginBottom:0}}>
+                            <div style={{flex:1}}>
+                              <div style={{fontSize:10,color:C.t3,marginBottom:2}}>Coverage</div>
+                              <div style={{fontFamily:"'DM Mono',monospace",fontSize:13,fontWeight:500,color:C.t1}}>{fmtF(result.face)}</div>
+                            </div>
+                            <div style={{width:1,height:32,background:C.bd,margin:'0 12px'}}/>
+                            <div style={{flex:1}}>
+                              <div style={{fontSize:10,color:C.t3,marginBottom:2}}>Health Class</div>
+                              <div style={{fontSize:12,color:C.t1,fontWeight:500}}>{result.healthClass}</div>
+                            </div>
                           </div>
-                          <a href={CARRIER_META[result.id]?.eapp||'#'} target="_blank" rel="noopener noreferrer" style={{display:'flex',alignItems:'center',justifyContent:'center',gap:7,width:'100%',padding:'11px 0',borderRadius:9,background:'#10B981',color:'#FFFFFF',fontSize:13,fontWeight:700,textDecoration:'none',boxShadow:'0 4px 12px rgba(16,185,129,0.3)'}}>📋 Open e-App</a>
+                          {/* eApp — marginTop:auto pins it to bottom for alignment */}
+                          <EAppBtn carrierId={result.id} lightMode={!isDark}/>
                         </div>
                       ))}
                       {termResults && termResults.filter(r => !r.available).map(result => (
@@ -3869,8 +3900,8 @@ export default function QuoteMark() {
                         background: isDark
                           ? (isGhost?'rgba(15,23,42,0.5)':'#1E293B')
                           : (isGhost?C.bg3:'#FFFFFF'),
-                        border:`1px solid ${isBest?C.gold:isGhost?C.bd:C.bd2}`,
-                        borderTop: isBest?`3px solid ${C.gold}`:isGhost?`1px solid ${C.bd}`:`3px solid ${brandColor||C.bd2}`,
+                        border:`1px solid ${isGhost?C.bd:C.bd2}`,
+                        borderTop: isGhost?`1px solid ${C.bd}`:`3px solid ${brandColor||C.bd2}`,
                         borderRadius:12,padding:18,
                         opacity:isGhost?0.4:1,
                         position:'relative',
@@ -3879,7 +3910,7 @@ export default function QuoteMark() {
                         display:'flex',flexDirection:'column',
                         transform: !isGhost&&hovCard===r.id?'translateY(-4px)':'translateY(0)',
                         boxShadow: isGhost?'none': isDark
-                          ? (hovCard===r.id?`0 0 0 1px ${isBest?C.gold:brandColor||C.bd2}66,0 12px 32px rgba(0,0,0,0.5)`:`0 0 0 1px ${C.bd}`)
+                          ? (hovCard===r.id?`0 0 0 1px ${brandColor||C.bd2}66,0 12px 32px rgba(0,0,0,0.5)`:`0 0 0 1px ${C.bd}`)
                           : (hovCard===r.id?'0 16px 32px -4px rgba(0,0,0,0.18)':'0 4px 6px -1px rgba(0,0,0,0.07),0 2px 4px -2px rgba(0,0,0,0.05)'),
                         filter: isGhost && !isDark ? 'grayscale(1)' : 'none'
                       }}>
