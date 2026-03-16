@@ -1,6 +1,8 @@
 import React, { useState, useMemo, useEffect, useRef } from "react";
 import { useAuth } from "./AuthContext";
 import { supabase } from "./supabase";
+import FEX_RATES from "./data/fex_rates.json";
+import RESTRICTIONS from "./data/restrictions.json";
 
 // ── FONTS ──
 const FONT_LINK = "https://fonts.googleapis.com/css2?family=DM+Mono:wght@400;500&family=DM+Sans:wght@400;500;600;700&family=Barlow+Condensed:wght@700;800&display=swap";
@@ -1246,42 +1248,86 @@ function transamericaTerm10(age, male, smoker, face) {
   // Scale by face amount (rates are per $100k, scale to actual face)
   return Math.round(rate * face / 100000 * 100) / 100;
 }
+
+// ── DATA-DRIVEN RATE LOOKUP ENGINE ──
+// Formula: Monthly = RateFactor × (faceAmount / 1000)
+// Source: InsuranceToolkits API — Illinois, EFT, verified 2025
+function fexLookup(company, planName, age, male, smoker, face, isGI=false) {
+  const gender = male ? 'Male' : 'Female';
+  // GI products store all rates under 'Smoker' key regardless of tobacco status
+  const smokeKey = isGI ? 'Smoker' : (smoker ? 'Smoker' : 'NonSmoker');
+  const ageStr = String(age);
+  let rf = FEX_RATES?.[company]?.[planName]?.[gender]?.[smokeKey]?.[ageStr];
+  // Fallback: smoker rates cap at 65 for most carriers — use NS rate for older smokers
+  if (!rf && smoker && !isGI) {
+    rf = FEX_RATES?.[company]?.[planName]?.[gender]?.['NonSmoker']?.[ageStr];
+  }
+  if (!rf) return null;
+  // Enforce face amount restrictions
+  const key = `${company}||${planName}`;
+  const r = RESTRICTIONS?.[key];
+  if (r) {
+    if (face < r.minFace || face > r.maxFace) return null;
+  }
+  return Math.round(rf * face / 1000 * 100) / 100;
+}
+
 const CARRIERS = [
-  {id:'acc',  name:'Accendo Insurance',  sub:'Final Expense', abbr:'AC', enabled:true,
-   product:{B:'Level',C:'Level',D:'Modified',E:null},
-   fn:(age,male,smoker,tier,face)=>{const i=age-50,ri=(male?0:2)+(smoker?1:0);if(i<0||i>35)return null;let t;if(tier==='B')t=ACC.pf;else if(tier==='C')t=ACC.st;else if(tier==='D'){if(i>25)return null;t=ACC.md;}else return null;return Math.round(((t[i][ri]*(face/1000))+40)*0.0875*100)/100;}},
-  {id:'ahl',  name:'American Home Life', sub:'Patriot Series Tiered FE', abbr:'AH', enabled:true,
-   product:{B:'Level',C:'Level',D:'Modified',E:null},
-   fn:(age,male,smoker,tier,face)=>{const i=age-50,ri=(male?0:2)+(smoker?1:0);if(i<0||i>35)return null;let t;if(tier==='B')t=AHL.pf;else if(tier==='C')t=AHL.st;else if(tier==='D'){if(i>25)return null;t=AHL.md;}else return null;return Math.round(((t[i][ri]*(face/500))+36)*0.0875*100)/100;}},
-  {id:'cont', name:'Continental Life',   sub:'Protection Series FE', abbr:'CL', enabled:true,
-   product:{B:'Level',C:null,D:null,E:null},
-   fn:(age,male,smoker,tier,face)=>{const i=age-50,ri=(male?0:2)+(smoker?1:0);if(i<0||i>35||tier!=='B')return null;return Math.round(((CONT.pf[i][ri]*(face/1000))+40)*0.08333*100)/100;}},
-  {id:'rn',   name:'Royal Neighbors',    sub:'Ensure Legacy FE (Standard)', abbr:'RN', enabled:true,
-   product:{B:'Level',C:'Level',D:'Graded Death Benefit',E:'Guaranteed Issue'},
-   fn:(age,male,smoker,tier,face)=>{const i=age-50,ri=(male?0:2)+(smoker?1:0),u=face/1000;if(i<0)return null;if(tier==='E'){if(i>30)return null;const r=RN.gi[i][male?0:1];return Math.round((Math.round(r*0.087*100)/100*u+4.35)*100)/100;}let t;if(tier==='B'||tier==='C')t=RN.siwl_st;else if(tier==='D')t=RN.gdb;else return null;if(i>35)return null;return Math.round((Math.round(t[i][ri]*0.087*100)/100*u+4.35)*100)/100;}},
+  {id:'acc',  name:'Accendo / CVS',  sub:'Protection Series FE', abbr:'AC', enabled:true,
+   product:{B:'Preferred',C:'Standard',D:'Modified',E:null},
+   fn:(age,male,smoker,tier,face)=>{
+     if(tier==='B') return fexLookup('CVS (Aetna Accendo)','Accendo Preferred',age,male,smoker,face);
+     if(tier==='C') return fexLookup('CVS (Aetna Accendo)','Accendo Standard',age,male,smoker,face);
+     if(tier==='D') return fexLookup('CVS (Aetna Accendo)','Accendo Modified',age,male,smoker,face);
+     return null;
+   }},
+  {id:'ahl',  name:'American Home Life', sub:'Patriot Series FE', abbr:'AH', enabled:true,
+   product:{B:'Preferred',C:'Standard',D:'Modified',E:null},
+   fn:(age,male,smoker,tier,face)=>{
+     if(tier==='B') return fexLookup('American Home Life (Patriot Series)','Patriot Series Preferred',age,male,smoker,face);
+     if(tier==='C') return fexLookup('American Home Life (Patriot Series)','Patriot Series Standard',age,male,smoker,face);
+     if(tier==='D') return fexLookup('American Home Life (Patriot Series)','Patriot Series Modified',age,male,smoker,face);
+     return null;
+   }},
+  {id:'cont', name:'Aetna / Continental', sub:'Protection Series FE', abbr:'CL', enabled:true,
+   product:{B:'Preferred',C:null,D:null,E:null},
+   fn:(age,male,smoker,tier,face)=>{
+     if(tier==='B') return fexLookup('Aetna (Protection Series)','Protection Series Preferred',age,male,smoker,face);
+     return null;
+   }},
+  {id:'rn',   name:'Royal Neighbors',    sub:'Ensured Legacy FE', abbr:'RN', enabled:true,
+   product:{B:'Standard',C:'Standard',D:'Graded',E:'Guaranteed Issue'},
+   fn:(age,male,smoker,tier,face)=>{
+     if(tier==='B'||tier==='C') return fexLookup('Royal Neighbors (Ensured Legacy)','Ensured Legacy Standard',age,male,smoker,face);
+     if(tier==='D') return fexLookup('Royal Neighbors (Ensured Legacy)','Ensured Legacy Graded',age,male,smoker,face);
+     if(tier==='E') return fexLookup('Royal Neighbors (Ensured Legacy)','Ensured Legacy Guaranteed Issue',age,male,smoker,face,true);
+     return null;
+   }},
   // ── NEW CARRIERS ──
   {id:'moo',  name:'Mutual of Omaha',    sub:'Living Promise', abbr:'MO', enabled:true,
    product:{B:'Level',C:'Level',D:'Graded',E:null},
    fn:(age,male,smoker,tier,face)=>{
-     if(age<45)return null;
-     const lvlTbl=male?(smoker?MOO_LVL_MT:MOO_LVL_MN):(smoker?MOO_LVL_FT:MOO_LVL_FN);
-     const grdTbl=male?(smoker?MOO_GRD_MT:MOO_GRD_MN):(smoker?MOO_GRD_FT:MOO_GRD_FN);
-     if(tier==='B'||tier==='C') return mooLookup(lvlTbl,MOO_FACES_LVL,age,Math.min(face,50000));
-     if(tier==='D') return mooLookup(grdTbl,MOO_FACES_GRD,age,Math.min(face,25000));
+     if(tier==='B'||tier==='C') return fexLookup('Mutual of Omaha (Living Promise)','Living Promise Level',age,male,smoker,face);
+     if(tier==='D') return fexLookup('Mutual of Omaha (Living Promise)','Living Promise Graded',age,male,smoker,face);
      return null;
    }},
   {id:'ta',   name:'Transamerica',       sub:'Immediate Solution', abbr:'TA', enabled:true,
-   product:{B:'Preferred',C:'Standard',D:null,E:null},
-   fn:(age,male,smoker,tier,face)=>{if(tier==='B')return taQuote(TASP2,age,male,smoker,face);if(tier==='C')return taQuote(TASS2,age,male,smoker,face);return null;}},
+   product:{B:'Preferred',C:'Standard',D:'Graded',E:null},
+   fn:(age,male,smoker,tier,face)=>{
+     if(tier==='B') return fexLookup('Transamerica (Solutions)','Immediate Solution Preferred',age,male,smoker,face);
+     if(tier==='C') return fexLookup('Transamerica (Solutions)','Immediate Solution Standard',age,male,smoker,face);
+     if(tier==='D') return fexLookup('Transamerica (Solutions)','Easy Solution Graded',age,male,smoker,face);
+     return null;
+   }},
   {id:'laf',  name:'Lafayette Life',     sub:'Whole Life', abbr:'LF', enabled:false,
    product:{B:'Level',C:'Level',D:null,E:null},
    fn:(age,male,smoker,tier,face)=>{if(tier!=='B'&&tier!=='C')return null;return csvLookup(LAF,LAF_M,age,male,smoker,face);}},
   {id:'for',  name:'Foresters',          sub:'PlanRight Whole Life', abbr:'FR', enabled:true,
-   product:{B:'Level — Preferred',C:'Level — Standard',D:'Level — Basic',E:null},
+   product:{B:'Preferred',C:'Standard',D:'Basic',E:null},
    fn:(age,male,smoker,tier,face)=>{
-     if(tier==='B'){const cap=age<=80?35000:15000;return csvLookup(FOR_P,0.0875,age,male,smoker,Math.min(face,cap));}
-     if(tier==='C'){const cap=age<=80?20000:10000;return csvLookup(FOR_S,0.0875,age,male,smoker,Math.min(face,cap));}
-     if(tier==='D'){if(age>80)return null;return csvLookup(FOR_B,0.0875,age,male,smoker,Math.min(face,15000));}
+     if(tier==='B') return fexLookup('Foresters (PlanRight)','PlanRight Preferred',age,male,smoker,face);
+     if(tier==='C') return fexLookup('Foresters (PlanRight)','PlanRight Standard',age,male,smoker,face);
+     if(tier==='D') return fexLookup('Foresters (PlanRight)','PlanRight Basic',age,male,smoker,face);
      return null;
    }},
   {id:'afl',  name:'Aflac',              sub:'Final Expense WL', abbr:'AF', enabled:false,
@@ -1290,45 +1336,67 @@ const CARRIERS = [
   {id:'amr',  name:'Americo',            sub:'Eagle Select', abbr:'AM', enabled:false,
    product:{B:'Level',C:'Level',D:null,E:null},
    fn:(age,male,smoker,tier,face)=>{if(tier==='B')return csvLookup(AMRP,AMRP_M,age,male,smoker,face);if(tier==='C')return csvLookup(AMRS,AMRS_M,age,male,smoker,face);return null;}},
-  {id:'uhl',  name:'United Home Life',   sub:'Premier / Deluxe / GI', abbr:'UH', enabled:false,
-   product:{B:'Level',C:'Level',D:null,E:'Guaranteed Issue'},
-   fn:(age,male,smoker,tier,face)=>{if(tier==='B')return csvLookup(UHLP,UHLP_M,age,male,smoker,face);if(tier==='C')return csvLookup(UHLD,UHLD_M,age,male,smoker,face);if(tier==='E'){if(age>75)return null;return csvLookup(UHLG,UHLG_M,age,male,smoker,face);}return null;}},
-  {id:'fid',  name:'Fidelity Life',      sub:'RAPIDecision FE / GI', abbr:'FD', enabled:true,
-   product:{B:'Level',C:'Level',D:null,E:'Guaranteed Issue'},
-   fn:(age,male,smoker,tier,face)=>{if(tier==='B'||tier==='C')return fidQuote(FIDF,age,male,smoker,face);if(tier==='E')return fidQuote(FIDG2,age,male,smoker,face);return null;}},
-  {id:'cbg',  name:'Corebridge Financial', sub:'SIWL / GIWL', abbr:'CB', enabled:true,
-   product:{B:'Level',C:'Level',D:null,E:'Guaranteed Issue'},
+  {id:'uhl',  name:'United Home Life',   sub:'Premier / Deluxe / GI', abbr:'UH', enabled:true,
+   product:{B:'Premier',C:'Deluxe',D:'Graded (EIWL)',E:'Guaranteed Issue'},
    fn:(age,male,smoker,tier,face)=>{
-     if(tier==='B'||tier==='C') return cbgSiwlQuote(age,male,smoker,Math.min(face,25000));
-     if(tier==='E'){if(age<50||age>80)return null;return cbgGiwlQuote(age,male,face);}
+     if(tier==='B') return fexLookup('UHL','Premier',age,male,smoker,face);
+     if(tier==='C') return fexLookup('UHL','Deluxe',age,male,smoker,face);
+     if(tier==='D') return fexLookup('UHL','EIWL',age,male,smoker,face);
+     if(tier==='E') return fexLookup('UHL','Guaranteed Issue',age,male,smoker,face,true);
      return null;
    }},
-  {id:'lb',   name:'Liberty Bankers',    sub:'SIMPL Whole Life', abbr:'LB', enabled:false,
-   product:{B:'Level',C:'Level',D:null,E:null},
-   fn:(age,male,smoker,tier,face)=>{if(tier==='B')return csvLookup(LBP,LBP_M,age,male,smoker,face);if(tier==='C')return csvLookup(LBS,LBS_M,age,male,smoker,face);return null;}},
+  {id:'fid',  name:'Fidelity Life',      sub:'RAPIDecision FE / GI', abbr:'FD', enabled:true,
+   product:{B:'Level',C:'Level',D:null,E:'Guaranteed Issue'},
+   fn:(age,male,smoker,tier,face)=>{
+     if(tier==='B'||tier==='C') return fexLookup('Fidelity (RAPIDecision Final Expense)','Level',age,male,smoker,face);
+     if(tier==='E') return fexLookup('Fidelity (RAPIDecision Final Expense)','Guaranteed',age,male,smoker,face,true);
+     return null;
+   }},
+  {id:'cbg',  name:'Corebridge Financial', sub:'SIWL / GIWL', abbr:'CB', enabled:true,
+   product:{B:'SimpliNow Legacy Max',C:'SimpliNow Legacy Max',D:null,E:'Guaranteed Issue'},
+   fn:(age,male,smoker,tier,face)=>{
+     if(tier==='B'||tier==='C') return fexLookup('AIG (SIWL)','SimpliNow Legacy Max',age,male,smoker,face);
+     if(tier==='E') return fexLookup('AIG (GIWL)','Guaranteed Issue',age,male,smoker,face,true);
+     return null;
+   }},
+  {id:'lb',   name:'Liberty Bankers',    sub:'SIMPL Whole Life', abbr:'LB', enabled:true,
+   product:{B:'SIMPL Preferred',C:'SIMPL Standard',D:'SIMPL Modified',E:null},
+   fn:(age,male,smoker,tier,face)=>{
+     if(tier==='B') return fexLookup('Liberty Bankers','SIMPL Preferred',age,male,smoker,face);
+     if(tier==='C') return fexLookup('Liberty Bankers','SIMPL Standard',age,male,smoker,face);
+     if(tier==='D') return fexLookup('Liberty Bankers','SIMPL Modified',age,male,smoker,face);
+     return null;
+   }},
   {id:'amam', name:'American Amicable',  sub:'Senior Choice', abbr:'AA', enabled:true,
    product:{B:'Immediate',C:'Immediate',D:'Graded',E:null},
    fn:(age,male,smoker,tier,face)=>{
-     if(tier==='B'||tier==='C') return amamQuote(AMAM_IMM,age,male,smoker,Math.min(face,50000));
-     if(tier==='D') return amamQuote(AMAM_GRD,age,male,smoker,Math.min(face,25000));
+     if(tier==='B'||tier==='C') return fexLookup('American Amicable (Senior Choice)','Senior Choice Immediate',age,male,smoker,face);
+     if(tier==='D') return fexLookup('American Amicable (Senior Choice)','Senior Choice Graded',age,male,smoker,face);
      return null;
    }},
   {id:'ra',   name:'Royal Arcanum',      sub:'Whole Life Level', abbr:'RA', enabled:false,
    product:{B:'Level',C:'Level',D:null,E:null},
    fn:(age,male,smoker,tier,face)=>{if(tier!=='B'&&tier!=='C')return null;return csvLookup(RA,RA_M,age,male,smoker,face);}},
-  {id:'bl_sg', name:'Baltimore Life',    sub:'Silver Guard FE', abbr:'BL', enabled:true,
-   product:{B:'Level',C:'Level',D:'Graded',E:null},
+  {id:'bl_sg', name:'Baltimore Life',    sub:'iProvide FE', abbr:'BL', enabled:true,
+   product:{B:'Preferred',C:'Standard',D:'Modified',E:null},
    fn:(age,male,smoker,tier,face)=>{
-     if(age<50||age>80)return null;
-     const lvlTbl=male?(smoker?BL_SGI_MT:BL_SGI_MN):(smoker?BL_SGI_FT:BL_SGI_FN);
-     const grdTbl=male?(smoker?BL_SGII_MT:BL_SGII_MN):(smoker?BL_SGII_FT:BL_SGII_FN);
-     if(tier==='B'||tier==='C') return blsgQuote(lvlTbl,age,Math.min(face,25000));
-     if(tier==='D') return blsgQuote(grdTbl,age,Math.min(face,15000));
+     // iProvide 45-69 for ages 50-69, iProvide 70+ for ages 70-80
+     const co = age<=69 ? 'Baltimore Life (iProvide 45-69)' : 'Baltimore Life (iProvide 70+)';
+     const pref = age<=69 ? 'iProvide (45-69) Preferred' : 'iProvide (70+) Preferred';
+     const std  = age<=69 ? 'iProvide (45-69) Standard'  : 'iProvide (70+) Standard';
+     const mod  = age<=69 ? 'iProvide (45-69) Modified'  : null;
+     if(tier==='B') return fexLookup(co, pref, age, male, smoker, face);
+     if(tier==='C') return fexLookup(co, std,  age, male, smoker, face);
+     if(tier==='D') return mod ? fexLookup(co, mod, age, male, smoker, face) : null;
      return null;
    }},
-  {id:'ls',   name:'Lifeshield',         sub:'Survivor Level', abbr:'LS', enabled:false,
-   product:{B:'Level',C:'Level',D:null,E:null},
-   fn:(age,male,smoker,tier,face)=>{if(tier!=='B'&&tier!=='C')return null;return csvLookup(LS,LS_M,age,male,smoker,face);}},
+  {id:'ls',   name:'Lifeshield',         sub:'Survivor Level / Graded', abbr:'LS', enabled:true,
+   product:{B:'Level',C:'Level',D:'Graded',E:null},
+   fn:(age,male,smoker,tier,face)=>{
+     if(tier==='B'||tier==='C') return fexLookup('Lifeshield','Survivor Level',age,male,smoker,face);
+     if(tier==='D') return fexLookup('Lifeshield','Survivor Graded',age,male,smoker,face);
+     return null;
+   }},
   {id:'pf',   name:'Polish Falcons',     sub:'of America', abbr:'PF', enabled:false,
    product:{B:'Level',C:'Level',D:null,E:null},
    fn:(age,male,smoker,tier,face)=>{if(tier!=='B'&&tier!=='C')return null;return csvLookup(PF2,PF_M,age,male,smoker,face);}},
@@ -1340,20 +1408,61 @@ const CARRIERS = [
      return null;
    }},
   {id:'elco', name:'Elco Mutual',          sub:'Silver Eagle', abbr:'EM', enabled:true,
-   product:{B:'Silver Eagle Premier',C:'Silver Eagle Plus',D:'Silver Eagle Standard',E:null},
-   fn:(age,male,smoker,tier,face)=>elcoQuote(age,male,smoker,tier,face)},
-  {id:'balt_sg', name:'Baltimore Life',    sub:'Silver Guard', abbr:'BT', enabled:true,
-   product:{B:'Silver Guard Standard',C:'Silver Guard (Avg)',D:'Silver Guard Special',E:null},
-   fn:(age,male,smoker,tier,face)=>baltSgQuote(age,male,smoker,tier,face)},
+   product:{B:'Premier',C:'Standard',D:'Graded',E:'Guaranteed Issue'},
+   fn:(age,male,smoker,tier,face)=>{
+     if(tier==='B') return fexLookup('Elco (Silver Eagle)','Silver Eagle Premier',age,male,smoker,face);
+     if(tier==='C') return fexLookup('Elco (Silver Eagle)','Silver Eagle Standard',age,male,smoker,face);
+     if(tier==='D') return fexLookup('Elco (Silver Eagle)','Silver Eagle Graded',age,male,smoker,face);
+     if(tier==='E') return fexLookup('Elco (Silver Eagle)','Silver Eagle Guaranteed Issue',age,male,smoker,face,true);
+     return null;
+   }},
+  {id:'balt_sg', name:'Baltimore Life',    sub:'Silver Guard', abbr:'BT', enabled:false,
+   product:{B:'Special',C:'Standard',D:'Silver Guard Special',E:null},
+   fn:(age,male,smoker,tier,face)=>{
+     if(tier==='B') return fexLookup('Baltimore Life (Silver Guard)','Silver Guard Special',age,male,smoker,face);
+     if(tier==='C') return fexLookup('Baltimore Life (Silver Guard)','Silver Guard Standard',age,male,smoker,face);
+     return null;
+   }},
   {id:'sl_pp', name:'Senior Life',         sub:'Platinum Protection', abbr:'SL', enabled:true,
    product:{B:'Level',C:null,D:null,E:null},
-   fn:(age,male,smoker,tier,face)=>slPpQuote(age,male,smoker,tier,face)},
+   fn:(age,male,smoker,tier,face)=>{
+     if(tier!=='B') return null;
+     return fexLookup('Senior Life (Platinum Protection)','Platinum Protection',age,male,smoker,face);
+   }},
   {id:'sl',    name:'Senior Life',          sub:'Whole Life (EI)', abbr:'SL', enabled:true,
    product:{B:null,C:'Level — Standard',D:'Modified',E:'Guaranteed Issue'},
    fn:(age,male,smoker,tier,face)=>slWlQuote(age,male,smoker,tier,face)},
   {id:'ail',   name:'American Income Life', sub:'Whole Life / Graded', abbr:'AI', enabled:true,
    product:{B:'Level — Non-Tobacco',C:'Level — Tobacco',D:'Senior Graded (3-yr)',E:null},
    fn:(age,male,smoker,tier,face)=>ailQuote(age,male,smoker,tier,face)},
+  // ── NEW CARRIERS FROM RATE SHEET ──
+  {id:'ta_exp', name:'Transamerica',  sub:'Express Select', abbr:'TX', enabled:true,
+   product:{B:'Select',C:null,D:'Graded',E:null},
+   fn:(age,male,smoker,tier,face)=>{
+     if(tier==='B') return fexLookup('Transamerica (Express)','Express Select',age,male,smoker,face);
+     if(tier==='D') return fexLookup('Transamerica (Express)','Express Graded',age,male,smoker,face);
+     return null;
+   }},
+  {id:'ahl_gs', name:'American Home Life', sub:'GuideStar 45+', abbr:'AG', enabled:true,
+   product:{B:'Level',C:'Level',D:'Graded',E:null},
+   fn:(age,male,smoker,tier,face)=>{
+     if(tier==='B'||tier==='C') return fexLookup('American Home Life (GuideStar 45+)','GuideStar Level',age,male,smoker,face);
+     if(tier==='D') return fexLookup('American Home Life (GuideStar 45+)','GuideStar Graded',age,male,smoker,face);
+     return null;
+   }},
+  {id:'amam_gs', name:'American Amicable', sub:'Golden Solution', abbr:'AG', enabled:true,
+   product:{B:'Immediate',C:'Immediate',D:'Graded',E:null},
+   fn:(age,male,smoker,tier,face)=>{
+     if(tier==='B'||tier==='C') return fexLookup('American Amicable (Golden Solution)','Golden Solution Immediate',age,male,smoker,face);
+     if(tier==='D') return fexLookup('American Amicable (Golden Solution)','Golden Solution Graded',age,male,smoker,face);
+     return null;
+   }},
+  {id:'rna_gi', name:'Royal Neighbors',   sub:'Guaranteed Issue', abbr:'RG', enabled:true,
+   product:{B:null,C:null,D:null,E:'Guaranteed Issue'},
+   fn:(age,male,smoker,tier,face)=>{
+     if(tier==='E') return fexLookup('Royal Neighbors (Ensured Legacy)','Ensured Legacy Guaranteed Issue',age,male,smoker,face,true);
+     return null;
+   }},
   // ── TERM LIFE CARRIERS (injected below) ──
   ...TERM_CARRIERS,
 ];
