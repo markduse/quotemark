@@ -1442,7 +1442,7 @@ const CARRIERS = [
      const mod  = age<=69 ? 'iProvide (45-69) Modified'  : null;
      if(tier==='B') return fexPrem(co, pref, age, male, smoker, face);
      if(tier==='C') return fexPrem(co, std,  age, male, smoker, face);
-     if(tier==='D') return mod ? fexLookup(co, mod, age, male, smoker, face) : null;
+     if(tier==='D') return mod ? fexPrem(co, mod, age, male, smoker, face) : null;
      return null;
    }},
   {id:'ls',   name:'Lifeshield',         sub:'Survivor Level / Graded', abbr:'LS', enabled:true,
