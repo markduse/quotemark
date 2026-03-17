@@ -3909,7 +3909,6 @@ export default function QuoteMark() {
                         transition:'transform 0.18s,box-shadow 0.18s',
                         overflow:'visible',
                         display:'flex',flexDirection:'column',
-                        height:'100%',
                         transform: !isGhost&&hovCard===r.id?'translateY(-4px)':'translateY(0)',
                         boxShadow: isGhost?'none': isDark
                           ? (hovCard===r.id?`0 0 0 1px ${brandColor||C.bd2}66,0 12px 32px rgba(0,0,0,0.5)`:`0 0 0 1px ${C.bd}`)
@@ -3934,7 +3933,7 @@ export default function QuoteMark() {
                         {isGhost?(
                           <div style={{fontSize:12,color:C.t4,fontStyle:'italic'}}>{r.reason}</div>
                         ):(
-                          <div style={{display:'flex',flexDirection:'column',flex:1,minHeight:180}}>
+                          <div style={{display:'flex',flexDirection:'column',minHeight:0}}>
                             {/* Premium */}
                             <div style={{marginBottom:14}}>
                               <div style={{display:'flex',alignItems:'baseline',gap:8}}>
