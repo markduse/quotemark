@@ -49,7 +49,7 @@ const AGE_MAX = {
   acc:89, ahl:89, ahl_gs:85, cont:89, rn:85,
   ra:79,  ls:80,  amam:85,   amam_gs:85, moo:85, cbg:80,
   ta:85,  ta_exp:85, lb:80,  pf:79,  amr:85, for:85,
-  afl:79, laf:79, uhl:85, fid:85,
+  afl:79, laf:79, uhl:80, fid:85,
   bl_sg:69, elco:80, sl_pp:85, sl:85, ail:80, rna_gi:85,
 };
 
@@ -2040,18 +2040,17 @@ export default function QuoteMark() {
     if(!pName){const reason=uwTier==='E'?'No GI product offered':uwTier==='D'?'Level plans only':'Not available for this tier';return{...carr,face:null,prem:null,productName:null,reason};}
     // Pass the requested face — fexLookup will cap to max available band for this age
     let prem=null, effFace=face;
-    try{prem=carr.fn(a,male,smoker,uwTier,face);}catch(e){console.error(`[QuoteMark] ${carr.id} threw:`,e,{age:a,male,smoker,tier:uwTier,face});prem=null;}
-    // If fn() returned a prem, check if the face was age-capped by getting effective face
-    // (fexPrem strips the face; we need fexEffFace for display)
-    if(prem!=null && carr.fexKeys) {
-      const ef = fexEffFace(carr.fexKeys[uwTier]?.co, carr.fexKeys[uwTier]?.pl, a, male, smoker, face);
-      if(ef!=null) effFace = ef;
-    }
-    // Fallback: static FACE_CAPS cap for legacy carriers
-    if(maxFace && effFace > maxFace) effFace = maxFace;
+    try{
+      const res=carr.fn(a,male,smoker,uwTier,face);
+      if(res && typeof res==='object') {
+        prem=res.prem; effFace=res.face; // fexLookup returns {prem,face}
+      } else {
+        prem=res; // legacy csvLookup carriers return a plain number
+      }
+    }catch(e){console.error(`[QuoteMark] ${carr.id} fn() threw:`,e.message,{age:a,tier:uwTier,face});prem=null;}
     let reason;
     if(prem==null){if(uwTier==='D'&&a>75)reason='Modified not available after 75';else if(uwTier==='E'&&a>80)reason='GI not available after 80';else reason='Not available for this profile';}
-    const isCapped = effFace < face;
+    const isCapped = prem!=null && effFace !== face;
     return{...carr,face:prem!=null?effFace:null,prem,productName:pName,activeTier:uwTier,reason,capped:isCapped};
   }
 
