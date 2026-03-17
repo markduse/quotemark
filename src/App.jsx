@@ -45,12 +45,12 @@ const FACE_CAPS = {
   bl:50000, elco:25000, balt_sg:25000, sl_pp:25000, sl:30000, ail:30000,
 };
 const AGE_MAX = {
-  // Updated from quotemark_FEX_2026-03-17.xlsx — real max ages per carrier
+  // Verified max ages — from data file + carrier confirmation
   acc:89, ahl:89, ahl_gs:85, cont:89, rn:85,
-  ra:79,  ls:73,  amam:85,   amam_gs:85, moo:85, cbg:73,
+  ra:79,  ls:80,  amam:85,   amam_gs:85, moo:85, cbg:80,
   ta:85,  ta_exp:85, lb:80,  pf:79,  amr:85, for:85,
-  afl:79, laf:79, uhl:80, fid:85,
-  bl_sg:69, elco:80, sl_pp:85, sl:85, ail:80, rna_gi:80,
+  afl:79, laf:79, uhl:85, fid:85,
+  bl_sg:69, elco:80, sl_pp:85, sl:85, ail:80, rna_gi:85,
 };
 
 // ── Better Life — Better Final Expense ────────────────────────────
@@ -1663,32 +1663,31 @@ const TierBadge = ({tier, productName}) => {
 
 // Comp badge — 💰 only for high comp (≥110%); low comp shows nothing
 const CompBadge = ({carrierId, tier}) => {
-  const [open,setOpen] = React.useState(false);
+  // ALL hooks must be declared before any early return (React rules)
+  const [open,setOpen]   = React.useState(false);
+  const [openUp,setOpenUp] = React.useState(true);
   const ref = React.useRef(null);
   const level = getCompBadge(carrierId, tier);
-  if(!level || level!=='high') return null;  // only show money bag for high comp
-  const isHigh = true;
-  const emoji = '💰';
-  const color = '#4ADE80';
-  const bg    = 'rgba(34,197,94,0.12)';
-  const bd    = 'rgba(34,197,94,0.35)';
-  const tip   = 'Strong commission contract. One of the better-compensated products in this tier.';
-  // Determine if tooltip should open upward or downward based on screen position
-  const [openUp,setOpenUp] = React.useState(true);
-  const handleOpen = () => {
-    if(ref.current){
-      const rect = ref.current.getBoundingClientRect();
-      setOpenUp(rect.top > 160); // flip down if near top of screen
-    }
-    setOpen(o=>!o);
-  };
-  // Close on outside tap
   React.useEffect(()=>{
     if(!open) return;
     const close = ()=>setOpen(false);
     setTimeout(()=>document.addEventListener('click',close),0);
     return ()=>document.removeEventListener('click',close);
   },[open]);
+  // Early return AFTER all hooks
+  if(!level || level!=='high') return null;
+  const emoji = '💰';
+  const color = '#4ADE80';
+  const bg    = 'rgba(34,197,94,0.12)';
+  const bd    = 'rgba(34,197,94,0.35)';
+  const tip   = 'Strong commission contract. One of the better-compensated products in this tier.';
+  const handleOpen = () => {
+    if(ref.current){
+      const rect = ref.current.getBoundingClientRect();
+      setOpenUp(rect.top > 160);
+    }
+    setOpen(o=>!o);
+  };
   return (
     <span ref={ref} style={{position:'relative',display:'inline-flex'}}
       onMouseEnter={()=>setOpen(true)} onMouseLeave={()=>setOpen(false)}
@@ -1978,7 +1977,7 @@ export default function QuoteMark() {
     return () => window.removeEventListener('resize', handle);
   }, []);
 
-  useEffect(()=>{ const a=calcAge(dob.mm,dob.dd,dob.yyyy);if(a!==null&&a>=50&&a<=89)setAge(String(a)); },[dob]);
+  useEffect(()=>{ const a=calcAge(dob.mm,dob.dd,dob.yyyy);if(a!==null&&a>=1&&a<=89)setAge(String(a)); },[dob]);
 
   const autoTier = useMemo(()=>getAutoTier(selected),[selected]);
   const uwTier   = tierOvr||autoTier;
