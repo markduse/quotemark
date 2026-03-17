@@ -1382,9 +1382,15 @@ const CARRIERS = [
   {id:'afl',  name:'Aflac',              sub:'Final Expense WL', abbr:'AF', enabled:false,
    product:{B:'Level',C:'Level',D:null,E:null},
    fn:(age,male,smoker,tier,face)=>{if(tier==='B')return csvLookup(AFLP,AFLP_M,age,male,smoker,face);if(tier==='C')return csvLookup(AFLS,AFLS_M,age,male,smoker,face);return null;}},
-  {id:'amr',  name:'Americo',            sub:'Eagle Select', abbr:'AM', enabled:false,
-   product:{B:'Level',C:'Level',D:null,E:null},
-   fn:(age,male,smoker,tier,face)=>{if(tier==='B')return csvLookup(AMRP,AMRP_M,age,male,smoker,face);if(tier==='C')return csvLookup(AMRS,AMRS_M,age,male,smoker,face);return null;}},
+  {id:'amr',  name:'Americo',            sub:'Eagle Select', abbr:'AM', enabled:true,
+   product:{B:'Plan 1',C:'Plan 2',D:'Plan 3',E:null},
+   stateCheck:(s)=>(fexStateOK('Americo',s)),
+   fn:(age,male,smoker,tier,face)=>{
+     if(tier==='B') return fexPrem('Americo','Eagle Select Plan 1',age,male,smoker,face);
+     if(tier==='C') return fexPrem('Americo','Eagle Select Plan 2',age,male,smoker,face);
+     if(tier==='D') return fexPrem('Americo','Eagle Select Plan 3',age,male,smoker,face);
+     return null;
+   }},
   {id:'uhl',  name:'United Home Life',   sub:'Premier / Deluxe / GI', abbr:'UH', enabled:true,
    product:{B:'Premier',C:'Deluxe',D:'Graded (EIWL)',E:'Guaranteed Issue'},
    stateCheck:(s)=>(fexStateOK('UHL',s)),
@@ -1487,10 +1493,10 @@ const CARRIERS = [
      if(tier!=='B') return null;
      return fexPrem('Senior Life (Platinum Protection)','Platinum Protection',age,male,smoker,face);
    }},
-  {id:'sl',    name:'Senior Life',          sub:'Whole Life (EI)', abbr:'SL', enabled:true,
+  {id:'sl',    name:'Senior Life',          sub:'Whole Life (EI)', abbr:'SL', enabled:false,
    product:{B:null,C:'Level — Standard',D:'Modified',E:'Guaranteed Issue'},
    fn:(age,male,smoker,tier,face)=>slWlQuote(age,male,smoker,tier,face)},
-  {id:'ail',   name:'American Income Life', sub:'Whole Life / Graded', abbr:'AI', enabled:true,
+  {id:'ail',   name:'American Income Life', sub:'Whole Life / Graded', abbr:'AI', enabled:false,
    product:{B:'Level — Non-Tobacco',C:'Level — Tobacco',D:'Senior Graded (3-yr)',E:null},
    fn:(age,male,smoker,tier,face)=>ailQuote(age,male,smoker,tier,face)},
   // ── NEW CARRIERS FROM RATE SHEET ──
