@@ -1594,8 +1594,8 @@ function getAutoTier(sel){const active=sel.filter(id=>id!=='none');if(!active.le
 function solveForFace(budget,age,male,smoker,tier,fn){let lo=1000,hi=50000,best=0;for(let i=0;i<50;i++){const mid=Math.round((lo+hi)/2/1000)*1000;if(lo>hi)break;const p=fn(age,male,smoker,tier,mid);if(p!==null&&p<=budget+0.001){best=mid;lo=mid+1000;}else hi=mid-1000;}return best>0?best:null;}
 function calcAge(mm,dd,yyyy){if(!mm||!dd||!yyyy||yyyy.length<4)return null;const b=new Date(+yyyy,+mm-1,+dd),t=new Date();let a=t.getFullYear()-b.getFullYear();if(t.getMonth()-b.getMonth()<0||(t.getMonth()===b.getMonth()&&t.getDate()<b.getDate()))a--;return isNaN(a)?null:a;}
 
-const fmt$ = n => n!=null ? `$${n.toFixed(2)}` : '—';
-const fmtF = n => n!=null ? `$${n.toLocaleString()}` : '—';
+const fmt$ = n => (n!=null&&typeof n==='number') ? `$${n.toFixed(2)}` : '—';
+const fmtF = n => (n!=null&&typeof n==='number') ? `$${n.toLocaleString()}` : '—';
 
 // ── DESIGN TOKENS ──
 const C_DARK = {
@@ -2700,10 +2700,10 @@ export default function QuoteMark() {
                             {idx === 0 && <div style={{background:'rgba(16,185,129,0.15)',border:'1px solid rgba(16,185,129,0.3)',borderRadius:7,padding:'3px 10px',fontSize:10,fontWeight:700,color:'#10B981'}}>Best Rate</div>}
                           </div>
                           <div style={{display:'flex',alignItems:'baseline',gap:8,marginBottom:4}}>
-                            <span style={{fontFamily:"'DM Mono',monospace",fontSize:34,fontWeight:700,color:'#10B981',letterSpacing:'-1px',lineHeight:1}}>${result.prem.toFixed(2)}</span>
+                            <span style={{fontFamily:"'DM Mono',monospace",fontSize:34,fontWeight:700,color:'#10B981',letterSpacing:'-1px',lineHeight:1}}>${(result.prem??0).toFixed(2)}</span>
                             <span style={{fontSize:13,color:C.t3}}>/mo</span>
                           </div>
-                          <div style={{fontSize:12,color:C.t2,marginBottom:14,fontFamily:"'DM Mono',monospace"}}>${(result.prem*12).toFixed(0)} / year</div>
+                          <div style={{fontSize:12,color:C.t2,marginBottom:14,fontFamily:"'DM Mono',monospace"}}>${((result.prem??0)*12).toFixed(0)} / year</div>
                           <div style={{display:'flex',gap:6,flexWrap:'wrap',paddingTop:12,borderTop:`1px solid ${isDark?'rgba(16,185,129,0.2)':'#D1FAE5'}`,marginBottom:14}}>
                             <span style={{background:isDark?'rgba(16,185,129,0.1)':'#ECFDF5',border:`1px solid ${isDark?'rgba(16,185,129,0.25)':'#6EE7B7'}`,borderRadius:6,padding:'4px 10px',fontSize:11,color:isDark?'#6EE7B7':'#065F46',fontWeight:600}}>{fmtF(result.face)}</span>
                             <span style={{background:isDark?C.bg3:'#FAF9F6',border:`1px solid ${C.bd}`,borderRadius:6,padding:'4px 10px',fontSize:11,color:C.t3}}>{result.healthClass}</span>
@@ -3762,10 +3762,10 @@ export default function QuoteMark() {
                           {/* Premium */}
                           <div style={{marginBottom:14}}>
                             <div style={{display:'flex',alignItems:'baseline',gap:8}}>
-                              <span style={{fontFamily:"'DM Mono',monospace",fontSize:30,fontWeight:800,color:'#10B981',letterSpacing:'-1px',lineHeight:1}}>${result.prem.toFixed(2)}</span>
+                              <span style={{fontFamily:"'DM Mono',monospace",fontSize:30,fontWeight:800,color:'#10B981',letterSpacing:'-1px',lineHeight:1}}>${(result.prem??0).toFixed(2)}</span>
                               <span style={{fontSize:11,color:C.t3}}>/mo</span>
                             </div>
-                            <div style={{fontSize:12,color:C.t2,marginTop:4,fontFamily:"'DM Mono',monospace"}}>${(result.prem*12).toFixed(0)} / year</div>
+                            <div style={{fontSize:12,color:C.t2,marginTop:4,fontFamily:"'DM Mono',monospace"}}>${((result.prem??0)*12).toFixed(0)} / year</div>
                           </div>
                           {/* Details row */}
                           <div style={{display:'flex',alignItems:'center',gap:0,paddingTop:12,borderTop:`1px solid ${C.bd}`,marginBottom:0}}>
@@ -3892,7 +3892,7 @@ export default function QuoteMark() {
                                         letterSpacing:'-0.5px',lineHeight:1
                                       }}>{fmt$(tr.prem)}</div>
                                       <div style={{fontSize:10,color:C.t4,marginTop:4}}>/mo EFT</div>
-                                      <div style={{fontSize:10,color:C.t4,marginTop:2,fontFamily:"'DM Mono',monospace"}}>${(tr.prem*12).toFixed(0)}<span style={{fontSize:9}}>/yr</span></div>
+                                      <div style={{fontSize:10,color:C.t4,marginTop:2,fontFamily:"'DM Mono',monospace"}}>${((tr.prem??0)*12).toFixed(0)}<span style={{fontSize:9}}>/yr</span></div>
                                     </>
                                   ):(
                                     <div style={{fontSize:10,color:C.t4,lineHeight:1.5,marginTop:4,minHeight:52}}>{tr.reason||'N/A'}</div>
@@ -3968,7 +3968,7 @@ export default function QuoteMark() {
                                 <span style={{fontSize:11,color:C.t3}}>/mo EFT</span>
                               </div>
                               <div style={{fontSize:12,color:C.t1,marginTop:4}}>
-                                <span style={{fontFamily:"'DM Mono',monospace"}}>${(r.prem*12).toFixed(0)}</span>
+                                <span style={{fontFamily:"'DM Mono',monospace"}}>${((r.prem??0)*12).toFixed(0)}</span>
                                 <span style={{color:C.t2}}> / year</span>
                               </div>
                             </div>
