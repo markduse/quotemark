@@ -1955,7 +1955,7 @@ export default function QuoteMark() {
   const autoTier = useMemo(()=>getAutoTier(selected),[selected]);
   const uwTier   = tierOvr||autoTier;
   const ageNum   = parseInt(age);
-  const ageOK    = age && ageNum>=50 && ageNum<=89;
+  const ageOK    = age && ageNum>=1 && ageNum<=89;
 
   const toggleOvr = (t) => { setTierOvr(p=>p===t?null:t); ; };
   // Persist last quote params to sessionStorage whenever they change
@@ -2013,7 +2013,7 @@ export default function QuoteMark() {
     if(!pName){const reason=uwTier==='E'?'No GI product offered':uwTier==='D'?'Level plans only':'Not available for this tier';return{...carr,face:null,prem:null,productName:null,reason};}
     const cappedFace=Math.min(face,maxFace);
     let prem=null;
-    try{prem=carr.fn(a,male,smoker,uwTier,cappedFace);}catch(e){console.error(`[QuoteMark] ${carr.id} threw:`,e);prem=null;}
+    try{prem=carr.fn(a,male,smoker,uwTier,cappedFace);}catch(e){console.error(`[QuoteMark] ${carr.id} threw:`,e,{age:a,male,smoker,tier:uwTier,face:cappedFace});prem=null;}
     let reason;
     if(prem==null){if(uwTier==='D'&&a>75)reason='Modified not available after 75';else if(uwTier==='E'&&a>80)reason='GI not available after 80';else reason='Not available for this profile';}
     const isCapped = cappedFace < face;
@@ -2201,7 +2201,7 @@ export default function QuoteMark() {
                       style={{...mInp,width:64,padding:'11px 8px',borderColor:age&&!ageOK?'#EF4444':C.bd}}/>
                   </div>
                   {age&&ageOK&&<div style={{fontSize:11,color:C.green,marginTop:6}}>✓ Age {age}</div>}
-                  {age&&!ageOK&&parseInt(age)>0&&<div style={{fontSize:11,color:'#EF4444',marginTop:6}}>Age must be 50–89</div>}
+                  {age&&!ageOK&&parseInt(age)>0&&<div style={{fontSize:11,color:'#EF4444',marginTop:6}}>Age must be 1–89</div>}
                 </div>
 
                 {/* Gender */}
@@ -2275,7 +2275,7 @@ export default function QuoteMark() {
                           <span>Coverage amount</span>
                           <span style={{color:C.t0,fontWeight:700,fontSize:16,fontFamily:"'DM Mono',monospace"}}>{fmtF(faceAmt)}</span>
                         </div>
-                        <input type="range" min="2000" max="100000" step="1000" value={faceAmt}
+                        <input type="range" min="1000" max="100000" step="1000" value={faceAmt}
                           onChange={e=>{
                             setFaceAmt(+e.target.value);
                             if(navigator.vibrate) navigator.vibrate(4);
@@ -3228,7 +3228,7 @@ export default function QuoteMark() {
                   style={{...inp,width:52,padding:'8px 6px',borderColor:age&&!ageOK?'#EF4444':C.bd}}/>
               </div>
               {age&&ageOK&&<div style={{fontSize:10,color:C.green}}>✓ Age {age}</div>}
-              {age&&!ageOK&&parseInt(age)>0&&<div style={{fontSize:10,color:'#EF4444'}}>Age must be 50–89</div>}
+              {age&&!ageOK&&parseInt(age)>0&&<div style={{fontSize:10,color:'#EF4444'}}>Age must be 1–89</div>}
             </div>
             <div style={{display:'grid',gridTemplateColumns:'1fr 1fr',gap:10,marginBottom:12}}>
               <div>
@@ -3303,7 +3303,7 @@ export default function QuoteMark() {
                 {mode==='face'?(
                   <>
                     <div style={{fontSize:11,color:C.t3,marginBottom:6,display:'flex',justifyContent:'space-between'}}><span>Coverage amount</span><span style={{color:C.t2,fontWeight:500,fontFamily:"'DM Mono',monospace"}}>{fmtF(faceAmt)}</span></div>
-                    <input type="range" min="2000" max="100000" step="1000" value={faceAmt}
+                    <input type="range" min="1000" max="100000" step="1000" value={faceAmt}
                       onChange={e=>setFaceAmt(+e.target.value)}
                       style={{width:'100%',accentColor:C.gold,marginBottom:4}}/>
                     <div style={{display:'flex',justifyContent:'space-between',fontSize:10,color:C.t4}}>
@@ -3909,6 +3909,7 @@ export default function QuoteMark() {
                         transition:'transform 0.18s,box-shadow 0.18s',
                         overflow:'visible',
                         display:'flex',flexDirection:'column',
+                        height:'100%',
                         transform: !isGhost&&hovCard===r.id?'translateY(-4px)':'translateY(0)',
                         boxShadow: isGhost?'none': isDark
                           ? (hovCard===r.id?`0 0 0 1px ${brandColor||C.bd2}66,0 12px 32px rgba(0,0,0,0.5)`:`0 0 0 1px ${C.bd}`)
@@ -3933,7 +3934,7 @@ export default function QuoteMark() {
                         {isGhost?(
                           <div style={{fontSize:12,color:C.t4,fontStyle:'italic'}}>{r.reason}</div>
                         ):(
-                          <div style={{display:'flex',flexDirection:'column',minHeight:180}}>
+                          <div style={{display:'flex',flexDirection:'column',flex:1,minHeight:180}}>
                             {/* Premium */}
                             <div style={{marginBottom:14}}>
                               <div style={{display:'flex',alignItems:'baseline',gap:8}}>
