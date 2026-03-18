@@ -1272,6 +1272,13 @@ function fexLookup(company, planName, age, male, smoker, face, isGI=false) {
   return { prem: Math.round(prem * 100) / 100, face: effFace };
 }
 
+// fexPrem: thin wrapper — carrier fn() calls use this, returns just the prem number
+// buildResult detects the {prem,face} object from fexLookup and unwraps it
+function fexPrem(company, planName, age, male, smoker, face, isGI=false) {
+  const r = fexLookup(company, planName, age, male, smoker, face, isGI);
+  return r || null; // return the full {prem,face} object — buildResult handles it
+}
+
 // State check: company-only restriction keys
 function fexStateOK(company, state) {
   if (!state) return true;
