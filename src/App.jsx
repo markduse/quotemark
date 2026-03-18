@@ -1253,55 +1253,23 @@ function transamericaTerm10(age, male, smoker, face) {
 // ── DATA-DRIVEN RATE LOOKUP ENGINE ──
 // Formula: Monthly = RateFactor × (faceAmount / 1000)
 // Source: InsuranceToolkits API — Illinois, EFT, verified 2025
-// ── Banded rate lookup with linear interpolation ──
-// Data structure: FEX_RATES["Company||Plan"]["MNS"][age][face] = monthly
-// fexLookup returns { prem, face } — face may be capped to max available band for this age
-// Returns null only when no data exists at all for this age/combo
+// ── Simple rate lookup: nearest band at or below requested face ──
+// No interpolation. No upward capping. Returns {prem, face} or null.
 function fexLookup(company, planName, age, male, smoker, face, isGI=false) {
   const key = `${company}||${planName}`;
   const combo = isGI ? 'MNS' : (male ? (smoker ? 'MS' : 'MNS') : (smoker ? 'FS' : 'FNS'));
   const bands = FEX_RATES?.[key]?.[combo]?.[String(age)];
   if (!bands || Object.keys(bands).length === 0) return null;
-
-  // Restrictions: hard min/max from carrier filing (not age-dependent)
   const r = RESTRICTIONS?.[company];
-  if (r && face < r.minFace) return null;   // below carrier minimum — genuinely not offered
-  // Note: don't reject on r.maxFace — age-based band max is the real limit
-
+  if (r && face < r.minFace) return null;
   const sorted = Object.keys(bands).map(Number).sort((a,b)=>a-b);
-  const bandMin = sorted[0], bandMax = sorted[sorted.length-1];
-
-  // Face below minimum band for this age — not offered
-  if (face < bandMin) return null;
-
-  // Face above max band for this age — cap to max available (carrier reduces face with age)
-  const effFace = Math.min(face, bandMax);
-
-  // Exact match
-  if (bands[String(effFace)] !== undefined) {
-    return { prem: Math.round(bands[String(effFace)] * 100) / 100, face: effFace };
-  }
-
-  // Interpolate between two nearest bands
-  let lo = sorted[0], hi = sorted[sorted.length-1];
-  for (let i = 0; i < sorted.length-1; i++) {
-    if (sorted[i] <= effFace && effFace <= sorted[i+1]) { lo = sorted[i]; hi = sorted[i+1]; break; }
-  }
-  const loM = bands[String(lo)], hiM = bands[String(hi)];
-  if (loM == null || hiM == null) return null;
-  const interp = loM + (effFace - lo) / (hi - lo) * (hiM - loM);
-  return { prem: Math.round(interp * 100) / 100, face: effFace };
-}
-
-// Convenience: extract just the premium (for carrier fn() wrappers)
-function fexPrem(company, planName, age, male, smoker, face, isGI=false) {
-  const r = fexLookup(company, planName, age, male, smoker, face, isGI);
-  return r ? r.prem : null;
-}
-// Get the effective face amount (may be capped below requested)
-function fexEffFace(company, planName, age, male, smoker, face, isGI=false) {
-  const r = fexLookup(company, planName, age, male, smoker, face, isGI);
-  return r ? r.face : null;
+  // Largest available band <= requested face (never over-promise)
+  // If face < all bands (e.g. juvenile), use minimum band
+  const valid = sorted.filter(b => b <= face);
+  const effFace = valid.length ? valid[valid.length-1] : sorted[0];
+  const prem = bands[String(effFace)];
+  if (prem == null) return null;
+  return { prem: Math.round(prem * 100) / 100, face: effFace };
 }
 
 // State check: company-only restriction keys
