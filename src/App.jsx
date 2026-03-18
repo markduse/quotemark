@@ -45,9 +45,9 @@ const FACE_CAPS = {
   bl:50000, elco:25000, balt_sg:25000, sl_pp:25000, sl:30000, ail:30000,
 };
 const AGE_MAX = {
-  // Derived directly from data max ages — zero guessing
+  // Derived from data + carrier confirmed maximums
   acc:89, ahl:89, ahl_gs:85, cont:89, rn:85,
-  ra:79,  ls:73,  amam:85,   amam_gs:85, moo:85, cbg:73,
+  ra:79,  ls:80,  amam:85,   amam_gs:85, moo:85, cbg:80,
   ta:85,  ta_exp:85, lb:80,  pf:79,  amr:85, for:85,
   afl:79, laf:79, uhl:80, fid:85,
   bl_sg:69, elco:80, sl_pp:85, sl:85, ail:80, rna_gi:85,
