@@ -1,5 +1,6 @@
 import React, { useState, useMemo, useEffect, useRef } from "react";
 import { useAuth } from "./AuthContext";
+import { getValidToken } from "./utils/itk-token.js";
 import { supabase } from "./supabase";
 import FEX_RATES from "./data/fex_rates.json";
 import RESTRICTIONS from "./data/restrictions.json";
@@ -1785,6 +1786,7 @@ export default function QuoteMark() {
       .qm-btn:active { transform: scale(0.98) !important; box-shadow: none !important; }
       .qm-gsb-toggle:hover { opacity: 0.9; transform: translateY(-1px); }
       .qm-gsb-toggle { transition: all 0.2s ease-in-out; }
+      @keyframes spin { to { transform: rotate(360deg); } }
     `;
     if(!document.getElementById('qm-btn-styles')) document.head.appendChild(s);
   },[]);
@@ -1816,6 +1818,15 @@ export default function QuoteMark() {
   const [selected,setSelected] = useState(['none']);
   const [search,setSearch]     = useState('');
   const [hasQuoted,setHasQuoted]   = useState(false);
+  const [itkResults,setItkResults] = useState(null);   // raw ITK API results
+  const [itkLoading,setItkLoading] = useState(false);  // loading spinner
+  const [itkError,setItkError]     = useState(null);   // error message
+  // ITK credentials state (for settings)
+  const [itkUser,setItkUser]       = useState('');
+  const [itkPass,setItkPass]       = useState('');
+  const [itkSaving,setItkSaving]   = useState(false);
+  const [itkSaved,setItkSaved]     = useState(false);
+  const [itkHasToken,setItkHasToken] = useState(false);
   const [openCat,setOpenCat]   = useState(null);
   const [tierOvr,setTierOvr]   = useState(null);
   const [uwOpen,setUwOpen]     = useState(false);
@@ -1897,7 +1908,7 @@ export default function QuoteMark() {
   // Load profile data + carrier prefs from Supabase on mount
   useEffect(()=>{
     if(!session) return;
-    supabase.from('profiles').select('display_name,carrier_prefs,dark_mode').eq('id',session.user.id).single()
+    supabase.from('profiles').select('display_name,carrier_prefs,dark_mode,it_access_token').eq('id',session.user.id).single()
       .then(({data})=>{
         if(!data) return;
         if(data.display_name) setProfileName(data.display_name);
@@ -1911,6 +1922,7 @@ export default function QuoteMark() {
           })));
         }
         if(data.dark_mode !== null && data.dark_mode !== undefined) setIsDark(data.dark_mode);
+        if(data.it_access_token) setItkHasToken(true);
       });
   },[session]);
 
@@ -1930,6 +1942,27 @@ export default function QuoteMark() {
     setProfileSaving(false);
     setProfileSaved(true);
     setTimeout(()=>setProfileSaved(false),2500);
+  };
+
+  // Save ITK credentials — never store password, only tokens
+  const saveItkCredentials = async () => {
+    if(!session||!itkUser.trim()||!itkPass.trim()) return;
+    setItkSaving(true); setItkError(null);
+    try {
+      const res = await fetch('https://api.insurancetoolkits.com/token/', {
+        method:'POST',
+        headers:{'Content-Type':'application/json'},
+        body: JSON.stringify({username:itkUser.trim(), password:itkPass.trim()}),
+      });
+      if(!res.ok) { const e=await res.text(); throw new Error(`Login failed (${res.status}): ${e}`); }
+      const {access, refresh} = await res.json();
+      if(!access) throw new Error('No access token returned');
+      await supabase.from('profiles').update({it_access_token:access, it_refresh_token:refresh}).eq('id',session.user.id);
+      setItkHasToken(true); setItkPass(''); setItkSaved(true);
+      setTimeout(()=>setItkSaved(false),3000);
+    } catch(e) {
+      setItkError(e.message||'Connection failed');
+    } finally { setItkSaving(false); }
   };
 
   const changePassword = async () => {
@@ -2028,6 +2061,65 @@ export default function QuoteMark() {
     const isCapped = prem!=null && effFace !== face;
     return{...carr,face:prem!=null?effFace:null,prem,productName:pName,activeTier:uwTier,reason,capped:isCapped};
   }
+
+  // ── ITK CARRIER NAME → app carrier ID mapping ──
+  const ITK_TO_ID = {
+    'Transamerica (Solutions)': 'ta',
+    'Transamerica (Express)': 'ta_exp',
+    'Lifeshield': 'ls',
+    'Aetna (Protection Series)': 'cont',
+    'CVS (Aetna Accendo)': 'acc',
+    'Mutual of Omaha (Living Promise)': 'moo',
+    'American Home Life (Patriot Series)': 'ahl',
+    'American Amicable (Senior Choice)': 'amam',
+    'American Amicable (Golden Solution)': 'amam_gs',
+    'Fidelity (RAPIDecision Final Expense)': 'fid',
+    'Royal Neighbors (Ensured Legacy)': 'rn',
+    'Baltimore Life (iProvide 45-69)': 'bl_sg',
+    'Baltimore Life (iProvide 70+)': 'bl_sg',
+    'Foresters (PlanRight)': 'for',
+    'AIG (SIWL)': 'cbg',
+    'AIG (GIWL)': 'cbg',
+    'UHL': 'uhl',
+    'Liberty Bankers': 'lb',
+    'Americo': 'amr',
+    'Senior Life (Platinum Protection)': 'sl_pp',
+    'American Home Life (GuideStar 45+)': 'ahl_gs',
+    'Elco (Silver Eagle)': 'elco',
+  };
+
+  // Run a live ITK quote — called on Get Quotes button click
+  const runItkQuote = async () => {
+    if(!ageOK) return;
+    if(!session) { setItkError('Please log in'); return; }
+    setItkLoading(true); setItkError(null); setItkResults(null); setHasQuoted(true);
+    try {
+      const token = await getValidToken(supabase, session.user.id);
+      if(!token) {
+        setItkError('InsuranceToolkits not connected. Add your credentials in Profile → Integrations.');
+        setItkLoading(false); return;
+      }
+      const res = await fetch('/.netlify/functions/itk-quote', {
+        method:'POST',
+        headers:{'Content-Type':'application/json'},
+        body: JSON.stringify({
+          age: ageNum,
+          sex: gender==='male' ? 'Male' : 'Female',
+          tobacco: smoker ? 'Cigarettes' : 'None',
+          state: usState || 'IL',
+          faceAmount: mode==='face' ? faceAmt : 10000,
+          accessToken: token,
+        }),
+      });
+      if(res.status===401) { setItkError('ITK token expired — re-enter credentials in Profile.'); setItkLoading(false); return; }
+      if(!res.ok) { const e=await res.json(); throw new Error(e.error||'Quote failed'); }
+      const {quotes} = await res.json();
+      setItkResults(quotes||[]);
+    } catch(e) {
+      console.error('[ITK Quote]',e);
+      setItkError(e.message||'Failed to fetch quotes');
+    } finally { setItkLoading(false); }
+  };
 
   const activeCarriers = useMemo(()=>{
     return carriers.filter(c => {
@@ -2431,7 +2523,7 @@ export default function QuoteMark() {
               </div>
 
               {/* GET QUOTES button */}
-              <button onClick={()=>{if(ageOK){setHasQuoted(true);if(isMobile){setMobileTab('results');setTimeout(()=>window.scrollTo({top:0,behavior:'instant'}),0);}}}  } style={{
+              <button onClick={()=>{if(ageOK){runItkQuote();if(isMobile){setMobileTab('results');setTimeout(()=>window.scrollTo({top:0,behavior:'instant'}),0);}}}} style={{
                 width:'100%',padding:'18px 0',borderRadius:12,border:'none',
                 cursor:ageOK?'pointer':'not-allowed',
                 background:ageOK?C.gold:'#2A3547',
@@ -2705,6 +2797,16 @@ export default function QuoteMark() {
                       <div style={{fontSize:12,color:C.t4}}>Enable term carriers in your profile settings</div>
                     </div>
                   ) : null}
+                </div>
+              ) : itkLoading ? (
+                <div style={{display:'flex',flexDirection:'column',alignItems:'center',justifyContent:'center',paddingTop:80,gap:16}}>
+                  <div style={{width:40,height:40,border:`3px solid ${C.bd2}`,borderTop:`3px solid ${C.gold}`,borderRadius:'50%',animation:'spin 0.8s linear infinite'}}/>
+                  <div style={{fontSize:14,color:C.t3,fontFamily:"'DM Sans',sans-serif"}}>Fetching live rates…</div>
+                </div>
+              ) : itkError ? (
+                <div style={{margin:'40px 16px',padding:'20px',background:'rgba(239,68,68,0.1)',border:'1px solid rgba(239,68,68,0.3)',borderRadius:12,textAlign:'center'}}>
+                  <div style={{fontSize:13,color:'#F87171',marginBottom:12}}>{itkError}</div>
+                  <button onClick={()=>setMobileTab('quote')} style={{padding:'10px 20px',borderRadius:8,border:`1px solid ${C.bd2}`,background:C.bg2,color:C.t2,fontSize:13,cursor:'pointer'}}>← Back</button>
                 </div>
               ) : !hasQuoted ? (
                 <div style={{display:'flex',flexDirection:'column',alignItems:'center',justifyContent:'center',paddingTop:80,gap:16,textAlign:'center'}}>
@@ -3052,6 +3154,30 @@ export default function QuoteMark() {
             <button onClick={signOut} style={{padding:'13px',borderRadius:10,border:`1px solid ${C.bd2}`,background:'transparent',color:'#EF4444',fontWeight:600,fontSize:14,cursor:'pointer',fontFamily:"'DM Sans',sans-serif"}}>
               Sign Out
             </button>
+
+            {/* ITK Integrations — Mobile */}
+            <div style={{background:'#0B1120',borderRadius:12,padding:16,border:`1px solid ${itkHasToken?'rgba(74,222,128,0.3)':'#1E293B'}`}}>
+              <div style={{display:'flex',alignItems:'center',justifyContent:'space-between',marginBottom:4}}>
+                <div style={{fontSize:11,fontWeight:700,letterSpacing:1.5,color:'#64748B',textTransform:'uppercase'}}>InsuranceToolkits</div>
+                <div style={{fontSize:11,fontWeight:600,padding:'2px 8px',borderRadius:20,background:itkHasToken?'rgba(74,222,128,0.15)':'rgba(239,68,68,0.1)',color:itkHasToken?'#4ADE80':'#F87171'}}>
+                  {itkHasToken?'✓ Connected':'Not connected'}
+                </div>
+              </div>
+              <div style={{fontSize:12,color:'#64748B',marginBottom:14,lineHeight:1.6}}>Connect your ITK account for live accurate rates.</div>
+              <div style={{marginBottom:10}}>
+                <div style={{fontSize:12,color:'#64748B',marginBottom:5}}>ITK Username</div>
+                <input value={itkUser} onChange={e=>setItkUser(e.target.value)} placeholder="ITK username" style={inp}/>
+              </div>
+              <div style={{marginBottom:10}}>
+                <div style={{fontSize:12,color:'#64748B',marginBottom:5}}>ITK Password</div>
+                <input type="password" value={itkPass} onChange={e=>setItkPass(e.target.value)} placeholder="ITK password" style={inp}/>
+              </div>
+              {itkError&&<div style={{fontSize:12,color:'#F87171',marginBottom:8,padding:'7px 10px',background:'rgba(239,68,68,0.08)',borderRadius:7}}>{itkError}</div>}
+              <button onClick={saveItkCredentials} disabled={itkSaving||!itkUser.trim()||!itkPass.trim()}
+                style={{width:'100%',padding:'11px',borderRadius:8,border:'none',background:itkSaved?'#16A34A':'#C5A059',color:itkSaved?'#fff':'#0A192F',fontWeight:700,fontSize:13,cursor:'pointer',fontFamily:"'DM Sans',sans-serif",opacity:(itkUser.trim()&&itkPass.trim())?1:0.5}}>
+                {itkSaving?'Connecting…':itkSaved?'✓ Connected!':itkHasToken?'Re-connect':'Connect ITK Account'}
+              </button>
+            </div>
           </div>
           );
         })()}
@@ -3470,7 +3596,7 @@ export default function QuoteMark() {
             )}
           </div>
 
-          <button onClick={()=>{if(ageOK){setHasQuoted(true);if(isMobile){setMobileTab('results');setTimeout(()=>window.scrollTo({top:0,behavior:'instant'}),0);}}}  } style={{
+          <button onClick={()=>{if(ageOK){runItkQuote();if(isMobile){setMobileTab('results');setTimeout(()=>window.scrollTo({top:0,behavior:'instant'}),0);}}}} style={{
             width:'100%',padding:'13px 0',borderRadius:10,border:'none',
             cursor:ageOK?'pointer':'not-allowed',
             background:ageOK?C.gold:'#2A3547',
@@ -3784,12 +3910,24 @@ export default function QuoteMark() {
                 )}
               </div>
             </div>
+          ):itkLoading?(
+            <div style={{display:'flex',flexDirection:'column',alignItems:'center',justifyContent:'center',height:'100%',gap:16}}>
+              <div style={{width:44,height:44,border:`3px solid ${C.bd2}`,borderTop:`3px solid ${C.gold}`,borderRadius:'50%',animation:'spin 0.8s linear infinite'}}/>
+              <div style={{fontSize:15,color:C.t3,fontFamily:"'DM Sans',sans-serif"}}>Fetching live rates from InsuranceToolkits…</div>
+              <div style={{fontSize:12,color:C.t4}}>This usually takes 2–4 seconds</div>
+            </div>
+          ):itkError?(
+            <div style={{display:'flex',flexDirection:'column',alignItems:'center',justifyContent:'center',height:'100%',gap:14,padding:40,textAlign:'center'}}>
+              <div style={{fontSize:40,opacity:0.6}}>⚠️</div>
+              <div style={{fontSize:15,fontWeight:600,color:'#F87171'}}>{itkError}</div>
+              {!itkHasToken&&<div style={{fontSize:13,color:C.t4,maxWidth:360,lineHeight:1.7}}>Go to Profile → Integrations to connect your InsuranceToolkits account.</div>}
+            </div>
           ):!hasQuoted?(
             <div style={{display:'flex',flexDirection:'column',alignItems:'center',justifyContent:'center',height:'100%',gap:14,padding:40}}>
               <div style={{fontSize:48,opacity:0.5}}>📋</div>
               <div style={{fontFamily:"'Barlow Condensed',sans-serif",fontSize:22,fontWeight:700,color:C.t4}}>Enter client info and click Get Quotes</div>
               <div style={{fontSize:13,color:C.t4,textAlign:'center',lineHeight:1.8}}>
-                Real-time quotes from {carriers.filter(c=>c.enabled).map(c=>c.name).join(' · ')}
+                Live rates via InsuranceToolkits · {carriers.filter(c=>c.enabled&&!c.termOnly).length} carriers enabled
               </div>
             </div>
           ):(
@@ -3814,8 +3952,72 @@ export default function QuoteMark() {
               </div>
 
               <div style={{padding:24}}>
-                {/* ── QUOTE CARDS ── */}
-                <div style={{display:'grid',gridTemplateColumns:gsbOn?'repeat(auto-fill,minmax(420px,1fr))':'repeat(auto-fill,minmax(270px,1fr))',gap:12,marginBottom:20}}>
+                {/* ── ITK QUOTE CARDS ── */}
+                {itkResults && itkResults.length > 0 && (
+                  <div style={{display:'grid',gridTemplateColumns:'repeat(auto-fill,minmax(270px,1fr))',gap:12,marginBottom:20}}>
+                    {itkResults.filter(q=>{
+                      // Filter by carrier prefs if set
+                      const cid = ITK_TO_ID[q.company];
+                      if(!cid) return true; // show unknown carriers
+                      const carr = carriers.find(c=>c.id===cid);
+                      return !carr || carr.enabled;
+                    }).map((q,idx)=>{
+                      const cid = ITK_TO_ID[q.company];
+                      const prem = parseFloat(q.monthly);
+                      const isBest = idx===0;
+                      const brandColor = (cid && CARRIER_META[cid]?.brand) || C.gold;
+                      return(
+                        <div key={`${q.company}||${q.plan_name}`} style={{
+                          background: isDark?C.bg3:'#FFFFFF',
+                          border:`1px solid ${isDark?C.bd2:'#E2E8F0'}`,
+                          borderTop:`3px solid ${isBest?C.gold:brandColor}`,
+                          borderRadius:12,padding:'16px 16px 14px',
+                          boxShadow:isBest?(isDark?'0 0 0 1px rgba(197,160,89,0.3)':'0 4px 20px rgba(197,160,89,0.15)'):
+                            (isDark?'none':'0 2px 6px rgba(0,0,0,0.06)'),
+                          position:'relative',
+                        }}>
+                          {isBest&&<div style={{position:'absolute',top:-1,left:16,background:C.gold,color:'#0A192F',fontSize:9,fontWeight:800,letterSpacing:1,textTransform:'uppercase',padding:'2px 8px',borderRadius:'0 0 5px 5px'}}>Best Rate</div>}
+                          {/* Header */}
+                          <div style={{display:'flex',justifyContent:'space-between',alignItems:'flex-start',marginBottom:10,marginTop:isBest?8:0}}>
+                            <div>
+                              <div style={{fontSize:16,fontWeight:700,color:C.t0,letterSpacing:'-0.2px'}}>{q.company.replace(/ \(.*\)/,'')}</div>
+                              <div style={{fontSize:11,color:C.t4,marginTop:1}}>{q.plan_name}</div>
+                            </div>
+                            {cid&&<CarrierLogo carrierId={cid} name={q.company} small={true}/>}
+                          </div>
+                          {/* Premium */}
+                          <div style={{marginBottom:14}}>
+                            <div style={{display:'flex',alignItems:'baseline',gap:6}}>
+                              <span style={{fontFamily:"'DM Mono',monospace",fontSize:32,fontWeight:800,color:isBest?C.gold:C.t0,letterSpacing:'-1px',lineHeight:1}}>
+                                ${prem.toFixed(2)}
+                              </span>
+                              <span style={{fontSize:12,color:C.t3}}>/mo EFT</span>
+                            </div>
+                            <div style={{fontSize:11,color:C.t4,marginTop:4,fontFamily:"'DM Mono',monospace"}}>${(prem*12).toFixed(0)} / year</div>
+                          </div>
+                          {/* Coverage info */}
+                          <div style={{display:'flex',gap:16,marginBottom:14}}>
+                            <div>
+                              <div style={{fontSize:10,color:C.t4,textTransform:'uppercase',letterSpacing:0.8,fontWeight:600,marginBottom:2}}>Coverage</div>
+                              <div style={{fontSize:12,fontWeight:700,color:C.t0,fontFamily:"'DM Mono',monospace"}}>{fmtF(faceAmt)}</div>
+                            </div>
+                            <div>
+                              <div style={{fontSize:10,color:C.t4,textTransform:'uppercase',letterSpacing:0.8,fontWeight:600,marginBottom:2}}>Type</div>
+                              <div style={{fontSize:11,fontWeight:600,color:q.tier_name?.toLowerCase().includes('level')||q.tier_name?.toLowerCase().includes('preferred')?'#10B981':q.tier_name?.toLowerCase().includes('graded')?'#F59E0B':'#64748B',background:q.tier_name?.toLowerCase().includes('level')||q.tier_name?.toLowerCase().includes('preferred')?'rgba(16,185,129,0.1)':q.tier_name?.toLowerCase().includes('graded')?'rgba(245,158,11,0.1)':'rgba(100,116,139,0.1)',padding:'2px 7px',borderRadius:4}}>{q.tier_name||'Level'}</div>
+                            </div>
+                          </div>
+                          {/* e-App button */}
+                          {cid&&<EAppBtn carrierId={cid}/>}
+                        </div>
+                      );
+                    })}
+                  </div>
+                )}
+                {itkResults && itkResults.length === 0 && (
+                  <div style={{textAlign:'center',padding:60,color:C.t4,fontSize:14}}>No quotes returned — check your ITK credentials or try a different profile.</div>
+                )}
+                {/* ── LEGACY STATIC CARDS (hidden when ITK results present) ── */}
+                {!itkResults&&<div style={{display:'grid',gridTemplateColumns:gsbOn?'repeat(auto-fill,minmax(420px,1fr))':'repeat(auto-fill,minmax(270px,1fr))',gap:12,marginBottom:20}}>
                   {results&&results.map((r,idx)=>{
                     const isBest = !gsbOn && r.prem!=null && idx===0 && results.filter(x=>x.prem!=null).length>1;
                     const isGhost = !r.prem;
@@ -3975,15 +4177,17 @@ export default function QuoteMark() {
                       </div>
                     );
                   })}
-                </div>
+                </div>}
 
                 {/* ── PRICE RANGE BAR ── */}
-                {!gsbOn&&results&&(()=>{
-                  const avail=results.filter(r=>r.prem!=null);
+                {!gsbOn&&(itkResults||results)&&(()=>{
+                  // Use ITK results if available, fall back to static
+                  const avail = itkResults
+                    ? itkResults.filter(q=>parseFloat(q.monthly)>0).map(q=>({name:q.company.replace(/ \(.*\)/,''), prem:parseFloat(q.monthly)}))
+                    : results.filter(r=>r.prem!=null);
                   if(avail.length<1) return null;
                   const cheapest=avail.reduce((a,b)=>a.prem<b.prem?a:b);
                   const mostExp=avail.reduce((a,b)=>a.prem>b.prem?a:b);
-                  const maxCov=mode==='budget'?avail.reduce((a,b)=>(a.face||0)>(b.face||0)?a:b):null;
                   return(
                     <div style={{background:C.bg3,border:`1px solid ${C.bd}`,borderRadius:12,padding:'14px 18px',display:'flex',gap:18,flexWrap:'wrap',alignItems:'center'}}>
                       <div>
@@ -3996,16 +4200,14 @@ export default function QuoteMark() {
                         </div>
                         <div style={{fontSize:11,color:C.t4,marginTop:1}}>{cheapest.name} to {mostExp.name}</div>
                       </div>
-                      {maxCov&&<div style={{borderLeft:`1px solid ${C.bd}`,paddingLeft:24}}>
-                        <div style={{fontSize:10,color:C.t4,fontWeight:600,letterSpacing:1.2,textTransform:'uppercase',marginBottom:3}}>Max coverage</div>
-                        <div style={{fontFamily:"'DM Mono',monospace",fontSize:18,fontWeight:500,color:C.gold}}>{fmtF(maxCov.face)}</div>
-                        <div style={{fontSize:11,color:C.t4,marginTop:1}}>{maxCov.name}</div>
-                      </div>}
                       <div style={{borderLeft:`1px solid ${C.bd}`,paddingLeft:20}}>
                         <div style={{fontSize:10,color:C.t4,fontWeight:600,letterSpacing:1.2,textTransform:'uppercase',marginBottom:3}}>Available</div>
-                        <div style={{fontSize:18,fontWeight:600,color:C.t0}}>{avail.length}<span style={{fontSize:12,color:C.t3,fontWeight:400}}> of {results.length}</span></div>
+                        <div style={{fontSize:18,fontWeight:600,color:C.t0}}>{avail.length}<span style={{fontSize:12,color:C.t3,fontWeight:400}}> of {itkResults?itkResults.length:results.length}</span></div>
                         <div style={{fontSize:11,color:C.t4,marginTop:1}}>UW: {TIER_INFO[uwTier].short}</div>
                       </div>
+                      {itkResults&&<div style={{marginLeft:'auto',fontSize:10,color:'#4ADE80',fontWeight:600,display:'flex',alignItems:'center',gap:4}}>
+                        <span>●</span> Live rates
+                      </div>}
                     </div>
                   );
                 })()}
@@ -4227,6 +4429,33 @@ export default function QuoteMark() {
               <button onClick={signOut} style={{padding:'13px',borderRadius:10,border:`1px solid ${C.bd2}`,background:'transparent',color:'#EF4444',fontWeight:600,fontSize:14,cursor:'pointer',fontFamily:"'DM Sans',sans-serif"}}>
                 Sign Out
               </button>
+              {/* ── ITK INTEGRATIONS ── */}
+              <div style={{background:C.bg2,borderRadius:12,padding:16,border:`1px solid ${itkHasToken?'rgba(74,222,128,0.3)':C.bd}`}}>
+                <div style={{display:'flex',alignItems:'center',justifyContent:'space-between',marginBottom:4}}>
+                  <div style={{fontSize:11,fontWeight:700,letterSpacing:1.5,color:C.t4,textTransform:'uppercase'}}>InsuranceToolkits</div>
+                  <div style={{fontSize:11,fontWeight:600,padding:'2px 8px',borderRadius:20,background:itkHasToken?'rgba(74,222,128,0.15)':'rgba(239,68,68,0.1)',color:itkHasToken?'#4ADE80':'#F87171'}}>
+                    {itkHasToken?'✓ Connected':'Not connected'}
+                  </div>
+                </div>
+                <div style={{fontSize:12,color:C.t4,marginBottom:14,lineHeight:1.6}}>
+                  Connect your ITK account to get live, accurate rates. Your password is never stored — only the session token.
+                </div>
+                <div style={{marginBottom:10}}>
+                  <div style={{fontSize:12,color:C.t4,marginBottom:5}}>ITK Username</div>
+                  <input value={itkUser} onChange={e=>setItkUser(e.target.value)} placeholder="ITK username or email" autoComplete="off"
+                    style={{width:'100%',boxSizing:'border-box',background:C.bg3,border:`1px solid ${C.bd2}`,borderRadius:8,color:C.t1,fontSize:14,padding:'11px 12px',fontFamily:"'DM Sans',sans-serif",outline:'none'}}/>
+                </div>
+                <div style={{marginBottom:10}}>
+                  <div style={{fontSize:12,color:C.t4,marginBottom:5}}>ITK Password</div>
+                  <input type="password" value={itkPass} onChange={e=>setItkPass(e.target.value)} placeholder="ITK password"
+                    style={{width:'100%',boxSizing:'border-box',background:C.bg3,border:`1px solid ${C.bd2}`,borderRadius:8,color:C.t1,fontSize:14,padding:'11px 12px',fontFamily:"'DM Sans',sans-serif",outline:'none'}}/>
+                </div>
+                {itkError&&<div style={{fontSize:12,color:'#F87171',marginBottom:8,padding:'7px 10px',background:'rgba(239,68,68,0.08)',borderRadius:7}}>{itkError}</div>}
+                <button onClick={saveItkCredentials} disabled={itkSaving||!itkUser.trim()||!itkPass.trim()}
+                  style={{width:'100%',padding:'11px',borderRadius:8,border:'none',background:itkSaved?'#16A34A':C.gold,color:itkSaved?'#fff':C.bg0,fontWeight:700,fontSize:13,cursor:'pointer',fontFamily:"'DM Sans',sans-serif",opacity:(itkUser.trim()&&itkPass.trim())?1:0.5}}>
+                  {itkSaving?'Connecting…':itkSaved?'✓ Connected!':itkHasToken?'Re-connect ITK':'Connect ITK Account'}
+                </button>
+              </div>
             </div>
           </div>
         </div>
