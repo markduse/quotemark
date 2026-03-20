@@ -1,6 +1,6 @@
 // netlify/functions/itk-quote.js
 // Proxies FEX quote requests to InsuranceToolkits API
-// Uses a shared ITK token stored in Netlify env vars — all users share one login
+// Uses ITK_REFRESH_TOKEN env var to get a fresh access token on each cold start
 
 const ITK_BASE = 'https://api.insurancetoolkits.com';
 
@@ -10,24 +10,46 @@ const CORS = {
   'Content-Type': 'application/json',
 };
 
-// Get a fresh token using stored credentials
-async function getToken() {
-  // Option A: pre-fetched access token stored directly (fastest)
-  if (process.env.ITK_ACCESS_TOKEN) {
-    return process.env.ITK_ACCESS_TOKEN;
+// Module-level token cache (persists across warm invocations within same Lambda instance)
+let cachedToken = null;
+let tokenExpiry = 0;
+
+async function getFreshToken() {
+  // Return cached token if still valid (with 5 min buffer)
+  if (cachedToken && Date.now() < tokenExpiry - 300000) {
+    return cachedToken;
   }
-  // Option B: login with username/password (gets fresh token each cold start)
-  if (process.env.ITK_USERNAME && process.env.ITK_PASSWORD) {
-    const res = await fetch(`${ITK_BASE}/token/`, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ username: process.env.ITK_USERNAME, password: process.env.ITK_PASSWORD }),
-    });
-    if (!res.ok) throw new Error(`ITK login failed: ${res.status}`);
-    const data = await res.json();
-    return data.access;
+
+  const refreshToken = process.env.ITK_REFRESH_TOKEN;
+  if (!refreshToken) {
+    throw new Error('ITK_REFRESH_TOKEN not set in Netlify environment variables');
   }
-  return null;
+
+  const res = await fetch(`${ITK_BASE}/token/refresh/`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ refresh: refreshToken }),
+  });
+
+  if (!res.ok) {
+    const text = await res.text();
+    throw new Error(`Token refresh failed (${res.status}): ${text}`);
+  }
+
+  const data = await res.json();
+  const access = data.access;
+  if (!access) throw new Error('No access token returned from refresh');
+
+  // Decode expiry from JWT payload
+  try {
+    const payload = JSON.parse(Buffer.from(access.split('.')[1], 'base64').toString());
+    tokenExpiry = payload.exp * 1000;
+  } catch {
+    tokenExpiry = Date.now() + 43200000; // 12 hours fallback
+  }
+
+  cachedToken = access;
+  return access;
 }
 
 exports.handler = async (event) => {
@@ -39,24 +61,15 @@ exports.handler = async (event) => {
   catch { return { statusCode: 400, headers: CORS, body: JSON.stringify({ error: 'Invalid JSON' }) }; }
 
   const { age, sex, tobacco, state, faceAmount } = body;
-
   if (!age || !sex || !state || !faceAmount) {
-    return { statusCode: 400, headers: CORS, body: JSON.stringify({ error: 'Missing required fields: age, sex, state, faceAmount' }) };
+    return { statusCode: 400, headers: CORS, body: JSON.stringify({ error: 'Missing required fields' }) };
   }
 
   let token;
   try {
-    token = await getToken();
+    token = await getFreshToken();
   } catch (e) {
-    return { statusCode: 500, headers: CORS, body: JSON.stringify({ error: `ITK auth failed: ${e.message}` }) };
-  }
-
-  if (!token) {
-    return {
-      statusCode: 503,
-      headers: CORS,
-      body: JSON.stringify({ error: 'ITK not configured. Add ITK_USERNAME + ITK_PASSWORD to Netlify environment variables.' }),
-    };
+    return { statusCode: 503, headers: CORS, body: JSON.stringify({ error: e.message }) };
   }
 
   const makeRequest = (coverageType) =>
@@ -75,8 +88,11 @@ exports.handler = async (event) => {
         toolkit: 'FEX',
       }),
     }).then(async (r) => {
-      if (r.status === 401 || r.status === 403) throw { status: r.status, message: 'Token expired' };
-      if (!r.ok) { const text = await r.text(); throw { status: r.status, message: text }; }
+      if (r.status === 401 || r.status === 403) {
+        cachedToken = null; // clear cache so next call re-fetches
+        throw { status: r.status, message: 'Token expired' };
+      }
+      if (!r.ok) { const t = await r.text(); throw { status: r.status, message: t }; }
       return r.json();
     });
 
@@ -101,9 +117,7 @@ exports.handler = async (event) => {
     quotes.sort((a, b) => parseFloat(a.monthly) - parseFloat(b.monthly));
 
     return { statusCode: 200, headers: CORS, body: JSON.stringify({ quotes }) };
-
   } catch (err) {
-    console.error('[itk-quote] Error:', err);
     return { statusCode: err.status === 401 ? 401 : 500, headers: CORS, body: JSON.stringify({ error: err.message || 'ITK API error' }) };
   }
 };
