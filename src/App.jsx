@@ -2094,11 +2094,6 @@ export default function QuoteMark() {
     if(!session) { setItkError('Please log in'); return; }
     setItkLoading(true); setItkError(null); setItkResults(null); setHasQuoted(true);
     try {
-      const token = await getValidToken(supabase, session.user.id);
-      if(!token) {
-        setItkError('InsuranceToolkits not connected. Add your credentials in Profile → Integrations.');
-        setItkLoading(false); return;
-      }
       const res = await fetch('/.netlify/functions/itk-quote', {
         method:'POST',
         headers:{'Content-Type':'application/json'},
@@ -2108,10 +2103,10 @@ export default function QuoteMark() {
           tobacco: smoker ? 'Cigarettes' : 'None',
           state: usState || 'IL',
           faceAmount: mode==='face' ? faceAmt : 10000,
-          accessToken: token,
         }),
       });
-      if(res.status===401) { setItkError('ITK token expired — re-enter credentials in Profile.'); setItkLoading(false); return; }
+      if(res.status===401) { setItkError('ITK token expired — contact your admin.'); setItkLoading(false); return; }
+      if(res.status===503) { setItkError('InsuranceToolkits not configured — contact your admin.'); setItkLoading(false); return; }
       if(!res.ok) { const e=await res.json(); throw new Error(e.error||'Quote failed'); }
       const {quotes} = await res.json();
       setItkResults(quotes||[]);
