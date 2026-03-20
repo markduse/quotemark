@@ -2089,30 +2089,89 @@ export default function QuoteMark() {
   };
 
   // Run a live ITK quote — called on Get Quotes button click
+  // Call ITK API directly from the browser — CORS allows browser origins, not server-side
   const runItkQuote = async () => {
     if(!ageOK) return;
     if(!session) { setItkError('Please log in'); return; }
     setItkLoading(true); setItkError(null); setItkResults(null); setHasQuoted(true);
+
+    const ITK = 'https://api.insurancetoolkits.com';
+
+    // Get valid access token — try Supabase profile first, then refresh
+    const getToken = async () => {
+      const { data } = await supabase.from('profiles')
+        .select('it_access_token, it_refresh_token').eq('id', session.user.id).single();
+      if (!data?.it_access_token) return null;
+
+      // Test token with a lightweight call
+      const test = await fetch(`${ITK}/member/`, {
+        headers: { 'Authorization': `Bearer ${data.it_access_token}` }
+      }).catch(() => null);
+
+      if (test?.ok) return data.it_access_token;
+
+      // Expired — try refresh
+      if (!data.it_refresh_token) return null;
+      const ref = await fetch(`${ITK}/token/refresh/`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ refresh: data.it_refresh_token }),
+      }).catch(() => null);
+      if (!ref?.ok) return null;
+      const { access } = await ref.json();
+      if (!access) return null;
+      // Save new access token
+      await supabase.from('profiles').update({ it_access_token: access }).eq('id', session.user.id);
+      return access;
+    };
+
     try {
-      const res = await fetch('/.netlify/functions/itk-quote', {
-        method:'POST',
-        headers:{'Content-Type':'application/json'},
-        body: JSON.stringify({
-          age: ageNum,
-          sex: gender==='male' ? 'Male' : 'Female',
-          tobacco: smoker ? 'Cigarettes' : 'None',
-          state: usState || 'IL',
-          faceAmount: mode==='face' ? faceAmt : 10000,
-        }),
-      });
-      if(res.status===401) { setItkError('ITK token expired — contact your admin.'); setItkLoading(false); return; }
-      if(res.status===503) { setItkError('InsuranceToolkits not configured — contact your admin.'); setItkLoading(false); return; }
-      if(!res.ok) { const e=await res.json(); throw new Error(e.error||'Quote failed'); }
-      const {quotes} = await res.json();
-      setItkResults(quotes||[]);
+      const token = await getToken();
+      if (!token) {
+        setItkError('InsuranceToolkits not connected. Add credentials in Profile → InsuranceToolkits.');
+        setItkLoading(false); return;
+      }
+
+      const params = {
+        faceAmount: mode==='face' ? faceAmt : 10000,
+        sex: gender==='male' ? 'Male' : 'Female',
+        state: usState || 'IL',
+        age: ageNum,
+        tobacco: smoker ? 'Cigarettes' : 'None',
+        paymentType: 'Bank Draft/EFT',
+        underwritingItems: [],
+        toolkit: 'FEX',
+      };
+
+      // Fire all 3 coverage types in parallel directly from browser
+      const callITK = (coverageType) => fetch(`${ITK}/quoter/`, {
+        method: 'POST',
+        headers: { 'Authorization': `Bearer ${token}`, 'Content-Type': 'application/json' },
+        body: JSON.stringify({ ...params, coverageType }),
+      }).then(r => r.ok ? r.json() : null).catch(() => null);
+
+      const [lvl, grd, gi] = await Promise.all([
+        callITK('Level'),
+        callITK('Graded/Modified'),
+        callITK('Guaranteed'),
+      ]);
+
+      const seen = new Set();
+      const quotes = [];
+      for (const d of [lvl, grd, gi]) {
+        if (!d?.quotes) continue;
+        for (const q of d.quotes) {
+          const key = `${q.company}||${q.plan_name}`;
+          if (seen.has(key)) continue;
+          seen.add(key);
+          quotes.push({ company: q.company, plan_name: q.plan_name, tier_name: q.tier_name || q.coverage_type || '', monthly: q.monthly });
+        }
+      }
+      quotes.sort((a, b) => parseFloat(a.monthly) - parseFloat(b.monthly));
+      setItkResults(quotes);
     } catch(e) {
-      console.error('[ITK Quote]',e);
-      setItkError(e.message||'Failed to fetch quotes');
+      console.error('[ITK Quote]', e);
+      setItkError(e.message || 'Failed to fetch quotes');
     } finally { setItkLoading(false); }
   };
 
