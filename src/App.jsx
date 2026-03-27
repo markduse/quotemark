@@ -3610,9 +3610,9 @@ export default function QuoteMark() {
                           </div>
                         </div>
                         {isGhost?(
-                          <div style={{fontSize:12,color:C.t4,fontStyle:'italic'}}>{r.reason}</div>
+                          <div style={{fontSize:12,color:C.t4,fontStyle:'italic',marginTop:4}}>{r.reason||'Not available for this profile'}</div>
                         ):(
-                          <div style={{display:'flex',flexDirection:'column',minHeight:0}}>
+                          <div style={{display:'flex',flexDirection:'column',flex:1,minHeight:0}}>
                             {/* Premium */}
                             <div style={{marginBottom:14}}>
                               <div style={{display:'flex',alignItems:'baseline',gap:8}}>
