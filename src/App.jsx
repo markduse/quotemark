@@ -1285,6 +1285,9 @@ function fexPrem(company, planName, age, male, smoker, face, isGI=false) {
 function factorCalc(carrier, tier, age, male, smoker, face) {
   const cfg = RATE_FACTORS?.[carrier];
   if (!cfg) return null;
+  // Face validation
+  if (cfg.minFace && face < cfg.minFace) return null;
+  if (cfg.maxFace && face > cfg.maxFace) return { prem: null, face: null, maxFace: cfg.maxFace };
   const combo = male ? (smoker ? 'MS' : 'MNS') : (smoker ? 'FS' : 'FNS');
   const rate = cfg.tiers?.[tier]?.[combo]?.[String(age)];
   if (rate == null) return null;
@@ -1364,9 +1367,9 @@ const CARRIERS = [
    product:{B:'Preferred',C:'Standard',D:'Basic',E:null},
    stateCheck:(s)=>(fexStateOK('Foresters (PlanRight)',s)),
    fn:(age,male,smoker,tier,face)=>{
-     if(tier==='B') return fexPrem('Foresters (PlanRight)','PlanRight Preferred',age,male,smoker,face);
-     if(tier==='C') return fexPrem('Foresters (PlanRight)','PlanRight Standard',age,male,smoker,face);
-     if(tier==='D') return fexPrem('Foresters (PlanRight)','PlanRight Basic',age,male,smoker,face);
+     if(tier==='B') return factorCalc('foresters','preferred',age,male,smoker,face);
+     if(tier==='C') return factorCalc('foresters','standard',age,male,smoker,face);
+     if(tier==='D') return factorCalc('foresters','basic',age,male,smoker,face);
      return null;
    }},
   {id:'afl',  name:'Aflac',              sub:'Final Expense WL', abbr:'AF', enabled:false,
@@ -2036,7 +2039,9 @@ export default function QuoteMark() {
     try{
       const res=carr.fn(a,male,smoker,uwTier,face);
       if(res && typeof res==='object') {
-        prem=res.prem; effFace=res.face; // fexLookup returns {prem,face}
+        // factorCalc maxFace exceeded: {prem:null, face:null, maxFace:N}
+        if(res.maxFace && res.prem==null) return{...carr,face:null,prem:null,productName:pName,activeTier:uwTier,reason:`Max coverage ${fmtF(res.maxFace)}`};
+        prem=res.prem; effFace=res.face; // fexLookup/factorCalc returns {prem,face}
       } else {
         prem=res; // legacy csvLookup carriers return a plain number
       }
@@ -2044,9 +2049,9 @@ export default function QuoteMark() {
     let reason;
     if(prem==null){if(uwTier==='D'&&a>75)reason='Modified not available after 75';else if(uwTier==='E'&&a>80)reason='GI not available after 80';else reason='Not available for this profile';}
     const isCapped = prem!=null && effFace !== face;
-    // If capped below 50% of requested face, treat as unavailable
-    if(isCapped && effFace < face * 0.5){return{...carr,face:null,prem:null,productName:pName,activeTier:uwTier,reason:`Max coverage ${fmtF(effFace)}`};}
-    return{...carr,face:prem!=null?effFace:null,prem,productName:pName,activeTier:uwTier,reason,capped:isCapped};
+    // If capped at all, treat as unavailable — agents need exact quotes
+    if(isCapped){return{...carr,face:null,prem:null,productName:pName,activeTier:uwTier,reason:`Max coverage ${fmtF(effFace)}`};}
+    return{...carr,face:prem!=null?effFace:null,prem,productName:pName,activeTier:uwTier,reason};
   }
 
 
