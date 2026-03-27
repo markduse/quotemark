@@ -1375,7 +1375,7 @@ const CARRIERS = [
   {id:'afl',  name:'Aflac',              sub:'Final Expense WL', abbr:'AF', enabled:false,
    product:{B:'Level',C:'Level',D:null,E:null},
    fn:(age,male,smoker,tier,face)=>{if(tier==='B')return csvLookup(AFLP,AFLP_M,age,male,smoker,face);if(tier==='C')return csvLookup(AFLS,AFLS_M,age,male,smoker,face);return null;}},
-  {id:'amr',  name:'Americo',            sub:'Eagle Select', abbr:'AM', enabled:true,
+  {id:'amr',  name:'Americo',            sub:'Eagle Select', abbr:'AM', enabled:false,
    product:{B:'Plan 1',C:'Plan 2',D:'Plan 3',E:null},
    stateCheck:(s)=>(fexStateOK('Americo',s)),
    fn:(age,male,smoker,tier,face)=>{
@@ -1384,7 +1384,7 @@ const CARRIERS = [
      if(tier==='D') return fexPrem('Americo','Eagle Select Plan 3',age,male,smoker,face);
      return null;
    }},
-  {id:'uhl',  name:'United Home Life',   sub:'Premier / Deluxe / GI', abbr:'UH', enabled:true,
+  {id:'uhl',  name:'United Home Life',   sub:'Premier / Deluxe / GI', abbr:'UH', enabled:false,
    product:{B:'Premier',C:'Deluxe',D:'Graded (EIWL)',E:'Guaranteed Issue'},
    stateCheck:(s)=>(fexStateOK('UHL',s)),
    fn:(age,male,smoker,tier,face)=>{
@@ -1402,7 +1402,7 @@ const CARRIERS = [
      if(tier==='E') return factorCalc('fidelity','guaranteed',age,male,smoker,face);
      return null;
    }},
-  {id:'cbg',  name:'Corebridge Financial', sub:'SIWL / GIWL', abbr:'CB', enabled:true,
+  {id:'cbg',  name:'Corebridge Financial', sub:'SIWL / GIWL', abbr:'CB', enabled:false,
    product:{B:'SimpliNow Legacy Max',C:'SimpliNow Legacy Max',D:null,E:'Guaranteed Issue'},
    stateCheck:(s)=>(fexStateOK('AIG (SIWL)',s)),
    fn:(age,male,smoker,tier,face)=>{
@@ -1479,7 +1479,7 @@ const CARRIERS = [
      if(tier==='C') return fexPrem('Baltimore Life (Silver Guard)','Silver Guard Standard',age,male,smoker,face);
      return null;
    }},
-  {id:'sl_pp', name:'Senior Life',         sub:'Platinum Protection', abbr:'SL', enabled:true,
+  {id:'sl_pp', name:'Senior Life',         sub:'Platinum Protection', abbr:'SL', enabled:false,
    product:{B:'Level',C:null,D:null,E:null},
    stateCheck:(s)=>(fexStateOK('Senior Life (Platinum Protection)',s)),
    fn:(age,male,smoker,tier,face)=>{
@@ -1493,7 +1493,7 @@ const CARRIERS = [
    product:{B:'Level — Non-Tobacco',C:'Level — Tobacco',D:'Senior Graded (3-yr)',E:null},
    fn:(age,male,smoker,tier,face)=>ailQuote(age,male,smoker,tier,face)},
   // ── NEW CARRIERS FROM RATE SHEET ──
-  {id:'ta_exp', name:'Transamerica',  sub:'Express Select', abbr:'TX', enabled:true,
+  {id:'ta_exp', name:'Transamerica',  sub:'Express Select', abbr:'TX', enabled:false,
    product:{B:'Select',C:null,D:'Graded',E:null},
    stateCheck:(s)=>(fexStateOK('Transamerica (Express)',s)),
    fn:(age,male,smoker,tier,face)=>{
@@ -1501,7 +1501,7 @@ const CARRIERS = [
      if(tier==='D') return fexPrem('Transamerica (Express)','Express Graded',age,male,smoker,face);
      return null;
    }},
-  {id:'ahl_gs', name:'American Home Life', sub:'GuideStar 45+', abbr:'AG', enabled:true,
+  {id:'ahl_gs', name:'American Home Life', sub:'GuideStar 45+', abbr:'AG', enabled:false,
    product:{B:'Level',C:'Level',D:'Graded',E:null},
    stateCheck:(s)=>(fexStateOK('American Home Life (GuideStar 45+)',s)),
    fn:(age,male,smoker,tier,face)=>{
@@ -1509,7 +1509,7 @@ const CARRIERS = [
      if(tier==='D') return fexPrem('American Home Life (GuideStar 45+)','GuideStar Graded',age,male,smoker,face);
      return null;
    }},
-  {id:'amam_gs', name:'American Amicable', sub:'Golden Solution', abbr:'AG', enabled:true,
+  {id:'amam_gs', name:'American Amicable', sub:'Golden Solution', abbr:'AG', enabled:false,
    product:{B:'Immediate',C:'Immediate',D:'Graded',E:null},
    stateCheck:(s)=>(fexStateOK('American Amicable (Golden Solution)',s)),
    fn:(age,male,smoker,tier,face)=>{
@@ -1517,7 +1517,7 @@ const CARRIERS = [
      if(tier==='D') return fexPrem('American Amicable (Golden Solution)','Golden Solution Graded',age,male,smoker,face);
      return null;
    }},
-  {id:'rna_gi', name:'Royal Neighbors',   sub:'Guaranteed Issue', abbr:'RG', enabled:true,
+  {id:'rna_gi', name:'Royal Neighbors',   sub:'Guaranteed Issue', abbr:'RG', enabled:false,
    product:{B:null,C:null,D:null,E:'Guaranteed Issue'},
    stateCheck:(s)=>(fexStateOK('Royal Neighbors (Ensured Legacy)',s)),
    fn:(age,male,smoker,tier,face)=>{
@@ -1728,50 +1728,51 @@ const CarrierLogo = ({carrierId, name, small=false}) => {
 };
 
 // eApp button — full-width (standard) or compact (GSB footer)
+// Muted outline style — brand color text, subtle border
 const EAppBtn = ({carrierId, compact=false, lightMode=false}) => {
   const meta = CARRIER_META[carrierId];
   const [hov,setHov] = React.useState(false);
   if(!meta?.eapp) return null;
   const brand = meta.brand || '#3B82F6';
-  // Light mode uses solid blue CTA, dark uses brand-tinted ghost
-  // Green action button — compact variant
+  // Compact variant — outline pill
   if(compact) {
     return (
       <a href={meta.eapp} target="_blank" rel="noopener noreferrer"
         onMouseEnter={()=>setHov(true)} onMouseLeave={()=>setHov(false)}
         style={{
           display:'inline-flex',alignItems:'center',gap:5,
-          padding:'5px 14px',borderRadius:6,
-          border:'none',
-          background:hov?'#22C55E':'#4ADE80',
-          color:'#0A192F',
-          fontSize:11,fontWeight:700,textDecoration:'none',
+          padding:'4px 12px',borderRadius:6,
+          border:`1.5px solid ${hov?brand:lightMode?'#D0CDBE':'#374151'}`,
+          background:hov?(lightMode?'rgba(197,160,89,0.08)':'rgba(255,255,255,0.05)'):'transparent',
+          color:lightMode?'#3E4A59':'#94A3B8',
+          fontSize:11,fontWeight:600,textDecoration:'none',
           letterSpacing:0.3,transition:'all 0.15s',
           transform:hov?'translateY(-1px)':'translateY(0)',
-          boxShadow:hov?'0 4px 10px rgba(74,222,128,0.45)':'0 1px 4px rgba(74,222,128,0.2)',
+          boxShadow:'none',
           whiteSpace:'nowrap',flexShrink:0
         }}>
-        📋 e-App
+        e-App
       </a>
     );
   }
-  // Full-width variant — green, marginTop:auto keeps it pinned to bottom of card
+  // Full-width variant — outline, marginTop:auto keeps it pinned to bottom of card
   return (
-    <div style={{marginTop:'auto',paddingTop:12,borderTop:'1px solid rgba(255,255,255,0.06)'}}>
+    <div style={{marginTop:'auto',paddingTop:12,borderTop:`1px solid ${lightMode?'#E5E3DB':'rgba(255,255,255,0.06)'}`}}>
       <a href={meta.eapp} target="_blank" rel="noopener noreferrer"
         onMouseEnter={()=>setHov(true)} onMouseLeave={()=>setHov(false)}
         style={{
           display:'flex',alignItems:'center',justifyContent:'center',gap:7,
-          width:'100%',padding:'11px 0',
-          borderRadius:8,border:'none',
-          background:hov?'#22C55E':'#4ADE80',
-          color:'#0A192F',
-          fontSize:13,fontWeight:700,textDecoration:'none',
+          width:'100%',padding:'9px 0',
+          borderRadius:8,
+          border:`1.5px solid ${hov?brand:(lightMode?'#D0CDBE':'#374151')}`,
+          background:hov?(lightMode?'rgba(197,160,89,0.06)':'rgba(255,255,255,0.04)'):'transparent',
+          color:lightMode?'#3E4A59':'#94A3B8',
+          fontSize:12,fontWeight:600,textDecoration:'none',
           letterSpacing:0.3,transition:'all 0.15s',
-          boxShadow:hov?'0 6px 18px rgba(74,222,128,0.45)':'0 2px 8px rgba(74,222,128,0.25)',
+          boxShadow:'none',
           transform:hov?'translateY(-1px)':'translateY(0)',
         }}>
-        📋 e-App
+        e-App →
       </a>
     </div>
   );
@@ -2471,111 +2472,11 @@ export default function QuoteMark() {
               </button>
               </>
               ) : quoteMode==='term' ? (
-              <>
-              {/* ── TERM LIFE MOBILE INPUTS ── */}
-              <div style={{background:C.bg2,border:`1px solid ${C.bd}`,borderRadius:12,padding:16}}>
-                <div style={{fontSize:11,fontWeight:700,letterSpacing:1.8,color:C.t4,textTransform:'uppercase',marginBottom:12}}>Term Life Quote</div>
-
-                <div style={{marginBottom:14}}>
-                  <div style={{display:'flex',justifyContent:'space-between',alignItems:'center',marginBottom:6}}>
-                    <span style={{fontSize:12,color:C.t3}}>Date of birth <span style={{color:C.t4}}>· or age →</span></span>
-                  </div>
-                  <div style={{display:'flex',gap:6,alignItems:'center',marginBottom:6}}>
-                    <input inputMode="numeric" maxLength="2" placeholder="MM" value={termDob.mm}
-                      onChange={e=>{const v=e.target.value.replace(/[^0-9]/g,'');setTermDob(p=>({...p,mm:v}));if(v.length===2)termDobDdRefM.current?.focus();}}
-                      style={{...mInp,width:52,textAlign:'center',padding:'12px 4px',fontSize:16}}/>
-                    <span style={{color:C.t4,fontSize:16}}>/</span>
-                    <input ref={termDobDdRefM} inputMode="numeric" maxLength="2" placeholder="DD" value={termDob.dd}
-                      onChange={e=>{const v=e.target.value.replace(/[^0-9]/g,'');setTermDob(p=>({...p,dd:v}));if(v.length===2)termDobYyyyRefM.current?.focus();}}
-                      style={{...mInp,width:52,textAlign:'center',padding:'12px 4px',fontSize:16}}/>
-                    <span style={{color:C.t4,fontSize:16}}>/</span>
-                    <input ref={termDobYyyyRefM} inputMode="numeric" maxLength="4" placeholder="YYYY" value={termDob.yyyy}
-                      onChange={e=>{const v=e.target.value.replace(/[^0-9]/g,'');setTermDob(p=>({...p,yyyy:v}));if(v.length===4){const a=Math.floor((Date.now()-new Date(`${v}-${termDob.mm}-${termDob.dd}`))/31557600000);if(a>=18&&a<=75)setTermAge(String(a));}}}
-                      style={{...mInp,flex:1,textAlign:'center',padding:'12px 4px',fontSize:16}}/>
-                    <span style={{color:C.t4,fontSize:13}}>or</span>
-                    <input inputMode="numeric" maxLength="2" placeholder="age" value={termAge}
-                      onChange={e=>{setTermAge(e.target.value.replace(/[^0-9]/g,''));setTermDob({mm:'',dd:'',yyyy:''});}}
-                      style={{...mInp,width:54,textAlign:'center',padding:'12px 4px',fontSize:16,borderColor:termAge&&!termAgeOK?'#EF4444':C.bd}}/>
-                  </div>
-                  {termAge&&termAgeOK&&<div style={{fontSize:11,color:C.green,fontWeight:600}}>✓ Age {termAge}</div>}
-                  {termAge&&!termAgeOK&&parseInt(termAge)>0&&<div style={{fontSize:11,color:'#EF4444'}}>Age must be 18–75</div>}
-                </div>
-
-                <div style={{marginBottom:14}}>
-                  <div style={{fontSize:12,color:C.t3,marginBottom:8}}>Gender</div>
-                  <div style={{display:'flex',gap:8}}>
-                    <button className='qm-btn' style={mTogBtn(gender==='male')} onClick={()=>setGender('male')}>{!isDark&&gender==='male'?'✓ ':''}👨 Male</button>
-                    <button className='qm-btn' style={mTogBtn(gender==='female')} onClick={()=>setGender('female')}>{!isDark&&gender==='female'?'✓ ':''}👩 Female</button>
-                  </div>
-                </div>
-
-                <div>
-                  <div style={{fontSize:12,color:C.t3,marginBottom:8}}>Tobacco</div>
-                  <div style={{display:'flex',gap:8}}>
-                    <button className='qm-btn' style={mTogBtn(!smoker)} onClick={()=>setSmoker(false)}>{!isDark&&!smoker?'✓ ':''}Non-smoker</button>
-                    <button className='qm-btn' style={mTogBtn(smoker,'#EF4444')} onClick={()=>setSmoker(true)}>{!isDark&&smoker?'✓ ':''}Smoker</button>
-                  </div>
-                </div>
+              <div style={{display:'flex',flexDirection:'column',alignItems:'center',justifyContent:'center',padding:'60px 20px',textAlign:'center',gap:16}}>
+                <div style={{fontSize:48,opacity:0.5}}>⏱️</div>
+                <div style={{fontFamily:"'Barlow Condensed',sans-serif",fontSize:24,fontWeight:700,color:'#C5A059'}}>Coming Soon</div>
+                <div style={{fontSize:13,color:C.t4,lineHeight:1.7,maxWidth:260}}>Term Life quoting is under development. Check back soon for 10/15/20/30-year term rates from top carriers.</div>
               </div>
-
-              <div style={{background:C.bg2,border:`1px solid ${C.bd}`,borderRadius:12,padding:16}}>
-                <div style={{fontSize:11,fontWeight:700,letterSpacing:1.8,color:C.t4,textTransform:'uppercase',marginBottom:12}}>Term Length</div>
-                <div style={{display:'grid',gridTemplateColumns:'1fr 1fr 1fr 1fr',gap:8}}>
-                  {['10','15','20','30'].map(t=>(
-                    <button key={t} className="qm-btn" onClick={()=>setTermLength(t)} style={{
-                      ...mTogBtn(termLength===t),
-                      border:`2px solid ${termLength===t?'#C5A059':(isDark?'#374151':'#D0CDBE')}`,
-                      background:termLength===t?'#C5A059':(isDark?'#0F172A':'#F2F1EC'),
-                      color:termLength===t?'#0A192F':(isDark?'#94A3B8':'#6B7280')
-                    }}>{t}yr</button>
-                  ))}
-                </div>
-              </div>
-
-              <div style={{background:C.bg2,border:`1px solid ${C.bd}`,borderRadius:12,padding:16}}>
-                <div style={{fontSize:11,fontWeight:700,letterSpacing:1.8,color:C.t4,textTransform:'uppercase',marginBottom:12}}>Coverage Amount</div>
-                <div style={{fontSize:12,color:C.t3,marginBottom:8,display:'flex',justifyContent:'space-between'}}>
-                  <span>Face amount</span>
-                  <span style={{color:C.t0,fontWeight:700,fontSize:16,fontFamily:"'DM Mono',monospace"}}>{fmtF(termFace)}</span>
-                </div>
-                <input type="range" min="25000" max="300000" step="25000" value={termFace}
-                  onChange={e=>setTermFace(+e.target.value)}
-                  style={{width:'100%',accentColor:'#10B981',height:42,cursor:'pointer',marginBottom:6}}/>
-                <div style={{display:'flex',justifyContent:'space-between',fontSize:11,color:C.t4}}>
-                  <span>$25,000</span><span style={{color:'#10B981',fontWeight:600}}>$300K max (no exam)</span>
-                </div>
-              </div>
-
-              <div style={{background:C.bg2,border:`1px solid ${C.bd}`,borderRadius:12,padding:16}}>
-                <div style={{fontSize:11,fontWeight:700,letterSpacing:1.8,color:C.t4,textTransform:'uppercase',marginBottom:12}}>Health Class</div>
-                <div style={{display:'grid',gridTemplateColumns:'1fr 1fr',gap:8}}>
-                  {[{k:'pp',l:'Preferred Plus'},{k:'p',l:'Preferred'},{k:'sp',l:'Standard Plus'},{k:'s',l:'Standard'}].map(h=>(
-                    <button key={h.k} className="qm-btn" onClick={()=>setTermHealth(h.k)} style={{
-                      ...mTogBtn(termHealth===h.k),
-                      padding:'12px 8px',fontSize:12,
-                      border:`2px solid ${termHealth===h.k?'#C5A059':(isDark?'#374151':'#D0CDBE')}`,
-                      background:termHealth===h.k?'#C5A059':(isDark?'#0F172A':'#F2F1EC'),
-                      color:termHealth===h.k?'#0A192F':(isDark?'#94A3B8':'#6B7280')
-                    }}>{h.l}</button>
-                  ))}
-                </div>
-                <div style={{fontSize:10,color:C.t4,marginTop:10}}>
-                  Note: MOO Term Life Express uses express underwriting — health class shown for reference only.
-                </div>
-              </div>
-
-              <button onClick={()=>{ if(termAgeOK){ setHasQuoted(true); setMobileTab('results'); setTimeout(()=>window.scrollTo({top:0,behavior:'instant'}),0); } }} style={{
-                width:'100%',padding:'18px 0',borderRadius:12,border:'none',
-                cursor:termAgeOK?'pointer':'not-allowed',
-                background:termAgeOK?'#4ADE80':'#2A3547',
-                color:termAgeOK?'#0A192F':C.t4,
-                fontSize:17,fontWeight:700,letterSpacing:0.5,
-                opacity:termAgeOK?1:0.4,
-                fontFamily:"'DM Sans',sans-serif"
-              }}>
-                ⚡ Get Quote
-              </button>
-              </>
               ) : null}
 
               {/* ── CV MOBILE INPUTS ── */}
@@ -2666,72 +2567,14 @@ export default function QuoteMark() {
           {mobileTab === 'results' && (
             <div ref={mobileResultsRef}>
               {quoteMode==='term' ? (
-                /* ── MOBILE TERM RESULTS ── */
-                <div>
-                  {/* Term scenario bar */}
-                  <div style={{background:C.bg3,border:`1px solid ${C.bd}`,borderRadius:10,padding:'10px 14px',marginBottom:14,display:'flex',alignItems:'center',justifyContent:'space-between',flexWrap:'wrap',gap:6}}>
-                    <div style={{fontSize:13,color:C.t2,display:'flex',gap:8,flexWrap:'wrap',alignItems:'center'}}>
-                      <span style={{fontFamily:"'DM Mono',monospace",fontWeight:600,color:C.t0}}>{fmtF(termFace)}</span>
-                      <span style={{color:C.t4}}>·</span>
-                      {termAgeOK&&<><span>Age {termAge}</span><span style={{color:C.t4}}>·</span></>}
-                      <span>{gender==='male'?'M':'F'} · {smoker?'Smoker':'NS'}</span>
-                      <span style={{color:C.t4}}>·</span>
-                      <span>{termLength}yr Term</span>
-                    </div>
-                    <span style={{display:'inline-flex',alignItems:'center',gap:5,background:'rgba(16,185,129,0.12)',border:'1px solid rgba(16,185,129,0.3)',color:'#10B981',borderRadius:20,padding:'3px 10px',fontSize:11,fontWeight:600}}>No Exam</span>
-                  </div>
-                  {!termAgeOK ? (
-                    <div style={{textAlign:'center',paddingTop:60}}>
-                      <div style={{fontSize:40,opacity:0.4,marginBottom:12}}>⏱️</div>
-                      <div style={{fontSize:16,fontWeight:700,color:C.t4,marginBottom:8}}>Enter client age first</div>
-                      <button onClick={()=>setMobileTab('quote')} style={{padding:'12px 24px',borderRadius:10,border:`1px solid ${C.bd2}`,background:C.bg2,color:C.t2,fontSize:14,fontWeight:600,cursor:'pointer',fontFamily:"'DM Sans',sans-serif"}}>
-                        ← Back to Quote
-                      </button>
-                    </div>
-                  ) : termResults && termResults.length > 0 ? (
-                    <div style={{display:'flex',flexDirection:'column',gap:14}}>
-                      {termResults.filter(r => r.available && r.prem != null).map((result,idx) => (
-                        <div key={result.id} style={{
-                          background:isDark?'linear-gradient(135deg,rgba(16,185,129,0.14) 0%,rgba(5,150,105,0.08) 100%)':'#FFFFFF',
-                          border:`1px solid ${isDark?'#10B981':'#D1FAE5'}`,
-                          borderTop:'3px solid #10B981',
-                          borderRadius:14,padding:18,
-                          boxShadow:isDark?'0 0 0 1px rgba(16,185,129,0.15)':'0 4px 12px rgba(16,185,129,0.1)'
-                        }}>
-                          <div style={{display:'flex',justifyContent:'space-between',alignItems:'flex-start',marginBottom:14}}>
-                            <div>
-                              <div style={{fontSize:18,fontWeight:700,color:C.t0}}>{result.name}</div>
-                              <div style={{fontSize:12,color:C.t3,marginTop:2}}>Term {termLength}-Year</div>
-                            </div>
-                            {idx === 0 && <div style={{background:'rgba(16,185,129,0.15)',border:'1px solid rgba(16,185,129,0.3)',borderRadius:7,padding:'3px 10px',fontSize:10,fontWeight:700,color:'#10B981'}}>Best Rate</div>}
-                          </div>
-                          <div style={{display:'flex',alignItems:'baseline',gap:8,marginBottom:4}}>
-                            <span style={{fontFamily:"'DM Mono',monospace",fontSize:34,fontWeight:700,color:'#10B981',letterSpacing:'-1px',lineHeight:1}}>${(result.prem??0).toFixed(2)}</span>
-                            <span style={{fontSize:13,color:C.t3}}>/mo</span>
-                          </div>
-                          <div style={{fontSize:12,color:C.t2,marginBottom:14,fontFamily:"'DM Mono',monospace"}}>${((result.prem??0)*12).toFixed(0)} / year</div>
-                          <div style={{display:'flex',gap:6,flexWrap:'wrap',paddingTop:12,borderTop:`1px solid ${isDark?'rgba(16,185,129,0.2)':'#D1FAE5'}`,marginBottom:14}}>
-                            <span style={{background:isDark?'rgba(16,185,129,0.1)':'#ECFDF5',border:`1px solid ${isDark?'rgba(16,185,129,0.25)':'#6EE7B7'}`,borderRadius:6,padding:'4px 10px',fontSize:11,color:isDark?'#6EE7B7':'#065F46',fontWeight:600}}>{fmtF(result.face)}</span>
-                            <span style={{background:isDark?C.bg3:'#FAF9F6',border:`1px solid ${C.bd}`,borderRadius:6,padding:'4px 10px',fontSize:11,color:C.t3}}>{result.healthClass}</span>
-                            <span style={{background:isDark?C.bg3:'#FAF9F6',border:`1px solid ${C.bd}`,borderRadius:6,padding:'4px 10px',fontSize:11,color:C.t3}}>{gender==='male'?'Male':'Female'} · {smoker?'Tobacco':'NS'} · Age {termAge}</span>
-                          </div>
-                          <a href={CARRIER_META[result.id]?.eapp||'#'} target="_blank" rel="noopener noreferrer" style={{display:'block',padding:'13px 0',borderRadius:9,textAlign:'center',background:'#4ADE80',color:'#0A192F',fontSize:14,fontWeight:700,textDecoration:'none',boxShadow:'0 2px 8px rgba(74,222,128,0.3)'}}>Open e-App →</a>
-                        </div>
-                      ))}
-                      {termResults.filter(r => !r.available).map(result => (
-                        <div key={result.id} style={{background:C.bg3,border:`1px solid ${C.bd}`,borderRadius:14,padding:18,textAlign:'center',opacity:0.6}}>
-                          <div style={{fontSize:14,color:C.t2,fontWeight:600,marginBottom:4}}>{result.name}</div>
-                          <div style={{fontSize:12,color:C.t4}}>{result.reason}</div>
-                        </div>
-                      ))}
-                    </div>
-                  ) : termResults && termResults.length === 0 ? (
-                    <div style={{background:C.bg3,border:`1px solid ${C.bd}`,borderRadius:14,padding:24,textAlign:'center'}}>
-                      <div style={{fontSize:18,marginBottom:8}}>⚠️</div>
-                      <div style={{fontSize:14,color:C.t2,fontWeight:600,marginBottom:4}}>No Term Carriers Available</div>
-                      <div style={{fontSize:12,color:C.t4}}>Enable term carriers in your profile settings</div>
-                    </div>
-                  ) : null}
+                /* ── MOBILE TERM RESULTS — Coming Soon ── */
+                <div style={{display:'flex',flexDirection:'column',alignItems:'center',justifyContent:'center',padding:'60px 20px',textAlign:'center',gap:16}}>
+                  <div style={{fontSize:48,opacity:0.5}}>⏱️</div>
+                  <div style={{fontFamily:"'Barlow Condensed',sans-serif",fontSize:24,fontWeight:700,color:'#C5A059'}}>Coming Soon</div>
+                  <div style={{fontSize:13,color:C.t4,lineHeight:1.7,maxWidth:260}}>Term Life quoting is under development. Check back soon for 10/15/20/30-year term rates from top carriers.</div>
+                  <button onClick={()=>setMobileTab('quote')} style={{marginTop:8,padding:'13px 28px',borderRadius:10,border:`1px solid ${C.bd2}`,background:C.bg2,color:C.t2,fontSize:14,fontWeight:600,cursor:'pointer',fontFamily:"'DM Sans',sans-serif"}}>
+                    ← Back
+                  </button>
                 </div>
               ) : !hasQuoted ? (
                 <div style={{display:'flex',flexDirection:'column',alignItems:'center',justifyContent:'center',paddingTop:80,gap:16,textAlign:'center'}}>
@@ -2789,7 +2632,9 @@ export default function QuoteMark() {
                                 return(
                                   <div key={g.key} style={{
                                     flex:1,
-                                    background: isDark?(hasPrem?C.bg1:C.bg0):'#FFFFFF',
+                                    background: g.key==='silver'
+                                      ? (isDark?'rgba(197,160,89,0.04)':'rgba(197,160,89,0.05)')
+                                      : (isDark?(hasPrem?C.bg1:C.bg0):'#FFFFFF'),
                                     border:`1px solid ${isDark?(hasPrem?darkMetal+'55':C.bd):'#E2E8F0'}`,
                                     borderTop: isDark
                                       ? `2px solid ${hasPrem?darkMetal:C.bd}`
@@ -2810,7 +2655,7 @@ export default function QuoteMark() {
                                         fontFamily:"'DM Mono',monospace"
                                       }}>${tier.prem}<span style={{fontSize:10,fontWeight:400,color:C.t4}}>/mo</span></div>
                                     ):(
-                                      <div style={{fontSize:10,color:C.t4}}>{tier?.reason||'N/A'}</div>
+                                      <div style={{fontSize:16,color:C.t4}}>—</div>
                                     )}
                                   </div>
                                 );
@@ -2818,11 +2663,11 @@ export default function QuoteMark() {
                             </div>
                             {r.anyPrem && CARRIER_META[r.id]?.eapp && (
                               <a href={CARRIER_META[r.id].eapp} target="_blank" rel="noopener noreferrer" style={{
-                                display:'block',marginTop:10,padding:'11px 0',borderRadius:9,textAlign:'center',
-                                background:'#4ADE80',border:'none',
-                                color:'#0A192F',fontSize:13,fontWeight:700,textDecoration:'none',
-                                boxShadow:'0 2px 8px rgba(74,222,128,0.3)'
-                              }}>Open e-App →</a>
+                                display:'block',marginTop:10,padding:'9px 0',borderRadius:8,textAlign:'center',
+                                background:'transparent',border:`1.5px solid ${isDark?'#374151':'#D0CDBE'}`,
+                                color:isDark?'#94A3B8':'#3E4A59',fontSize:12,fontWeight:600,textDecoration:'none',
+                                boxShadow:'none'
+                              }}>e-App →</a>
                             )}
                           </div>
                         );
@@ -2860,7 +2705,7 @@ export default function QuoteMark() {
                             <>
                               <div style={{display:'flex',alignItems:'baseline',gap:5,marginBottom:8}}>
                                 <span style={{fontSize:32,fontWeight:800,color:premColor,fontFamily:"'DM Mono',monospace"}}>${r.prem}</span>
-                                <span style={{fontSize:13,color:C.t4}}>/mo</span>
+                                <span style={{fontSize:10,color:C.t4,fontWeight:400}}>/mo EFT</span>
                               </div>
                               <div style={{display:'flex',gap:6,marginBottom:10,flexWrap:'wrap'}}>
                                 <span style={{fontSize:12,color:C.t2}}>{fmtF(r.face||0)}</span>
@@ -2868,21 +2713,12 @@ export default function QuoteMark() {
                                 <TierBadge tier={r.activeTier} productName={r.productName}/>
                               </div>
                               {CARRIER_META[r.id]?.eapp && (
-                                isDark ? (
-                                  <a href={CARRIER_META[r.id].eapp} target="_blank" rel="noopener noreferrer" style={{
-                                    display:'block',padding:'12px 0',borderRadius:9,textAlign:'center',
-                                    background:'#4ADE80',border:'none',
-                                    color:'#0A192F',fontSize:14,fontWeight:700,textDecoration:'none',
-                                    boxShadow:'0 2px 8px rgba(74,222,128,0.3)'
-                                  }}>Open e-App →</a>
-                                ) : (
-                                  <a href={CARRIER_META[r.id].eapp} target="_blank" rel="noopener noreferrer" style={{
-                                    display:'block',padding:'12px 0',borderRadius:9,textAlign:'center',
-                                    background:'#4ADE80',border:'none',
-                                    color:'#0A192F',fontSize:14,fontWeight:700,textDecoration:'none',
-                                    boxShadow:'0 2px 8px rgba(74,222,128,0.3)'
-                                  }}>Open e-App →</a>
-                                )
+                                <a href={CARRIER_META[r.id].eapp} target="_blank" rel="noopener noreferrer" style={{
+                                  display:'block',padding:'9px 0',borderRadius:8,textAlign:'center',
+                                  background:'transparent',border:`1.5px solid ${isDark?'#374151':'#D0CDBE'}`,
+                                  color:isDark?'#94A3B8':'#3E4A59',fontSize:12,fontWeight:600,textDecoration:'none',
+                                  boxShadow:'none'
+                                }}>e-App →</a>
                               )}
                             </>
                           ) : (
@@ -3511,111 +3347,11 @@ export default function QuoteMark() {
           </button>
           </>
           ) : quoteMode==='term' ? (
-          <>
-          {/* ── TERM LIFE INPUTS ── */}
-          <div style={sec}>
-            <div style={lbl}>Term Life Quote</div>
-            <div style={{marginBottom:14}}>
-              <div style={{display:'flex',justifyContent:'space-between',alignItems:'center',marginBottom:6}}>
-                <span style={{fontSize:11,color:C.t3}}>Date of birth <span style={{color:C.t4}}>· or enter age →</span></span>
-              </div>
-              <div style={{display:'flex',gap:5,alignItems:'center',marginBottom:6}}>
-                <input inputMode="numeric" maxLength="2" placeholder="mm" value={termDob.mm}
-                  onChange={e=>{const v=e.target.value.replace(/[^0-9]/g,'');setTermDob(p=>({...p,mm:v}));if(v.length===2)termDobDdRef.current?.focus();}}
-                  style={{...inp,width:44,textAlign:'center',padding:'8px 4px'}}/>
-                <span style={{color:C.t4,fontSize:12}}>/</span>
-                <input ref={termDobDdRef} inputMode="numeric" maxLength="2" placeholder="dd" value={termDob.dd}
-                  onChange={e=>{const v=e.target.value.replace(/[^0-9]/g,'');setTermDob(p=>({...p,dd:v}));if(v.length===2)termDobYyyyRef.current?.focus();}}
-                  style={{...inp,width:44,textAlign:'center',padding:'8px 4px'}}/>
-                <span style={{color:C.t4,fontSize:12}}>/</span>
-                <input ref={termDobYyyyRef} inputMode="numeric" maxLength="4" placeholder="yyyy" value={termDob.yyyy}
-                  onChange={e=>{const v=e.target.value.replace(/[^0-9]/g,'');setTermDob(p=>({...p,yyyy:v}));if(v.length===4){const a=Math.floor((Date.now()-new Date(`${v}-${termDob.mm}-${termDob.dd}`))/31557600000);if(a>=18&&a<=75)setTermAge(String(a));}}}
-                  style={{...inp,flex:1,textAlign:'center',padding:'8px 4px'}}/>
-                <span style={{color:C.t4,fontSize:11}}>or</span>
-                <input inputMode="numeric" maxLength="2" placeholder="age" value={termAge}
-                  onChange={e=>{setTermAge(e.target.value.replace(/[^0-9]/g,''));setTermDob({mm:'',dd:'',yyyy:''}); }}
-                  style={{...inp,width:50,textAlign:'center',padding:'8px 4px',borderColor:termAge&&!termAgeOK?'#EF4444':C.bd}}/>
-              </div>
-              {termAge&&termAgeOK&&<div style={{fontSize:10,color:C.green,fontWeight:600}}>✓ Age {termAge}</div>}
-              {termAge&&!termAgeOK&&parseInt(termAge)>0&&<div style={{fontSize:10,color:'#EF4444'}}>Age must be 18–75</div>}
-            </div>
-            <div style={{display:'grid',gridTemplateColumns:'1fr 1fr',gap:10,marginBottom:14}}>
-              <div>
-                <div style={{fontSize:11,color:C.t3,marginBottom:4}}>Tobacco</div>
-                <div style={{display:'flex',gap:5}}>
-                  <button className="qm-btn" style={togBtn(!smoker)} onClick={()=>{setSmoker(false);}}>{!isDark&&!smoker?'✓ ':''}Non-smoker</button>
-                  <button className="qm-btn" style={togBtn(smoker)} onClick={()=>{setSmoker(true);}}>{!isDark&&smoker?'✓ ':''}Smoker</button>
-                </div>
-              </div>
-              <div>
-                <div style={{fontSize:11,color:C.t3,marginBottom:4}}>Gender</div>
-                <div style={{display:'flex',gap:5}}>
-                  <button className="qm-btn" style={togBtn(gender==='male')} onClick={()=>{setGender('male');}}>{!isDark&&gender==='male'?'✓ ':''}Male</button>
-                  <button className="qm-btn" style={togBtn(gender==='female')} onClick={()=>{setGender('female');}}>{!isDark&&gender==='female'?'✓ ':''}Female</button>
-                </div>
-              </div>
-            </div>
+          <div style={{display:'flex',flexDirection:'column',alignItems:'center',justifyContent:'center',flex:1,padding:'60px 20px',textAlign:'center',gap:16}}>
+            <div style={{fontSize:48,opacity:0.5}}>⏱️</div>
+            <div style={{fontFamily:"'Barlow Condensed',sans-serif",fontSize:24,fontWeight:700,color:'#C5A059'}}>Coming Soon</div>
+            <div style={{fontSize:13,color:C.t4,lineHeight:1.7,maxWidth:260}}>Term Life quoting is under development. Check back soon for 10/15/20/30-year term rates from top carriers.</div>
           </div>
-
-          <div style={sec}>
-            <div style={lbl}>Term Length</div>
-            <div style={{display:'grid',gridTemplateColumns:'1fr 1fr 1fr 1fr',gap:6}}>
-              {['10','15','20','30'].map(t=>(
-                <button key={t} className="qm-btn" onClick={()=>setTermLength(t)} style={{
-                  ...togBtn(termLength===t),
-                  border:`2px solid ${termLength===t?'#C5A059':(isDark?'#374151':'#D0CDBE')}`,
-                  background:termLength===t?'#C5A059':(isDark?'#0F172A':'#F2F1EC'),
-                  color:termLength===t?'#0A192F':(isDark?'#94A3B8':'#6B7280')
-                }}>{t} Year</button>
-              ))}
-            </div>
-          </div>
-
-          <div style={sec}>
-            <div style={lbl}>Coverage Amount</div>
-            <div style={{fontSize:11,color:C.t3,marginBottom:6,display:'flex',justifyContent:'space-between'}}>
-              <span>Face amount</span>
-              <span style={{color:C.t2,fontWeight:500,fontFamily:"'DM Mono',monospace"}}>{fmtF(termFace)}</span>
-            </div>
-            <input type="range" min="25000" max="300000" step="25000" value={termFace}
-              onChange={e=>setTermFace(+e.target.value)}
-              style={{width:'100%',accentColor:'#10B981',marginBottom:4}}/>
-            <div style={{display:'flex',justifyContent:'space-between',fontSize:10,color:C.t4}}>
-              <span>$25,000</span><span style={{color:'#10B981',fontWeight:600}}>$300,000 (no exam max)</span>
-            </div>
-          </div>
-
-          <div style={sec}>
-            <div style={lbl}>Health Class</div>
-            <div style={{display:'grid',gridTemplateColumns:'1fr 1fr',gap:6}}>
-              {[{k:'pp',l:'Preferred Plus'},{k:'p',l:'Preferred'},{k:'sp',l:'Standard Plus'},{k:'s',l:'Standard'}].map(h=>(
-                <button key={h.k} className="qm-btn" onClick={()=>setTermHealth(h.k)} style={{
-                  ...togBtn(termHealth===h.k),
-                  padding:'10px 8px',fontSize:11,
-                  border:`2px solid ${termHealth===h.k?'#C5A059':(isDark?'#374151':'#D0CDBE')}`,
-                  background:termHealth===h.k?'#C5A059':(isDark?'#0F172A':'#F2F1EC'),
-                  color:termHealth===h.k?'#0A192F':(isDark?'#94A3B8':'#6B7280')
-                }}>{h.l}</button>
-              ))}
-            </div>
-            <div style={{fontSize:10,color:C.t4,marginTop:8}}>
-              Note: MOO Term Life Express — express underwriting, no medical exam required.
-            </div>
-          </div>
-
-          <button onClick={()=>{ if(termAgeOK){ setHasQuoted(true); } }} style={{
-            width:'100%',padding:'13px 0',borderRadius:10,border:'none',
-            cursor:termAgeOK?'pointer':'not-allowed',
-            background:termAgeOK?'#4ADE80':'#2A3547',
-            color:termAgeOK?'#0A192F':C.t4,
-            fontSize:14,fontWeight:700,letterSpacing:0.5,
-            transition:'all 0.15s',opacity:termAgeOK?1:0.4,
-            fontFamily:"'DM Sans',sans-serif"
-          }}>
-            ⚡ Get Quote
-          </button>
-
-          </>
           ) : null}
 
           {quoteMode==='cv' && (
@@ -3715,102 +3451,10 @@ export default function QuoteMark() {
               );})()}
             </div>
           ):quoteMode==='term'?(
-            <div style={{display:'flex',flexDirection:'column',height:'100%'}}>
-              <div style={{background:C.bg3,borderBottom:`1px solid ${C.bd}`,padding:'11px 24px',display:'flex',alignItems:'center',justifyContent:'space-between',gap:12,flexWrap:'wrap',position:'sticky',top:0,zIndex:10}}>
-                <div style={{display:'flex',alignItems:'center',gap:10,flexWrap:'wrap'}}>
-                  <span style={{fontSize:13,color:C.t2,fontFamily:"'DM Mono',monospace",fontWeight:500}}>{fmtF(termFace)}</span>
-                  <span style={{color:C.bd2}}>·</span>
-                  {termAgeOK&&<><span style={{fontSize:13,color:C.t2}}>Age {termAge}</span><span style={{color:C.bd2}}>·</span></>}
-                  <span style={{fontSize:13,color:C.t2}}>{gender==='male'?'Male':'Female'}</span>
-                  <span style={{color:C.bd2}}>·</span>
-                  <span style={{fontSize:13,color:C.t2}}>{smoker?'Smoker':'Non-smoker'}</span>
-                  <span style={{color:C.bd2}}>·</span>
-                  <span style={{fontSize:13,color:C.t2}}>{termLength}-Year Term</span>
-                </div>
-                <span style={{display:'inline-flex',alignItems:'center',gap:5,background:'rgba(16,185,129,0.12)',border:'1px solid rgba(16,185,129,0.3)',color:'#10B981',borderRadius:20,padding:'3px 10px',fontSize:11,fontWeight:600,letterSpacing:0.3,whiteSpace:'nowrap'}}>
-                  <span style={{width:6,height:6,borderRadius:'50%',background:'#10B981',flexShrink:0}}/>
-                  Term Life Express
-                </span>
-              </div>
-              <div style={{padding:24,flex:1}}>
-                {!termAgeOK?(
-                  <div style={{display:'flex',flexDirection:'column',alignItems:'center',justifyContent:'center',height:'60%',gap:14,textAlign:'center'}}>
-                    <div style={{fontSize:48,opacity:0.4}}>⏱️</div>
-                    <div style={{fontFamily:"'Barlow Condensed',sans-serif",fontSize:22,fontWeight:700,color:C.t4}}>Enter client age in the sidebar</div>
-                    <div style={{fontSize:13,color:C.t4,lineHeight:1.8}}>Term Life Express · Ages 18–75 · Up to $300K · No exam required</div>
-                  </div>
-                ):(
-                  <>
-                    <div style={{display:'grid',gridTemplateColumns:'repeat(auto-fill,minmax(300px,1fr))',gap:14,marginBottom:20}}>
-                      {termResults && termResults.filter(r => r.available && r.prem != null).map((result,idx) => (
-                        <div key={result.id} style={{
-                          background:isDark?'#1E293B':'#FFFFFF',
-                          border:`1px solid ${C.bd2}`,
-                          borderTop:`3px solid ${CARRIER_META[result.id]?.brand||'#10B981'}`,
-                          borderRadius:12,padding:18,
-                          display:'flex',flexDirection:'column',
-                          position:'relative',
-                          transition:'transform 0.18s,box-shadow 0.18s',
-                          boxShadow:isDark?`0 0 0 1px ${C.bd}`:'0 4px 6px -1px rgba(0,0,0,0.07)',
-                        }}>
-                          {idx===0&&(
-                            <div style={{position:'absolute',top:-1,left:16,background:C.gold,color:C.bg0,fontSize:10,fontWeight:700,padding:'2px 10px',borderRadius:'0 0 7px 7px',letterSpacing:0.5}}>
-                              Best Rate
-                            </div>
-                          )}
-                          {/* Header: name + logo */}
-                          <div style={{display:'flex',justifyContent:'space-between',alignItems:'flex-start',marginBottom:14,marginTop:idx===0?10:0}}>
-                            <div style={{flex:1,minWidth:0}}>
-                              <div style={{fontSize:18,fontWeight:700,color:C.t0,letterSpacing:'-0.3px',lineHeight:1.2}}>{result.name}</div>
-                              <div style={{fontSize:11,color:C.t4,marginTop:3}}>Term {termLength}-Year</div>
-                            </div>
-                            <CarrierLogo carrierId={result.id} name={result.name} small={true}/>
-                          </div>
-                          {/* Premium */}
-                          <div style={{marginBottom:14}}>
-                            <div style={{display:'flex',alignItems:'baseline',gap:8}}>
-                              <span style={{fontFamily:"'DM Mono',monospace",fontSize:30,fontWeight:800,color:'#10B981',letterSpacing:'-1px',lineHeight:1}}>${(result.prem??0).toFixed(2)}</span>
-                              <span style={{fontSize:11,color:C.t3}}>/mo</span>
-                            </div>
-                            <div style={{fontSize:12,color:C.t2,marginTop:4,fontFamily:"'DM Mono',monospace"}}>${((result.prem??0)*12).toFixed(0)} / year</div>
-                          </div>
-                          {/* Details row */}
-                          <div style={{display:'flex',alignItems:'center',gap:0,paddingTop:12,borderTop:`1px solid ${C.bd}`,marginBottom:0}}>
-                            <div style={{flex:1}}>
-                              <div style={{fontSize:10,color:C.t3,marginBottom:2}}>Coverage</div>
-                              <div style={{fontFamily:"'DM Mono',monospace",fontSize:13,fontWeight:500,color:C.t1}}>{fmtF(result.face)}</div>
-                            </div>
-                            <div style={{width:1,height:32,background:C.bd,margin:'0 12px'}}/>
-                            <div style={{flex:1}}>
-                              <div style={{fontSize:10,color:C.t3,marginBottom:2}}>Health Class</div>
-                              <div style={{fontSize:12,color:C.t1,fontWeight:500}}>{result.healthClass}</div>
-                            </div>
-                          </div>
-                          {/* eApp — marginTop:auto pins it to bottom for alignment */}
-                          <EAppBtn carrierId={result.id} lightMode={!isDark}/>
-                        </div>
-                      ))}
-                      {termResults && termResults.filter(r => !r.available).map(result => (
-                        <div key={result.id} style={{background:C.bg3,border:`1px solid ${C.bd}`,borderRadius:14,padding:24,textAlign:'center',opacity:0.6}}>
-                          <div style={{fontSize:14,color:C.t2,fontWeight:600,marginBottom:4}}>{result.name}</div>
-                          <div style={{fontSize:12,color:C.t4}}>{result.reason}</div>
-                        </div>
-                      ))}
-                      {(!termResults || termResults.length === 0) && (
-                        <div style={{background:C.bg3,border:`1px solid ${C.bd}`,borderRadius:14,padding:24,textAlign:'center',opacity:0.6,gridColumn:'1 / -1'}}>
-                          <div style={{fontSize:18,marginBottom:8}}>⚠️</div>
-                          <div style={{fontSize:14,color:C.t2,fontWeight:600,marginBottom:4}}>No Term Carriers Available</div>
-                          <div style={{fontSize:12,color:C.t4}}>Enable term carriers in your profile settings</div>
-                        </div>
-                      )}
-                    </div>
-
-                    <div style={{fontSize:11,color:C.t4,lineHeight:1.7,borderTop:`1px solid ${C.bd}`,paddingTop:12}}>
-                      Term life coverage ages 18-75. $300,000 maximum face amount (no medical exam). Rates shown are monthly EFT premiums. Actual premiums subject to underwriting approval. Agent use only.
-                    </div>
-                  </>
-                )}
-              </div>
+            <div style={{display:'flex',flexDirection:'column',alignItems:'center',justifyContent:'center',height:'100%',gap:20,padding:40,textAlign:'center'}}>
+              <div style={{fontSize:56,opacity:0.5}}>⏱️</div>
+              <div style={{fontFamily:"'Barlow Condensed',sans-serif",fontSize:28,fontWeight:700,color:'#C5A059'}}>Coming Soon</div>
+              <div style={{fontSize:14,color:C.t4,lineHeight:1.8,maxWidth:340}}>Term Life quoting is under development. Check back soon for 10/15/20/30-year term rates from top carriers.</div>
             </div>
           ):!hasQuoted?(
             <div style={{display:'flex',flexDirection:'column',alignItems:'center',justifyContent:'center',height:'100%',gap:14,padding:40}}>
@@ -3843,7 +3487,7 @@ export default function QuoteMark() {
 
               <div style={{padding:24}}>
                 {/* ── QUOTE CARDS ── */}
-                <div style={{display:'grid',gridTemplateColumns:gsbOn?'repeat(auto-fill,minmax(420px,1fr))':'repeat(auto-fill,minmax(270px,1fr))',gap:12,marginBottom:20}}>
+                <div style={{display:'grid',gridTemplateColumns:gsbOn?'repeat(auto-fill,minmax(420px,1fr))':'repeat(auto-fill,minmax(270px,1fr))',gap:12,marginBottom:20,alignItems:'stretch'}}>
                   {results&&results.map((r,idx)=>{
                     const isBest = !gsbOn && r.prem!=null && !r.capped && idx===0 && results.filter(x=>x.prem!=null && !x.capped).length>1;
                     const isGhost = !r.prem;
@@ -3857,6 +3501,7 @@ export default function QuoteMark() {
                           borderRadius:12,padding:'16px 16px 14px',
                           opacity:r.anyPrem?1:0.4,
                           overflow:'visible',
+                          transition:'transform 0.18s,box-shadow 0.18s',
                           boxShadow:isDark||!r.anyPrem?'none':'0 4px 6px -1px rgba(0,0,0,0.07)',
                           filter:!r.anyPrem&&!isDark?'grayscale(1)':'none'
                         }}>
@@ -3874,7 +3519,9 @@ export default function QuoteMark() {
                               const isGoldKey=g.key==='gold';
                               return(
                                 <div key={g.key} style={{
-                                  background: isDark?C.bg1:'#FFFFFF',
+                                  background: g.key==='silver'
+                                    ? (isDark?'rgba(197,160,89,0.04)':'rgba(197,160,89,0.05)')
+                                    : (isDark?C.bg1:'#FFFFFF'),
                                   borderRadius:8,
                                   padding:'12px 10px',
                                   border:`1px solid ${isDark?(tr.prem?C.bd2:C.bd):'#E2E8F0'}`,
@@ -3898,24 +3545,24 @@ export default function QuoteMark() {
                                         color:isDark?darkColor:'#0F172A',
                                         letterSpacing:'-0.5px',lineHeight:1
                                       }}>{fmt$(tr.prem)}</div>
-                                      <div style={{fontSize:10,color:C.t4,marginTop:4}}>/mo EFT</div>
-                                      <div style={{fontSize:10,color:C.t4,marginTop:2,fontFamily:"'DM Mono',monospace"}}>${((tr.prem??0)*12).toFixed(0)}<span style={{fontSize:9}}>/yr</span></div>
+                                      <div style={{fontSize:9,color:C.t4,marginTop:4,fontWeight:400}}>/mo EFT</div>
+                                      <div style={{fontSize:9,color:C.t4,marginTop:2,fontWeight:400,fontFamily:"'DM Mono',monospace"}}>${((tr.prem??0)*12).toFixed(0)}<span style={{fontSize:8}}>/yr</span></div>
                                     </>
                                   ):(
-                                    <div style={{fontSize:10,color:C.t4,lineHeight:1.5,marginTop:4,minHeight:52}}>{tr.reason||'N/A'}</div>
+                                    <div style={{fontSize:18,color:C.t4,marginTop:8,minHeight:52,display:'flex',alignItems:'center',justifyContent:'center'}}>—</div>
                                   )}
                                 </div>
                               );
                             })}
                           </div>
-                          {/* Footer: coverage badge + eApp */}
+                          {/* Footer: coverage badge + eApp full-width */}
                           {r.anyPrem&&(
-                            <div style={{marginTop:12,display:'flex',alignItems:'center',justifyContent:'space-between',gap:8}}>
-                              <div style={{display:'flex',alignItems:'center',gap:6}}>
+                            <div style={{marginTop:12}}>
+                              <div style={{display:'flex',alignItems:'center',gap:6,marginBottom:10}}>
                                 <span style={{width:4,height:4,borderRadius:'50%',background:TIER_INFO[uwTier].dot,flexShrink:0}}/>
                                 <TierBadge tier={uwTier} productName={r.tiers.gold.productName||r.tiers.silver.productName||r.tiers.bronze.productName}/>
                               </div>
-                              <EAppBtn carrierId={r.id} compact={true} lightMode={!isDark}/>
+                              <EAppBtn carrierId={r.id} compact={false} lightMode={!isDark}/>
                             </div>
                           )}
                         </div>
@@ -3940,7 +3587,7 @@ export default function QuoteMark() {
                         position:'relative',
                         transition:'transform 0.18s,box-shadow 0.18s',
                         overflow:'visible',
-                        display:'flex',flexDirection:'column',
+                        display:'flex',flexDirection:'column',height:'100%',
                         transform: !isGhost&&hovCard===r.id?'translateY(-4px)':'translateY(0)',
                         boxShadow: isGhost?'none': isDark
                           ? (hovCard===r.id?`0 0 0 1px ${brandColor||C.bd2}66,0 12px 32px rgba(0,0,0,0.5)`:`0 0 0 1px ${C.bd}`)
@@ -3972,11 +3619,11 @@ export default function QuoteMark() {
                                 <span style={{fontFamily:"'DM Mono',monospace",fontSize:30,fontWeight:800,color:isBest?C.gold:(isDark?premColor:C.t0),letterSpacing:'-1px',lineHeight:1}}>
                                   {fmt$(r.prem)}
                                 </span>
-                                <span style={{fontSize:11,color:C.t3}}>/mo EFT</span>
+                                <span style={{fontSize:10,color:C.t4,fontWeight:400}}>/mo EFT</span>
                               </div>
-                              <div style={{fontSize:12,color:C.t1,marginTop:4}}>
+                              <div style={{fontSize:11,color:C.t4,marginTop:4,fontWeight:400}}>
                                 <span style={{fontFamily:"'DM Mono',monospace"}}>${((r.prem??0)*12).toFixed(0)}</span>
-                                <span style={{color:C.t2}}> / year</span>
+                                <span> / year</span>
                               </div>
                             </div>
                             {/* Face + product — clean horizontal row, no nested boxes */}
