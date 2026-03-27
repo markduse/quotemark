@@ -2029,6 +2029,8 @@ export default function QuoteMark() {
     let reason;
     if(prem==null){if(uwTier==='D'&&a>75)reason='Modified not available after 75';else if(uwTier==='E'&&a>80)reason='GI not available after 80';else reason='Not available for this profile';}
     const isCapped = prem!=null && effFace !== face;
+    // If capped below 50% of requested face, treat as unavailable
+    if(isCapped && effFace < face * 0.5){return{...carr,face:null,prem:null,productName:pName,activeTier:uwTier,reason:`Max coverage ${fmtF(effFace)}`};}
     return{...carr,face:prem!=null?effFace:null,prem,productName:pName,activeTier:uwTier,reason,capped:isCapped};
   }
 
