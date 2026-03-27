@@ -1327,7 +1327,7 @@ const CARRIERS = [
    product:{B:'Preferred',C:null,D:null,E:null},
    stateCheck:(s)=>(fexStateOK('Aetna (Protection Series)',s)),
    fn:(age,male,smoker,tier,face)=>{
-     if(tier==='B') return fexPrem('Aetna (Protection Series)','Protection Series Preferred',age,male,smoker,face);
+     if(tier==='B') return factorCalc('aetna_cont','preferred',age,male,smoker,face);
      return null;
    }},
   {id:'rn',   name:'Royal Neighbors',    sub:'Ensured Legacy FE', abbr:'RN', enabled:true,
