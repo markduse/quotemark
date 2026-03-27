@@ -42,7 +42,7 @@ const FACE_CAPS = {
   acc:40000, ahl:35000, cont:40000, rn:40000,
   ra:50000, ls:30000, amam:50000, moo:50000, cbg:25000,
   ta:100000, lb:30000, pf:50000, amr:30000, for:35000, bl_sg:25000,
-  afl:50000, laf:50000, uhl:30000, fid:40000,
+  afl:50000, laf:50000, uhl:100000, fid:40000,
   bl:50000, elco:25000, balt_sg:25000, sl_pp:25000, sl:30000, ail:30000,
 };
 const AGE_MAX = {
@@ -3597,9 +3597,8 @@ export default function QuoteMark() {
                             <div style={{fontSize:18,fontWeight:700,color:C.t0,letterSpacing:'-0.3px',lineHeight:1.2}}>{r.name}</div>
                             <div style={{fontSize:11,color:C.t4,marginTop:3}}>{r.sub}</div>
                           </div>
-                          <div style={{display:'flex',flexDirection:'column',alignItems:'flex-end',gap:6,flexShrink:0,marginLeft:10}}>
+                          <div style={{display:'flex',flexDirection:'column',alignItems:'flex-end',gap:4,flexShrink:0,marginLeft:10,minHeight:48}}>
                             <CarrierLogo carrierId={r.id} name={r.name} small={true}/>
-                            {!isGhost&&<CompBadge carrierId={r.id} tier={r.activeTier}/>}
                           </div>
                         </div>
                         {(
