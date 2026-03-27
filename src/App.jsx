@@ -38,12 +38,33 @@ const STATE_RULES = {
   sl:    { excludeStates: [] },
   ail:   { excludeStates: ['MA','MN','NH','NJ','NC','WA'] },
 };
+// Age-dependent face caps from carrier product tables
+const AGE_FACE_BANDS = {
+  amam:[{aMin:0,aMax:50,max:50000},{aMin:51,aMax:75,max:35000},{aMin:76,aMax:85,max:25000}],
+  cont:[{aMin:45,aMax:55,max:50000},{aMin:56,aMax:65,max:40000},{aMin:66,aMax:75,max:35000},{aMin:76,aMax:89,max:25000}],
+  acc:[{aMin:45,aMax:55,max:50000},{aMin:56,aMax:65,max:40000},{aMin:66,aMax:75,max:35000},{aMin:76,aMax:89,max:25000}],
+  ahl:[{aMin:50,aMax:75,max:40000},{aMin:76,aMax:85,max:25000}],
+  for:[{aMin:50,aMax:80,max:35000},{aMin:81,aMax:85,max:15000}],
+  lb:[{aMin:18,aMax:65,max:30000},{aMin:66,aMax:80,max:20000}],
+  ls:[{aMin:50,aMax:85,max:30000}],
+  moo:[{aMin:45,aMax:85,max:50000}],
+  rn:[{aMin:50,aMax:65,max:30000},{aMin:66,aMax:85,max:20000}],
+  ta:[{aMin:0,aMax:55,max:50000},{aMin:56,aMax:75,max:40000},{aMin:76,aMax:85,max:25000}],
+  uhl:[{aMin:20,aMax:60,max:100000},{aMin:61,aMax:80,max:50000}],
+  cbg:[{aMin:50,aMax:80,max:25000}],
+  fid:[{aMin:50,aMax:85,max:40000}],
+};
+function getFaceCap(carrierId, age) {
+  const bands = AGE_FACE_BANDS[carrierId];
+  if (!bands) return 100000;
+  for (const b of bands) { if (age >= b.aMin && age <= b.aMax) return b.max; }
+  return bands[bands.length-1].max;
+}
+// Legacy flat caps for carriers not in age bands
 const FACE_CAPS = {
-  acc:40000, ahl:35000, cont:40000, rn:40000,
-  ra:50000, ls:30000, amam:50000, moo:50000, cbg:25000,
-  ta:100000, lb:30000, pf:50000, amr:30000, for:35000, bl_sg:25000,
-  afl:50000, laf:50000, uhl:100000, fid:40000,
-  bl:50000, elco:25000, balt_sg:25000, sl_pp:25000, sl:30000, ail:30000,
+  ra:50000, pf:50000, amr:30000, bl_sg:25000,
+  afl:50000, laf:50000, bl:50000, elco:25000, balt_sg:25000,
+  sl_pp:25000, sl:30000, ail:30000,
 };
 const AGE_MAX = {
   // Derived from data + carrier confirmed maximums
@@ -2026,7 +2047,7 @@ export default function QuoteMark() {
 
   function buildResult(carr, a, male, face) {
     if(!carr.enabled) return {...carr,prem:null,face:null,productName:null,reason:'Carrier disabled'};
-    const maxAge=AGE_MAX[carr.id],maxFace=FACE_CAPS[carr.id],stateRule=STATE_RULES[carr.id];
+    const maxAge=AGE_MAX[carr.id],maxFace=AGE_FACE_BANDS[carr.id]?getFaceCap(carr.id,a):FACE_CAPS[carr.id],stateRule=STATE_RULES[carr.id];
     // State check: new data-driven check (fexStateOK) + legacy STATE_RULES fallback
     if(usState) {
       if(carr.stateCheck && !carr.stateCheck(usState)) return{...carr,prem:null,face:null,productName:null,reason:`Not available in ${STATE_NAMES[usState]||usState}`};
@@ -2036,7 +2057,8 @@ export default function QuoteMark() {
     if(a>85&&(carr.id==='acc'||carr.id==='cont')) return{...carr,prem:null,face:null,productName:null,reason:'Ages 86–89 rate data pending'};
     const pName=carr.product[uwTier];
     if(!pName){const reason=uwTier==='E'?'No GI product offered':uwTier==='D'?'Level plans only':'Not available for this tier';return{...carr,face:null,prem:null,productName:null,reason};}
-    // Pass the requested face — fexLookup will cap to max available band for this age
+    // Check age-dependent face cap
+    if(maxFace && face > maxFace) return{...carr,face:null,prem:null,productName:pName,activeTier:uwTier,reason:`Max coverage ${fmtF(maxFace)}`};
     let prem=null, effFace=face;
     try{
       const res=carr.fn(a,male,smoker,uwTier,face);
