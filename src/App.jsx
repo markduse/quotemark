@@ -66,6 +66,9 @@ const FACE_CAPS = {
   afl:50000, laf:50000, bl:50000, elco:25000, balt_sg:25000,
   sl_pp:25000, sl:30000, ail:30000,
 };
+// Carriers disabled in code — incomplete data, not ready for agents
+const FORCE_DISABLED = new Set(['sl_pp','amam_gs','cbg','amr','ahl_gs','ta_exp','rna_gi','afl','sl','ail','balt_sg','ra']);
+
 const AGE_MAX = {
   // Derived from data + carrier confirmed maximums
   acc:89, ahl:89, ahl_gs:85, cont:89, rn:85,
@@ -1942,8 +1945,7 @@ export default function QuoteMark() {
         if(data.display_name) setProfileName(data.display_name);
         if(data.carrier_prefs && Array.isArray(data.carrier_prefs)){
           const savedIds = data.carrier_prefs;
-          // Carriers force-disabled in code — Supabase prefs cannot re-enable these
-          const FORCE_DISABLED = new Set(['sl_pp','amam_gs','cbg','amr','ahl_gs','ta_exp','rna_gi','afl','sl','ail','balt_sg','ra']);
+          // Use module-scope FORCE_DISABLED — Supabase prefs cannot re-enable these
           setCarriers(prev=>prev.map(c=>({
             ...c,
             enabled: FORCE_DISABLED.has(c.id) ? false :
@@ -2916,7 +2918,7 @@ export default function QuoteMark() {
               <div style={{fontSize:11,fontWeight:700,letterSpacing:1.5,color:C.t4,textTransform:'uppercase',marginBottom:4}}>My Carriers</div>
               <div style={{fontSize:12,color:C.t4,marginBottom:14}}>Toggle which carriers appear in your quote results. Saved to your profile.</div>
               <div style={{display:'flex',flexDirection:'column',gap:8}}>
-                {carriers.filter(c => !c.linkedId).map(c=>{
+                {carriers.filter(c => !c.linkedId && !FORCE_DISABLED.has(c.id)).map(c=>{
                   const brand=CARRIER_META[c.id]?.brand||C.bd2;
                   return(
                   <div key={c.id} onClick={()=>setCarriers(p=>{const t=p.find(x=>x.id===c.id);if(!t)return p;const ne=!t.enabled;return p.map(x=>x.id===c.id||x.linkedId===c.id?{...x,enabled:ne}:x);})}
@@ -3845,7 +3847,7 @@ export default function QuoteMark() {
               <div style={{fontSize:11,fontWeight:700,letterSpacing:1.5,color:C.t4,textTransform:'uppercase',marginBottom:4}}>My Carriers</div>
               <div style={{fontSize:12,color:C.t4,marginBottom:14}}>Toggle which carriers appear in your quote results. Saved to your profile.</div>
               <div style={{display:'flex',flexDirection:'column',gap:8}}>
-                {carriers.filter(c => !c.linkedId).map(c=>{
+                {carriers.filter(c => !c.linkedId && !FORCE_DISABLED.has(c.id)).map(c=>{
                   const brand=CARRIER_META[c.id]?.brand||C.bd2;
                   return(
                   <div key={c.id} onClick={()=>setCarriers(p=>{const t=p.find(x=>x.id===c.id);if(!t)return p;const ne=!t.enabled;return p.map(x=>x.id===c.id||x.linkedId===c.id?{...x,enabled:ne}:x);})}
@@ -3913,7 +3915,7 @@ export default function QuoteMark() {
                 <div style={{fontSize:11,fontWeight:700,letterSpacing:1.5,color:C.t4,textTransform:'uppercase',marginBottom:4}}>My Carriers</div>
                 <div style={{fontSize:12,color:C.t4,marginBottom:14}}>Toggle which carriers appear in your results. Saved to your profile.</div>
                 <div style={{display:'flex',flexDirection:'column',gap:8}}>
-                  {carriers.filter(c => !c.linkedId).map(c=>{
+                  {carriers.filter(c => !c.linkedId && !FORCE_DISABLED.has(c.id)).map(c=>{
                     const brand=CARRIER_META[c.id]?.brand||C.bd2;
                     return(
                       <div key={c.id} onClick={()=>setCarriers(p=>{const t=p.find(x=>x.id===c.id);if(!t)return p;const ne=!t.enabled;return p.map(x=>x.id===c.id||x.linkedId===c.id?{...x,enabled:ne}:x);})}
