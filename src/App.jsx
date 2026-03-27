@@ -1445,7 +1445,7 @@ const CARRIERS = [
    product:{B:'Level',C:'Level',D:'Graded',E:null},
    stateCheck:(s)=>(fexStateOK('Lifeshield',s)),
    fn:(age,male,smoker,tier,face)=>{
-     if(tier==='B'||tier==='C') return fexPrem('Lifeshield','Survivor Level',age,male,smoker,face);
+     if(tier==='B'||tier==='C') return factorCalc('lifeshield','level',age,male,smoker,face);
      if(tier==='D') return fexPrem('Lifeshield','Survivor Graded',age,male,smoker,face);
      return null;
    }},
