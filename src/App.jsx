@@ -3486,11 +3486,12 @@ export default function QuoteMark() {
               </div>
 
               <div style={{padding:24}}>
-                {/* ── QUOTE CARDS ── */}
-                <div style={{display:'grid',gridTemplateColumns:gsbOn?'repeat(auto-fill,minmax(420px,1fr))':'repeat(auto-fill,minmax(270px,1fr))',gap:12,marginBottom:20,alignItems:'stretch'}}>
-                  {results&&results.map((r,idx)=>{
-                    const isBest = !gsbOn && r.prem!=null && !r.capped && idx===0 && results.filter(x=>x.prem!=null && !x.capped).length>1;
-                    const isGhost = !r.prem;
+                {/* ── QUOTE CARDS — active ── */}
+                <div style={{display:'grid',gridTemplateColumns:gsbOn?'repeat(auto-fill,minmax(420px,1fr))':'repeat(auto-fill,minmax(270px,1fr))',gap:12,marginBottom:12,alignItems:'stretch'}}>
+                  {results&&results.filter(r=>gsbOn?r.anyPrem:r.prem!=null).map((r,idx)=>{
+                    const activeResults = results.filter(x=>gsbOn?x.anyPrem:(x.prem!=null && !x.capped));
+                    const isBest = !gsbOn && r.prem!=null && !r.capped && idx===0 && activeResults.length>1;
+                    const isGhost = false;
                     if(gsbOn){
                       const gsbBrand = CARRIER_META[r.id]?.brand || C.bd2;
                       return(
@@ -3652,6 +3653,31 @@ export default function QuoteMark() {
                     );
                   })}
                 </div>}
+                {/* ── GHOST / UNAVAILABLE CARDS ── */}
+                {results&&(()=>{
+                  const ghosts = results.filter(r=>gsbOn?!r.anyPrem:r.prem==null);
+                  if(!ghosts.length) return null;
+                  return(
+                    <div style={{display:'grid',gridTemplateColumns:'repeat(auto-fill,minmax(200px,1fr))',gap:8,marginBottom:20}}>
+                      {ghosts.map(r=>(
+                        <div key={r.id} style={{
+                          background:isDark?'rgba(15,23,42,0.4)':C.bg3,
+                          border:`1px solid ${C.bd}`,
+                          borderRadius:8,padding:'10px 14px',
+                          opacity:0.4,
+                          display:'flex',alignItems:'center',gap:10,
+                          filter:isDark?'none':'grayscale(1)'
+                        }}>
+                          <CarrierLogo carrierId={r.id} name={r.name} small={true}/>
+                          <div style={{minWidth:0}}>
+                            <div style={{fontSize:12,fontWeight:600,color:C.t3,whiteSpace:'nowrap',overflow:'hidden',textOverflow:'ellipsis'}}>{r.name}</div>
+                            <div style={{fontSize:10,color:C.t4,fontStyle:'italic'}}>{r.reason||'Not available'}</div>
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                  );
+                })()}
 
                 {/* ── PRICE RANGE BAR ── */}
                 {!gsbOn&&results&&(()=>{
