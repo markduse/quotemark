@@ -3487,10 +3487,10 @@ export default function QuoteMark() {
 
               <div style={{padding:24}}>
                 {/* ── QUOTE CARDS — active ── */}
-                <div style={{display:'grid',gridTemplateColumns:gsbOn?'repeat(auto-fill,minmax(420px,1fr))':'repeat(auto-fill,minmax(270px,1fr))',gap:12,marginBottom:12,alignItems:'stretch'}}>
+                <div style={{display:'grid',gridTemplateColumns:gsbOn?'repeat(auto-fill,minmax(420px,1fr))':'repeat(auto-fill,minmax(270px,1fr))',gap:16,marginBottom:16,alignItems:'stretch',gridAutoRows:'1fr'}}>
                   {results&&results.filter(r=>gsbOn?r.anyPrem:r.prem!=null).map((r,idx)=>{
                     const activeResults = results.filter(x=>gsbOn?x.anyPrem:(x.prem!=null && !x.capped));
-                    const isBest = !gsbOn && r.prem!=null && !r.capped && idx===0 && activeResults.length>1;
+                    const isBest = false; // removed Best Value badge
                     const isGhost = false;
                     if(gsbOn){
                       const gsbBrand = CARRIER_META[r.id]?.brand || C.bd2;
@@ -3570,37 +3570,28 @@ export default function QuoteMark() {
                       );
                     }
                     // Single mode
-                    const brandColor = (!isGhost&&!isBest) ? (CARRIER_META[r.id]?.brand||C.bd2) : null;
+                    const brandColor = CARRIER_META[r.id]?.brand||C.bd2;
                     const _b = CARRIER_META[r.id]?.brand;
-                    const premColor  = isBest ? C.gold : (!_b || _b === '#0F172A' || _b === '#000000' ? C.t0 : _b);
+                    const premColor  = !_b || _b === '#0F172A' || _b === '#000000' ? C.t0 : _b;
                     return(
                       <div key={r.id}
                         onMouseEnter={()=>setHovCard(r.id)}
                         onMouseLeave={()=>setHovCard(null)}
                         style={{
-                        background: isDark
-                          ? (isGhost?'rgba(15,23,42,0.5)':'#1E293B')
-                          : (isGhost?C.bg3:'#FFFFFF'),
-                        border:`1px solid ${isGhost?C.bd:C.bd2}`,
-                        borderTop: isGhost?`1px solid ${C.bd}`:`3px solid ${brandColor||C.bd2}`,
+                        background: isDark?'#1E293B':'#FFFFFF',
+                        border:`1px solid ${C.bd2}`,
+                        borderTop:`3px solid ${brandColor}`,
                         borderRadius:12,padding:18,
-                        opacity:isGhost?0.4:r.capped?0.55:1,
+                        opacity:r.capped?0.55:1,
                         position:'relative',
-                        transition:'transform 0.18s,box-shadow 0.18s',
+                        transition:'box-shadow 0.18s',
                         overflow:'visible',
-                        display:'flex',flexDirection:'column',height:'100%',
-                        transform: !isGhost&&hovCard===r.id?'translateY(-4px)':'translateY(0)',
-                        boxShadow: isGhost?'none': isDark
-                          ? (hovCard===r.id?`0 0 0 1px ${brandColor||C.bd2}66,0 12px 32px rgba(0,0,0,0.5)`:`0 0 0 1px ${C.bd}`)
-                          : (hovCard===r.id?'0 16px 32px -4px rgba(0,0,0,0.18)':'0 4px 6px -1px rgba(0,0,0,0.07),0 2px 4px -2px rgba(0,0,0,0.05)'),
-                        filter: isGhost && !isDark ? 'grayscale(1)' : 'none'
+                        display:'flex',flexDirection:'column',
+                        boxShadow: isDark
+                          ? (hovCard===r.id?`0 0 0 1px ${brandColor}66,0 8px 24px rgba(0,0,0,0.4)`:`0 0 0 1px ${C.bd}`)
+                          : (hovCard===r.id?'0 8px 24px -4px rgba(0,0,0,0.15)':'0 2px 4px -1px rgba(0,0,0,0.06)')
                       }}>
-                        {isBest&&(
-                          <div style={{position:'absolute',top:-1,left:16,background:C.gold,color:C.bg0,fontSize:10,fontWeight:700,padding:'2px 10px',borderRadius:'0 0 7px 7px',letterSpacing:0.5}}>
-                            Best value
-                          </div>
-                        )}
-                        <div style={{display:'flex',justifyContent:'space-between',alignItems:'flex-start',marginBottom:isGhost?0:14,marginTop:isBest?10:0}}>
+                        <div style={{display:'flex',justifyContent:'space-between',alignItems:'flex-start',marginBottom:14}}>
                           <div style={{flex:1,minWidth:0}}>
                             <div style={{fontSize:18,fontWeight:700,color:C.t0,letterSpacing:'-0.3px',lineHeight:1.2}}>{r.name}</div>
                             <div style={{fontSize:11,color:C.t4,marginTop:3}}>{r.sub}</div>
@@ -3610,14 +3601,12 @@ export default function QuoteMark() {
                             {!isGhost&&<CompBadge carrierId={r.id} tier={r.activeTier}/>}
                           </div>
                         </div>
-                        {isGhost?(
-                          <div style={{fontSize:12,color:C.t4,fontStyle:'italic',marginTop:4}}>{r.reason||'Not available for this profile'}</div>
-                        ):(
+                        {(
                           <div style={{display:'flex',flexDirection:'column',flex:1,minHeight:0}}>
                             {/* Premium */}
                             <div style={{marginBottom:14}}>
                               <div style={{display:'flex',alignItems:'baseline',gap:8}}>
-                                <span style={{fontFamily:"'DM Mono',monospace",fontSize:30,fontWeight:800,color:isBest?C.gold:(isDark?premColor:C.t0),letterSpacing:'-1px',lineHeight:1}}>
+                                <span style={{fontFamily:"'DM Mono',monospace",fontSize:30,fontWeight:800,color:isDark?premColor:C.t0,letterSpacing:'-1px',lineHeight:1}}>
                                   {fmt$(r.prem)}
                                 </span>
                                 <span style={{fontSize:10,color:C.t4,fontWeight:400}}>/mo EFT</span>
