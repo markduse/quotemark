@@ -1,6 +1,5 @@
 import React, { useState, useMemo, useEffect, useRef } from "react";
 import { useAuth } from "./AuthContext";
-import { getValidToken } from "./utils/itk-token.js";
 import { supabase } from "./supabase";
 import FEX_RATES from "./data/fex_rates.json";
 import RESTRICTIONS from "./data/restrictions.json";
@@ -1818,15 +1817,6 @@ export default function QuoteMark() {
   const [selected,setSelected] = useState(['none']);
   const [search,setSearch]     = useState('');
   const [hasQuoted,setHasQuoted]   = useState(false);
-  const [itkResults,setItkResults] = useState(null);   // raw ITK API results
-  const [itkLoading,setItkLoading] = useState(false);  // loading spinner
-  const [itkError,setItkError]     = useState(null);   // error message
-  // ITK credentials state (for settings)
-  const [itkUser,setItkUser]       = useState('');
-  const [itkPass,setItkPass]       = useState('');
-  const [itkSaving,setItkSaving]   = useState(false);
-  const [itkSaved,setItkSaved]     = useState(false);
-  const [itkHasToken,setItkHasToken] = useState(false);
   const [openCat,setOpenCat]   = useState(null);
   const [tierOvr,setTierOvr]   = useState(null);
   const [uwOpen,setUwOpen]     = useState(false);
@@ -1908,7 +1898,7 @@ export default function QuoteMark() {
   // Load profile data + carrier prefs from Supabase on mount
   useEffect(()=>{
     if(!session) return;
-    supabase.from('profiles').select('display_name,carrier_prefs,dark_mode,it_access_token').eq('id',session.user.id).single()
+    supabase.from('profiles').select('display_name,carrier_prefs,dark_mode').eq('id',session.user.id).single()
       .then(({data})=>{
         if(!data) return;
         if(data.display_name) setProfileName(data.display_name);
@@ -1922,7 +1912,6 @@ export default function QuoteMark() {
           })));
         }
         if(data.dark_mode !== null && data.dark_mode !== undefined) setIsDark(data.dark_mode);
-        if(data.it_access_token) setItkHasToken(true);
       });
   },[session]);
 
@@ -1944,26 +1933,7 @@ export default function QuoteMark() {
     setTimeout(()=>setProfileSaved(false),2500);
   };
 
-  // Save ITK credentials — never store password, only tokens
-  const saveItkCredentials = async () => {
-    if(!session||!itkUser.trim()||!itkPass.trim()) return;
-    setItkSaving(true); setItkError(null);
-    try {
-      const res = await fetch('https://api.insurancetoolkits.com/token/', {
-        method:'POST',
-        headers:{'Content-Type':'application/json'},
-        body: JSON.stringify({username:itkUser.trim(), password:itkPass.trim()}),
-      });
-      if(!res.ok) { const e=await res.text(); throw new Error(`Login failed (${res.status}): ${e}`); }
-      const {access, refresh} = await res.json();
-      if(!access) throw new Error('No access token returned');
-      await supabase.from('profiles').update({it_access_token:access, it_refresh_token:refresh}).eq('id',session.user.id);
-      setItkHasToken(true); setItkPass(''); setItkSaved(true);
-      setTimeout(()=>setItkSaved(false),3000);
-    } catch(e) {
-      setItkError(e.message||'Connection failed');
-    } finally { setItkSaving(false); }
-  };
+
 
   const changePassword = async () => {
     if(pwForm.next !== pwForm.confirm){setPwMsg({err:true,msg:'Passwords do not match'});return;}
@@ -2062,118 +2032,7 @@ export default function QuoteMark() {
     return{...carr,face:prem!=null?effFace:null,prem,productName:pName,activeTier:uwTier,reason,capped:isCapped};
   }
 
-  // ── ITK CARRIER NAME → app carrier ID mapping ──
-  const ITK_TO_ID = {
-    'Transamerica (Solutions)': 'ta',
-    'Transamerica (Express)': 'ta_exp',
-    'Lifeshield': 'ls',
-    'Aetna (Protection Series)': 'cont',
-    'CVS (Aetna Accendo)': 'acc',
-    'Mutual of Omaha (Living Promise)': 'moo',
-    'American Home Life (Patriot Series)': 'ahl',
-    'American Amicable (Senior Choice)': 'amam',
-    'American Amicable (Golden Solution)': 'amam_gs',
-    'Fidelity (RAPIDecision Final Expense)': 'fid',
-    'Royal Neighbors (Ensured Legacy)': 'rn',
-    'Baltimore Life (iProvide 45-69)': 'bl_sg',
-    'Baltimore Life (iProvide 70+)': 'bl_sg',
-    'Foresters (PlanRight)': 'for',
-    'AIG (SIWL)': 'cbg',
-    'AIG (GIWL)': 'cbg',
-    'UHL': 'uhl',
-    'Liberty Bankers': 'lb',
-    'Americo': 'amr',
-    'Senior Life (Platinum Protection)': 'sl_pp',
-    'American Home Life (GuideStar 45+)': 'ahl_gs',
-    'Elco (Silver Eagle)': 'elco',
-  };
 
-  // Run a live ITK quote — called on Get Quotes button click
-  // Call ITK API directly from the browser — CORS allows browser origins, not server-side
-  const runItkQuote = async () => {
-    if(!ageOK) return;
-    if(!session) { setItkError('Please log in'); return; }
-    setItkLoading(true); setItkError(null); setItkResults(null); setHasQuoted(true);
-
-    const ITK = 'https://api.insurancetoolkits.com';
-
-    // Get valid access token — try Supabase profile first, then refresh
-    const getToken = async () => {
-      const { data } = await supabase.from('profiles')
-        .select('it_access_token, it_refresh_token').eq('id', session.user.id).single();
-      if (!data?.it_access_token) return null;
-
-      // Test token with a lightweight call
-      const test = await fetch(`${ITK}/member/`, {
-        headers: { 'Authorization': `Bearer ${data.it_access_token}` }
-      }).catch(() => null);
-
-      if (test?.ok) return data.it_access_token;
-
-      // Expired — try refresh
-      if (!data.it_refresh_token) return null;
-      const ref = await fetch(`${ITK}/token/refresh/`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ refresh: data.it_refresh_token }),
-      }).catch(() => null);
-      if (!ref?.ok) return null;
-      const { access } = await ref.json();
-      if (!access) return null;
-      // Save new access token
-      await supabase.from('profiles').update({ it_access_token: access }).eq('id', session.user.id);
-      return access;
-    };
-
-    try {
-      const token = await getToken();
-      if (!token) {
-        setItkError('InsuranceToolkits not connected. Add credentials in Profile → InsuranceToolkits.');
-        setItkLoading(false); return;
-      }
-
-      const params = {
-        faceAmount: mode==='face' ? faceAmt : 10000,
-        sex: gender==='male' ? 'Male' : 'Female',
-        state: usState || 'IL',
-        age: ageNum,
-        tobacco: smoker ? 'Cigarettes' : 'None',
-        paymentType: 'Bank Draft/EFT',
-        underwritingItems: [],
-        toolkit: 'FEX',
-      };
-
-      // Fire all 3 coverage types in parallel directly from browser
-      const callITK = (coverageType) => fetch(`${ITK}/quoter/`, {
-        method: 'POST',
-        headers: { 'Authorization': `Bearer ${token}`, 'Content-Type': 'application/json' },
-        body: JSON.stringify({ ...params, coverageType }),
-      }).then(r => r.ok ? r.json() : null).catch(() => null);
-
-      const [lvl, grd, gi] = await Promise.all([
-        callITK('Level'),
-        callITK('Graded/Modified'),
-        callITK('Guaranteed'),
-      ]);
-
-      const seen = new Set();
-      const quotes = [];
-      for (const d of [lvl, grd, gi]) {
-        if (!d?.quotes) continue;
-        for (const q of d.quotes) {
-          const key = `${q.company}||${q.plan_name}`;
-          if (seen.has(key)) continue;
-          seen.add(key);
-          quotes.push({ company: q.company, plan_name: q.plan_name, tier_name: q.tier_name || q.coverage_type || '', monthly: q.monthly });
-        }
-      }
-      quotes.sort((a, b) => parseFloat(a.monthly) - parseFloat(b.monthly));
-      setItkResults(quotes);
-    } catch(e) {
-      console.error('[ITK Quote]', e);
-      setItkError(e.message || 'Failed to fetch quotes');
-    } finally { setItkLoading(false); }
-  };
 
   const activeCarriers = useMemo(()=>{
     return carriers.filter(c => {
@@ -2210,7 +2069,7 @@ export default function QuoteMark() {
         return buildResult(carr,a,male,face);
       });
     }
-    return list.sort((a,b)=>{if(a.prem!=null&&b.prem!=null)return a.prem-b.prem;if(a.prem!=null)return-1;if(b.prem!=null)return 1;return 0;});
+    return list.sort((a,b)=>{if(a.prem==null&&b.prem==null)return 0;if(a.prem==null)return 1;if(b.prem==null)return-1;if(a.capped!==b.capped)return a.capped?1:-1;return a.prem-b.prem;});
   },[hasQuoted,age,gender,smoker,uwTier,mode,faceAmt,budget,gsbOn,gsbFace,activeCarriers,usState]);
 
   // ── TERM LIFE RESULTS ──
@@ -2880,7 +2739,7 @@ export default function QuoteMark() {
                   {/* Cards — single column full width */}
                   <div style={{display:'flex',flexDirection:'column',gap:10}}>
                     {results && results.map((r,idx)=>{
-                      const isBest = !gsbOn && r.prem!=null && idx===0 && results.filter(x=>x.prem!=null).length>1;
+                      const isBest = !gsbOn && r.prem!=null && !r.capped && idx===0 && results.filter(x=>x.prem!=null && !x.capped).length>1;
                       const isGhost = !r.prem;
                       const brandColor = CARRIER_META[r.id]?.brand || C.bd2;
                       const premColor = isBest ? C.gold : brandColor;
@@ -2955,7 +2814,7 @@ export default function QuoteMark() {
                           border:`1px solid ${isGhost?C.bd:(isBest?C.gold:isDark?C.bd2:C.bd2)}`,
                           borderTop:`3px solid ${isGhost?C.bd:(isBest?C.gold:brandColor)}`,
                           borderRadius:12,padding:'14px 14px 12px',
-                          opacity:isGhost?0.4:1,
+                          opacity:isGhost?0.4:r.capped?0.55:1,
                           position:'relative',
                           transition:'transform 0.18s,box-shadow 0.18s',
                           transform: !isGhost&&hovCard===r.id?'translateY(-4px)':'translateY(0)',
@@ -2983,7 +2842,7 @@ export default function QuoteMark() {
                               </div>
                               <div style={{display:'flex',gap:6,marginBottom:10,flexWrap:'wrap'}}>
                                 <span style={{fontSize:12,color:C.t2}}>{fmtF(r.face||0)}</span>
-                
+                                {r.capped&&<span style={{fontSize:10,color:C.t4,fontStyle:'italic'}}>Max coverage</span>}
                                 <TierBadge tier={r.activeTier} productName={r.productName}/>
                               </div>
                               {CARRIER_META[r.id]?.eapp && (
@@ -3961,10 +3820,10 @@ export default function QuoteMark() {
               </div>
 
               <div style={{padding:24}}>
-                {/* ── ITK QUOTE CARDS ── */}
+                {/* ── QUOTE CARDS ── */}
                 <div style={{display:'grid',gridTemplateColumns:gsbOn?'repeat(auto-fill,minmax(420px,1fr))':'repeat(auto-fill,minmax(270px,1fr))',gap:12,marginBottom:20}}>
                   {results&&results.map((r,idx)=>{
-                    const isBest = !gsbOn && r.prem!=null && idx===0 && results.filter(x=>x.prem!=null).length>1;
+                    const isBest = !gsbOn && r.prem!=null && !r.capped && idx===0 && results.filter(x=>x.prem!=null && !x.capped).length>1;
                     const isGhost = !r.prem;
                     if(gsbOn){
                       const gsbBrand = CARRIER_META[r.id]?.brand || C.bd2;
@@ -4055,7 +3914,7 @@ export default function QuoteMark() {
                         border:`1px solid ${isGhost?C.bd:C.bd2}`,
                         borderTop: isGhost?`1px solid ${C.bd}`:`3px solid ${brandColor||C.bd2}`,
                         borderRadius:12,padding:18,
-                        opacity:isGhost?0.4:1,
+                        opacity:isGhost?0.4:r.capped?0.55:1,
                         position:'relative',
                         transition:'transform 0.18s,box-shadow 0.18s',
                         overflow:'visible',
@@ -4105,6 +3964,7 @@ export default function QuoteMark() {
                                 <div style={{fontFamily:"'DM Mono',monospace",fontSize:14,fontWeight:500,color:C.t1}}>
                                   {fmtF(r.face)}
                                 </div>
+                                {r.capped&&<div style={{fontSize:10,color:C.t4,fontStyle:'italic',marginTop:1}}>Max coverage</div>}
                               </div>
                               <div style={{width:1,height:32,background:C.bd,margin:'0 14px'}}/>
                               <div style={{flex:1}}>
