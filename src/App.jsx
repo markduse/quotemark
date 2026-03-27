@@ -1414,8 +1414,8 @@ const CARRIERS = [
    product:{B:'SIMPL Preferred',C:'SIMPL Standard',D:'SIMPL Modified',E:null},
    stateCheck:(s)=>(fexStateOK('Liberty Bankers',s)),
    fn:(age,male,smoker,tier,face)=>{
-     if(tier==='B') return fexPrem('Liberty Bankers','SIMPL Preferred',age,male,smoker,face);
-     if(tier==='C') return fexPrem('Liberty Bankers','SIMPL Standard',age,male,smoker,face);
+     if(tier==='B') return factorCalc('liberty_bankers','preferred',age,male,smoker,face);
+     if(tier==='C') return factorCalc('liberty_bankers','standard',age,male,smoker,face);
      if(tier==='D') return fexPrem('Liberty Bankers','SIMPL Modified',age,male,smoker,face);
      return null;
    }},
@@ -1423,7 +1423,7 @@ const CARRIERS = [
    product:{B:'Immediate',C:'Immediate',D:'Graded',E:null},
    stateCheck:(s)=>(fexStateOK('American Amicable (Senior Choice)',s)),
    fn:(age,male,smoker,tier,face)=>{
-     if(tier==='B'||tier==='C') return fexPrem('American Amicable (Senior Choice)','Senior Choice Immediate',age,male,smoker,face);
+     if(tier==='B'||tier==='C') return factorCalc('amam_sc','immediate',age,male,smoker,face);
      if(tier==='D') return fexPrem('American Amicable (Senior Choice)','Senior Choice Graded',age,male,smoker,face);
      return null;
    }},
@@ -1484,7 +1484,7 @@ const CARRIERS = [
    stateCheck:(s)=>(fexStateOK('Senior Life (Platinum Protection)',s)),
    fn:(age,male,smoker,tier,face)=>{
      if(tier!=='B') return null;
-     return fexPrem('Senior Life (Platinum Protection)','Platinum Protection',age,male,smoker,face);
+     return factorCalc('senior_life','level',age,male,smoker,face);
    }},
   {id:'sl',    name:'Senior Life',          sub:'Whole Life (EI)', abbr:'SL', enabled:false,
    product:{B:null,C:'Level — Standard',D:'Modified',E:'Guaranteed Issue'},
@@ -1497,7 +1497,7 @@ const CARRIERS = [
    product:{B:'Select',C:null,D:'Graded',E:null},
    stateCheck:(s)=>(fexStateOK('Transamerica (Express)',s)),
    fn:(age,male,smoker,tier,face)=>{
-     if(tier==='B') return fexPrem('Transamerica (Express)','Express Select',age,male,smoker,face);
+     if(tier==='B') return factorCalc('transamerica_exp','select',age,male,smoker,face);
      if(tier==='D') return fexPrem('Transamerica (Express)','Express Graded',age,male,smoker,face);
      return null;
    }},
@@ -1513,7 +1513,7 @@ const CARRIERS = [
    product:{B:'Immediate',C:'Immediate',D:'Graded',E:null},
    stateCheck:(s)=>(fexStateOK('American Amicable (Golden Solution)',s)),
    fn:(age,male,smoker,tier,face)=>{
-     if(tier==='B'||tier==='C') return fexPrem('American Amicable (Golden Solution)','Golden Solution Immediate',age,male,smoker,face);
+     if(tier==='B'||tier==='C') return factorCalc('amam_gs','immediate',age,male,smoker,face);
      if(tier==='D') return fexPrem('American Amicable (Golden Solution)','Golden Solution Graded',age,male,smoker,face);
      return null;
    }},
