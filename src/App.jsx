@@ -2577,7 +2577,7 @@ export default function QuoteMark() {
               </div>
 
               {/* GET QUOTES button */}
-              <button onClick={()=>{if(ageOK){runItkQuote();if(isMobile){setMobileTab('results');setTimeout(()=>window.scrollTo({top:0,behavior:'instant'}),0);}}}} style={{
+              <button onClick={()=>{if(ageOK){setHasQuoted(true);if(isMobile){setMobileTab('results');setTimeout(()=>window.scrollTo({top:0,behavior:'instant'}),0);}}}} style={{
                 width:'100%',padding:'18px 0',borderRadius:12,border:'none',
                 cursor:ageOK?'pointer':'not-allowed',
                 background:ageOK?C.gold:'#2A3547',
@@ -2851,16 +2851,6 @@ export default function QuoteMark() {
                       <div style={{fontSize:12,color:C.t4}}>Enable term carriers in your profile settings</div>
                     </div>
                   ) : null}
-                </div>
-              ) : itkLoading ? (
-                <div style={{display:'flex',flexDirection:'column',alignItems:'center',justifyContent:'center',paddingTop:80,gap:16}}>
-                  <div style={{width:40,height:40,border:`3px solid ${C.bd2}`,borderTop:`3px solid ${C.gold}`,borderRadius:'50%',animation:'spin 0.8s linear infinite'}}/>
-                  <div style={{fontSize:14,color:C.t3,fontFamily:"'DM Sans',sans-serif"}}>Fetching live rates…</div>
-                </div>
-              ) : itkError ? (
-                <div style={{margin:'40px 16px',padding:'20px',background:'rgba(239,68,68,0.1)',border:'1px solid rgba(239,68,68,0.3)',borderRadius:12,textAlign:'center'}}>
-                  <div style={{fontSize:13,color:'#F87171',marginBottom:12}}>{itkError}</div>
-                  <button onClick={()=>setMobileTab('quote')} style={{padding:'10px 20px',borderRadius:8,border:`1px solid ${C.bd2}`,background:C.bg2,color:C.t2,fontSize:13,cursor:'pointer'}}>← Back</button>
                 </div>
               ) : !hasQuoted ? (
                 <div style={{display:'flex',flexDirection:'column',alignItems:'center',justifyContent:'center',paddingTop:80,gap:16,textAlign:'center'}}>
@@ -3209,29 +3199,6 @@ export default function QuoteMark() {
               Sign Out
             </button>
 
-            {/* ITK Integrations — Mobile */}
-            <div style={{background:'#0B1120',borderRadius:12,padding:16,border:`1px solid ${itkHasToken?'rgba(74,222,128,0.3)':'#1E293B'}`}}>
-              <div style={{display:'flex',alignItems:'center',justifyContent:'space-between',marginBottom:4}}>
-                <div style={{fontSize:11,fontWeight:700,letterSpacing:1.5,color:'#64748B',textTransform:'uppercase'}}>InsuranceToolkits</div>
-                <div style={{fontSize:11,fontWeight:600,padding:'2px 8px',borderRadius:20,background:itkHasToken?'rgba(74,222,128,0.15)':'rgba(239,68,68,0.1)',color:itkHasToken?'#4ADE80':'#F87171'}}>
-                  {itkHasToken?'✓ Connected':'Not connected'}
-                </div>
-              </div>
-              <div style={{fontSize:12,color:'#64748B',marginBottom:14,lineHeight:1.6}}>Connect your ITK account for live accurate rates.</div>
-              <div style={{marginBottom:10}}>
-                <div style={{fontSize:12,color:'#64748B',marginBottom:5}}>ITK Username</div>
-                <input value={itkUser} onChange={e=>setItkUser(e.target.value)} placeholder="ITK username" style={inp}/>
-              </div>
-              <div style={{marginBottom:10}}>
-                <div style={{fontSize:12,color:'#64748B',marginBottom:5}}>ITK Password</div>
-                <input type="password" value={itkPass} onChange={e=>setItkPass(e.target.value)} placeholder="ITK password" style={inp}/>
-              </div>
-              {itkError&&<div style={{fontSize:12,color:'#F87171',marginBottom:8,padding:'7px 10px',background:'rgba(239,68,68,0.08)',borderRadius:7}}>{itkError}</div>}
-              <button onClick={saveItkCredentials} disabled={itkSaving||!itkUser.trim()||!itkPass.trim()}
-                style={{width:'100%',padding:'11px',borderRadius:8,border:'none',background:itkSaved?'#16A34A':'#C5A059',color:itkSaved?'#fff':'#0A192F',fontWeight:700,fontSize:13,cursor:'pointer',fontFamily:"'DM Sans',sans-serif",opacity:(itkUser.trim()&&itkPass.trim())?1:0.5}}>
-                {itkSaving?'Connecting…':itkSaved?'✓ Connected!':itkHasToken?'Re-connect':'Connect ITK Account'}
-              </button>
-            </div>
           </div>
           );
         })()}
@@ -3650,7 +3617,7 @@ export default function QuoteMark() {
             )}
           </div>
 
-          <button onClick={()=>{if(ageOK){runItkQuote();if(isMobile){setMobileTab('results');setTimeout(()=>window.scrollTo({top:0,behavior:'instant'}),0);}}}} style={{
+          <button onClick={()=>{if(ageOK){setHasQuoted(true);if(isMobile){setMobileTab('results');setTimeout(()=>window.scrollTo({top:0,behavior:'instant'}),0);}}}} style={{
             width:'100%',padding:'13px 0',borderRadius:10,border:'none',
             cursor:ageOK?'pointer':'not-allowed',
             background:ageOK?C.gold:'#2A3547',
@@ -3964,24 +3931,12 @@ export default function QuoteMark() {
                 )}
               </div>
             </div>
-          ):itkLoading?(
-            <div style={{display:'flex',flexDirection:'column',alignItems:'center',justifyContent:'center',height:'100%',gap:16}}>
-              <div style={{width:44,height:44,border:`3px solid ${C.bd2}`,borderTop:`3px solid ${C.gold}`,borderRadius:'50%',animation:'spin 0.8s linear infinite'}}/>
-              <div style={{fontSize:15,color:C.t3,fontFamily:"'DM Sans',sans-serif"}}>Fetching live rates from InsuranceToolkits…</div>
-              <div style={{fontSize:12,color:C.t4}}>This usually takes 2–4 seconds</div>
-            </div>
-          ):itkError?(
-            <div style={{display:'flex',flexDirection:'column',alignItems:'center',justifyContent:'center',height:'100%',gap:14,padding:40,textAlign:'center'}}>
-              <div style={{fontSize:40,opacity:0.6}}>⚠️</div>
-              <div style={{fontSize:15,fontWeight:600,color:'#F87171'}}>{itkError}</div>
-              {!itkHasToken&&<div style={{fontSize:13,color:C.t4,maxWidth:360,lineHeight:1.7}}>Go to Profile → Integrations to connect your InsuranceToolkits account.</div>}
-            </div>
           ):!hasQuoted?(
             <div style={{display:'flex',flexDirection:'column',alignItems:'center',justifyContent:'center',height:'100%',gap:14,padding:40}}>
               <div style={{fontSize:48,opacity:0.5}}>📋</div>
               <div style={{fontFamily:"'Barlow Condensed',sans-serif",fontSize:22,fontWeight:700,color:C.t4}}>Enter client info and click Get Quotes</div>
               <div style={{fontSize:13,color:C.t4,textAlign:'center',lineHeight:1.8}}>
-                Live rates via InsuranceToolkits · {carriers.filter(c=>c.enabled&&!c.termOnly).length} carriers enabled
+                {carriers.filter(c=>c.enabled&&!c.termOnly).length} carriers enabled
               </div>
             </div>
           ):(
@@ -4007,71 +3962,7 @@ export default function QuoteMark() {
 
               <div style={{padding:24}}>
                 {/* ── ITK QUOTE CARDS ── */}
-                {itkResults && itkResults.length > 0 && (
-                  <div style={{display:'grid',gridTemplateColumns:'repeat(auto-fill,minmax(270px,1fr))',gap:12,marginBottom:20}}>
-                    {itkResults.filter(q=>{
-                      // Filter by carrier prefs if set
-                      const cid = ITK_TO_ID[q.company];
-                      if(!cid) return true; // show unknown carriers
-                      const carr = carriers.find(c=>c.id===cid);
-                      return !carr || carr.enabled;
-                    }).map((q,idx)=>{
-                      const cid = ITK_TO_ID[q.company];
-                      const prem = parseFloat(q.monthly);
-                      const isBest = idx===0;
-                      const brandColor = (cid && CARRIER_META[cid]?.brand) || C.gold;
-                      return(
-                        <div key={`${q.company}||${q.plan_name}`} style={{
-                          background: isDark?C.bg3:'#FFFFFF',
-                          border:`1px solid ${isDark?C.bd2:'#E2E8F0'}`,
-                          borderTop:`3px solid ${isBest?C.gold:brandColor}`,
-                          borderRadius:12,padding:'16px 16px 14px',
-                          boxShadow:isBest?(isDark?'0 0 0 1px rgba(197,160,89,0.3)':'0 4px 20px rgba(197,160,89,0.15)'):
-                            (isDark?'none':'0 2px 6px rgba(0,0,0,0.06)'),
-                          position:'relative',
-                        }}>
-                          {isBest&&<div style={{position:'absolute',top:-1,left:16,background:C.gold,color:'#0A192F',fontSize:9,fontWeight:800,letterSpacing:1,textTransform:'uppercase',padding:'2px 8px',borderRadius:'0 0 5px 5px'}}>Best Rate</div>}
-                          {/* Header */}
-                          <div style={{display:'flex',justifyContent:'space-between',alignItems:'flex-start',marginBottom:10,marginTop:isBest?8:0}}>
-                            <div>
-                              <div style={{fontSize:16,fontWeight:700,color:C.t0,letterSpacing:'-0.2px'}}>{q.company.replace(/ \(.*\)/,'')}</div>
-                              <div style={{fontSize:11,color:C.t4,marginTop:1}}>{q.plan_name}</div>
-                            </div>
-                            {cid&&<CarrierLogo carrierId={cid} name={q.company} small={true}/>}
-                          </div>
-                          {/* Premium */}
-                          <div style={{marginBottom:14}}>
-                            <div style={{display:'flex',alignItems:'baseline',gap:6}}>
-                              <span style={{fontFamily:"'DM Mono',monospace",fontSize:32,fontWeight:800,color:isBest?C.gold:C.t0,letterSpacing:'-1px',lineHeight:1}}>
-                                ${prem.toFixed(2)}
-                              </span>
-                              <span style={{fontSize:12,color:C.t3}}>/mo EFT</span>
-                            </div>
-                            <div style={{fontSize:11,color:C.t4,marginTop:4,fontFamily:"'DM Mono',monospace"}}>${(prem*12).toFixed(0)} / year</div>
-                          </div>
-                          {/* Coverage info */}
-                          <div style={{display:'flex',gap:16,marginBottom:14}}>
-                            <div>
-                              <div style={{fontSize:10,color:C.t4,textTransform:'uppercase',letterSpacing:0.8,fontWeight:600,marginBottom:2}}>Coverage</div>
-                              <div style={{fontSize:12,fontWeight:700,color:C.t0,fontFamily:"'DM Mono',monospace"}}>{fmtF(faceAmt)}</div>
-                            </div>
-                            <div>
-                              <div style={{fontSize:10,color:C.t4,textTransform:'uppercase',letterSpacing:0.8,fontWeight:600,marginBottom:2}}>Type</div>
-                              <div style={{fontSize:11,fontWeight:600,color:q.tier_name?.toLowerCase().includes('level')||q.tier_name?.toLowerCase().includes('preferred')?'#10B981':q.tier_name?.toLowerCase().includes('graded')?'#F59E0B':'#64748B',background:q.tier_name?.toLowerCase().includes('level')||q.tier_name?.toLowerCase().includes('preferred')?'rgba(16,185,129,0.1)':q.tier_name?.toLowerCase().includes('graded')?'rgba(245,158,11,0.1)':'rgba(100,116,139,0.1)',padding:'2px 7px',borderRadius:4}}>{q.tier_name||'Level'}</div>
-                            </div>
-                          </div>
-                          {/* e-App button */}
-                          {cid&&<EAppBtn carrierId={cid}/>}
-                        </div>
-                      );
-                    })}
-                  </div>
-                )}
-                {itkResults && itkResults.length === 0 && (
-                  <div style={{textAlign:'center',padding:60,color:C.t4,fontSize:14}}>No quotes returned — check your ITK credentials or try a different profile.</div>
-                )}
-                {/* ── LEGACY STATIC CARDS (hidden when ITK results present) ── */}
-                {!itkResults&&<div style={{display:'grid',gridTemplateColumns:gsbOn?'repeat(auto-fill,minmax(420px,1fr))':'repeat(auto-fill,minmax(270px,1fr))',gap:12,marginBottom:20}}>
+                <div style={{display:'grid',gridTemplateColumns:gsbOn?'repeat(auto-fill,minmax(420px,1fr))':'repeat(auto-fill,minmax(270px,1fr))',gap:12,marginBottom:20}}>
                   {results&&results.map((r,idx)=>{
                     const isBest = !gsbOn && r.prem!=null && idx===0 && results.filter(x=>x.prem!=null).length>1;
                     const isGhost = !r.prem;
@@ -4234,11 +4125,8 @@ export default function QuoteMark() {
                 </div>}
 
                 {/* ── PRICE RANGE BAR ── */}
-                {!gsbOn&&(itkResults||results)&&(()=>{
-                  // Use ITK results if available, fall back to static
-                  const avail = itkResults
-                    ? itkResults.filter(q=>parseFloat(q.monthly)>0).map(q=>({name:q.company.replace(/ \(.*\)/,''), prem:parseFloat(q.monthly)}))
-                    : results.filter(r=>r.prem!=null);
+                {!gsbOn&&results&&(()=>{
+                  const avail = results.filter(r=>r.prem!=null);
                   if(avail.length<1) return null;
                   const cheapest=avail.reduce((a,b)=>a.prem<b.prem?a:b);
                   const mostExp=avail.reduce((a,b)=>a.prem>b.prem?a:b);
@@ -4256,12 +4144,9 @@ export default function QuoteMark() {
                       </div>
                       <div style={{borderLeft:`1px solid ${C.bd}`,paddingLeft:20}}>
                         <div style={{fontSize:10,color:C.t4,fontWeight:600,letterSpacing:1.2,textTransform:'uppercase',marginBottom:3}}>Available</div>
-                        <div style={{fontSize:18,fontWeight:600,color:C.t0}}>{avail.length}<span style={{fontSize:12,color:C.t3,fontWeight:400}}> of {itkResults?itkResults.length:results.length}</span></div>
+                        <div style={{fontSize:18,fontWeight:600,color:C.t0}}>{avail.length}<span style={{fontSize:12,color:C.t3,fontWeight:400}}> of {results.length}</span></div>
                         <div style={{fontSize:11,color:C.t4,marginTop:1}}>UW: {TIER_INFO[uwTier].short}</div>
                       </div>
-                      {itkResults&&<div style={{marginLeft:'auto',fontSize:10,color:'#4ADE80',fontWeight:600,display:'flex',alignItems:'center',gap:4}}>
-                        <span>●</span> Live rates
-                      </div>}
                     </div>
                   );
                 })()}
@@ -4483,33 +4368,6 @@ export default function QuoteMark() {
               <button onClick={signOut} style={{padding:'13px',borderRadius:10,border:`1px solid ${C.bd2}`,background:'transparent',color:'#EF4444',fontWeight:600,fontSize:14,cursor:'pointer',fontFamily:"'DM Sans',sans-serif"}}>
                 Sign Out
               </button>
-              {/* ── ITK INTEGRATIONS ── */}
-              <div style={{background:C.bg2,borderRadius:12,padding:16,border:`1px solid ${itkHasToken?'rgba(74,222,128,0.3)':C.bd}`}}>
-                <div style={{display:'flex',alignItems:'center',justifyContent:'space-between',marginBottom:4}}>
-                  <div style={{fontSize:11,fontWeight:700,letterSpacing:1.5,color:C.t4,textTransform:'uppercase'}}>InsuranceToolkits</div>
-                  <div style={{fontSize:11,fontWeight:600,padding:'2px 8px',borderRadius:20,background:itkHasToken?'rgba(74,222,128,0.15)':'rgba(239,68,68,0.1)',color:itkHasToken?'#4ADE80':'#F87171'}}>
-                    {itkHasToken?'✓ Connected':'Not connected'}
-                  </div>
-                </div>
-                <div style={{fontSize:12,color:C.t4,marginBottom:14,lineHeight:1.6}}>
-                  Connect your ITK account to get live, accurate rates. Your password is never stored — only the session token.
-                </div>
-                <div style={{marginBottom:10}}>
-                  <div style={{fontSize:12,color:C.t4,marginBottom:5}}>ITK Username</div>
-                  <input value={itkUser} onChange={e=>setItkUser(e.target.value)} placeholder="ITK username or email" autoComplete="off"
-                    style={{width:'100%',boxSizing:'border-box',background:C.bg3,border:`1px solid ${C.bd2}`,borderRadius:8,color:C.t1,fontSize:14,padding:'11px 12px',fontFamily:"'DM Sans',sans-serif",outline:'none'}}/>
-                </div>
-                <div style={{marginBottom:10}}>
-                  <div style={{fontSize:12,color:C.t4,marginBottom:5}}>ITK Password</div>
-                  <input type="password" value={itkPass} onChange={e=>setItkPass(e.target.value)} placeholder="ITK password"
-                    style={{width:'100%',boxSizing:'border-box',background:C.bg3,border:`1px solid ${C.bd2}`,borderRadius:8,color:C.t1,fontSize:14,padding:'11px 12px',fontFamily:"'DM Sans',sans-serif",outline:'none'}}/>
-                </div>
-                {itkError&&<div style={{fontSize:12,color:'#F87171',marginBottom:8,padding:'7px 10px',background:'rgba(239,68,68,0.08)',borderRadius:7}}>{itkError}</div>}
-                <button onClick={saveItkCredentials} disabled={itkSaving||!itkUser.trim()||!itkPass.trim()}
-                  style={{width:'100%',padding:'11px',borderRadius:8,border:'none',background:itkSaved?'#16A34A':C.gold,color:itkSaved?'#fff':C.bg0,fontWeight:700,fontSize:13,cursor:'pointer',fontFamily:"'DM Sans',sans-serif",opacity:(itkUser.trim()&&itkPass.trim())?1:0.5}}>
-                  {itkSaving?'Connecting…':itkSaved?'✓ Connected!':itkHasToken?'Re-connect ITK':'Connect ITK Account'}
-                </button>
-              </div>
             </div>
           </div>
         </div>
