@@ -1334,9 +1334,9 @@ const CARRIERS = [
    product:{B:'Standard',C:'Standard',D:'Graded',E:'Guaranteed Issue'},
    stateCheck:(s)=>(fexStateOK('Royal Neighbors (Ensured Legacy)',s)),
    fn:(age,male,smoker,tier,face)=>{
-     if(tier==='B'||tier==='C') return fexPrem('Royal Neighbors (Ensured Legacy)','Ensured Legacy Standard',age,male,smoker,face);
-     if(tier==='D') return fexPrem('Royal Neighbors (Ensured Legacy)','Ensured Legacy Graded',age,male,smoker,face);
-     if(tier==='E') return fexPrem('Royal Neighbors (Ensured Legacy)','Ensured Legacy Guaranteed Issue',age,male,smoker,face,true);
+     if(tier==='B'||tier==='C') return factorCalc('royal_neighbors','standard',age,male,smoker,face);
+     if(tier==='D') return factorCalc('royal_neighbors','graded',age,male,smoker,face);
+     if(tier==='E') return factorCalc('royal_neighbors','gi',age,male,smoker,face);
      return null;
    }},
   // ── NEW CARRIERS ──
@@ -1395,8 +1395,8 @@ const CARRIERS = [
    product:{B:'Level',C:'Level',D:null,E:'Guaranteed Issue'},
    stateCheck:(s)=>(fexStateOK('Fidelity (RAPIDecision Final Expense)',s)),
    fn:(age,male,smoker,tier,face)=>{
-     if(tier==='B'||tier==='C') return fexPrem('Fidelity (RAPIDecision Final Expense)','Level',age,male,smoker,face);
-     if(tier==='E') return fexPrem('Fidelity (RAPIDecision Final Expense)','Guaranteed',age,male,smoker,face,true);
+     if(tier==='B'||tier==='C') return factorCalc('fidelity','level',age,male,smoker,face);
+     if(tier==='E') return factorCalc('fidelity','guaranteed',age,male,smoker,face);
      return null;
    }},
   {id:'cbg',  name:'Corebridge Financial', sub:'SIWL / GIWL', abbr:'CB', enabled:true,
@@ -1404,7 +1404,7 @@ const CARRIERS = [
    stateCheck:(s)=>(fexStateOK('AIG (SIWL)',s)),
    fn:(age,male,smoker,tier,face)=>{
      if(tier==='B'||tier==='C') return fexPrem('AIG (SIWL)','SimpliNow Legacy Max',age,male,smoker,face);
-     if(tier==='E') return fexPrem('AIG (GIWL)','Guaranteed Issue',age,male,smoker,face,true);
+     if(tier==='E') return factorCalc('corebridge_gi','gi',age,male,smoker,face);
      return null;
    }},
   {id:'lb',   name:'Liberty Bankers',    sub:'SIMPL Whole Life', abbr:'LB', enabled:true,
