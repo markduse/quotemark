@@ -1317,9 +1317,9 @@ const CARRIERS = [
    product:{B:'Preferred',C:'Standard',D:'Modified',E:null},
    stateCheck:(s)=>(fexStateOK('American Home Life (Patriot Series)',s)),
    fn:(age,male,smoker,tier,face)=>{
-     if(tier==='B') return fexPrem('American Home Life (Patriot Series)','Patriot Series Preferred',age,male,smoker,face);
-     if(tier==='C') return fexPrem('American Home Life (Patriot Series)','Patriot Series Standard',age,male,smoker,face);
-     if(tier==='D') return fexPrem('American Home Life (Patriot Series)','Patriot Series Modified',age,male,smoker,face);
+     if(tier==='B') return factorCalc('ahl','preferred',age,male,smoker,face);
+     if(tier==='C') return factorCalc('ahl','standard',age,male,smoker,face);
+     if(tier==='D') return factorCalc('ahl','modified',age,male,smoker,face);
      return null;
    }},
   {id:'cont', name:'Aetna / Continental', sub:'Protection Series FE', abbr:'CL', enabled:true,
