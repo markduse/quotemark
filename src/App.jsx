@@ -2,6 +2,7 @@ import React, { useState, useMemo, useEffect, useRef } from "react";
 import { useAuth } from "./AuthContext";
 import { supabase } from "./supabase";
 import FEX_RATES from "./data/fex_rates.json";
+import RATE_FACTORS from "./data/rate_factors.json";
 import RESTRICTIONS from "./data/restrictions.json";
 
 // ── FONTS ──
@@ -1279,6 +1280,19 @@ function fexPrem(company, planName, age, male, smoker, face, isGI=false) {
   return r || null; // return the full {prem,face} object — buildResult handles it
 }
 
+// ── FORMULA-BASED RATE CALC ──
+// For carriers with ratebook factors: monthly = (annualRatePer1k × units + policyFee) × modalFactor
+function factorCalc(carrier, tier, age, male, smoker, face) {
+  const cfg = RATE_FACTORS?.[carrier];
+  if (!cfg) return null;
+  const combo = male ? (smoker ? 'MS' : 'MNS') : (smoker ? 'FS' : 'FNS');
+  const rate = cfg.tiers?.[tier]?.[combo]?.[String(age)];
+  if (rate == null) return null;
+  const units = face / cfg.unitSize;
+  const monthly = Math.round((rate * units + cfg.policyFee) * cfg.modalFactor * 100) / 100;
+  return { prem: monthly, face: face }; // exact face — no banding
+}
+
 // State check: company-only restriction keys
 function fexStateOK(company, state) {
   if (!state) return true;
@@ -1294,9 +1308,9 @@ const CARRIERS = [
    product:{B:'Preferred',C:'Standard',D:'Modified',E:null},
    stateCheck:(s)=>(fexStateOK('CVS (Aetna Accendo)',s)),
    fn:(age,male,smoker,tier,face)=>{
-     if(tier==='B') return fexPrem('CVS (Aetna Accendo)','Accendo Preferred',age,male,smoker,face);
-     if(tier==='C') return fexPrem('CVS (Aetna Accendo)','Accendo Standard',age,male,smoker,face);
-     if(tier==='D') return fexPrem('CVS (Aetna Accendo)','Accendo Modified',age,male,smoker,face);
+     if(tier==='B') return factorCalc('accendo','preferred',age,male,smoker,face);
+     if(tier==='C') return factorCalc('accendo','standard',age,male,smoker,face);
+     if(tier==='D') return factorCalc('accendo','modified',age,male,smoker,face);
      return null;
    }},
   {id:'ahl',  name:'American Home Life', sub:'Patriot Series FE', abbr:'AH', enabled:true,
