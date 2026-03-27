@@ -2605,10 +2605,10 @@ export default function QuoteMark() {
                   {/* Cards — single column full width */}
                   <div style={{display:'flex',flexDirection:'column',gap:10}}>
                     {results && results.map((r,idx)=>{
-                      const isBest = !gsbOn && r.prem!=null && !r.capped && idx===0 && results.filter(x=>x.prem!=null && !x.capped).length>1;
+                      const isBest = false;
                       const isGhost = !r.prem;
                       const brandColor = CARRIER_META[r.id]?.brand || C.bd2;
-                      const premColor = isBest ? C.gold : brandColor;
+                      const premColor = brandColor;
                       if(gsbOn){
                         const gsbBrand = brandColor;
                         return(
@@ -3488,7 +3488,7 @@ export default function QuoteMark() {
 
               <div style={{padding:24}}>
                 {/* ── QUOTE CARDS — active ── */}
-                <div style={{display:'grid',gridTemplateColumns:gsbOn?'repeat(auto-fill,minmax(420px,1fr))':'repeat(auto-fill,minmax(270px,1fr))',gap:16,marginBottom:16,alignItems:'stretch',gridAutoRows:'1fr'}}>
+                <div style={{display:'grid',gridTemplateColumns:gsbOn?'repeat(auto-fill,minmax(420px,1fr))':'repeat(auto-fill,minmax(270px,1fr))',gap:20,marginBottom:20,alignItems:'start'}}>
                   {results&&results.filter(r=>gsbOn?r.anyPrem:r.prem!=null).map((r,idx)=>{
                     const activeResults = results.filter(x=>gsbOn?x.anyPrem:(x.prem!=null && !x.capped));
                     const isBest = false; // removed Best Value badge
