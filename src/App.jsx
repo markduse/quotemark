@@ -1289,7 +1289,8 @@ function factorCalc(carrier, tier, age, male, smoker, face) {
   const rate = cfg.tiers?.[tier]?.[combo]?.[String(age)];
   if (rate == null) return null;
   const units = face / cfg.unitSize;
-  const monthly = Math.round((rate * units + cfg.policyFee) * cfg.modalFactor * 100) / 100;
+  const fee = (cfg.policyFeeThreshold && face < cfg.policyFeeThreshold) ? (cfg.policyFeeLow||cfg.policyFee) : cfg.policyFee;
+  const monthly = Math.round((rate * units + fee) * cfg.modalFactor * 100) / 100;
   return { prem: monthly, face: face }; // exact face — no banding
 }
 
@@ -1351,8 +1352,8 @@ const CARRIERS = [
    product:{B:'Preferred',C:'Standard',D:'Graded',E:null},
    stateCheck:(s)=>(fexStateOK('Transamerica (Solutions)',s)),
    fn:(age,male,smoker,tier,face)=>{
-     if(tier==='B') return fexPrem('Transamerica (Solutions)','Immediate Solution Preferred',age,male,smoker,face);
-     if(tier==='C') return fexPrem('Transamerica (Solutions)','Immediate Solution Standard',age,male,smoker,face);
+     if(tier==='B') return factorCalc('transamerica_imm','preferred',age,male,smoker,face);
+     if(tier==='C') return factorCalc('transamerica_imm','standard',age,male,smoker,face);
      if(tier==='D') return fexPrem('Transamerica (Solutions)','Easy Solution Graded',age,male,smoker,face);
      return null;
    }},
