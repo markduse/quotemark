@@ -2052,7 +2052,7 @@ export default function QuoteMark() {
       else if(!carr.stateCheck && stateRule?.excludeStates?.includes(usState)) return{...carr,prem:null,face:null,productName:null,reason:`Not licensed in ${STATE_NAMES[usState]||usState}`};
     }
     if(a>maxAge) return{...carr,prem:null,face:null,productName:null,reason:`Maximum age is ${maxAge}`};
-    if(a>85&&(carr.id==='acc'||carr.id==='cont')) return{...carr,prem:null,face:null,productName:null,reason:'Ages 86–89 rate data pending'};
+    // Aetna/Accendo ages 86-89 data now available in rate_factors
     const pName=carr.product[uwTier];
     if(!pName){const reason=uwTier==='E'?'No GI product offered':uwTier==='D'?'Level plans only':'Not available for this tier';return{...carr,face:null,prem:null,productName:null,reason};}
     // Check age-dependent face cap
