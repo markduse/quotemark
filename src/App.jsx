@@ -1384,7 +1384,7 @@ const CARRIERS = [
      if(tier==='D') return fexPrem('Americo','Eagle Select Plan 3',age,male,smoker,face);
      return null;
    }},
-  {id:'uhl',  name:'United Home Life',   sub:'Premier / Deluxe / GI', abbr:'UH', enabled:false,
+  {id:'uhl',  name:'United Home Life',   sub:'Premier / Deluxe / GI', abbr:'UH', enabled:true,
    product:{B:'Premier',C:'Deluxe',D:'Graded (EIWL)',E:'Guaranteed Issue'},
    stateCheck:(s)=>(fexStateOK('UHL',s)),
    fn:(age,male,smoker,tier,face)=>{
@@ -1924,7 +1924,7 @@ export default function QuoteMark() {
         if(data.carrier_prefs && Array.isArray(data.carrier_prefs)){
           const savedIds = data.carrier_prefs;
           // Carriers force-disabled in code — Supabase prefs cannot re-enable these
-          const FORCE_DISABLED = new Set(['sl_pp','amam_gs','cbg','amr','uhl','ahl_gs','ta_exp','rna_gi','afl','sl','ail','balt_sg','ra']);
+          const FORCE_DISABLED = new Set(['sl_pp','amam_gs','cbg','amr','ahl_gs','ta_exp','rna_gi','afl','sl','ail','balt_sg','ra']);
           setCarriers(prev=>prev.map(c=>({
             ...c,
             enabled: FORCE_DISABLED.has(c.id) ? false :
