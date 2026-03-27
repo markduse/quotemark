@@ -45,10 +45,10 @@ const AGE_FACE_BANDS = {
   acc:[{aMin:45,aMax:55,max:50000},{aMin:56,aMax:65,max:40000},{aMin:66,aMax:75,max:35000},{aMin:76,aMax:89,max:25000}],
   ahl:[{aMin:50,aMax:75,max:40000},{aMin:76,aMax:85,max:25000}],
   for:[{aMin:50,aMax:80,max:35000},{aMin:81,aMax:85,max:15000}],
-  lb:[{aMin:18,aMax:65,max:30000},{aMin:66,aMax:80,max:20000}],
+  lb:[{aMin:18,aMax:80,max:40000}],
   ls:[{aMin:50,aMax:85,max:30000}],
   moo:[{aMin:45,aMax:85,max:50000}],
-  rn:[{aMin:50,aMax:65,max:30000},{aMin:66,aMax:85,max:20000}],
+  rn:[{aMin:50,aMax:85,max:40000}],
   ta:[{aMin:0,aMax:55,max:50000},{aMin:56,aMax:75,max:40000},{aMin:76,aMax:85,max:25000}],
   uhl:[{aMin:20,aMax:60,max:100000},{aMin:61,aMax:80,max:50000}],
   cbg:[{aMin:50,aMax:80,max:25000}],
@@ -1306,9 +1306,7 @@ function fexPrem(company, planName, age, male, smoker, face, isGI=false) {
 function factorCalc(carrier, tier, age, male, smoker, face) {
   const cfg = RATE_FACTORS?.[carrier];
   if (!cfg) return null;
-  // Face validation
-  if (cfg.minFace && face < cfg.minFace) return null;
-  if (cfg.maxFace && face > cfg.maxFace) return { prem: null, face: null, maxFace: cfg.maxFace };
+  // Face validation — defer to AGE_FACE_BANDS (set in buildResult)
   const combo = male ? (smoker ? 'MS' : 'MNS') : (smoker ? 'FS' : 'FNS');
   const rate = cfg.tiers?.[tier]?.[combo]?.[String(age)];
   if (rate == null) return null;

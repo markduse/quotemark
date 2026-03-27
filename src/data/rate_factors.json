@@ -2856,8 +2856,6 @@
     "policyFee": 36,
     "modalFactor": 0.0875,
     "unitSize": 1000,
-    "minFace": 5000,
-    "maxFace": 35000,
     "tiers": {
       "preferred": {
         "MNS": {
@@ -3307,8 +3305,6 @@
     "policyFee": 52.8,
     "modalFactor": 0.0875,
     "unitSize": 1000,
-    "minFace": 5000,
-    "maxFace": 30000,
     "tiers": {
       "preferred": {
         "MNS": {
@@ -3840,8 +3836,6 @@
     "policyFee": 33,
     "modalFactor": 0.08,
     "unitSize": 1000,
-    "minFace": 5000,
-    "maxFace": 50000,
     "tiers": {
       "immediate": {
         "MNS": {
@@ -4003,8 +3997,6 @@
     "policyFee": 33,
     "modalFactor": 0.08,
     "unitSize": 1000,
-    "minFace": 5000,
-    "maxFace": 50000,
     "tiers": {
       "immediate": {
         "MNS": {
@@ -4166,8 +4158,6 @@
     "policyFee": 40.5,
     "modalFactor": 0.08,
     "unitSize": 1000,
-    "minFace": 5000,
-    "maxFace": 25000,
     "tiers": {
       "preferred": {
         "MNS": {
@@ -4349,8 +4339,6 @@
     "policyFee": 36,
     "modalFactor": 0.085,
     "unitSize": 1000,
-    "minFace": 5000,
-    "maxFace": 25000,
     "tiers": {
       "level": {
         "MNS": {
@@ -4492,8 +4480,6 @@
     "policyFee": 42,
     "modalFactor": 0.086,
     "unitSize": 1000,
-    "minFace": 1000,
-    "maxFace": 50000,
     "tiers": {
       "select": {
         "MNS": {
