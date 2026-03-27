@@ -2071,8 +2071,13 @@ export default function QuoteMark() {
     let reason;
     if(prem==null){if(uwTier==='D'&&a>75)reason='Modified not available after 75';else if(uwTier==='E'&&a>80)reason='GI not available after 80';else reason='Not available for this profile';}
     const isCapped = prem!=null && effFace !== face;
-    // If capped at all, treat as unavailable — agents need exact quotes
-    if(isCapped){return{...carr,face:null,prem:null,productName:pName,activeTier:uwTier,reason:`Max coverage ${fmtF(effFace)}`};}
+    // Banded carriers: show with nearest band if carrier CAN write the requested face
+    // Only hide if the carrier's max face for this age is less than requested
+    if(isCapped){
+      // maxFace already checked at line 2059 — if we got here, carrier accepts this face
+      // Show with the nearest available band premium
+      return{...carr,face:effFace,prem,productName:pName,activeTier:uwTier,capped:true,reason:null};
+    }
     return{...carr,face:prem!=null?effFace:null,prem,productName:pName,activeTier:uwTier,reason};
   }
 
