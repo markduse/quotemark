@@ -69,14 +69,25 @@ const FACE_CAPS = {
 // Carriers disabled in code — incomplete data, not ready for agents
 const FORCE_DISABLED = new Set(['sl_pp','amam_gs','cbg','amr','ahl_gs','ta_exp','rna_gi','afl','sl','ail','balt_sg','ra']);
 
+// AGE_MAX entries can be a number (applies to all tiers) OR an object
+// {B,C,D,E} for tier-specific caps. Aetna/AHL/CVS go up to 89 for
+// Preferred/Standard but Modified caps at 75.
 const AGE_MAX = {
-  // Derived from data + carrier confirmed maximums
-  acc:89, ahl:89, ahl_gs:85, cont:89, rn:85,
+  acc:  {B:89, C:89, D:75},
+  ahl:  {B:89, C:89, D:75},
+  cont: 89, // Cont only offers Preferred (B)
+  ahl_gs:85, rn:85,
   ra:79,  ls:80,  amam:85,   amam_gs:85, moo:85, cbg:80,
   ta:85,  ta_exp:85, lb:80,  pf:79,  amr:85, for:85,
   afl:79, laf:79, uhl:80, fid:85,
   bl_sg:69, elco:80, sl_pp:85, sl:85, ail:80, rna_gi:85,
 };
+function getAgeMax(carrierId, tier) {
+  const v = AGE_MAX[carrierId];
+  if (v == null) return Infinity;
+  if (typeof v === 'number') return v;
+  return v[tier] ?? Infinity;
+}
 
 // ── Better Life — Better Final Expense ────────────────────────────
 // Formula: Math.round((rate * face/1000 + 78) * 0.085 * 100) / 100
@@ -778,6 +789,7 @@ const CONDITIONS = [
   {id:'wheelchair',    label:'Confined to wheelchair due to illness or disease',       tier:'E', cat:'Knockout',         meds:'wheelchair electric scooter mobility disabled confined'},
   {id:'aids_hiv',      label:'AIDS / HIV / ARC',                                      tier:'E', cat:'Knockout',         meds:'hiv aids atripla truvada biktarvy dolutegravir antiretroviral'},
   {id:'terminal',      label:'Terminal illness - life expectancy under 2 years',       tier:'E', cat:'Knockout',         meds:'terminal illness prognosis palliative hospice'},
+  {id:'felony',        label:'Felony - currently incarcerated, on probation/parole, or awaiting trial', tier:'E', cat:'Knockout', meds:'felony probation parole incarceration jail prison awaiting trial conviction outstanding fines restitution'},
 ]
 const TIER_INFO = {
   B:{label:'Level — Preferred',  short:'Preferred',    dot:'#A78BFA', pill:'rgba(167,139,250,0.12)', bd:'rgba(167,139,250,0.3)'},
@@ -2052,40 +2064,64 @@ export default function QuoteMark() {
 
   function buildResult(carr, a, male, face) {
     if(!carr.enabled) return {...carr,prem:null,face:null,productName:null,reason:'Carrier disabled'};
-    const maxAge=AGE_MAX[carr.id],maxFace=AGE_FACE_BANDS[carr.id]?getFaceCap(carr.id,a):FACE_CAPS[carr.id],stateRule=STATE_RULES[carr.id];
+    const maxFace=AGE_FACE_BANDS[carr.id]?getFaceCap(carr.id,a):FACE_CAPS[carr.id],stateRule=STATE_RULES[carr.id];
     // State check: new data-driven check (fexStateOK) + legacy STATE_RULES fallback
     if(usState) {
       if(carr.stateCheck && !carr.stateCheck(usState)) return{...carr,prem:null,face:null,productName:null,reason:`Not available in ${STATE_NAMES[usState]||usState}`};
       else if(!carr.stateCheck && stateRule?.excludeStates?.includes(usState)) return{...carr,prem:null,face:null,productName:null,reason:`Not licensed in ${STATE_NAMES[usState]||usState}`};
     }
+    // GI fallback: Modified is strictly better than GI for the client.
+    // When the agent picks tier E, prefer this carrier's Modified product if
+    // it exists and the client's age fits — only show GI when it's the only
+    // option this carrier offers.
+    let effTier = uwTier;
+    if (uwTier === 'E' && carr.product.D && a <= getAgeMax(carr.id, 'D')) {
+      effTier = 'D';
+    }
+    const maxAge = getAgeMax(carr.id, effTier);
     if(a>maxAge) return{...carr,prem:null,face:null,productName:null,reason:`Maximum age is ${maxAge}`};
-    // Aetna/Accendo ages 86-89 data now available in rate_factors
-    const pName=carr.product[uwTier];
-    if(!pName){const reason=uwTier==='E'?'No GI product offered':uwTier==='D'?'Level plans only':'Not available for this tier';return{...carr,face:null,prem:null,productName:null,reason};}
+    const pName=carr.product[effTier];
+    if(!pName){const reason=effTier==='E'?'No GI product offered':effTier==='D'?'Level plans only':'Not available for this tier';return{...carr,face:null,prem:null,productName:null,reason};}
     // Check age-dependent face cap
-    if(maxFace && face > maxFace) return{...carr,face:null,prem:null,productName:pName,activeTier:uwTier,reason:`Max coverage ${fmtF(maxFace)}`};
-    let prem=null, effFace=face;
+    if(maxFace && face > maxFace) return{...carr,face:null,prem:null,productName:pName,activeTier:effTier,reason:`Max coverage ${fmtF(maxFace)}`};
+    let prem=null, effFace=face, pNameEff=pName;
     try{
-      const res=carr.fn(a,male,smoker,uwTier,face);
+      const res=carr.fn(a,male,smoker,effTier,face);
       if(res && typeof res==='object') {
         // factorCalc maxFace exceeded: {prem:null, face:null, maxFace:N}
-        if(res.maxFace && res.prem==null) return{...carr,face:null,prem:null,productName:pName,activeTier:uwTier,reason:`Max coverage ${fmtF(res.maxFace)}`};
+        if(res.maxFace && res.prem==null) return{...carr,face:null,prem:null,productName:pNameEff,activeTier:effTier,reason:`Max coverage ${fmtF(res.maxFace)}`};
         prem=res.prem; effFace=res.face; // fexLookup/factorCalc returns {prem,face}
       } else {
         prem=res; // legacy csvLookup carriers return a plain number
       }
-    }catch(e){console.error(`[QuoteMark] ${carr.id} fn() threw:`,e.message,{age:a,tier:uwTier,face});prem=null;}
+    }catch(e){console.error(`[QuoteMark] ${carr.id} fn() threw:`,e.message,{age:a,tier:effTier,face});prem=null;}
+    // If Modified fallback didn't pan out, retry as GI (the user picked tier E
+    // originally — show GI when Modified isn't actually quotable for this profile)
+    if(prem==null && effTier==='D' && uwTier==='E' && carr.product.E){
+      effTier='E';
+      pNameEff=carr.product.E;
+      const eMaxAge=getAgeMax(carr.id,'E');
+      if(a>eMaxAge) return{...carr,prem:null,face:null,productName:null,reason:`Maximum age is ${eMaxAge}`};
+      effFace=face;
+      try{
+        const res=carr.fn(a,male,smoker,'E',face);
+        if(res && typeof res==='object'){
+          if(res.maxFace && res.prem==null) return{...carr,face:null,prem:null,productName:pNameEff,activeTier:'E',reason:`Max coverage ${fmtF(res.maxFace)}`};
+          prem=res.prem; effFace=res.face;
+        } else { prem=res; }
+      }catch(e){console.error(`[QuoteMark] ${carr.id} GI retry threw:`,e.message);prem=null;}
+    }
     let reason;
-    if(prem==null){if(uwTier==='D'&&a>75)reason='Modified not available after 75';else if(uwTier==='E'&&a>80)reason='GI not available after 80';else reason='Not available for this profile';}
+    if(prem==null){if(effTier==='D'&&a>75)reason='Modified not available after 75';else if(effTier==='E'&&a>80)reason='GI not available after 80';else reason='Not available for this profile';}
     const isCapped = prem!=null && effFace !== face;
     // Banded carriers: show with nearest band if carrier CAN write the requested face
     // Only hide if the carrier's max face for this age is less than requested
     if(isCapped){
-      // maxFace already checked at line 2059 — if we got here, carrier accepts this face
+      // maxFace already checked above — if we got here, carrier accepts this face
       // Show with the nearest available band premium
-      return{...carr,face:effFace,prem,productName:pName,activeTier:uwTier,capped:true,reason:null};
+      return{...carr,face:effFace,prem,productName:pNameEff,activeTier:effTier,capped:true,reason:null};
     }
-    return{...carr,face:prem!=null?effFace:null,prem,productName:pName,activeTier:uwTier,reason};
+    return{...carr,face:prem!=null?effFace:null,prem,productName:pNameEff,activeTier:effTier,reason};
   }
 
 
