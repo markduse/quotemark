@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { useAuth } from './AuthContext';
+import { track } from './analytics';
 
 const C = {
   bg0: '#060E1A', bg1: '#0B1525', bg2: '#0F1D30', bg3: '#152239',
@@ -23,6 +24,7 @@ export default function PaywallScreen() {
   const [error, setError] = useState(null);
 
   async function handleCheckout() {
+    track('Checkout Started');
     setLoading(true);
     setError(null);
     try {

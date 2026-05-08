@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { supabase } from './supabase';
+import { track } from './analytics';
 
 const C = {
   bg0: '#060E1A', bg1: '#0B1525', bg2: '#0F1D30',
@@ -47,6 +48,7 @@ export default function AuthScreen() {
 
         const { error } = await supabase.auth.signUp({ email, password });
         if (error) throw error;
+        track('Sign Up');
 
         // Create initial profile row
         const { data: { session } } = await supabase.auth.getSession();

@@ -9,6 +9,11 @@
   <meta name="theme-color" content="#05101E"/>
   <title>QuoteMark</title>
   <link rel="icon" type="image/svg+xml" href="/favicon.svg"/>
+  <!-- Plausible Analytics — privacy-friendly, no cookies, no PII.
+       Tracks pageviews automatically; custom events via window.plausible('Event Name', {props}).
+       Until the domain is confirmed in plausible.io, the script no-ops gracefully. -->
+  <script defer data-domain="quotemarko.netlify.app" src="https://plausible.io/js/script.tagged-events.js"></script>
+  <script>window.plausible=window.plausible||function(){(window.plausible.q=window.plausible.q||[]).push(arguments)}</script>
 </head>
 <body>
   <div id="root"></div>

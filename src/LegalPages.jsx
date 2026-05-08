@@ -85,7 +85,13 @@ export function PrivacyPage() {
         <p style={PARA}>
           • <strong>Supabase</strong> — authentication and profile storage.<br/>
           • <strong>Stripe</strong> — payment processing and subscription billing.<br/>
-          • <strong>Netlify</strong> — application hosting and serverless functions.
+          • <strong>Netlify</strong> — application hosting and serverless functions.<br/>
+          • <strong>Plausible Analytics</strong> — privacy-friendly product analytics.
+          We use Plausible to understand which features are used and to improve {APP_NAME}.
+          Plausible does not use cookies, does not collect personal information, and does
+          not track users across sites or sessions. The data we receive is limited to
+          aggregate counts (e.g. how many quotes were run today) and never includes the
+          client demographics you enter into the quoter.
         </p>
         <p style={PARA}>
           Each is bound by its own privacy and security commitments. When you click an

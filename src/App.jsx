@@ -1,6 +1,7 @@
 import React, { useState, useMemo, useEffect, useRef } from "react";
 import { useAuth } from "./AuthContext";
 import { supabase } from "./supabase";
+import { track, faceBand } from "./analytics";
 import FEX_RATES from "./data/fex_rates.json";
 import RATE_FACTORS from "./data/rate_factors.json";
 import RESTRICTIONS from "./data/restrictions.json";
@@ -1772,6 +1773,7 @@ const EAppBtn = ({carrierId, compact=false, lightMode=false}) => {
   if(compact) {
     return (
       <a href={meta.eapp} target="_blank" rel="noopener noreferrer"
+        onClick={()=>track('e-App Click',{carrier:carrierId,variant:'compact'})}
         onMouseEnter={()=>setHov(true)} onMouseLeave={()=>setHov(false)}
         style={{
           display:'inline-flex',alignItems:'center',gap:6,
@@ -1798,6 +1800,7 @@ const EAppBtn = ({carrierId, compact=false, lightMode=false}) => {
   return (
     <div style={{marginTop:'auto',paddingTop:12,borderTop:`1px solid ${lightMode?'#E5E3DB':'rgba(255,255,255,0.06)'}`}}>
       <a href={meta.eapp} target="_blank" rel="noopener noreferrer"
+        onClick={()=>track('e-App Click',{carrier:carrierId,variant:'full'})}
         onMouseEnter={()=>setHov(true)} onMouseLeave={()=>setHov(false)}
         style={{
           display:'flex',alignItems:'center',justifyContent:'center',gap:7,
@@ -1833,6 +1836,7 @@ export default function QuoteMark() {
   const [portalLoading, setPortalLoading] = useState(false);
   async function openCustomerPortal() {
     if (portalLoading) return;
+    track('Manage Subscription');
     setPortalLoading(true);
     try {
       const { data: { session: s } } = await supabase.auth.getSession();
@@ -2039,7 +2043,13 @@ export default function QuoteMark() {
   const ageNum   = parseInt(age);
   const ageOK    = age && ageNum>=1 && ageNum<=89;
 
-  const toggleOvr = (t) => { setTierOvr(p=>p===t?null:t); ; };
+  const toggleOvr = (t) => {
+    setTierOvr(p => {
+      const next = p === t ? null : t;
+      if (next !== null) track('Tier Override', { to: next });
+      return next;
+    });
+  };
   // Persist last quote params to sessionStorage whenever they change
   useEffect(() => {
     try { sessionStorage.setItem('qm_last_quote', JSON.stringify({mode,faceAmt,gender,smoker})); } catch(e){}
@@ -2263,21 +2273,21 @@ export default function QuoteMark() {
         {/* ── FEX / TERM STICKY SUB-BAR (mobile) ── */}
         <div style={{background:C.bg1,borderBottom:`1px solid ${C.bd}`,padding:'8px 16px',position:'sticky',top:61,zIndex:49}}>
           <div style={{display:'flex',background:isDark?'rgba(11,17,32,0.9)':'#F1F5F9',borderRadius:22,padding:3,border:`1px solid ${C.bd}`,gap:2}}>
-            <button onClick={()=>setQuoteMode('fe')} style={{
+            <button onClick={()=>{track('Tab Switch',{to:'fe'});setQuoteMode('fe');}} style={{
               flex:1,padding:'10px 0',borderRadius:18,border:'none',
               background:quoteMode==='fe'?(isDark?'#C5A059':'#0A192F'):'transparent',
               color:quoteMode==='fe'?(isDark?'#0A192F':'#FFFFFF'):C.t3,
               fontSize:13,fontWeight:700,cursor:'pointer',fontFamily:"'DM Sans',sans-serif",
               transition:'all 0.18s'
             }}>🏛️ Final Expense</button>
-            <button onClick={()=>setQuoteMode('term')} style={{
+            <button onClick={()=>{track('Tab Switch',{to:'term'});setQuoteMode('term');}} style={{
               flex:1,padding:'10px 0',borderRadius:18,border:'none',
               background:quoteMode==='term'?'#C5A059':'transparent',
               color:quoteMode==='term'?'#0A192F':C.t3,
               fontSize:13,fontWeight:700,cursor:'pointer',fontFamily:"'DM Sans',sans-serif",
               transition:'all 0.18s'
             }}>⏱️ Term Life</button>
-            <button onClick={()=>setQuoteMode('cv')} style={{
+            <button onClick={()=>{track('Tab Switch',{to:'cv'});setQuoteMode('cv');}} style={{
               flex:1,padding:'10px 0',borderRadius:18,border:'none',
               background:quoteMode==='cv'?'#C5A059':'transparent',
               color:quoteMode==='cv'?'#0B1120':C.t3,
@@ -2357,7 +2367,7 @@ export default function QuoteMark() {
               <div style={{background:C.bg2,border:`1px solid ${C.bd}`,borderRadius:12,padding:16,overflow:'hidden'}}>
                 <div style={{display:'flex',alignItems:'center',justifyContent:'space-between',marginBottom:12}}>
                   <div style={{fontSize:11,fontWeight:700,letterSpacing:1.8,color:C.t4,textTransform:'uppercase'}}>Quote Target</div>
-                  <button className="qm-gsb-toggle" onClick={()=>{setGsbOn(p=>!p);setMode('face');}} style={{
+                  <button className="qm-gsb-toggle" onClick={()=>{setGsbOn(p=>{const n=!p;track('GSB Toggle',{on:n});return n;});setMode('face');}} style={{
                     display:'flex',alignItems:'center',gap:6,
                     padding:'6px 12px 6px 8px',borderRadius:20,
                     border:`2px solid ${gsbOn
@@ -2547,7 +2557,7 @@ export default function QuoteMark() {
               </div>
 
               {/* GET QUOTES button */}
-              <button onClick={()=>{if(ageOK){setHasQuoted(true);if(isMobile){setMobileTab('results');setTimeout(()=>window.scrollTo({top:0,behavior:'instant'}),0);}}}} style={{
+              <button onClick={()=>{if(ageOK){track('Quote Requested',{tier:uwTier,mode,gsb:gsbOn,face:faceBand(faceAmt)});setHasQuoted(true);if(isMobile){setMobileTab('results');setTimeout(()=>window.scrollTo({top:0,behavior:'instant'}),0);}}}} style={{
                 width:'100%',padding:'18px 0',borderRadius:12,border:'none',
                 cursor:ageOK?'pointer':'not-allowed',
                 background:ageOK?C.gold:'#2A3547',
@@ -3115,21 +3125,21 @@ export default function QuoteMark() {
         </div>
         {/* ── FEX / TERM TOGGLE ── */}
         <div style={{display:'flex',background:isDark?'rgba(11,17,32,0.8)':'#F1F5F9',borderRadius:24,padding:3,border:`1px solid ${C.bd}`,gap:2}}>
-          <button onClick={()=>setQuoteMode('fe')} style={{
+          <button onClick={()=>{track('Tab Switch',{to:'fe'});setQuoteMode('fe');}} style={{
             padding:'7px 20px',borderRadius:20,border:'none',
             background:quoteMode==='fe'?(isDark?'#C5A059':'#0A192F'):'transparent',
             color:quoteMode==='fe'?(isDark?'#0B1120':'#FFFFFF'):C.t3,
             fontSize:12,fontWeight:700,cursor:'pointer',fontFamily:"'DM Sans',sans-serif",
             transition:'all 0.18s',letterSpacing:0.3,whiteSpace:'nowrap'
           }}>🏛️ Final Expense</button>
-          <button onClick={()=>setQuoteMode('term')} style={{
+          <button onClick={()=>{track('Tab Switch',{to:'term'});setQuoteMode('term');}} style={{
             padding:'7px 20px',borderRadius:20,border:'none',
             background:quoteMode==='term'?'#C5A059':'transparent',
             color:quoteMode==='term'?'#0A192F':C.t3,
             fontSize:12,fontWeight:700,cursor:'pointer',fontFamily:"'DM Sans',sans-serif",
             transition:'all 0.18s',letterSpacing:0.3,whiteSpace:'nowrap'
           }}>⏱️ Term Life</button>
-          <button onClick={()=>setQuoteMode('cv')} style={{
+          <button onClick={()=>{track('Tab Switch',{to:'cv'});setQuoteMode('cv');}} style={{
             padding:'7px 20px',borderRadius:20,border:'none',
             background:quoteMode==='cv'?'#C5A059':'transparent',
             color:quoteMode==='cv'?'#0B1120':C.t3,
@@ -3219,7 +3229,7 @@ export default function QuoteMark() {
           <div style={sec}>
             <div style={{display:'flex',alignItems:'center',justifyContent:'space-between',marginBottom:10}}>
               <div style={lbl}>Quote Target</div>
-              <button className="qm-gsb-toggle" onClick={()=>{setGsbOn(p=>!p);setMode('face');}} style={{
+              <button className="qm-gsb-toggle" onClick={()=>{setGsbOn(p=>{const n=!p;track('GSB Toggle',{on:n});return n;});setMode('face');}} style={{
                 display:'flex',alignItems:'center',gap:7,
                 padding:'6px 12px 6px 8px',borderRadius:20,
                 border:`2px solid ${gsbOn
@@ -3425,7 +3435,7 @@ export default function QuoteMark() {
             )}
           </div>
 
-          <button onClick={()=>{if(ageOK){setHasQuoted(true);if(isMobile){setMobileTab('results');setTimeout(()=>window.scrollTo({top:0,behavior:'instant'}),0);}}}} style={{
+          <button onClick={()=>{if(ageOK){track('Quote Requested',{tier:uwTier,mode,gsb:gsbOn,face:faceBand(faceAmt)});setHasQuoted(true);if(isMobile){setMobileTab('results');setTimeout(()=>window.scrollTo({top:0,behavior:'instant'}),0);}}}} style={{
             width:'100%',padding:'13px 0',borderRadius:10,border:'none',
             cursor:ageOK?'pointer':'not-allowed',
             background:ageOK?C.gold:'#2A3547',
