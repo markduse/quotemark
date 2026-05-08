@@ -3,8 +3,9 @@ import { supabase } from './supabase';
 
 const C = {
   bg0: '#060E1A', bg1: '#0B1525', bg2: '#0F1D30',
-  gold: '#F59E0B', t0: '#F1F5F9', t2: '#94A3B8', t4: '#475569',
-  bd: '#1A3050', bd2: '#243D5C', green: '#10B981', red: '#EF4444',
+  gold: '#C5A059', goldBg: 'rgba(197,160,89,0.12)', goldBd: 'rgba(197,160,89,0.3)',
+  t0: '#FAF9F6', t2: '#94A3B8', t4: '#475569',
+  bd: '#1A3050', bd2: '#243D5C', green: '#22C55E', red: '#EF4444',
 };
 
 const inp = {
