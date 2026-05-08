@@ -1830,6 +1830,25 @@ const TierPill = ({tier}) => {
 
 export default function QuoteMark() {
   const { session, signOut } = useAuth();
+  const [portalLoading, setPortalLoading] = useState(false);
+  async function openCustomerPortal() {
+    if (portalLoading) return;
+    setPortalLoading(true);
+    try {
+      const { data: { session: s } } = await supabase.auth.getSession();
+      if (!s) throw new Error('Not signed in');
+      const res = await fetch('/.netlify/functions/customer-portal', {
+        method: 'POST',
+        headers: { 'Authorization': `Bearer ${s.access_token}`, 'Content-Type': 'application/json' },
+      });
+      const data = await res.json();
+      if (data.url) window.location.href = data.url;
+      else throw new Error(data.error || 'Could not open billing portal');
+    } catch (e) {
+      alert(e.message);
+      setPortalLoading(false);
+    }
+  }
   useEffect(()=>{
     const l=document.createElement('link');l.href=FONT_LINK;l.rel='stylesheet';document.head.appendChild(l);
     document.documentElement.style.cssText='margin:0;padding:0;background:#05101E;overflow-x:hidden';
@@ -2981,6 +3000,9 @@ export default function QuoteMark() {
             </div>
 
             {/* Sign Out */}
+            <button onClick={openCustomerPortal} disabled={portalLoading} style={{padding:'12px',borderRadius:10,border:`1px solid ${C.bd2}`,background:'transparent',color:C.t1,fontWeight:600,fontSize:13,cursor:portalLoading?'not-allowed':'pointer',fontFamily:"'DM Sans',sans-serif",opacity:portalLoading?0.6:1,marginBottom:8}}>
+              {portalLoading ? 'Opening…' : 'Manage Subscription'}
+            </button>
             <button onClick={signOut} style={{padding:'13px',borderRadius:10,border:`1px solid ${C.bd2}`,background:'transparent',color:'#EF4444',fontWeight:600,fontSize:14,cursor:'pointer',fontFamily:"'DM Sans',sans-serif"}}>
               Sign Out
             </button>
@@ -3919,6 +3941,9 @@ export default function QuoteMark() {
             </div>
 
             {/* Sign Out */}
+            <button onClick={openCustomerPortal} disabled={portalLoading} style={{padding:'12px',borderRadius:10,border:`1px solid ${C.bd2}`,background:'transparent',color:C.t1,fontWeight:600,fontSize:13,cursor:portalLoading?'not-allowed':'pointer',fontFamily:"'DM Sans',sans-serif",opacity:portalLoading?0.6:1,marginBottom:8}}>
+              {portalLoading ? 'Opening…' : 'Manage Subscription'}
+            </button>
             <button onClick={signOut} style={{padding:'13px',borderRadius:10,border:`1px solid ${C.bd2}`,background:'transparent',color:'#EF4444',fontWeight:600,fontSize:14,cursor:'pointer',fontFamily:"'DM Sans',sans-serif"}}>
               Sign Out
             </button>
@@ -3986,7 +4011,10 @@ export default function QuoteMark() {
                   {carriersSaved?'✓ Carriers Saved!':'Save Carrier Preferences'}
                 </button>
               </div>
-              <button onClick={signOut} style={{padding:'13px',borderRadius:10,border:`1px solid ${C.bd2}`,background:'transparent',color:'#EF4444',fontWeight:600,fontSize:14,cursor:'pointer',fontFamily:"'DM Sans',sans-serif"}}>
+              <button onClick={openCustomerPortal} disabled={portalLoading} style={{padding:'12px',borderRadius:10,border:`1px solid ${C.bd2}`,background:'transparent',color:C.t1,fontWeight:600,fontSize:13,cursor:portalLoading?'not-allowed':'pointer',fontFamily:"'DM Sans',sans-serif",opacity:portalLoading?0.6:1,marginBottom:8}}>
+              {portalLoading ? 'Opening…' : 'Manage Subscription'}
+            </button>
+            <button onClick={signOut} style={{padding:'13px',borderRadius:10,border:`1px solid ${C.bd2}`,background:'transparent',color:'#EF4444',fontWeight:600,fontSize:14,cursor:'pointer',fontFamily:"'DM Sans',sans-serif"}}>
                 Sign Out
               </button>
             </div>

@@ -123,7 +123,7 @@ export default function AuthScreen() {
             {titles[mode]}
           </div>
           <div style={{ fontSize: 13, color: C.t4, marginBottom: 24 }}>
-            {mode === 'signup' && 'Start your 14-day free trial — no card required.'}
+            {mode === 'signup' && 'Start your 1-day free trial.'}
             {mode === 'login'  && 'Welcome back. Enter your credentials to continue.'}
             {mode === 'reset'  && "We'll send a link to reset your password."}
           </div>
@@ -226,6 +226,10 @@ export default function AuthScreen() {
         {/* Trust bar */}
         <div style={{ textAlign: 'center', marginTop: 20, fontSize: 11, color: C.t4, lineHeight: 1.8 }}>
           🔒 Secured by Supabase Auth &nbsp;·&nbsp; Agent use only
+          <br />
+          <a href="/terms" style={{ color: C.t4, textDecoration: 'underline', textUnderlineOffset: 3 }}>Terms</a>
+          {' · '}
+          <a href="/privacy" style={{ color: C.t4, textDecoration: 'underline', textUnderlineOffset: 3 }}>Privacy</a>
         </div>
       </div>
     </div>

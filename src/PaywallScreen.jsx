@@ -101,7 +101,7 @@ export default function PaywallScreen() {
               <span style={{ fontSize: 16, color: C.t3, fontWeight: 400, marginTop: 18 }}>/mo</span>
             </div>
             <div style={{ fontSize: 13, color: C.t3, marginTop: 4 }}>
-              Cancel anytime &nbsp;·&nbsp; 14-day free trial
+              Cancel anytime &nbsp;·&nbsp; 1-day free trial
             </div>
           </div>
 
@@ -148,7 +148,10 @@ export default function PaywallScreen() {
           </button>
 
           <div style={{ textAlign: 'center', marginTop: 14, fontSize: 12, color: C.t4 }}>
-            🔒 Secure checkout via Stripe
+            🔒 Secure checkout via Stripe ·{' '}
+            <a href="/terms" style={{ color: C.t3, textDecoration: 'underline', textUnderlineOffset: 3 }}>Terms</a>
+            {' · '}
+            <a href="/privacy" style={{ color: C.t3, textDecoration: 'underline', textUnderlineOffset: 3 }}>Privacy</a>
           </div>
         </div>
 

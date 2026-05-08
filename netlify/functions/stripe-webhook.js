@@ -34,14 +34,31 @@ exports.handler = async (event) => {
         const userId = session.metadata?.supabase_user_id;
         if (!userId) break;
 
+        // Fetch the real subscription status — could be 'trialing' if a free trial
+        // is active, otherwise 'active'. Don't hardcode.
+        let status = 'active';
+        let periodEnd = null;
+        if (session.subscription) {
+          try {
+            const sub = await stripe.subscriptions.retrieve(session.subscription);
+            status = sub.status;
+            periodEnd = sub.current_period_end
+              ? new Date(sub.current_period_end * 1000).toISOString()
+              : null;
+          } catch (e) {
+            console.error('Failed to retrieve subscription on checkout completion:', e.message);
+          }
+        }
+
         await supabase.from('profiles').upsert({
           id: userId,
           stripe_customer_id: session.customer,
-          subscription_status: 'active',
+          subscription_status: status,
           subscription_id: session.subscription,
+          subscription_current_period_end: periodEnd,
           updated_at: new Date().toISOString(),
         });
-        console.log(`✓ Activated subscription for user ${userId}`);
+        console.log(`✓ Activated subscription for user ${userId} (status: ${status})`);
         break;
       }
 

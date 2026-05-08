@@ -4,6 +4,7 @@ import { AuthProvider, useAuth } from './AuthContext';
 import App from './App.jsx';
 import AuthScreen from './AuthScreen.jsx';
 import PaywallScreen from './PaywallScreen.jsx';
+import { PrivacyPage, TermsPage } from './LegalPages.jsx';
 
 class ErrorBoundary extends React.Component {
   constructor(props){super(props);this.state={crashed:false,err:null,info:null};}
@@ -41,6 +42,11 @@ class ErrorBoundary extends React.Component {
 
 function Gate() {
   const { session, loading, isSubscribed } = useAuth();
+
+  // Static legal pages — render before auth gating so they're publicly accessible.
+  const path = typeof window !== 'undefined' ? window.location.pathname : '/';
+  if (path === '/privacy') return <PrivacyPage />;
+  if (path === '/terms')   return <TermsPage />;
 
   if (loading) {
     return (
