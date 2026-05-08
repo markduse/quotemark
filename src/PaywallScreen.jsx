@@ -9,12 +9,12 @@ const C = {
 };
 
 const FEATURES = [
-  { icon: '⚡', text: 'Real-time quotes from 7+ carriers' },
-  { icon: '🏆', text: 'Gold / Silver / Bronze tiered view' },
-  { icon: '🏥', text: 'Health condition underwriting engine' },
-  { icon: '📊', text: 'Budget mode — solve for face amount' },
-  { icon: '📋', text: 'Direct carrier e-App links' },
-  { icon: '🔄', text: 'New carriers added regularly' },
+  { icon: '⚡', text: 'Live quotes from 14 final-expense carriers' },
+  { icon: '🏆', text: 'Gold / Silver / Bronze side-by-side comparison' },
+  { icon: '🏥', text: 'Auto-detects UW tier from health conditions' },
+  { icon: '📊', text: 'Budget mode — enter $/mo, see the coverage' },
+  { icon: '📋', text: 'One-click handoff to each carrier’s e-App' },
+  { icon: '🔄', text: 'New carriers and rate updates pushed live' },
 ];
 
 export default function PaywallScreen() {
@@ -66,9 +66,12 @@ export default function PaywallScreen() {
 
       <div style={{ width: '100%', maxWidth: 480, position: 'relative', zIndex: 1 }}>
         {/* Brand */}
-        <div style={{ textAlign: 'center', marginBottom: 32 }}>
-          <div style={{ fontFamily: "'Barlow Condensed', sans-serif", fontSize: 34, fontWeight: 800, color: C.t0 }}>
+        <div style={{ textAlign: 'center', marginBottom: 28 }}>
+          <div style={{ fontFamily: "'Barlow Condensed', sans-serif", fontSize: 34, fontWeight: 800, color: C.t0, lineHeight: 1 }}>
             Quote<span style={{ color: C.gold }}>Mark</span>
+          </div>
+          <div style={{ fontSize: 13, color: C.t2, marginTop: 8, letterSpacing: 0.2, lineHeight: 1.5 }}>
+            Final-expense quoting for telesales agents.<br/>14 carriers in one screen, ranked by price.
           </div>
         </div>
 
@@ -149,8 +152,11 @@ export default function PaywallScreen() {
           </div>
         </div>
 
-        {/* Signed in as + sign out */}
-        <div style={{ textAlign: 'center', marginTop: 18, fontSize: 12, color: C.t4, lineHeight: 2 }}>
+        {/* Trust line + signed-in footer */}
+        <div style={{ textAlign: 'center', marginTop: 18, fontSize: 11, color: C.t4, letterSpacing: 0.2 }}>
+          Built by Duse Financial Group · Used daily by FE telesales agents
+        </div>
+        <div style={{ textAlign: 'center', marginTop: 12, fontSize: 12, color: C.t4, lineHeight: 2 }}>
           Signed in as <span style={{ color: C.t2 }}>{session?.user?.email}</span>
           <br />
           <button onClick={signOut} style={{

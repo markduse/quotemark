@@ -1732,18 +1732,18 @@ const CompBadge = ({carrierId, tier}) => {
 const CarrierLogo = ({carrierId, name, small=false}) => {
   const meta = CARRIER_META[carrierId];
   const [err,setErr] = React.useState(false);
-  const w = small ? 64 : 92;
-  const h = small ? 30 : 37;
+  const w = small ? 110 : 124;
+  const h = small ? 48 : 54;
   if(!meta?.img || err) {
     return null;
   }
   return (
-    <div style={{width:w,height:h,borderRadius:4,background:'#FFFFFF',display:'flex',alignItems:'center',justifyContent:'center',overflow:'hidden',flexShrink:0,padding:'2px',boxSizing:'border-box',boxShadow:'0 1px 3px rgba(0,0,0,0.18)'}}>
+    <div style={{width:w,height:h,borderRadius:4,background:'#FFFFFF',display:'flex',alignItems:'center',justifyContent:'center',overflow:'hidden',flexShrink:0,padding:'1px',boxSizing:'border-box',boxShadow:'0 1px 3px rgba(0,0,0,0.18)'}}>
       <img
         src={meta.img}
         alt={name}
         onError={()=>setErr(true)}
-        style={{width:'90%',height:'90%',objectFit:'contain'}}
+        style={{width:'100%',height:'100%',objectFit:'contain'}}
       />
     </div>
   );
@@ -1756,24 +1756,29 @@ const EAppBtn = ({carrierId, compact=false, lightMode=false}) => {
   const [hov,setHov] = React.useState(false);
   if(!meta?.eapp) return null;
   const brand = meta.brand || '#3B82F6';
-  // Compact variant — outline pill
+  // Compact variant — filled button with clear hover state
   if(compact) {
     return (
       <a href={meta.eapp} target="_blank" rel="noopener noreferrer"
         onMouseEnter={()=>setHov(true)} onMouseLeave={()=>setHov(false)}
         style={{
-          display:'inline-flex',alignItems:'center',gap:5,
-          padding:'4px 12px',borderRadius:6,
-          border:`1.5px solid ${hov?brand:lightMode?'#D0CDBE':'#374151'}`,
-          background:hov?(lightMode?'rgba(197,160,89,0.08)':'rgba(255,255,255,0.05)'):'transparent',
-          color:lightMode?'#3E4A59':'#94A3B8',
-          fontSize:11,fontWeight:600,textDecoration:'none',
-          letterSpacing:0.3,transition:'all 0.15s',
-          transform:hov?'translateY(-1px)':'translateY(0)',
-          boxShadow:'none',
-          whiteSpace:'nowrap',flexShrink:0
+          display:'inline-flex',alignItems:'center',gap:6,
+          padding:'7px 16px',borderRadius:8,
+          border:`1.5px solid ${hov?brand:(lightMode?'#CBD5E1':'#3B4B66')}`,
+          background: hov
+            ? brand
+            : (lightMode?'#F1F5F9':'#28344A'),
+          color: hov
+            ? '#FFFFFF'
+            : (lightMode?'#0F172A':'#E2E8F0'),
+          fontSize:12,fontWeight:700,textDecoration:'none',
+          letterSpacing:0.3,
+          transition:'background 0.12s, color 0.12s, border-color 0.12s, transform 0.12s, box-shadow 0.12s',
+          transform: hov?'translateY(-1px) scale(1.04)':'translateY(0) scale(1)',
+          boxShadow: hov?`0 4px 14px ${brand}55`:'0 1px 2px rgba(0,0,0,0.06)',
+          whiteSpace:'nowrap',flexShrink:0,cursor:'pointer'
         }}>
-        e-App
+        e-App <span style={{fontSize:13,fontWeight:800,marginTop:-1}}>→</span>
       </a>
     );
   }
@@ -2731,9 +2736,9 @@ export default function QuoteMark() {
                           </div>
                           {!isGhost ? (
                             <>
-                              <div style={{display:'flex',alignItems:'baseline',gap:5,marginBottom:8}}>
-                                <span style={{fontSize:32,fontWeight:800,color:premColor,fontFamily:"'DM Mono',monospace"}}>${r.prem}</span>
-                                <span style={{fontSize:10,color:C.t4,fontWeight:400}}>/mo EFT</span>
+                              <div style={{display:'flex',alignItems:'baseline',gap:6,marginBottom:8}}>
+                                <span style={{fontSize:38,fontWeight:800,color:C.t0,letterSpacing:'-1.2px',fontFamily:"'DM Mono',monospace"}}>${r.prem}</span>
+                                <span style={{fontSize:10,color:C.t4,fontWeight:400,letterSpacing:0.3}}>/mo EFT</span>
                               </div>
                               <div style={{display:'flex',gap:6,marginBottom:10,flexWrap:'wrap'}}>
                                 <span style={{fontSize:12,color:C.t2}}>{fmtF(r.face||0)}</span>
@@ -3515,7 +3520,10 @@ export default function QuoteMark() {
 
               <div style={{padding:24}}>
                 {/* ── QUOTE CARDS — active ── */}
-                <div style={{display:'grid',gridTemplateColumns:gsbOn?'repeat(auto-fill,minmax(420px,1fr))':'repeat(auto-fill,minmax(270px,1fr))',gap:20,marginBottom:20,alignItems:'start'}}>
+                <div style={gsbOn
+                  ? {display:'grid',gridTemplateColumns:'repeat(auto-fill,minmax(420px,1fr))',gap:20,marginBottom:20,alignItems:'start'}
+                  : {display:'flex',flexDirection:'column',gap:8,marginBottom:20}
+                }>
                   {results&&results.filter(r=>gsbOn?r.anyPrem:r.prem!=null).map((r,idx)=>{
                     const activeResults = results.filter(x=>gsbOn?x.anyPrem:(x.prem!=null && !x.capped));
                     const isBest = false; // removed Best Value badge
@@ -3597,100 +3605,106 @@ export default function QuoteMark() {
                         </div>
                       );
                     }
-                    // Single mode
+                    // Single mode — list row
                     const brandColor = CARRIER_META[r.id]?.brand||C.bd2;
-                    const _b = CARRIER_META[r.id]?.brand;
-                    const premColor  = !_b || _b === '#0F172A' || _b === '#000000' ? C.t0 : _b;
+                    const isHov = hovCard===r.id;
                     return(
                       <div key={r.id}
                         onMouseEnter={()=>setHovCard(r.id)}
                         onMouseLeave={()=>setHovCard(null)}
                         style={{
-                        background: isDark?'#1E293B':'#FFFFFF',
-                        border:`1px solid ${C.bd2}`,
-                        borderTop:`3px solid ${brandColor}`,
-                        borderRadius:12,padding:18,
-                        opacity:r.capped?0.55:1,
-                        position:'relative',
-                        transition:'box-shadow 0.18s',
-                        overflow:'visible',
-                        display:'flex',flexDirection:'column',
-                        boxShadow: isDark
-                          ? (hovCard===r.id?`0 0 0 1px ${brandColor}66,0 8px 24px rgba(0,0,0,0.4)`:`0 0 0 1px ${C.bd}`)
-                          : (hovCard===r.id?'0 8px 24px -4px rgba(0,0,0,0.15)':'0 2px 4px -1px rgba(0,0,0,0.06)')
-                      }}>
-                        <div style={{display:'flex',justifyContent:'space-between',alignItems:'flex-start',marginBottom:14}}>
-                          <div style={{flex:1,minWidth:0}}>
-                            <div style={{fontSize:18,fontWeight:700,color:C.t0,letterSpacing:'-0.3px',lineHeight:1.2}}>{r.name}</div>
-                            <div style={{fontSize:11,color:C.t4,marginTop:3}}>{r.sub}</div>
-                          </div>
-                          <div style={{display:'flex',flexDirection:'column',alignItems:'flex-end',gap:4,flexShrink:0,marginLeft:10,minHeight:48}}>
-                            <CarrierLogo carrierId={r.id} name={r.name} small={true}/>
-                          </div>
+                          background: isDark
+                            ? (isHov?'#2A3A57':'#1E293B')
+                            : (isHov?'#FAFAF6':'#FFFFFF'),
+                          border:`1px solid ${isHov?brandColor:C.bd2}`,
+                          borderLeft:`${isHov?6:4}px solid ${brandColor}`,
+                          borderRadius:10,
+                          padding:'10px 18px',
+                          opacity:r.capped?0.6:1,
+                          display:'flex',alignItems:'center',gap:18,
+                          transition:'background 0.12s, border-color 0.12s, border-left-width 0.12s, box-shadow 0.15s, transform 0.12s',
+                          transform: isHov?'translateX(2px)':'translateX(0)',
+                          cursor:'default',
+                          boxShadow: isDark
+                            ? (isHov?`0 0 0 2px ${brandColor}66, 0 8px 28px rgba(0,0,0,0.5)`:'none')
+                            : (isHov?`0 0 0 2px ${brandColor}33, 0 8px 24px -4px rgba(15,23,42,0.18)`:'0 1px 2px rgba(0,0,0,0.04)')
+                        }}>
+                        {/* Logo */}
+                        <div style={{flexShrink:0,width:114,display:'flex',alignItems:'center',justifyContent:'center'}}>
+                          <CarrierLogo carrierId={r.id} name={r.name} small={true}/>
                         </div>
-                        {(
-                          <div style={{display:'flex',flexDirection:'column',flex:1,minHeight:0}}>
-                            {/* Premium */}
-                            <div style={{marginBottom:14}}>
-                              <div style={{display:'flex',alignItems:'baseline',gap:8}}>
-                                <span style={{fontFamily:"'DM Mono',monospace",fontSize:30,fontWeight:800,color:isDark?premColor:C.t0,letterSpacing:'-1px',lineHeight:1}}>
-                                  {fmt$(r.prem)}
-                                </span>
-                                <span style={{fontSize:10,color:C.t4,fontWeight:400}}>/mo EFT</span>
-                              </div>
-                              <div style={{fontSize:11,color:C.t4,marginTop:4,fontWeight:400}}>
-                                <span style={{fontFamily:"'DM Mono',monospace"}}>${((r.prem??0)*12).toFixed(0)}</span>
-                                <span> / year</span>
-                              </div>
-                            </div>
-                            {/* Face + product — clean horizontal row, no nested boxes */}
-                            <div style={{display:'flex',alignItems:'center',gap:0,paddingTop:12,borderTop:`1px solid ${C.bd}`,flexShrink:0}}>
-                              <div style={{flex:1}}>
-                                <div style={{fontSize:10,color:C.t3,marginBottom:2}}>Face amount</div>
-                                <div style={{fontFamily:"'DM Mono',monospace",fontSize:14,fontWeight:500,color:C.t1}}>
-                                  {fmtF(r.face)}
-                                </div>
-                                {r.capped&&<div style={{fontSize:10,color:C.t4,fontStyle:'italic',marginTop:1}}>Max coverage</div>}
-                              </div>
-                              <div style={{width:1,height:32,background:C.bd,margin:'0 14px'}}/>
-                              <div style={{flex:1}}>
-                                <div style={{fontSize:10,color:C.t3,marginBottom:2}}>Coverage</div>
-                                <div style={{display:'flex',alignItems:'center',gap:6,flexWrap:'wrap'}}>
-                                  <TierBadge tier={r.activeTier} productName={r.productName}/>
-                                </div>
-                              </div>
-                            </div>
-
-                            <div style={{flex:1}}/>
-                            <EAppBtn carrierId={r.id} lightMode={!isDark}/>
+                        {/* Name + product */}
+                        <div style={{flex:1,minWidth:0}}>
+                          <div style={{fontSize:15,fontWeight:700,color:C.t0,letterSpacing:'-0.2px',whiteSpace:'nowrap',overflow:'hidden',textOverflow:'ellipsis'}}>{r.name}</div>
+                          <div style={{fontSize:11,color:C.t4,marginTop:2,whiteSpace:'nowrap',overflow:'hidden',textOverflow:'ellipsis'}}>{r.sub}{r.productName?` · ${r.productName}`:''}</div>
+                        </div>
+                        {/* Face amount */}
+                        <div style={{flexShrink:0,width:88,textAlign:'right'}}>
+                          <div style={{fontSize:9,color:C.t4,fontWeight:600,letterSpacing:1,textTransform:'uppercase',marginBottom:2}}>Face</div>
+                          <div style={{fontFamily:"'DM Mono',monospace",fontSize:13,fontWeight:500,color:C.t1}}>{fmtF(r.face)}</div>
+                          {r.capped&&<div style={{fontSize:9,color:C.t4,fontStyle:'italic',marginTop:1}}>capped</div>}
+                        </div>
+                        {/* Coverage tier */}
+                        <div style={{flexShrink:0,minWidth:90,display:'flex',justifyContent:'center'}}>
+                          <TierBadge tier={r.activeTier} productName={r.productName}/>
+                        </div>
+                        {/* Price — the hero, right-aligned for vertical scanning */}
+                        <div style={{flexShrink:0,width:130,textAlign:'right'}}>
+                          <div style={{display:'flex',alignItems:'baseline',justifyContent:'flex-end',gap:5}}>
+                            <span style={{fontFamily:"'DM Mono',monospace",fontSize:30,fontWeight:800,color:C.t0,letterSpacing:'-0.8px',lineHeight:1}}>{fmt$(r.prem)}</span>
+                            <span style={{fontSize:10,color:C.t4,fontWeight:400}}>/mo</span>
                           </div>
-                        )}
+                          <div style={{fontSize:10,color:C.t4,marginTop:3,fontFamily:"'DM Mono',monospace"}}>${((r.prem??0)*12).toFixed(0)}/yr</div>
+                        </div>
+                        {/* e-App */}
+                        <div style={{flexShrink:0}}>
+                          <EAppBtn carrierId={r.id} compact={true} lightMode={!isDark}/>
+                        </div>
                       </div>
                     );
                   })}
-                </div>}
+                </div>
                 {/* ── GHOST / UNAVAILABLE CARDS ── */}
                 {results&&(()=>{
                   const ghosts = results.filter(r=>gsbOn?!r.anyPrem:r.prem==null);
+                  const avail  = results.filter(r=>gsbOn?r.anyPrem:r.prem!=null);
                   if(!ghosts.length) return null;
                   return(
-                    <div style={{display:'grid',gridTemplateColumns:'repeat(auto-fill,minmax(200px,1fr))',gap:8,marginBottom:20}}>
-                      {ghosts.map(r=>(
-                        <div key={r.id} style={{
-                          background:isDark?'rgba(15,23,42,0.4)':C.bg3,
-                          border:`1px solid ${C.bd}`,
-                          borderRadius:8,padding:'10px 14px',
-                          opacity:0.4,
-                          display:'flex',alignItems:'center',gap:10,
-                          filter:isDark?'none':'grayscale(1)'
+                    <div style={{marginBottom:20}}>
+                      {avail.length===0 && (
+                        <div style={{
+                          background:C.bg3,border:`1px solid ${C.bd}`,borderRadius:12,
+                          padding:'18px 20px',marginBottom:14,
                         }}>
-                          <CarrierLogo carrierId={r.id} name={r.name} small={true}/>
-                          <div style={{minWidth:0}}>
-                            <div style={{fontSize:12,fontWeight:600,color:C.t3,whiteSpace:'nowrap',overflow:'hidden',textOverflow:'ellipsis'}}>{r.name}</div>
-                            <div style={{fontSize:10,color:C.t4,fontStyle:'italic'}}>{r.reason||'Not available'}</div>
-                          </div>
+                          <div style={{fontSize:14,fontWeight:600,color:C.t1,marginBottom:4}}>No carriers can write this combination</div>
+                          <div style={{fontSize:12,color:C.t3}}>Try lowering the face amount, easing the UW tier, or checking state availability. All {ghosts.length} carriers are listed below with their reason.</div>
                         </div>
-                      ))}
+                      )}
+                      <div style={{
+                        display:'flex',alignItems:'center',gap:10,
+                        marginBottom:10,paddingBottom:8,borderBottom:`1px solid ${C.bd}`,
+                      }}>
+                        <span style={{fontSize:10,fontWeight:700,letterSpacing:1.4,textTransform:'uppercase',color:C.t4}}>Unavailable</span>
+                        <span style={{fontSize:11,color:C.t4}}>{ghosts.length} {ghosts.length===1?'carrier':'carriers'}</span>
+                      </div>
+                      <div style={{display:'grid',gridTemplateColumns:'repeat(auto-fill,minmax(240px,1fr))',gap:8}}>
+                        {ghosts.map(r=>(
+                          <div key={r.id} style={{
+                            background:isDark?'rgba(15,23,42,0.4)':C.bg3,
+                            border:`1px solid ${C.bd}`,
+                            borderRadius:8,padding:'10px 14px',
+                            opacity:0.45,
+                            display:'flex',alignItems:'center',gap:10,
+                            filter:isDark?'none':'grayscale(1)'
+                          }}>
+                            <CarrierLogo carrierId={r.id} name={r.name} small={true}/>
+                            <div style={{minWidth:0,flex:1}}>
+                              <div style={{fontSize:12,fontWeight:600,color:C.t3,whiteSpace:'nowrap',overflow:'hidden',textOverflow:'ellipsis'}}>{r.name}</div>
+                              <div style={{fontSize:10,color:C.t4,fontStyle:'italic',whiteSpace:'nowrap',overflow:'hidden',textOverflow:'ellipsis'}}>{r.reason||'Not available'}</div>
+                            </div>
+                          </div>
+                        ))}
+                      </div>
                     </div>
                   );
                 })()}
