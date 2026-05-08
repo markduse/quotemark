@@ -157,7 +157,7 @@ export default function PaywallScreen() {
 
         {/* Trust line + signed-in footer */}
         <div style={{ textAlign: 'center', marginTop: 18, fontSize: 11, color: C.t4, letterSpacing: 0.2 }}>
-          Built by Duse Financial Group · Used daily by FE telesales agents
+          Built by an active FE agency · Used daily by telesales agents
         </div>
         <div style={{ textAlign: 'center', marginTop: 12, fontSize: 12, color: C.t4, lineHeight: 2 }}>
           Signed in as <span style={{ color: C.t2 }}>{session?.user?.email}</span>

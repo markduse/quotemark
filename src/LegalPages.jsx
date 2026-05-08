@@ -31,7 +31,7 @@ const PARA = { fontSize: 14, color: C.t2, marginBottom: 12 };
 const META = { fontSize: 12, color: C.t4, marginBottom: 28 };
 const BACK = { display: 'inline-block', marginBottom: 28, color: C.gold, fontSize: 13, fontWeight: 600, textDecoration: 'none', letterSpacing: 0.3 };
 
-const COMPANY = 'Duse Financial Group';
+const COMPANY = 'MPD Investment Group LLC';
 const APP_NAME = 'QuoteMark';
 const SUPPORT_EMAIL = 'support@quotemarko.com';
 
