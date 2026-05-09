@@ -1,5 +1,6 @@
 import React, { createContext, useContext, useEffect, useState } from 'react';
 import { supabase } from './supabase';
+import { identifyUser, resetUser } from './analytics';
 
 const AuthContext = createContext(null);
 
@@ -35,14 +36,23 @@ export function AuthProvider({ children }) {
 
     supabase.auth.getSession().then(({ data: { session } }) => {
       setSession(session);
-      if (session) fetchProfile(session.user.id);
+      if (session) {
+        fetchProfile(session.user.id);
+        // Tie analytics events to this user. Email is OK to send because
+        // it's already inside Mark's Stripe + Supabase — same audience.
+        identifyUser(session.user.id, { email: session.user.email });
+      }
       setLoading(false);
     });
 
     const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
       setSession(session);
-      if (session) fetchProfile(session.user.id);
-      else setProfile(null);
+      if (session) {
+        fetchProfile(session.user.id);
+        identifyUser(session.user.id, { email: session.user.email });
+      } else {
+        setProfile(null);
+      }
     });
 
     return () => subscription.unsubscribe();
@@ -52,6 +62,7 @@ export function AuthProvider({ children }) {
                        profile?.subscription_status === 'trialing';
 
   async function signOut() {
+    resetUser();
     await supabase.auth.signOut();
     setProfile(null);
   }

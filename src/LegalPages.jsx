@@ -86,12 +86,14 @@ export function PrivacyPage() {
           • <strong>Supabase</strong> — authentication and profile storage.<br/>
           • <strong>Stripe</strong> — payment processing and subscription billing.<br/>
           • <strong>Netlify</strong> — application hosting and serverless functions.<br/>
-          • <strong>Plausible Analytics</strong> — privacy-friendly product analytics.
-          We use Plausible to understand which features are used and to improve {APP_NAME}.
-          Plausible does not use cookies, does not collect personal information, and does
-          not track users across sites or sessions. The data we receive is limited to
-          aggregate counts (e.g. how many quotes were run today) and never includes the
-          client demographics you enter into the quoter.
+          • <strong>PostHog</strong> — product analytics. We use PostHog to understand
+          which features are used and to improve {APP_NAME}. For signed-in users we send
+          your account ID and email so we can identify your account in our analytics
+          dashboard; we do not share this with anyone outside MPD Investment Group LLC.
+          The events we record (quote requested, e-App click, etc) never include the
+          client demographics you enter into the quoter — only aggregate metadata such
+          as the underwriting tier or face-amount band. PostHog uses cookies for session
+          continuity. You can opt out at any time by emailing {SUPPORT_EMAIL}.
         </p>
         <p style={PARA}>
           Each is bound by its own privacy and security commitments. When you click an
