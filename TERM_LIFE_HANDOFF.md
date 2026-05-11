@@ -1,126 +1,178 @@
-# Term Life — Handoff Brief
+# Term Life — Handoff Brief (2026-05-11)
 
-> Goal of next session: ship the Term Life tab. Scaffolding + scraped rates already
-> exist; the tab is currently hidden behind "Coming Soon" placeholders. Decide on
-> ratebook strategy, then either polish the existing scrape or rebuild from PDFs.
-
-## Current state in code
-
-### What's already built (don't redo)
-
-- **`TERM_CARRIERS` array** ([src/App.jsx:982](src/App.jsx#L982)) — 7 carriers wired:
-  - American Amicable
-  - Instabrain
-  - John Hancock
-  - Mutual of Omaha
-  - SBLI
-  - Royal Neighbors
-  - Transamerica
-- **Inline rate tables** for each ([src/App.jsx:839-845](src/App.jsx#L839)) — sparse anchor format:
-  - Term lengths: 10 / 15 / 20 / 30 years
-  - Ages sampled: 18, 19, 20, 21, 22, 23, 24, 25, 30, 35, 40, 45, 50, 55, 60, 65, 70, 75
-  - Classes: mn (male NT), mt (male tobacco), fn, ft
-  - **Source:** "Scraped from InsuranceToolkits" per the comment
-- **`termLookup()` and `termResults` useMemo** ([src/App.jsx:2199](src/App.jsx#L2199)) — quote engine wired
-- **`activeCarriers` filter** properly excludes term carriers in FE mode and vice versa
-  ([src/App.jsx:2163](src/App.jsx#L2163))
-- **`MOO_TERM_FACES` constant** at line 238 — face-amount band
-
-### What's NOT built yet
-
-- **UI tab content** — the `quoteMode === 'term'` branch shows "Coming Soon" in
-  4 places ([App.jsx:2575, 2671, 3453, 3557](src/App.jsx#L2575)). Mobile + desktop
-  views, both empty state and results pane. These need actual term-quoting forms +
-  result rendering.
-- **Term-specific form fields** — current FE form has age/gender/state/tobacco/face/UW.
-  Term needs: age, gender, tobacco, state, face, **term length (10/15/20/30)**,
-  **health class (Pref Plus / Pref / Std Plus / Std)**. UW tier is different —
-  for term it's a health class lookup, not the FE B/C/D/E mapping.
-- **Carrier face caps for term** — different from FE. Term often $50k–$1M+.
-- **Term landing page / education** — agents may not know term flow without help.
-
-## Ratebook strategy decision (for next session)
-
-Three paths to choose from:
-
-### Path A: Trust the existing ITK scrape (fastest)
-The rates inline in `src/App.jsx:839-845` are already there. Just build the UI
-on top. Risk: ITK scrapes go stale; sparse anchor ages need interpolation between
-20/25/30 etc.
-
-### Path B: Rebuild from carrier PDFs (slowest, most trustworthy)
-Same approach we used for UHL final-expense:
-- Get authoritative ratebook PDF per carrier
-- Extract Annual Rate Per $1k for each (term length × age × class)
-- Apply each carrier's modal-factor formula
-- Generate every-$1k face values 
-
-This is what the FE side ended up doing. ITK rates were wrong by 20%+ for some
-ages on UHL Premier — same risk applies here.
-
-### Path C: Hybrid (probably right answer)
-Trust ITK for low-volume / stable carriers (SBLI, John Hancock — bigger names,
-ITK probably accurate). Rebuild from PDFs for the carriers Mark sells most
-(MOO, Transamerica, Royal Neighbors term).
-
-## Where to source authoritative term ratebooks
-
-Term ratebooks are usually downloadable from each carrier's agent portal:
-
-| Carrier | Agent portal | Typical PDF location |
-|---|---|---|
-| American Amicable | insuranceapplication.com | "Express Term" or "Term Made Simple" rate sheet |
-| Instabrain | portal.instabrain.io | RAPIDecision Term rate sheet |
-| John Hancock | jhsalesnet.com or jhfunds-related portals | Vitality Term rate sheets (vary by exam reqs) |
-| Mutual of Omaha | mutualofomaha.com/agent-login | Term Life Express (TLE) rate book — Mark already had this once |
-| SBLI | sbli.com → agent portal | EasyTrak rate sheet |
-| Royal Neighbors | agent.royalneighbors.org | Term rate sheet |
-| Transamerica | transamerica.com/financial-professionals | Trendsetter LB (Express) rate sheet |
-
-Mark mentioned earlier:
-- "Mutual of Omaha — Term Life Express (TLE) — rates already in the JSON file Mark sent"
-
-Check `~/Downloads/quotemark-files/` and `~/Desktop/Business/MPD_Investment_Group_LLC/...`
-for any term-specific rate files he transferred. The folder structure already has
-the FE ratebooks; term may be filed alongside.
-
-## Term ≠ FE in important ways
-
-Things to design for that the FE engine doesn't handle:
-
-1. **Health class instead of UW tier.** Term uses Preferred Plus / Preferred /
-   Standard Plus / Standard (no Modified, no GI typically). Some carriers split
-   tobacco into Preferred Tobacco vs Standard Tobacco.
-2. **Underwriting requires exam.** Most term needs labs, paramed, MIB. Some
-   express/no-exam products exist (Instabrain RAPIDecision, Trans Trendsetter LB,
-   MOO TLE) — those are what FE telesales agents actually sell.
-3. **Term length × age combinations create gaps.** A 30-year term at age 65 may
-   not be issued. Need per-carrier max-age × term-length matrix.
-4. **Face amounts much higher.** Often $100k–$1M. Slider needs different range.
-5. **Conversion riders.** Some agents care which carriers allow term-to-permanent
-   conversion. Could surface this as a filter.
-
-## Where to start in the next session
-
-1. Open this doc + `src/App.jsx` line 982 (TERM_CARRIERS array) to see existing scaffold.
-2. Decide ratebook strategy with Mark: A / B / C above.
-3. If C (most likely), inventory which term ratebook PDFs are available locally.
-4. Sketch the term form UI: face slider + term length pills + health class pills + state/age/tobacco.
-5. Wire `quoteMode === 'term'` branches to actual rendering instead of "Coming Soon".
-6. Replace inline rate tables with `data/term_rates.json` (Mark already has the file
-   per the file listing — `src/data/term_rates.json` exists, 368KB).
-
-## Open questions for Mark
-
-- **Which term carriers do you actually sell?** Some of the 7 in code may be aspirational.
-  Disable any that aren't currently contracted.
-- **No-exam term only?** Or do you sell fully-underwritten term too? Affects which
-  health classes the form needs to expose.
-- **Children / juvenile rider?** UHL Provider has a 0–17 product. Out of scope?
-- **Term + Final Expense combined illustration?** Some clients buy both — worth a
-  combined view?
+> **Goal of next session: ship the Term Life tab live within 2 hours.**
+> Mark's target: 10 specific carriers, accurate rates, working UI.
+> Tab currently shows "Coming Soon" in 4 places — backend scaffolding
+> exists but the UI was never built and only 4 of the 10 target carriers
+> have any rate data wired.
 
 ---
 
-*Last updated: May 8, 2026*
-*Scope: capture state of term scaffolding so a fresh session can pick this up cold.*
+## Final carrier list — 10 carriers
+
+| # | Carrier | Status today | What's needed |
+|---|---|---|---|
+| 1 | **SBLI** | ✅ wired, sparse data | Verify rates → possibly rebuild from PDF |
+| 2 | **Instabrain** | ✅ wired, sparse data | Verify rates → possibly rebuild from PDF |
+| 3 | **Mutual of Omaha (TLE)** | ✅ wired, sparse data | Verify rates → possibly rebuild from PDF |
+| 4 | **American Amicable** | ✅ wired, sparse data | Verify rates → possibly rebuild from PDF |
+| 5 | **Foresters** | ❌ not coded | Need ratebook PDF + carrier definition |
+| 6 | **Kansas City Life** | ❌ not coded | Need ratebook PDF + carrier definition |
+| 7 | **Americo** | ❌ not coded | Need ratebook PDF + carrier definition |
+| 8 | **Protective** | ❌ not coded | Need ratebook PDF + carrier definition |
+| 9 | **National Life Group** | ❌ not coded | Need ratebook PDF + carrier definition |
+| 10 | **United Home Life** | ❌ not coded | Need ratebook PDF + carrier definition |
+
+## Drop list (currently coded, Mark doesn't sell)
+
+- **John Hancock** — currently wired (`TERM_CARRIERS` index 2). Remove the carrier entry + the `JOHN_HANCOCK_TERM_RATES` constant.
+- **Royal Neighbors term** — currently wired. Remove.
+- **Transamerica term** — currently wired. Remove. (Note: Trans **FE** Express Solution stays — different product, separate carrier ID `ta_exp`.)
+
+---
+
+## Current scaffolding state in code
+
+### What exists (don't re-build)
+
+- `TERM_CARRIERS` array at [src/App.jsx:982](src/App.jsx#L982) — array of carrier objects with `termOnly:true` flag
+- Inline rate tables at [src/App.jsx:839-845](src/App.jsx#L839) for the 7 currently-wired term carriers, format:
+  ```js
+  const SBLI_TERM_RATES = {
+    "10": {                  // term length (years)
+      "mn": { "18": 7.81, "19": 7.81, ..., "75": 151.26 },  // male non-tobacco
+      "mt": { ... },         // male tobacco
+      "fn": { ... },         // female non-tobacco
+      "ft": { ... }          // female tobacco
+    },
+    "15": {...}, "20": {...}, "30": {...}
+  };
+  ```
+- **Sparse age coverage**: 18, 19, 20, 21, 22, 23, 24, 25, 30, 35, 40, 45, 50, 55, 60, 65, 70, 75 (18 ages, gaps of 5 years above age 25)
+- `termLookup()` and `termResults` useMemo at [src/App.jsx:2199](src/App.jsx#L2199) — quoter engine
+- `MOO_TERM_FACES` constant at [src/App.jsx:238](src/App.jsx#L238) — face brackets for MOO
+- `activeCarriers` filter at [src/App.jsx:2163](src/App.jsx#L2163) — correctly excludes term carriers in FE mode and vice versa
+- Tab switch wired ([src/App.jsx](src/App.jsx) — `setQuoteMode('term')`) — clicking the **Term Life** tab in the header sets the mode
+
+### What does NOT exist yet (must be built)
+
+- **UI for the Term tab.** Look for `quoteMode === 'term'` checks — currently 4 places render `"Coming Soon"`:
+  - [App.jsx:2575](src/App.jsx#L2575) — desktop empty state
+  - [App.jsx:2671](src/App.jsx#L2671) — mobile term results section
+  - [App.jsx:3453](src/App.jsx#L3453) — desktop empty (second branch?)
+  - [App.jsx:3557](src/App.jsx#L3557) — desktop large empty
+- **Term-specific form fields.** FE form has age/gender/state/tobacco/face/UW. Term needs:
+  - Age
+  - Gender
+  - Tobacco
+  - State
+  - **Face amount** ($25k–$1M+ typically — current slider is $2k–$100k, needs new range when term tab active)
+  - **Term length** (10 / 15 / 20 / 30 — pill selector)
+  - **Health class** (Pref Plus / Pref / Std Plus / Std — different from FE's B/C/D/E tier model)
+- **Per-carrier max-age × term-length matrix.** Carriers commonly disallow 30-year term above age 55. Need a `TERM_MAX_AGE_BY_LENGTH[carrierId]` map.
+- **Result rendering for term.** The existing list-row card in App.jsx renders FE-shaped results. Term needs a parallel render branch (or a generalized renderer) that shows term-specific metadata.
+
+---
+
+## Health class mapping — critical design decision
+
+FE tiers (B/C/D/E) don't map 1:1 to term health classes. Term standard categories:
+
+| Term class | Approximate FE-equivalent | Notes |
+|---|---|---|
+| Preferred Plus | Better than FE Preferred | Clean health, ideal weight, no tobacco |
+| Preferred | FE Preferred | Mild controlled conditions |
+| Standard Plus | FE Standard | Average health |
+| Standard | FE Standard | Below average but insurable |
+| Tobacco (Pref) | n/a — separate class | |
+| Tobacco (Std) | n/a — separate class | |
+
+**Recommendation**: keep term's health class separate from FE's UW tier in the UI. Don't try to share state. When the agent clicks the Term tab, show a fresh "Health class" pill selector.
+
+---
+
+## Where to source ratebooks for the 6 new carriers
+
+Term ratebooks usually live on each carrier's agent portal. Mark needs to gather these BEFORE the next session starts:
+
+| Carrier | Likely portal / source |
+|---|---|
+| Foresters | forestersfinancial.com → agent portal → **PlanRight Term** or **Advantage Plus** rate sheet |
+| Kansas City Life | kclife.com → producer portal → term life rate book |
+| Americo | americo.com/agent-access → **Continuous Renewable Term (CRT)** or **HMS Term** rate sheet |
+| Protective | protective.com → producer portal → **Classic Choice** or **Custom Choice** rate sheet |
+| National Life Group | nlgroup.com → agent portal → **Trendsetter** or term rate sheet |
+| United Home Life | agentportal.unitedhomelife.com → **Term Deluxe** or **Term** rate sheet (per UHL's Whole_Life_-_Agent_Guide.pdf — UHL has both Term and Term Deluxe products) |
+
+**Mark's pre-session prep**: AirDrop these PDFs to this Mac mini's Downloads before kicking off the term session. Each PDF should be the **rates** sheet specifically (not the UW guide or marketing material).
+
+## Existing data quality — should we trust the 4 already-wired carriers?
+
+The inline rates in `App.jsx:839-845` were "Scraped from InsuranceToolkits" per the source comment. From the FE-side audit pattern, ITK scrapes tend to be **mostly accurate but with edge-case bugs** (Accendo had 200/200 cells wrong in one tier; UHL had silent drift at older ages). Verification options:
+
+- **Path A (fastest):** trust ITK, ship as-is, fix issues as they appear via support requests
+- **Path B (safest):** for each of the 4 already-wired carriers, get the carrier's published rate sheet, run a 5-quote spot-check, only rebuild if drift > $1
+- **Path C (best long-term):** rebuild ALL 10 carriers from PDF using the proven UHL/Continental/Accendo/Fidelity pattern. Total work: ~3-4 hours but you sleep easy.
+
+**Recommendation for the 2-hour push**: Path B. Spot-check the 4 existing carriers (10 minutes each = 40 min), rebuild only if needed. Then add the 6 new ones from PDFs (10 min each = 60 min). Then build UI (40 min).
+
+---
+
+## Term ≠ FE — designed differences to handle
+
+1. **Face amount range** — typical term is $100k–$1M. Slider needs different range when term tab is active.
+2. **Underwriting exam requirement** — most fully-underwritten term needs labs/paramed. Mark's actual sales are likely all SI/no-exam (Instabrain, MOO TLE, Trans Express, Foresters PlanRight Term). Filter / sort by no-exam where possible.
+3. **Conversion rider** — some carriers allow term-to-permanent conversion. Could surface as a small badge.
+4. **Term length × max age**: A 30-year term at age 65 may not be issued. Need per-carrier matrix.
+5. **Living Benefits / Accelerated Death Benefit** — increasingly common rider. Instabrain leads here. Worth showing.
+
+---
+
+## Suggested execution order for the next session
+
+1. **(15 min) Inventory PDFs Mark gathered.** Confirm presence of all 6 needed ratebooks. If any missing, decide: skip that carrier for v1 OR delay launch.
+2. **(40 min) Spot-check the 4 already-wired carriers.** For each (SBLI/Instabrain/MOO/AmAm), run a 35yr M NS $250k 20yr quote in the carrier's portal, compare to what `termLookup()` returns. Document discrepancies.
+3. **(60 min) Add the 6 new carriers.** For each: extract Annual Rate Per $1k from PDF, define carrier in `TERM_CARRIERS` array, add `XXX_TERM_RATES` constant inline (or move all to `src/data/term_rates.json` — that file already exists at 368KB and may be a more scalable target).
+4. **(40 min) Build the UI.** Replace all 4 "Coming Soon" branches with real form + result rendering. Add health class pills + term length pills.
+5. **(15 min) Drop John Hancock, RN, Transamerica from `TERM_CARRIERS`.** Delete their rate constants.
+6. **(10 min) Smoke test + push.**
+
+---
+
+## Open product questions for Mark to think about before next session
+
+- **No-exam only or fully-underwritten too?** For Mark's telesales agents, no-exam is likely the only product mix that matters. If yes, set this as a hard filter and skip building Pref Plus / Std Plus UI complexity.
+- **Term + FE combined quote?** Some clients buy a permanent floor + term layer. A "combined" view shows both. Out of scope for v1?
+- **Living benefits as a column?** Worth surfacing if Instabrain (and any others) include them — it's a sales differentiator.
+- **Face-amount band on the slider** — what's the actual range agents quote? $50k? $250k? $500k? Adjust slider range and step accordingly.
+
+---
+
+## Files to read first in the next session
+
+1. This doc.
+2. [src/App.jsx](src/App.jsx) around line 800-1050 — TERM_CARRIERS scaffolding + inline rate tables.
+3. [src/App.jsx](src/App.jsx) around line 2160-2210 — `termResults` quoter logic.
+4. [src/data/term_rates.json](src/data/term_rates.json) — 368KB file that may already have term rates the inline tables don't.
+5. [src/data/fex_rates.json](src/data/fex_rates.json) — final-expense rate format reference (term should probably mirror this shape).
+
+---
+
+## Starter prompt to paste into a fresh Claude Code session
+
+```
+I'm picking up the Term Life build for QuoteMark. Read TERM_LIFE_HANDOFF.md
+in the repo root — that's your full brief, written for you to land cold.
+
+My goal: ship the Term Life tab live with 10 carriers within 2 hours.
+The 10 carriers are listed in the doc; 4 already have rates wired, 6 are
+new. The UI shows "Coming Soon" in 4 places that need to be replaced.
+
+Before you write any code: confirm with me which ratebook PDFs I have on
+disk (check ~/Downloads/ for files matching the 6 new carriers). Then
+propose an execution order and we'll roll.
+
+Don't trust the inline rate tables blindly — the FE audit found one carrier
+where 200/200 cells were wrong because of a bad ITK scrape. Spot-check
+before shipping.
+```
