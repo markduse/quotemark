@@ -68,7 +68,7 @@ const FACE_CAPS = {
   sl_pp:25000, sl:30000, ail:30000,
 };
 // Carriers disabled in code — incomplete data, not ready for agents
-const FORCE_DISABLED = new Set(['sl_pp','amam_gs','cbg','amr','ahl_gs','ta_exp','rna_gi','afl','sl','ail','balt_sg','ra']);
+const FORCE_DISABLED = new Set(['sl_pp','amam_gs','cbg','amr','ahl_gs','rna_gi','afl','sl','ail','balt_sg','ra']);
 
 // AGE_MAX entries can be a number (applies to all tiers) OR an object
 // {B,C,D,E} for tier-specific caps. Aetna/AHL/CVS go up to 89 for
@@ -1528,11 +1528,11 @@ const CARRIERS = [
    product:{B:'Level — Non-Tobacco',C:'Level — Tobacco',D:'Senior Graded (3-yr)',E:null},
    fn:(age,male,smoker,tier,face)=>ailQuote(age,male,smoker,tier,face)},
   // ── NEW CARRIERS FROM RATE SHEET ──
-  {id:'ta_exp', name:'Transamerica',  sub:'Express Select', abbr:'TX', enabled:false,
-   product:{B:'Select',C:null,D:'Graded',E:null},
+  {id:'ta_exp', name:'Transamerica',  sub:'Express Solution', abbr:'TX', enabled:true,
+   product:{B:'Express Select',C:'Express Select',D:'Express Graded',E:null},
    stateCheck:(s)=>(fexStateOK('Transamerica (Express)',s)),
    fn:(age,male,smoker,tier,face)=>{
-     if(tier==='B') return factorCalc('transamerica_exp','select',age,male,smoker,face);
+     if(tier==='B'||tier==='C') return factorCalc('transamerica_exp','select',age,male,smoker,face);
      if(tier==='D') return fexPrem('Transamerica (Express)','Express Graded',age,male,smoker,face);
      return null;
    }},
@@ -1585,7 +1585,8 @@ const CARRIER_META = {
   ahl:  { img:'/logos/ahl.png',   eapp:'https://ahlpatriotseries.com/',                       brand:'#1D4ED8' }, // AHL
   cont: { img:'/logos/cont.png', eapp:'https://www.aetnaseniorproducts.com/ssi/index.html', brand:'#7C3AED' }, // Continental/Aetna
   rn:   { img:'/logos/rn.png',    eapp:'https://agent.royalneighbors.org/login',              brand:'#16A34A' }, // Royal Neighbors
-  ta:   { img:'/logos/ta.png',        eapp:'https://www.transamerica.com/financial-professionals/', brand:'#EF4444' }, // Transamerica
+  ta:    { img:'/logos/ta.png',       eapp:'https://www.transamerica.com/financial-professionals/', brand:'#EF4444' }, // Transamerica Immediate Solution
+  ta_exp:{ img:'/logos/ta.png',       eapp:'https://www.transamerica.com/financial-professionals/', brand:'#EF4444' }, // Transamerica Express Solution
   fid:  { img:'/logos/fid.png',   eapp:'https://portal.instabrain.io/App/?redirected=true',   brand:'#1E40AF' }, // Fidelity Life
   cbg:  { img:'/logos/cbg.avif',  eapp:'https://www.connext.corebridgefinancial.com/life/connext-portal/public/login', brand:'#9333EA' }, // Corebridge
   uhl:  { img:'/logos/uhl.png',   eapp:'https://agentportal.unitedhomelife.com/home',          brand:'#B91C1C' }, // UHL
