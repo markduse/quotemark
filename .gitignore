@@ -6,3 +6,4 @@ dist/
 # Local env
 .env
 .env.local
+scripts/itk_term_raw.json

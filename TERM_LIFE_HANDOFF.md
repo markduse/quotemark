@@ -1,213 +1,171 @@
-# Term Life — Handoff Brief (2026-05-11, updated)
+# Term Life — Handoff Brief (2026-05-26, DATA SHIPPED)
 
-> **Goal: ship a production Term Life quoter inside QuoteMark with 99% rate accuracy.**
-> 13 carriers, ~28 products. Mark uses Insurance Toolkits (ITK) as his live tool today —
-> ITK is the authoritative source of truth and the strategy below leans on it.
-
----
-
-## Final carrier + product list (13 carriers, 28 products)
-
-Mirroring Mark's ITK configuration (screenshot 2026-05-11):
-
-| # | Carrier | Products (separate rate tables per product) |
-|---|---|---|
-| 1 | **American Amicable** | Easy Term, Home Certainty, Home Protector, Pioneer Security, Safecare Term, Survivor Protector, Term Made Simple (**7 products**) |
-| 2 | **Americo** | Continuation 10, Continuation 25, HMS, Payment Protector, Payment Protector Continuation (**5 products**) |
-| 3 | **Banner Life** | Banner OPTerm — **not yet in ITK screenshot, Mark added it to the list** |
-| 4 | **Foresters** | Strong Foundation, Your Term, Your Term Medical (**3 products**) |
-| 5 | **Instabrain (Fidelity)** | IB Term, PureTerm (**2 products**) |
-| 6 | **John Hancock** | Simple Term with Vitality 2023 |
-| 7 | **Kansas City Life** | (single product, name TBD) |
-| 8 | **Mutual of Omaha** | Term Life Express |
-| 9 | **National Life Group** | LSW Level Term |
-| 10 | **Protective** | Classic Choice Term |
-| 11 | **Royal Neighbors** | Jet Term |
-| 12 | **SBLI** | EasyTrak |
-| 13 | **Transamerica** | Trendsetter LB 2017, Trendsetter Super 2021 (**2 products**) |
-| ( ) | UHL (Simple Term) | Visible in ITK but Mark's 13-list doesn't include it — confirm before adding |
-
-**~28 distinct rate tables** to source and maintain. Each table is age × gender × tobacco × term length × face × health class.
-
-## Carriers to DROP from current code
-
-Current `TERM_CARRIERS` array in [src/App.jsx:982](src/App.jsx#L982) has 7 entries. Mark's new list overlaps with most of them, but inline rate constants are sparse ITK scrapes from 2026-03 — they should be REPLACED, not kept. See "Data strategy" below.
+> **Data foundation is live.** `src/data/term_rates.json` has rates for all 13
+> carriers / 27 products (14,752 face-cells, ~20k raw quotes from ITK).
+> **Next session's job: build the UI** to consume this data + ship live.
+> Estimated time: 2-3 focused hours.
 
 ---
 
-## The strategy: lean on ITK, don't rebuild from PDFs
+## ✅ What's done
 
-### Why
+- **Scraped ITK rates** for all 13 carriers via authenticated API
+  (`POST https://api.insurancetoolkits.com/quoter/`). Methodology preserved
+  in `scripts/itk_term_scrape.md` — re-runnable when rates need refresh.
+- **`src/data/term_rates.json`** populated with the nested shape:
+  ```
+  product → term → tier → class → age → face → monthly_premium
+  ```
+  Example: `data["Mutual of Omaha (Term Life Express)"]["20"]["Approved"]["MNS"]["55"]["250000"]` → monthly rate.
+- **All 27 products captured** (13 carriers, multiple products each):
 
-PDFs are point-in-time and inconsistent (different formulas per carrier, different face brackets per product). ITK has:
+  | Carrier | Products | Tiers |
+  |---|---|---|
+  | American Amicable | 7 (Easy/Home Certainty/Home Protector/Pioneer Security/Safecare/Survivor Protector/Term Made Simple) | 1-2 each |
+  | Americo | 5 (Continuation 10, 25, HMS, Payment Protector, Payment Protector Continuation) | 1 each |
+  | Foresters | 3 (Strong Foundation, Your Term, Your Term Medical) | "Approved" |
+  | InstaBrain | 2 (IB Term, PureTerm) | 4 tiers: Pref+/Pref/Std/Std Extra |
+  | John Hancock | 1 (Simple Term with Vitality 2023) | Pref/Std/Select |
+  | Kansas City Life | 1 | "Approved" |
+  | Mutual of Omaha | 1 (Term Life Express) | "Approved" |
+  | National Life Group | 1 (LSW Level Term) | Standard |
+  | Protective | 1 (Classic Choice Term) | Ultimate Pref/Super Pref/Level/Std |
+  | Royal Neighbors | 1 (Jet Term) | Pref/Std |
+  | SBLI | 1 (EasyTrak) | Pref+/Select/Std |
+  | Transamerica | 2 (Trendsetter LB 2017, Trendsetter Super 2021) | 1 each |
+  | UHL | 1 (Simple Term) | Simple Term / Simple Term Deluxe |
 
-- **All 13 carriers** already aggregated
-- **Live, current rates** (continuously updated by ITK)
-- **Standardized API/data model** across carriers
-- **Multiple products per carrier** already separated and labeled
-- **Mark already pays for ITK** — he has authenticated access at https://app.insurancetoolkits.com
+  Banner Life is the only carrier from Mark's list that didn't appear — not in
+  his current ITK portfolio. Skip for v1.
 
-### Strategy A — ITK CSV export (preferred if available)
+- **Data dimensions captured:**
+  - Sexes: Male, Female (2)
+  - Tobaccos: None, Cigarettes (2)
+  - Terms: 10, 15, 20, 25, 30, 35, 40 (7 — not every carrier offers all)
+  - Ages: 25, 30, 35, 40, 45, 50, 55, 60, 65, 70, 75 (11 anchor ages — interpolate between)
+  - Faces: $50k, $100k, $250k, $500k, $1M (5 anchor faces — interpolate between)
+  - State: MI baseline (state-availability is separate from rates for term)
 
-ITK offers data exports for paying subscribers. Mark should check his ITK account for:
-- **Term rate exports** — CSV or Excel of all enabled carrier/product rates by (age, gender, tobacco, term length, face, health class)
-- **API access** — if his plan includes it, document the API key
+## 🔲 What's NOT done — for the next session
 
-If available: this is the fastest path. Import → reshape → ship.
+### 1. Lookup function
 
-### Strategy B — Authenticated scrape (fallback)
+Add a helper near `src/data/term_rates.json` or inline in App.jsx:
 
-If ITK doesn't expose exports on Mark's plan:
-- Use Mark's authenticated session in Chrome (Claude in Chrome MCP can drive)
-- Iterate through every (carrier, product, age, gender, tobacco, term, face) combination
-- Capture the rate, cache to JSON
-- Run nightly or on-demand to keep current
+```js
+import TERM_RATES from './data/term_rates.json';
 
-This is the same pattern as the 2026-03-19 scrape that produced `quotemark_FEX_*.csv` files in `~/Downloads/quotemark-files/`. The script that did this is somewhere — find it via git history search.
-
-### Strategy C — Per-carrier PDF rebuild (slowest, last resort)
-
-Only fall back to this for carriers where ITK is unavailable or known-wrong. We used this pattern for FE (UHL/Continental/Accendo/Fidelity) — proven but slow.
-
----
-
-## Data model
-
-Each term product is a separate table. Suggested JSON structure (mirrors what fex_rates.json does for FE):
-
-```json
-{
-  "American Amicable||Easy Term": {
-    "10": {                              // term length in years
-      "MNS_PrefPlus": {                  // class: MNS|MS|FNS|FS combined with health
-        "18": { "100000": 12.34, "250000": 18.50, "500000": 30.10 },
-        ...
-      },
-      "MNS_Pref":  { ... },
-      "MNS_StdPlus": { ... },
-      "MNS_Std":   { ... },
-      "MS_Std":    { ... },              // smokers usually only have Pref/Std tobacco tiers
-      "MS_PrefT":  { ... },
-      "FNS_PrefPlus": { ... },
-      ...
-    },
-    "15": {...},  "20": {...},  "30": {...}
-  },
-  ...
+function termPrem(product, term, tier, classKey, age, face) {
+  const tbl = TERM_RATES?.[product]?.[String(term)]?.[tier]?.[classKey];
+  if (!tbl) return null;
+  const ages = Object.keys(tbl).map(Number).sort((a,b)=>a-b);
+  const faces = (a) => Object.keys(tbl[String(a)] || {}).map(Number).sort((a,b)=>a-b);
+  // Bilinear interpolation between bracketing (age, face) anchors
+  // ... (write it, ~30 lines)
 }
 ```
 
-Store as `src/data/term_rates.json` (file already exists at 368KB — may already be partly populated).
+### 2. Replace inline TERM_RATES constants
 
----
+In `src/App.jsx` lines 839-845, delete these 7 constants:
+- `AMERICAN_AMICABLE_TERM_RATES`, `INSTABRAIN_TERM_RATES`, `JOHN_HANCOCK_TERM_RATES`,
+  `MUTUAL_OF_OMAHA_TERM_RATES`, `SBLI_TERM_RATES`, `ROYAL_NEIGHBORS_TERM_RATES`,
+  `TRANSAMERICA_TERM_RATES`
 
-## UI build plan
+They're sparse ITK scrapes from March that the new term_rates.json replaces.
 
-The Term tab currently shows "Coming Soon" in 4 places in App.jsx. Need to replace with:
+### 3. Rebuild `TERM_CARRIERS` array
 
-### Form (left sidebar when Term tab active)
+Auto-generate from `Object.keys(TERM_RATES)` so we get all 27 products without
+hand-coding each one. Each entry should expose:
+- `id` (slug from product key)
+- `name` (display name)
+- `sub` (term-specific subtitle, e.g. "Express Issue")
+- `fn(age, male, smoker, term, face)` → calls termPrem with mapped tier(s)
 
-| Field | Type | Notes |
-|---|---|---|
-| Age (DOB or direct) | reuse FE field | |
-| Gender | reuse FE field | |
-| Tobacco | reuse FE field | |
-| State | reuse FE field | filters carriers by license |
-| **Face amount** | new slider, range $50k – $1M | step $25k or $50k |
-| **Term length** | pill selector | 10 / 15 / 20 / 30 |
-| **Health class** | pill selector | Pref+ / Pref / Std+ / Std (auto-detect from conditions same as FE does) |
+For carriers with multiple tiers per product (InstaBrain, Protective, etc),
+return the BEST-tier rate the client qualifies for. v1 doesn't need a tier
+selector — just show what ITK's default underwriting returns.
 
-### Results
+### 4. Replace 4 "Coming Soon" branches in App.jsx
 
-- One row per (carrier, product) — so American Amicable shows 7 rows when all products quote
-- Same list layout / hover behavior as FE
-- Per-row badges: "No exam", "Living benefits", "Convertible" (if data available)
-- Sort by monthly premium ascending (default) — agent's whole job is "show me the cheapest that fits"
+Search for `Coming Soon` — there are 4 places:
+- App.jsx:2575 (desktop empty state)
+- App.jsx:2671 (mobile term results)
+- App.jsx:3453 (desktop empty alt)
+- App.jsx:3557 (desktop large empty)
 
-### Filters (top of results pane)
+Replace with the term results view. Reuse the FE list-row layout pattern (it's
+already battle-tested with hover states, brand colors, e-App buttons).
 
-- **No-exam only** toggle (most FE agents want this)
-- **Hide non-convertible** toggle (some clients want to convert later)
-- **Hide tobacco-only carriers** — automatic from gender/tobacco inputs
+### 5. Build the term form
 
----
+Term tab needs a slightly different form than FE:
+- Reuse: age, gender, tobacco, state
+- New: **face slider $50k–$1M** with $25k step (different range from FE's $2k-$100k)
+- New: **term length pills** (10/15/20/25/30/35/40)
 
-## Quality bar: 99% accuracy
+State variables already exist at App.jsx:1932-1935:
+```js
+const [termLength,setTermLength] = useState('10');
+const [termFace,setTermFace] = useState(100000);
+const [termHealth,setTermHealth] = useState('pp');
+const [termAge,setTermAge] = useState('');
+```
 
-For each product, sample 5 quotes vs ITK's live calculator before declaring done:
-- Age 30 / NS / $250k / 20yr / Pref+
-- Age 45 / NS / $250k / 20yr / Std
-- Age 55 / S / $100k / 15yr / Pref Tobacco
-- Age 65 / NS / $50k / 10yr / Std
-- Age 35 / NS / $500k / 30yr / Pref
+Just wire to UI.
 
-If 5/5 match within $0.10 across all products, ship the carrier. If any fail, investigate (likely a column misalignment or health-class mapping issue) and rebuild.
+### 6. Verify quality bar (5-quote sanity check per product)
 
----
+Pick 5 random quotes from `term_rates.json`. Compare app's `termPrem()` result
+to the JSON value. Must match exactly (no interpolation gaps since these are
+anchor points).
 
-## Open questions for Mark before the new session starts
+Then pick 5 OFF-anchor points (e.g. age 33, face $175k) and verify the
+interpolated value is reasonable (between bracketing anchors).
 
-1. **Do you have ITK exports / API access?** Check your ITK account billing/plan page. If yes → Strategy A. If no → Strategy B (scrape via Claude in Chrome with your login).
+## Suggested next-session order (2-3 hours)
 
-2. **Banner Life** — which product? (Banner has Banner OPTerm + a few others; clarify in session.)
+1. **(20 min)** Read this doc + skim `term_rates.json` to see the data shape
+2. **(30 min)** Write `termPrem()` with bilinear interpolation
+3. **(15 min)** Delete inline constants, regenerate TERM_CARRIERS
+4. **(60 min)** Replace Coming Soon with actual rendering — reuse FE list-row component
+5. **(30 min)** Wire term-specific form fields (face slider range, term length pills)
+6. **(15 min)** Spot-check 5 quotes vs ITK
+7. **(10 min)** Commit + push, watch Netlify deploy
 
-3. **Kansas City Life term product name?** ITK didn't show it expanded.
-
-4. **All 7 American Amicable products needed, or only a subset?** Some are essentially the same product with different names (Easy Term vs Term Made Simple). Trim where possible to reduce data volume.
-
-5. **No-exam priority** — should non-exam products appear FIRST in results regardless of price? Or is "cheapest first" always the right answer?
-
-6. **State licensing data** — every term carrier has different state exclusions. Where does state availability per (carrier, product) come from? ITK exposes it; we'd inherit.
-
----
-
-## Suggested execution order
-
-| Phase | Time | What |
-|---|---|---|
-| Discovery | 30 min | Confirm Mark's ITK access level + answer open questions |
-| Data | 90 min | Pull ITK data for all 13 carriers / 28 products via Strategy A or B |
-| Schema | 15 min | Reshape into `term_rates.json` |
-| Wire | 30 min | Update `TERM_CARRIERS` array to match 28 products, add `termPrem()` lookup function |
-| UI | 90 min | Replace 4 "Coming Soon" branches, add term form, add result rendering |
-| Verify | 60 min | 5-quote spot-check per carrier (13 × 5 = 65 quotes against ITK) |
-| Ship | 15 min | Commit + push |
-
-**Total realistic estimate: 5-6 hours.** This is bigger than 2 hours. Be honest with Mark about that up front.
-
----
-
-## Files to read first in the next session
-
-1. This doc.
-2. [src/App.jsx](src/App.jsx) lines 800-1050 — TERM_CARRIERS scaffolding + inline rates to remove.
-3. [src/App.jsx](src/App.jsx) lines 2160-2210 — `termResults` quoter logic.
-4. [src/data/term_rates.json](src/data/term_rates.json) — may already be partially populated, 368KB.
-5. [src/data/fex_rates.json](src/data/fex_rates.json) — shape reference for the term JSON.
-
----
-
-## Starter prompt for fresh Claude Code session
+## Starter prompt for next session
 
 ```
-I'm picking up the Term Life build for QuoteMark. Read TERM_LIFE_HANDOFF.md
-in the repo root — full brief is there.
+Picking up the Term Life UI build for QuoteMark. Read TERM_LIFE_HANDOFF.md
+in the repo root — the data foundation is shipped (src/data/term_rates.json,
+27 products, 14,752 face-cells from ITK).
 
-My target: production term quoter, 99% accuracy, 13 carriers, ~28 products,
-shipped live within one focused session.
+My job this session: build the UI that consumes that data. Specifically:
 
-I use Insurance Toolkits (ITK) as my live tool — I have a paid subscription
-at app.insurancetoolkits.com. ITK is the source of truth. Before any
-coding, walk me through:
-1. Confirming which ITK access level I have (export? API? scrape-only?)
-2. Pulling the data for my 13 carriers
-3. Sampling 5 quotes per carrier to verify accuracy
+1. Write termPrem() bilinear interpolation helper
+2. Auto-generate TERM_CARRIERS array from term_rates.json keys
+3. Delete the 7 inline TERM_RATES constants from App.jsx (lines 839-845)
+4. Replace the 4 "Coming Soon" branches with actual term result rendering
+   (reuse the FE list-row component pattern)
+5. Wire the term form: term length pills, face slider $50k-$1M
+6. Spot-check 5 quotes against the raw scrape, commit + push
 
-Then build the UI and ship. Don't trust the existing inline rate tables
-in App.jsx — they're a sparse ITK scrape from 2 months ago and may be
-wrong (the FE audit found one product with 200/200 cells incorrect from
-an earlier bad scrape).
+The FE side already has the polished list-row layout I want to mirror.
+Reuse don't rebuild.
 
-Realistic timeline is probably 5-6 hours, not 2. Confirm that with me
-up front so we're on the same page.
+Realistic estimate: 2-3 focused hours.
 ```
+
+## Files added this session
+
+- `src/data/term_rates.json` (262KB, the rates)
+- `scripts/itk_term_scrape.md` (methodology + how to re-run)
+- `scripts/itk_term_raw.json` (5MB raw scrape; gitignored)
+- `.gitignore` updated to exclude scripts/itk_term_raw.json
+
+## Files unchanged (intentional)
+
+- `src/App.jsx` — UI work deferred to focused next session
+- `IUL_HANDOFF.md` — separate carrier scope, separate session
+- `AMERICO_FE_HANDOFF.md` — separate (Americo FE, not term)
