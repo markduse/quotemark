@@ -5,6 +5,7 @@ import { track, faceBand } from "./analytics";
 import FEX_RATES from "./data/fex_rates.json";
 import RATE_FACTORS from "./data/rate_factors.json";
 import RESTRICTIONS from "./data/restrictions.json";
+import TERM_RATES from "./data/term_rates.json";
 
 // ── FONTS ──
 const FONT_LINK = "https://fonts.googleapis.com/css2?family=DM+Mono:wght@400;500&family=DM+Sans:wght@400;500;600;700&family=Barlow+Condensed:wght@700;800&display=swap";
@@ -808,242 +809,112 @@ const GSB = [
 
 
 // ═══════════════════════════════════════════════════════════
-// ── TERM LIFE CARRIERS — Scraped from InsuranceToolkits ──
+// ── TERM LIFE CARRIERS — Driven by src/data/term_rates.json (ITK scrape) ──
 // ═══════════════════════════════════════════════════════════
+// Data shape: TERM_RATES[product][term][tier][class][age][face] = monthly_premium
+//   product  — e.g. "Mutual of Omaha (Term Life Express)"
+//   term     — '10' | '15' | '20' | '25' | '30' | '35' | '40'
+//   tier     — carrier-specific tier name (e.g. 'Preferred Plus', 'Approved')
+//   class    — 'MNS' | 'MS' | 'FNS' | 'FS'
+//   age      — anchor age as string (25, 30, 35, 40, 45, 50, 55, 60, 65, 70, 75)
+//   face     — anchor face as string (50000, 100000, 250000, 500000, 1000000)
 
-function termLookup(ratesByTerm, termLen, combo, age, face) {
-  const tRates = ratesByTerm[termLen];
-  if (!tRates) return null;
-  const comboRates = tRates[combo];
-  if (!comboRates) return null;
-  const knownAges = Object.keys(comboRates).map(Number).sort((a,b)=>a-b);
-  if (!knownAges.length) return null;
-  if (age < knownAges[0] || age > knownAges[knownAges.length-1]) return null;
-  // Get rate at age (with interpolation)
-  let rate;
-  if (comboRates[age] != null) {
-    rate = comboRates[age];
-  } else {
-    let lo = knownAges[0], hi = knownAges[knownAges.length-1];
-    for (let i = 0; i < knownAges.length-1; i++) {
-      if (age > knownAges[i] && age < knownAges[i+1]) { lo=knownAges[i]; hi=knownAges[i+1]; break; }
-    }
-    const rLo = comboRates[lo], rHi = comboRates[hi];
-    if (rLo==null||rHi==null) return null;
-    rate = rLo + (age-lo)/(hi-lo)*(rHi-rLo);
-  }
-  // Scale: rates scraped at $100K face, scale linearly
-  return Math.round(rate * face / 100000 * 100) / 100;
-}
-
-const AMERICAN_AMICABLE_TERM_RATES = {"10":{"mn":{"18":16.43,"19":16.57,"20":16.71,"21":16.85,"22":16.99,"23":17.14,"24":17.28,"25":17.42,"30":18.13,"35":21.3,"40":25.2,"45":32.67,"50":32.67,"55":32.67,"60":32.67,"65":136.17,"70":213.21,"75":400.5},"mt":{"18":23.84,"19":24.42,"20":25,"21":25.58,"22":26.16,"23":26.74,"24":27.32,"25":27.9,"30":30.8,"35":30.8,"40":30.8,"45":30.8,"50":30.8,"55":150.93,"60":209,"65":209,"70":585.99,"75":861.3},"fn":{"18":15.21,"19":15.21,"20":15.21,"21":15.21,"22":15.21,"23":15.21,"24":15.21,"25":15.21,"30":15.21,"35":15.21,"40":15.21,"45":27.9,"50":27.9,"55":44.64,"60":55.98,"65":55.98,"70":112.41,"75":243},"ft":{"18":10.46,"19":11.78,"20":13.1,"21":14.42,"22":15.74,"23":17.05,"24":18.37,"25":19.69,"30":26.28,"35":32.76,"40":43.62,"45":58.66,"50":75.86,"55":105,"60":138.27,"65":203.32,"70":304.28,"75":450.63}},"15":{"mn":{"18":17.6,"19":17.6,"20":17.6,"21":17.6,"22":17.6,"23":17.6,"24":17.6,"25":17.6,"30":17.6,"35":21.56,"40":21.56,"45":21.56,"50":52.92,"55":74.88,"60":115.38,"65":182.16,"70":314.28},"mt":{"18":24.28,"19":24.86,"20":25.44,"21":26.02,"22":26.6,"23":27.18,"24":27.76,"25":28.34,"30":31.24,"35":38.72,"40":55.13,"45":82.72,"50":120.74,"55":163.94,"60":213.14,"65":440.18,"70":671.13},"fn":{"18":12.55,"19":12.89,"20":13.23,"21":13.57,"22":13.91,"23":14.26,"24":14.6,"25":14.94,"30":16.65,"35":16.65,"40":23.94,"45":23.94,"50":23.94,"55":50.4,"60":50.4,"65":105.39,"70":105.39,"75":105.39},"ft":{"18":16.81,"19":17.77,"20":18.73,"21":19.69,"22":20.65,"23":21.62,"24":22.58,"25":23.54,"30":28.35,"35":28.35,"40":51.71,"45":72.19,"50":102.06,"55":140.22,"60":196.11,"65":196.11,"70":452.16}},"20":{"mn":{"18":14.61,"19":15.25,"20":15.89,"21":16.53,"22":17.17,"23":17.82,"24":18.46,"25":19.1,"30":22.31,"35":24.66,"40":30.69,"45":43.92,"50":63.18,"55":89.73,"60":147.87,"65":197.28},"mt":{"18":22.05,"19":23.21,"20":24.37,"21":25.53,"22":26.69,"23":27.86,"24":29.02,"25":30.18,"30":35.99,"35":46.11,"40":68.55,"45":68.55,"50":136.33,"55":176.93,"60":176.93,"65":527.13},"fn":{"18":14.99,"19":15.5,"20":16.01,"21":16.52,"22":17.03,"23":17.53,"24":18.04,"25":18.55,"30":21.09,"35":21.09,"40":21.09,"45":21.09,"50":21.09,"55":61.74,"60":91.08,"65":91.08,"70":91.08},"ft":{"18":19.08,"19":20.13,"20":21.18,"21":22.23,"22":23.28,"23":24.33,"24":25.38,"25":26.43,"30":31.68,"35":42.7,"40":59.76,"45":81.81,"50":81.81,"55":81.81,"60":234.34,"65":336.24}},"30":{"mn":{"18":23.47,"19":23.62,"20":23.76,"21":23.9,"22":24.05,"23":24.19,"24":24.34,"25":24.48,"30":25.2,"35":25.2,"40":25.2,"45":52.11,"50":70.2,"55":141.75},"mt":{"18":28.38,"19":29.9,"20":31.42,"21":32.94,"22":34.46,"23":35.99,"24":37.51,"25":39.03,"30":46.64,"35":57.69,"40":85.66,"45":107.01,"50":235.26,"55":563.22},"fn":{"18":21.88,"19":21.88,"20":21.88,"21":21.88,"22":21.88,"23":21.88,"24":21.88,"25":21.88,"30":21.88,"35":25.29,"40":25.29,"45":25.29,"50":25.29,"55":25.29,"60":25.29},"ft":{"18":23.76,"19":25.14,"20":26.52,"21":27.9,"22":29.28,"23":30.67,"24":32.05,"25":33.43,"30":40.34,"35":53.28,"40":53.28,"45":99.31,"50":110.78,"55":305.64}}};
-const INSTABRAIN_TERM_RATES = {"10":{"mn":{"18":11.75,"19":11.75,"20":11.75,"21":11.75,"22":11.75,"23":11.75,"24":11.75,"25":11.75,"30":11.75,"35":11.75,"40":13.83,"45":16.79,"50":16.79,"55":16.79,"60":16.79},"mt":{"18":16.87,"19":17.22,"20":17.57,"21":17.92,"22":18.27,"23":18.61,"24":18.96,"25":19.31,"30":21.05,"35":21.05,"40":21.05,"45":21.05,"50":21.05,"55":98.22,"60":186.01,"65":186.01},"fn":{"18":10.09,"19":10.09,"20":10.09,"21":10.09,"22":10.09,"23":10.09,"24":10.09,"25":10.09,"30":10.09,"35":10.09,"40":10.09,"45":14.7,"50":14.7,"55":26.62,"60":45.68,"65":45.68},"ft":{"18":11.34,"19":11.72,"20":12.1,"21":12.48,"22":12.86,"23":13.25,"24":13.63,"25":14.01,"30":15.92,"35":19.23,"40":25.23,"45":35.93,"50":53.51,"55":86.04,"60":168.08}},"15":{"mn":{"18":11.75,"19":11.75,"20":11.75,"21":11.75,"22":11.75,"23":11.75,"24":11.75,"25":11.75,"30":11.75,"35":11.75,"40":11.75,"45":11.75,"50":22.88,"55":33.23,"60":63.68},"mt":{"18":16.87,"19":17.22,"20":17.57,"21":17.92,"22":18.27,"23":18.61,"24":18.96,"25":19.31,"30":21.05,"35":25.32,"40":34.97,"45":49.33,"50":71.6,"55":117.1,"60":228.03},"fn":{"18":9.84,"19":9.87,"20":9.91,"21":9.95,"22":9.98,"23":10.02,"24":10.05,"25":10.09,"30":10.27,"35":10.27,"40":12.09,"45":12.09,"50":12.09,"55":29.41,"60":29.41},"ft":{"18":11.53,"19":11.89,"20":12.26,"21":12.63,"22":12.99,"23":13.36,"24":13.72,"25":14.09,"30":15.92,"35":15.92,"40":27.41,"45":39.85,"50":61.86,"55":105.62,"60":208.54,"65":208.54}},"20":{"mn":{"18":11.39,"19":11.44,"20":11.49,"21":11.54,"22":11.59,"23":11.65,"24":11.7,"25":11.75,"30":12.01,"35":12.18,"40":14.7,"45":18.27,"50":26.8,"55":42.2,"60":86.13},"mt":{"18":15.78,"19":16.37,"20":16.96,"21":17.55,"22":18.14,"23":18.74,"24":19.33,"25":19.92,"30":22.88,"35":28.45,"40":39.85,"45":39.85,"50":87.26,"55":148.42,"60":148.42},"fn":{"18":9.73,"19":9.78,"20":9.83,"21":9.88,"22":9.93,"23":9.99,"24":10.04,"25":10.09,"30":10.35,"35":10.35,"40":10.35,"45":10.35,"50":10.35,"55":36.45,"60":72.3,"65":72.3,"70":72.3},"ft":{"18":10.59,"19":11.13,"20":11.67,"21":12.21,"22":12.75,"23":13.28,"24":13.82,"25":14.36,"30":17.05,"35":22.36,"40":31.93,"45":47.94,"50":47.94,"55":47.94,"60":268.57}},"30":{"mn":{"18":10.91,"19":11.03,"20":11.15,"21":11.27,"22":11.39,"23":11.51,"24":11.63,"25":11.75,"30":12.35,"35":12.35,"40":12.35,"45":24.97,"50":42.2},"mt":{"18":15.18,"19":16.2,"20":17.23,"21":18.26,"22":19.28,"23":20.31,"24":21.33,"25":22.36,"30":27.49,"35":36.98,"40":54.81,"45":86.65},"fn":{"18":10.09,"19":10.09,"20":10.09,"21":10.09,"22":10.09,"23":10.09,"24":10.09,"25":10.09,"30":10.09,"35":11.75,"40":11.75,"45":11.75,"50":11.75,"55":11.75,"60":11.75},"ft":{"18":9.17,"19":10.16,"20":11.15,"21":12.14,"22":13.13,"23":14.12,"24":15.11,"25":16.1,"30":21.05,"35":30.54,"40":30.54,"45":76.21}}};
-const JOHN_HANCOCK_TERM_RATES = {"10":{"mn":{"18":22.64,"19":22.64,"20":22.64,"21":22.64,"22":22.64,"23":22.64,"24":22.64,"25":22.64,"30":22.64,"35":24.32,"40":29.5,"45":36.95,"50":36.95,"55":36.95,"60":36.95},"mt":{"18":34.18,"19":34.18,"20":34.18,"21":34.18,"22":34.18,"23":34.18,"24":34.18,"25":34.18,"30":34.18,"35":34.18,"40":34.18,"45":34.18,"50":34.18,"55":190.36,"60":284.44,"65":284.44},"fn":{"18":17.81,"19":17.81,"20":17.81,"21":17.81,"22":17.81,"23":17.81,"24":17.81,"25":17.81,"30":17.81,"35":17.81,"40":17.81,"45":29.82,"50":29.82,"55":57.82,"60":83.47,"65":83.47},"ft":{"18":25.16,"19":25.49,"20":25.82,"21":26.15,"22":26.48,"23":26.8,"24":27.13,"25":27.46,"30":29.1,"35":31.44,"40":39.22,"45":61.58,"50":94.2,"55":127.14,"60":187.43}},"15":{"mn":{"18":23.4,"19":23.4,"20":23.4,"21":23.4,"22":23.4,"23":23.4,"24":23.4,"25":23.4,"30":23.4,"35":24.99,"40":24.99,"45":24.99,"50":59,"55":84.57,"60":125.13},"mt":{"18":34.49,"19":34.49,"20":34.49,"21":34.49,"22":34.49,"23":34.49,"24":34.49,"25":34.49,"30":34.49,"35":42.72,"40":61.93,"45":97.88,"50":145.2,"55":214.48,"60":320.94},"fn":{"18":18.86,"19":18.86,"20":18.86,"21":18.86,"22":18.86,"23":18.86,"24":18.86,"25":18.86,"30":18.86,"35":18.86,"40":26.34,"45":26.34,"50":26.34,"55":72.97,"60":72.97},"ft":{"18":23.41,"19":24.05,"20":24.7,"21":25.35,"22":25.99,"23":26.64,"24":27.28,"25":27.93,"30":31.16,"35":31.16,"40":46.84,"45":72.33,"50":110.17,"55":151.13,"60":223.43,"65":223.43}},"20":{"mn":{"18":24.26,"19":24.26,"20":24.26,"21":24.26,"22":24.26,"23":24.26,"24":24.26,"25":24.26,"30":24.26,"35":27.36,"40":34.7,"45":49.68,"50":74.7,"55":112.7},"mt":{"18":35.41,"19":35.56,"20":35.71,"21":35.86,"22":36.01,"23":36.17,"24":36.32,"25":36.47,"30":37.23,"35":53.16,"40":74.65,"45":74.65,"50":183.91,"55":283.61,"60":283.61},"fn":{"18":19.28,"19":19.28,"20":19.28,"21":19.28,"22":19.28,"23":19.28,"24":19.28,"25":19.28,"30":19.28,"35":19.28,"40":19.28,"45":19.28,"50":19.28,"55":89.96},"ft":{"18":24.3,"19":25.23,"20":26.16,"21":27.09,"22":28.02,"23":28.94,"24":29.87,"25":30.8,"30":35.44,"35":41.26,"40":55.9,"45":89.28,"50":89.28,"55":89.28}},"30":{"mn":{"18":27.97,"19":27.97,"20":27.97,"21":27.97,"22":27.97,"23":27.97,"24":27.97,"25":27.97,"30":27.97,"35":27.97,"40":27.97,"45":69.48},"mt":{"18":52.1,"19":52.1,"20":52.1,"21":52.1,"22":52.1,"23":52.1,"24":52.1,"25":52.1,"30":52.1,"35":67.31,"40":104.93,"45":143.65},"fn":{"18":24.75,"19":24.75,"20":24.75,"21":24.75,"22":24.75,"23":24.75,"24":24.75,"25":24.75,"30":24.75,"35":30.39,"40":30.39,"45":30.39,"50":30.39,"55":30.39,"60":30.39},"ft":{"18":45.89,"19":45.89,"20":45.89,"21":45.89,"22":45.89,"23":45.89,"24":45.89,"25":45.89,"30":45.89,"35":60.17,"40":60.17,"45":125.66}}};
-const MUTUAL_OF_OMAHA_TERM_RATES = {"10":{"mn":{"18":14.56,"19":14.94,"20":15.31,"21":15.68,"22":16.06,"23":16.43,"24":16.81,"25":17.18,"30":19.05,"35":22.61,"40":28.48,"45":39.43,"50":39.43,"55":39.43,"60":39.43,"65":205.5,"70":349.59,"75":592.83},"mt":{"18":25,"19":25.41,"20":25.82,"21":26.23,"22":26.64,"23":27.04,"24":27.45,"25":27.86,"30":29.9,"35":29.9,"40":29.9,"45":29.9,"50":29.9,"55":167.77,"60":235.49,"65":235.49,"70":733.09},"fn":{"18":15.04,"19":15.04,"20":15.04,"21":15.04,"22":15.04,"23":15.04,"24":15.04,"25":15.04,"30":15.04,"35":15.04,"40":15.04,"45":31.86,"50":31.86,"55":59.99,"60":88.2,"65":88.2,"70":290.59,"75":529.46},"ft":{"18":21.72,"19":22.03,"20":22.33,"21":22.63,"22":22.94,"23":23.24,"24":23.55,"25":23.85,"30":25.37,"35":32.13,"40":48.77,"45":75.38,"50":103.95,"55":152.72,"60":209.95,"65":359.38,"70":585.62,"75":954.26}},"15":{"mn":{"18":18.69,"19":18.69,"20":18.69,"21":18.69,"22":18.69,"23":18.69,"24":18.69,"25":18.69,"30":18.69,"35":24.65,"40":24.65,"45":24.65,"50":68.8,"55":99.59,"60":138.4,"65":229.35,"70":497.07},"mt":{"18":27.3,"19":27.76,"20":28.22,"21":28.68,"22":29.14,"23":29.61,"24":30.07,"25":30.53,"30":32.84,"35":41.83,"40":63.19,"45":90.6,"50":132.25,"55":186.01,"60":261.22,"65":486.56,"70":813.91},"fn":{"18":15.02,"19":15.43,"20":15.84,"21":16.25,"22":16.66,"23":17.07,"24":17.48,"25":17.89,"30":19.94,"35":19.94,"40":29.64,"45":29.64,"50":29.64,"55":94.16,"60":94.16,"65":220.54,"70":220.54,"75":220.54},"ft":{"18":27.94,"19":28.12,"20":28.3,"21":28.48,"22":28.66,"23":28.83,"24":29.01,"25":29.19,"30":30.08,"35":30.08,"40":59.72,"45":87.58,"50":127.8,"55":176.13,"60":244.48,"65":244.48,"70":733.09}},"20":{"mn":{"18":13.92,"19":14.62,"20":15.31,"21":16,"22":16.7,"23":17.39,"24":18.09,"25":18.78,"30":22.25,"35":26.7,"40":38,"45":54.29,"50":79.3,"55":118.28,"60":211.55},"mt":{"18":32.58,"19":32.93,"20":33.29,"21":33.65,"22":34,"23":34.36,"24":34.71,"25":35.07,"30":36.85,"35":47.88,"40":70.22,"45":70.22,"50":147.56,"55":211.46,"60":211.46},"fn":{"18":13.37,"19":14.03,"20":14.69,"21":15.35,"22":16.01,"23":16.66,"24":17.32,"25":17.98,"30":21.27,"35":21.27,"40":21.27,"45":21.27,"50":21.27,"55":111.25,"60":199,"65":199,"70":199},"ft":{"18":24.52,"19":25.39,"20":26.26,"21":27.13,"22":28,"23":28.88,"24":29.75,"25":30.62,"30":34.98,"35":45.39,"40":66.22,"45":99.68,"50":99.68,"55":99.68,"60":352.8}},"30":{"mn":{"18":15.33,"19":16.35,"20":17.36,"21":18.37,"22":19.39,"23":20.4,"24":21.42,"25":22.43,"30":27.5,"35":27.5,"40":27.5,"45":73.16,"50":113.3},"mt":{"18":30.84,"19":32.37,"20":33.9,"21":35.43,"22":36.96,"23":38.5,"24":40.03,"25":41.56,"30":49.22,"35":63.9,"40":97.01,"45":144.27,"50":164.29},"fn":{"18":21.45,"19":21.45,"20":21.45,"21":21.45,"22":21.45,"23":21.45,"24":21.45,"25":21.45,"30":21.45,"35":32.22,"40":32.22,"45":32.22,"50":32.22,"55":32.22,"60":32.22},"ft":{"18":23.16,"19":25.07,"20":26.97,"21":28.87,"22":30.78,"23":32.68,"24":34.59,"25":36.49,"30":46.01,"35":60.25,"40":60.25,"45":127,"50":161.8}}};
-const SBLI_TERM_RATES = {"10":{"mn":{"18":7.81,"19":7.81,"20":7.81,"21":7.81,"22":7.81,"23":7.81,"24":7.81,"25":7.81,"30":7.81,"35":7.98,"40":8.49,"45":11.03,"50":11.03,"55":11.03,"60":11.03,"65":53.07,"70":86.47,"75":151.26},"mt":{"18":24.82,"19":24.82,"20":24.82,"21":24.82,"22":24.82,"23":24.82,"24":24.82,"25":24.82,"30":24.82,"35":24.82,"40":24.82,"45":24.82,"50":24.82,"55":124.74,"60":188.86,"65":188.86,"70":417.95,"75":907.72},"fn":{"18":7.56,"19":7.56,"20":7.56,"21":7.56,"22":7.56,"23":7.56,"24":7.56,"25":7.56,"30":7.56,"35":7.56,"40":7.56,"45":10.01,"50":10.01,"55":18.13,"60":24.3,"65":24.3,"70":59.28,"75":110.07},"ft":{"18":21.09,"19":21.16,"20":21.23,"21":21.3,"22":21.37,"23":21.45,"24":21.52,"25":21.59,"30":21.95,"35":26.32,"40":36.77,"45":53.49,"50":84.08,"55":124.74,"60":188.86,"65":307.14,"70":292.06,"75":798.58}},"15":{"mn":{"18":7.81,"19":7.81,"20":7.81,"21":7.81,"22":7.81,"23":7.81,"24":7.81,"25":7.81,"30":7.81,"35":7.98,"40":7.98,"45":7.98,"50":17.97,"55":24.93,"60":37.75,"65":67.28,"70":120.86,"75":276.83},"mt":{"18":29.93,"19":30.02,"20":30.1,"21":30.18,"22":30.27,"23":30.35,"24":30.44,"25":30.52,"30":30.94,"35":40.95,"40":61.66,"45":91.87,"50":130.34,"55":178.03,"60":255.46,"65":406.7},"fn":{"18":7.36,"19":7.39,"20":7.42,"21":7.45,"22":7.48,"23":7.5,"24":7.53,"25":7.56,"30":7.7,"35":7.7,"40":9.08,"45":9.08,"50":9.08,"55":19.55,"60":19.55,"65":44.87,"70":44.87,"75":44.87},"ft":{"18":21.55,"19":22.27,"20":22.99,"21":23.71,"22":24.43,"23":25.16,"24":25.88,"25":26.6,"30":30.21,"35":30.21,"40":61.66,"45":91.87,"50":130.34,"55":178.03,"60":255.46,"65":255.46}},"20":{"mn":{"18":9.43,"19":9.43,"20":9.43,"21":9.43,"22":9.43,"23":9.43,"24":9.43,"25":9.43,"30":9.43,"35":9.43,"40":10.61,"45":15.68,"50":21.77,"55":33.77,"60":52.35,"65":97,"70":203.73},"mt":{"18":31.52,"19":31.82,"20":32.13,"21":32.44,"22":32.74,"23":33.05,"24":33.35,"25":33.66,"30":35.19,"35":47.79,"40":71.63,"45":71.63,"50":157.51,"55":212.71,"60":212.71},"fn":{"18":7.79,"19":7.83,"20":7.87,"21":7.91,"22":7.95,"23":7.99,"24":8.03,"25":8.07,"30":8.27,"35":8.27,"40":8.27,"45":8.27,"50":8.27,"55":24.26,"60":37.22,"65":37.22,"70":37.22},"ft":{"18":22.8,"19":23.8,"20":24.81,"21":25.82,"22":26.82,"23":27.83,"24":28.83,"25":29.84,"30":34.87,"35":47.79,"40":71.63,"45":109.16,"50":109.16,"55":109.16,"60":296.97}},"30":{"mn":{"18":11.32,"19":11.4,"20":11.48,"21":11.56,"22":11.64,"23":11.73,"24":11.81,"25":11.89,"30":12.3,"35":12.3,"40":12.3,"45":23.85,"50":35.95,"55":67.73},"mt":{"18":43.86,"19":43.86,"20":43.86,"21":43.86,"22":43.86,"23":43.86,"24":43.86,"25":43.86,"30":43.86,"35":58.81,"40":85.03,"45":121.22,"50":185.16},"fn":{"18":10.45,"19":10.45,"20":10.45,"21":10.45,"22":10.45,"23":10.45,"24":10.45,"25":10.45,"30":10.45,"35":11.71,"40":11.71,"45":11.71,"50":11.71,"55":11.71,"60":11.71},"ft":{"18":25.23,"19":26.69,"20":28.15,"21":29.61,"22":31.07,"23":32.53,"24":33.99,"25":35.45,"30":42.75,"35":58.81,"40":58.81,"45":121.22,"50":185.16}}};
-const ROYAL_NEIGHBORS_TERM_RATES = {"10":{"mn":{"18":11.07,"19":11.08,"20":11.1,"21":11.12,"22":11.13,"23":11.15,"24":11.16,"25":11.18,"30":11.26,"35":11.35,"40":12.76,"45":14.17,"50":14.17,"55":14.17,"60":14.17,"65":69.78,"70":137.9,"75":207.68},"mt":{"18":20.15,"19":20.32,"20":20.5,"21":20.68,"22":20.85,"23":21.03,"24":21.2,"25":21.38,"30":22.26,"35":22.26,"40":22.26,"45":22.26,"50":22.26,"55":114.49,"60":187.44,"65":187.44,"70":485.58,"75":708.05},"fn":{"18":10.3,"19":10.3,"20":10.3,"21":10.3,"22":10.3,"23":10.3,"24":10.3,"25":10.3,"30":10.3,"35":10.3,"40":10.3,"45":14.08,"50":14.08,"55":24.46,"60":39.86,"65":39.86,"70":110.62,"75":165.97},"ft":{"18":14.66,"19":15.03,"20":15.4,"21":15.77,"22":16.14,"23":16.51,"24":16.88,"25":17.25,"30":19.1,"35":20.86,"40":28.6,"45":36.34,"50":63.1,"55":89.85,"60":155.23,"65":219.82,"70":345.93,"75":470.27}},"15":{"mn":{"18":12.58,"19":12.58,"20":12.58,"21":12.58,"22":12.58,"23":12.58,"24":12.58,"25":12.58,"30":12.58,"35":12.76,"40":12.76,"45":12.76,"50":27.98,"55":37.14,"60":64.06,"65":91.08,"70":230.12,"75":371.54},"mt":{"18":18.26,"19":18.72,"20":19.18,"21":19.64,"22":20.1,"23":20.55,"24":21.01,"25":21.47,"30":23.76,"35":26.05,"40":39.25,"45":52.36,"50":91.96,"55":131.74,"60":222.73,"65":314.6,"70":529.94},"fn":{"18":10.64,"19":10.73,"20":10.82,"21":10.91,"22":11,"23":11.08,"24":11.17,"25":11.26,"30":11.7,"35":11.7,"40":14.52,"45":14.52,"50":14.52,"55":29.83,"60":29.83,"65":68.82,"70":68.82,"75":68.82},"ft":{"18":14.52,"19":15.05,"20":15.58,"21":16.11,"22":16.64,"23":17.16,"24":17.69,"25":18.22,"30":20.86,"35":20.86,"40":35.29,"45":46.99,"50":79.55,"55":112.46,"60":180.05,"65":180.05,"70":397.67}},"20":{"mn":{"18":11.62,"19":11.79,"20":11.97,"21":12.15,"22":12.32,"23":12.5,"24":12.67,"25":12.85,"30":13.73,"35":14.7,"40":18.39,"45":22.18,"50":32.91,"55":43.74,"60":82.98,"65":122.67,"70":236.28},"mt":{"18":9.63,"19":9.87,"20":10.12,"21":10.37,"22":10.61,"23":10.86,"24":11.1,"25":11.35,"30":12.58,"35":13.73,"40":16.81,"45":16.81,"50":28.25,"55":36.7,"60":36.7,"65":90.29,"70":193.25},"fn":{"18":10.51,"19":10.75,"20":11,"21":11.25,"22":11.49,"23":11.74,"24":11.98,"25":12.23,"30":13.46,"35":13.46,"40":13.46,"45":13.46,"50":13.46,"55":40.92,"60":73.04,"65":73.04,"70":73.04},"ft":{"18":14.24,"19":14.91,"20":15.58,"21":16.25,"22":16.92,"23":17.58,"24":18.25,"25":18.92,"30":22.26,"35":25.78,"40":41.1,"45":56.5,"50":56.5,"55":56.5,"60":211.55,"65":291.1}},"30":{"mn":{"18":17.87,"19":18,"20":18.12,"21":18.24,"22":18.37,"23":18.49,"24":18.62,"25":18.74,"30":19.36,"35":19.36,"40":19.36,"45":37.22,"50":63.98,"55":91.96},"mt":{"18":19.63,"19":21.08,"20":22.52,"21":23.96,"22":25.41,"23":26.85,"24":28.3,"25":29.74,"30":36.96,"35":44,"40":71.02,"45":97.86,"50":137.54},"fn":{"18":15.4,"19":15.4,"20":15.4,"21":15.4,"22":15.4,"23":15.4,"24":15.4,"25":15.4,"30":15.4,"35":17.16,"40":17.16,"45":17.16,"50":17.16,"55":17.16,"60":17.16},"ft":{"18":21.44,"19":22.16,"20":22.88,"21":23.6,"22":24.32,"23":25.05,"24":25.77,"25":26.49,"30":30.1,"35":34.14,"40":34.14,"45":79.02,"50":121.53}}};
-const TRANSAMERICA_TERM_RATES = {"10":{"mn":{"18":7.95,"19":7.98,"20":8.01,"21":8.04,"22":8.07,"23":8.1,"24":8.13,"25":8.16,"30":8.31,"35":8.31,"40":9.61,"45":11.46,"50":11.46,"55":11.46,"60":11.46,"65":43.66,"70":81.9,"75":138.34},"mt":{"18":18.44,"19":18.52,"20":18.61,"21":18.7,"22":18.78,"23":18.87,"24":18.95,"25":19.04,"30":19.47,"35":19.47,"40":19.47,"45":19.47,"50":19.47,"55":79.22,"60":122.57,"65":122.57,"70":274.98,"75":476.09},"fn":{"18":6.97,"19":6.97,"20":6.97,"21":6.97,"22":6.97,"23":6.97,"24":6.97,"25":6.97,"30":6.97,"35":6.97,"40":6.97,"45":9.95,"50":9.95,"55":17.41,"60":25.46,"65":25.46,"70":56.26,"75":97.56},"ft":{"18":14.79,"19":14.96,"20":15.13,"21":15.3,"22":15.47,"23":15.64,"24":15.81,"25":15.98,"30":16.83,"35":18.19,"40":23.63,"45":29.92,"50":40.46,"55":57.38,"60":90.7,"65":135.58,"70":197.88,"75":299.71}},"15":{"mn":{"18":8.75,"19":8.75,"20":8.75,"21":8.75,"22":8.75,"23":8.75,"24":8.75,"25":8.75,"30":8.75,"35":8.93,"40":8.93,"45":8.93,"50":17.94,"55":26.25,"60":42.88,"65":66.76,"70":104.65,"75":280.84},"mt":{"18":19.64,"19":19.64,"20":19.64,"21":19.64,"22":19.64,"23":19.64,"24":19.64,"25":19.64,"30":19.64,"35":23.29,"40":30.18,"45":41.06,"50":59.59,"55":92.14,"60":131.41,"65":204.34,"70":354.88},"fn":{"18":7.24,"19":7.28,"20":7.31,"21":7.34,"22":7.38,"23":7.41,"24":7.45,"25":7.48,"30":7.65,"35":7.65,"40":9.01,"45":9.01,"50":9.01,"55":20.4,"60":20.4,"65":46.99,"70":46.99,"75":46.99},"ft":{"18":15.81,"19":15.98,"20":16.15,"21":16.32,"22":16.49,"23":16.66,"24":16.83,"25":17,"30":17.85,"35":17.85,"40":25.84,"45":35.62,"50":48.54,"55":68.68,"60":102.51,"65":102.51,"70":242.76}},"20":{"mn":{"18":9.06,"19":9.08,"20":9.1,"21":9.12,"22":9.14,"23":9.15,"24":9.17,"25":9.19,"30":9.28,"35":9.35,"40":11.05,"45":15.64,"50":21.76,"55":32.64,"60":50.93,"65":91.53,"70":202.47},"mt":{"18":17.08,"19":17.64,"20":18.2,"21":18.76,"22":19.32,"23":19.88,"24":20.44,"25":21,"30":23.8,"35":27.03,"40":36.55,"45":36.55,"50":76.93,"55":124.44,"60":124.44,"65":267.24},"fn":{"18":7.81,"19":7.88,"20":7.95,"21":8.02,"22":8.09,"23":8.17,"24":8.24,"25":8.31,"30":8.67,"35":8.67,"40":8.67,"45":8.67,"50":8.67,"55":25.55,"60":39.03,"65":39.03,"70":39.03},"ft":{"18":14.33,"19":14.82,"20":15.31,"21":15.8,"22":16.29,"23":16.79,"24":17.28,"25":17.77,"30":20.23,"35":23.8,"40":30.86,"45":43.61,"50":43.61,"55":43.61,"60":132.18,"65":216.33}},"30":{"mn":{"18":11.19,"19":11.28,"20":11.37,"21":11.46,"22":11.55,"23":11.63,"24":11.72,"25":11.81,"30":12.25,"35":12.25,"40":12.25,"45":25.11,"50":36.66,"55":59.94},"mt":{"18":23.35,"19":24.13,"20":24.91,"21":25.69,"22":26.47,"23":27.26,"24":28.04,"25":28.82,"30":32.73,"35":39.78,"40":56.87,"45":86.87,"50":122.4},"fn":{"18":10.33,"19":10.33,"20":10.33,"21":10.33,"22":10.33,"23":10.33,"24":10.33,"25":10.33,"30":10.33,"35":12.16,"40":12.16,"45":12.16,"50":12.16,"55":12.16,"60":12.16},"ft":{"18":18.13,"19":18.76,"20":19.39,"21":20.02,"22":20.65,"23":21.27,"24":21.9,"25":22.53,"30":25.67,"35":31.03,"40":31.03,"45":64.35,"50":98.43}}};
-
-
-// ── CASH VALUE CORRIDOR ESTIMATOR ──────────────────────────────────────────
-// ── CV CORRIDOR — calibrated to real carrier policy illustrations ──
-// Data sources: Americo, Royal Neighbors, LifeShield, older whole life carriers
-// Values = Cash/Loan Value as % of Total Premiums Paid (net of carrier charges)
-function calculateCVCorridor(monthlyPremium, policyYears, issueAge) {
-  const annualPremium = monthlyPremium * 12;
-  const totalPaid     = Math.round(annualPremium * policyYears);
-
-  // Age-tiered breakpoints [year, lowPct, highPct]
-  // Under 60: slower start, builds higher long term (lower mortality load early)
-  const UNDER60 = [
-    [1,0,0],[2,0,0],[3,0.08,0.12],[5,0.18,0.25],
-    [10,0.28,0.38],[15,0.35,0.44],[20,0.38,0.50],[30,0.42,0.54]
-  ];
-  // 60-70: faster initial build, slightly lower ceiling
-  const AGE60_70 = [
-    [1,0,0],[2,0.05,0.07],[3,0.10,0.22],[5,0.20,0.35],
-    [10,0.28,0.46],[15,0.32,0.50],[20,0.34,0.52],[30,0.36,0.53]
-  ];
-  // 71+: heavy mortality cost, lower ceiling but still meaningful
-  const AGE71PLUS = [
-    [1,0,0],[2,0,0],[3,0.08,0.20],[5,0.20,0.34],
-    [10,0.30,0.44],[15,0.32,0.46],[20,0.32,0.45],[30,0.34,0.46]
-  ];
-
-  const table = issueAge < 60 ? UNDER60 : issueAge <= 70 ? AGE60_70 : AGE71PLUS;
-
-  // Linear interpolation between breakpoints
-  function interp(yr) {
-    if (yr <= table[0][0]) return [table[0][1], table[0][2]];
-    for (let i = 1; i < table.length; i++) {
-      if (yr <= table[i][0]) {
-        const [y0,l0,h0] = table[i-1];
-        const [y1,l1,h1] = table[i];
-        const t = (yr - y0) / (y1 - y0);
-        return [l0 + t*(l1-l0), h0 + t*(h1-h0)];
-      }
-    }
-    return [table[table.length-1][1], table[table.length-1][2]];
-  }
-
-  const [lowPct, highPct] = interp(policyYears);
-  const low  = Math.round(totalPaid * lowPct);
-  const high = Math.round(totalPaid * highPct);
-  return { low, high, totalPaid, annualPremium };
-}
-
-const CashValueProjection = ({ monthlyPremium, policyYears, issueAge, C, isDark }) => {
-  const fmt = n => '$' + Math.round(n).toLocaleString();
-  const amber = '#C5A059';
-  const green = '#34D399';
-  const d = calculateCVCorridor(monthlyPremium, policyYears, issueAge || 65);
-  const range = d.high - d.low;
-
-  return (
-    <div style={{display:'flex',flexDirection:'column',gap:16,padding:24,maxWidth:680,margin:'0 auto',width:'100%'}}>
-
-      {/* Header */}
-      <div style={{display:'flex',alignItems:'center',gap:12,paddingBottom:14,borderBottom:`1px solid ${C.bd}`}}>
-        <span style={{fontSize:30}}>💰</span>
-        <div>
-          <div style={{fontSize:18,fontWeight:800,color:C.t0,fontFamily:"'DM Sans',sans-serif"}}>Cash Value Estimator</div>
-          <div style={{fontSize:12,color:C.t4,marginTop:2}}>
-            Whole life · ${monthlyPremium.toLocaleString()}/mo · {policyYears} yr{policyYears===1?'':'s'} in-force · Issued age {issueAge||65}
-          </div>
-        </div>
-        <div style={{marginLeft:'auto',display:'flex',flexDirection:'column',alignItems:'flex-end',gap:4}}>
-          <span style={{background:'rgba(245,158,11,0.1)',border:'1px solid rgba(245,158,11,0.25)',borderRadius:6,padding:'3px 9px',fontSize:11,color:amber,fontWeight:700}}>
-            {(issueAge||65) < 60 ? 'Under 60' : (issueAge||65) <= 70 ? 'Age 60–70' : 'Age 71+'} tier
-          </span>
-        </div>
-      </div>
-
-      {/* Key metrics row */}
-      <div style={{display:'grid',gridTemplateColumns:'1fr 1fr',gap:10}}>
-        <div style={{background:C.bg3,border:`1px solid ${C.bd}`,borderRadius:12,padding:'14px 16px'}}>
-          <div style={{fontSize:10,color:C.t4,fontWeight:700,letterSpacing:1.4,textTransform:'uppercase',marginBottom:6}}>Annual Premium</div>
-          <div style={{fontSize:20,fontWeight:800,color:C.t1,fontFamily:"'DM Mono',monospace"}}>{fmt(d.annualPremium)}</div>
-        </div>
-        <div style={{background:C.bg3,border:`1px solid ${C.bd}`,borderRadius:12,padding:'14px 16px'}}>
-          <div style={{fontSize:10,color:C.t4,fontWeight:700,letterSpacing:1.4,textTransform:'uppercase',marginBottom:6}}>Total Premiums Paid</div>
-          <div style={{fontSize:20,fontWeight:800,color:C.t1,fontFamily:"'DM Mono',monospace"}}>{fmt(d.totalPaid)}</div>
-        </div>
-      </div>
-
-      {/* Big corridor card */}
-      <div style={{background:isDark?'rgba(245,158,11,0.06)':'rgba(245,158,11,0.04)',border:'1px solid rgba(245,158,11,0.3)',borderRadius:14,padding:20}}>
-        <div style={{fontSize:10,fontWeight:700,letterSpacing:1.8,color:amber,textTransform:'uppercase',marginBottom:16}}>
-          Estimated Surrender Value · After {policyYears} Year{policyYears===1?'':'s'}
-        </div>
-        <div style={{marginBottom:14}}>
-          <div style={{fontSize:10,color:C.t4,marginBottom:8,fontWeight:600,letterSpacing:0.5}}>ESTIMATED CASH VALUE</div>
-          <div style={{display:'flex',alignItems:'baseline',gap:10,flexWrap:'wrap'}}>
-            <span style={{fontSize:28,fontWeight:800,color:C.t2,fontFamily:"'DM Mono',monospace"}}>{fmt(d.low)}</span>
-            <span style={{fontSize:18,color:C.t4,fontWeight:400}}>–</span>
-            <span style={{fontSize:28,fontWeight:800,color:amber,fontFamily:"'DM Mono',monospace"}}>{fmt(d.high)}</span>
-          </div>
-          <div style={{fontSize:11,color:C.t4,marginTop:6}}>Conservative estimate · Target estimate · Agent reference only</div>
-        </div>
-
-        {/* Visual bar */}
-        <div style={{marginTop:4}}>
-          <div style={{display:'flex',justifyContent:'space-between',fontSize:10,color:C.t4,marginBottom:4}}>
-            <span>{fmt(d.low)}</span><span style={{color:amber}}>{fmt(d.high)}</span>
-          </div>
-          <div style={{height:8,borderRadius:4,background:C.bg2,overflow:'hidden',position:'relative'}}>
-            <div style={{position:'absolute',left:0,top:0,height:'100%',width:'100%',
-              background:'linear-gradient(90deg,rgba(148,163,184,0.4),#F59E0B)',borderRadius:4}}/>
-          </div>
-          <div style={{fontSize:10,color:C.t4,marginTop:4,textAlign:'center'}}>Estimated corridor based on real carrier policy illustrations</div>
-        </div>
-      </div>
-
-      {/* Early-year warning */}
-      {policyYears <= 2 && (
-        <div style={{display:'flex',alignItems:'flex-start',gap:10,background:'rgba(239,68,68,0.08)',border:'1px solid rgba(239,68,68,0.3)',borderRadius:10,padding:'10px 14px'}}>
-          <span style={{fontSize:16,flexShrink:0}}>⏳</span>
-          <div>
-            <div style={{fontSize:12,fontWeight:700,color:'#F87171',marginBottom:3}}>Early Policy Period</div>
-            <div style={{fontSize:11,color:'#CBD5E1',lineHeight:1.6}}>Most whole life policies accumulate little or no cash value during the first 2 years. Front-loaded carrier charges and mortality costs absorb the majority of early premiums. Significant accumulation typically begins in year 3+.</div>
-          </div>
-        </div>
-      )}
-
-      {/* Disclaimer */}
-      <div style={{fontSize:10,color:C.t4,lineHeight:1.8,background:C.bg3,borderRadius:8,padding:'10px 14px',border:`1px solid ${C.bd}`}}>
-        ⚠️ <strong style={{color:C.t3}}>Agent reference only.</strong> Estimates calibrated to real whole life carrier illustrations (Americo, Royal Neighbors, LifeShield). Actual cash value depends on your specific carrier, policy form, dividends, and loan history. Always pull the carrier's in-force illustration before discussing numbers with a client.
-      </div>
-    </div>
-  );
-};
-
-
-// ── TERM CARRIER ARRAY ──
-const TERM_CARRIERS = [
-  {id:'american_amicable', name:'American Amicable', sub:'Term Life', abbr:'AA', enabled:true, termOnly:true, supportedTerms:['10','15','20','30'],
-   product:{B:'Term',C:null,D:null,E:null},
-   fn:(age,male,smoker,tier,face,termLen)=>{
-     if(tier!=='B') return null;
-     const combo = male?(smoker?'mt':'mn'):(smoker?'ft':'fn');
-     const tl = termLen||'10';
-     if(!['10','15','20','30'].includes(tl)) return null;
-     return termLookup(AMERICAN_AMICABLE_TERM_RATES, tl, combo, age, face);
-   }},
-  {id:'instabrain', name:'Instabrain', sub:'Term Life', abbr:'I', enabled:true, termOnly:true, supportedTerms:['10','15','20','30'],
-   product:{B:'Term',C:null,D:null,E:null},
-   fn:(age,male,smoker,tier,face,termLen)=>{
-     if(tier!=='B') return null;
-     const combo = male?(smoker?'mt':'mn'):(smoker?'ft':'fn');
-     const tl = termLen||'10';
-     if(!['10','15','20','30'].includes(tl)) return null;
-     return termLookup(INSTABRAIN_TERM_RATES, tl, combo, age, face);
-   }},
-  {id:'john_hancock', name:'John Hancock', sub:'Term Life', abbr:'JH', enabled:true, termOnly:true, supportedTerms:['10','15','20','30'],
-   product:{B:'Term',C:null,D:null,E:null},
-   fn:(age,male,smoker,tier,face,termLen)=>{
-     if(tier!=='B') return null;
-     const combo = male?(smoker?'mt':'mn'):(smoker?'ft':'fn');
-     const tl = termLen||'10';
-     if(!['10','15','20','30'].includes(tl)) return null;
-     return termLookup(JOHN_HANCOCK_TERM_RATES, tl, combo, age, face);
-   }},
-  {id:'mutual_of_omaha', name:'Mutual of Omaha', sub:'Term Life', abbr:'MO', enabled:true, termOnly:true, supportedTerms:['10','15','20','30'],
-   product:{B:'Term',C:null,D:null,E:null},
-   fn:(age,male,smoker,tier,face,termLen)=>{
-     if(tier!=='B') return null;
-     const combo = male?(smoker?'mt':'mn'):(smoker?'ft':'fn');
-     const tl = termLen||'10';
-     if(!['10','15','20','30'].includes(tl)) return null;
-     return termLookup(MUTUAL_OF_OMAHA_TERM_RATES, tl, combo, age, face);
-   }},
-  {id:'sbli', name:'SBLI', sub:'Term Life', abbr:'S', enabled:true, termOnly:true, supportedTerms:['10','15','20','30'],
-   product:{B:'Term',C:null,D:null,E:null},
-   fn:(age,male,smoker,tier,face,termLen)=>{
-     if(tier!=='B') return null;
-     const combo = male?(smoker?'mt':'mn'):(smoker?'ft':'fn');
-     const tl = termLen||'10';
-     if(!['10','15','20','30'].includes(tl)) return null;
-     return termLookup(SBLI_TERM_RATES, tl, combo, age, face);
-   }},
-  {id:'royal_neighbors', name:'Royal Neighbors', sub:'Term Life', abbr:'RN', enabled:true, termOnly:true, supportedTerms:['10','15','20','30'],
-   product:{B:'Term',C:null,D:null,E:null},
-   fn:(age,male,smoker,tier,face,termLen)=>{
-     if(tier!=='B') return null;
-     const combo = male?(smoker?'mt':'mn'):(smoker?'ft':'fn');
-     const tl = termLen||'10';
-     if(!['10','15','20','30'].includes(tl)) return null;
-     return termLookup(ROYAL_NEIGHBORS_TERM_RATES, tl, combo, age, face);
-   }},
-  {id:'transamerica', name:'Transamerica', sub:'Term Life', abbr:'T', enabled:true, termOnly:true, supportedTerms:['10','15','20','30'],
-   product:{B:'Term',C:null,D:null,E:null},
-   fn:(age,male,smoker,tier,face,termLen)=>{
-     if(tier!=='B') return null;
-     const combo = male?(smoker?'mt':'mn'):(smoker?'ft':'fn');
-     const tl = termLen||'10';
-     if(!['10','15','20','30'].includes(tl)) return null;
-     return termLookup(TRANSAMERICA_TERM_RATES, tl, combo, age, face);
-   }}
+// Tier priority: which tier we pick when the carrier has multiple. We prefer
+// the BEST (cheapest) tier the carrier offers — that's what ITK returns by
+// default for a profile with no underwriting items. Lower index = better.
+const TERM_TIER_PRIORITY = [
+  'Preferred Plus', 'Ultimate Preferred', 'Super Preferred', 'Preferred',
+  'Select', 'Approved', 'Level', 'Standard', 'Standard Extra',
+  // Carrier-proprietary single-tier names — treat as "the rate":
+  'Trendsetter Super 2021', 'Trendsetter LB 2017',
+  'Continuation 10', 'Continuation 25', 'HMS', 'Payment Protector', 'Payment Protector Continuation',
+  'Simple Term', 'Simple Term Deluxe',
 ];
+
+function pickBestTier(productData) {
+  if (!productData) return null;
+  const tiers = Object.keys(productData);
+  for (const t of TERM_TIER_PRIORITY) if (tiers.includes(t)) return t;
+  return tiers[0] || null;
+}
+
+// Bilinear interpolation across (age, face) anchors.
+// Anchors at age: 25, 30, 35, 40, 45, 50, 55, 60, 65, 70, 75
+// Anchors at face: 50000, 100000, 250000, 500000, 1000000
+function termPrem(product, termLen, age, classKey, face, tierOverride=null) {
+  const productData = TERM_RATES?.[product]?.[String(termLen)];
+  if (!productData) return null;
+  const tier = tierOverride || pickBestTier(productData);
+  if (!tier || !productData[tier]) return null;
+  const clsTable = productData[tier][classKey];
+  if (!clsTable) return null;
+
+  const ages = Object.keys(clsTable).map(Number).sort((a,b)=>a-b);
+  if (!ages.length) return null;
+  if (age < ages[0] || age > ages[ages.length-1]) return null;
+
+  // Find bracketing ages
+  let aLo = ages[0], aHi = ages[ages.length-1];
+  if (clsTable[String(age)]) { aLo = aHi = age; }
+  else for (let i = 0; i < ages.length-1; i++) {
+    if (age >= ages[i] && age <= ages[i+1]) { aLo = ages[i]; aHi = ages[i+1]; break; }
+  }
+
+  function rateAt(a) {
+    const faceTbl = clsTable[String(a)];
+    if (!faceTbl) return null;
+    const faces = Object.keys(faceTbl).map(Number).sort((a,b)=>a-b);
+    if (!faces.length) return null;
+    if (face < faces[0] || face > faces[faces.length-1]) return null;
+    if (faceTbl[String(face)] != null) return faceTbl[String(face)];
+    let fLo = faces[0], fHi = faces[faces.length-1];
+    for (let i = 0; i < faces.length-1; i++) {
+      if (face >= faces[i] && face <= faces[i+1]) { fLo = faces[i]; fHi = faces[i+1]; break; }
+    }
+    const pLo = faceTbl[String(fLo)], pHi = faceTbl[String(fHi)];
+    if (pLo == null || pHi == null) return null;
+    if (fLo === fHi) return pLo;
+    return pLo + (face - fLo) / (fHi - fLo) * (pHi - pLo);
+  }
+
+  const rLo = rateAt(aLo);
+  const rHi = rateAt(aHi);
+  if (rLo == null || rHi == null) return null;
+  const rate = aLo === aHi ? rLo : rLo + (age - aLo) / (aHi - aLo) * (rHi - rLo);
+  return Math.round(rate * 100) / 100;
+}
+
+// Slug helper — product name → carrier id
+function termSlug(productName) {
+  return 'term_' + productName.toLowerCase()
+    .replace(/[()]/g, '').replace(/[^a-z0-9]+/g, '_').replace(/^_+|_+$/g, '');
+}
+
+// Auto-generate one carrier entry per product in term_rates.json
+const TERM_CARRIERS = Object.keys(TERM_RATES).map(product => {
+  const terms = Object.keys(TERM_RATES[product]).sort((a,b)=>+a-+b);
+  // Split "Company (Product)" → display name + subtitle
+  const m = product.match(/^(.*?)\s*\((.+)\)\s*$/);
+  const name = m ? m[1].trim() : product;
+  const sub  = m ? m[2].trim() : 'Term Life';
+  return {
+    id: termSlug(product),
+    product,                   // full key for term_rates.json lookup
+    name,
+    sub,
+    abbr: name.split(/\s+/).map(w => w[0]).join('').toUpperCase().slice(0,3),
+    enabled: true,
+    termOnly: true,
+    supportedTerms: terms,
+    fn: (age, male, smoker, tier, face, termLen) => {
+      const tl = String(termLen || '10');
+      if (!terms.includes(tl)) return null;
+      const cls = (male ? 'M' : 'F') + (smoker ? 'S' : 'NS');
+      return termPrem(product, tl, age, cls, face);
+    }
+  };
+});
+
 
 // Each carrier gets a single neutral initials label — no per-carrier glow colors
 
@@ -2195,47 +2066,48 @@ export default function QuoteMark() {
   },[hasQuoted,age,gender,smoker,uwTier,mode,faceAmt,budget,gsbOn,gsbFace,activeCarriers,usState]);
 
   // ── TERM LIFE RESULTS ──
-  const termAgeNum = parseInt(termAge);
-  const termAgeOK = termAge && termAgeNum>=18 && termAgeNum<=75;
+  // Term mode reuses the shared age/gender/smoker/usState fields. Term length
+  // and face come from termLength / termFace state.
   const termResults = useMemo(()=>{
-    if(quoteMode!=='term'||!termAgeOK) return null;
+    if(quoteMode!=='term'||!ageOK) return null;
     const male = gender==='male';
-    
-    // Build results for all active term carriers
+    const a = ageNum;
+
+    // Build one result per term carrier (each carrier=one product in TERM_RATES)
     const results = activeCarriers.filter(c => c.termOnly).map(carr => {
-      let prem=null;try{prem=carr.fn(termAgeNum,male,smoker,'B',termFace,termLength);}catch(e){console.error(`[QuoteMark] term ${carr.id} threw:`,e);}
-      const healthLabel = termHealth==='pp'?'Preferred Plus':termHealth==='p'?'Preferred':termHealth==='sp'?'Standard Plus':'Standard';
-      
-      if(prem == null) {
-        return {
-          ...carr,
-          available: false,
-          reason: 'Not available for this age/coverage',
-          face: termFace,
-          prem: null,
-          healthClass: healthLabel,
-          tier: 'B'
-        };
+      let prem = null;
+      let tierUsed = null;
+      try {
+        prem = carr.fn(a, male, smoker, 'B', termFace, termLength);
+        // Determine which tier was selected for display
+        const productData = TERM_RATES?.[carr.product]?.[String(termLength)];
+        if (productData) {
+          for (const t of ['Preferred Plus','Ultimate Preferred','Super Preferred','Preferred','Select','Approved','Level','Standard','Standard Plus','Standard Extra','Trendsetter Super 2021','Trendsetter LB 2017','Continuation 10','Continuation 25','HMS','Payment Protector','Payment Protector Continuation','Simple Term','Simple Term Deluxe','Elite']) {
+            if (productData[t]) { tierUsed = t; break; }
+          }
+        }
+      } catch (e) {
+        console.error(`[QuoteMark] term ${carr.id} threw:`, e);
       }
-      
+
+      if (prem == null) {
+        // Skip carrier entirely if it can't quote this profile — agents care about
+        // what IS available, not a wall of "not available" rows
+        return null;
+      }
       return {
         ...carr,
         available: true,
         face: termFace,
         prem,
-        healthClass: healthLabel,
-        tier: 'B'
+        termLen: termLength,
+        tierUsed: tierUsed || 'Standard',
       };
-    });
-    
-    // Sort by premium (available first, then by price)
-    return results.sort((a,b) => {
-      if (a.available && !b.available) return -1;
-      if (!a.available && b.available) return 1;
-      if (a.available && b.available && a.prem != null && b.prem != null) return a.prem - b.prem;
-      return 0;
-    });
-  },[quoteMode,termAge,termLength,termFace,termHealth,gender,smoker,activeCarriers]);
+    }).filter(r => r != null);
+
+    // Sort by monthly premium ascending (cheapest first)
+    return results.sort((a, b) => a.prem - b.prem);
+  }, [quoteMode, ageOK, ageNum, termLength, termFace, gender, smoker, activeCarriers]);
 
   // ── INPUT STYLES ──
   const inp = {background:C.bg2,border:`1px solid ${C.bd}`,color:C.t1,borderRadius:8,padding:'9px 12px',fontSize:13,width:'100%',boxSizing:'border-box',outline:'none',fontFamily:"'DM Sans',sans-serif"};
@@ -2571,11 +2443,70 @@ export default function QuoteMark() {
               </button>
               </>
               ) : quoteMode==='term' ? (
-              <div style={{display:'flex',flexDirection:'column',alignItems:'center',justifyContent:'center',padding:'60px 20px',textAlign:'center',gap:16}}>
-                <div style={{fontSize:48,opacity:0.5}}>⏱️</div>
-                <div style={{fontFamily:"'Barlow Condensed',sans-serif",fontSize:24,fontWeight:700,color:'#C5A059'}}>Coming Soon</div>
-                <div style={{fontSize:13,color:C.t4,lineHeight:1.7,maxWidth:260}}>Term Life quoting is under development. Check back soon for 10/15/20/30-year term rates from top carriers.</div>
-              </div>
+              <>
+                {/* ── MOBILE TERM INPUTS ── */}
+                <div style={{display:'flex',flexDirection:'column',gap:12}}>
+                  <div style={{fontSize:10,fontWeight:700,letterSpacing:1.8,color:'#C5A059',textTransform:'uppercase'}}>Client Info</div>
+                  {/* Age */}
+                  <div>
+                    <div style={{fontSize:11,color:C.t3,marginBottom:6,fontWeight:600}}>Age</div>
+                    <input inputMode="numeric" placeholder="e.g. 35" value={age}
+                      onChange={e=>setAge(e.target.value.replace(/\D/g,''))}
+                      style={{...inp,fontFamily:"'DM Mono',monospace",fontSize:15}}/>
+                  </div>
+                  {/* Gender */}
+                  <div style={{display:'flex',gap:6}}>
+                    <button className='qm-btn' style={mTogBtn(gender==='male')} onClick={()=>setGender('male')}>👨 Male</button>
+                    <button className='qm-btn' style={mTogBtn(gender==='female')} onClick={()=>setGender('female')}>👩 Female</button>
+                  </div>
+                  {/* Tobacco */}
+                  <div style={{display:'flex',gap:6}}>
+                    <button className='qm-btn' style={mTogBtn(!smoker)} onClick={()=>setSmoker(false)}>Non-smoker</button>
+                    <button className='qm-btn' style={mTogBtn(smoker,'#EF4444')} onClick={()=>setSmoker(true)}>Smoker</button>
+                  </div>
+                  {/* State */}
+                  <div>
+                    <div style={{fontSize:11,color:C.t3,marginBottom:6,fontWeight:600}}>State</div>
+                    <select value={usState} onChange={e=>setUsState(e.target.value)} style={{...inp,paddingRight:30,appearance:'none'}}>
+                      <option value="">— Select —</option>
+                      {Object.entries(STATE_NAMES).map(([code,name])=>(<option key={code} value={code}>{code} — {name}</option>))}
+                    </select>
+                  </div>
+
+                  <div style={{fontSize:10,fontWeight:700,letterSpacing:1.8,color:'#C5A059',textTransform:'uppercase',marginTop:6}}>Term Settings</div>
+                  {/* Term Length pills */}
+                  <div>
+                    <div style={{fontSize:11,color:C.t3,marginBottom:6,fontWeight:600}}>Term Length (years)</div>
+                    <div style={{display:'grid',gridTemplateColumns:'repeat(7,1fr)',gap:4}}>
+                      {['10','15','20','25','30','35','40'].map(t=>(
+                        <button key={t} onClick={()=>setTermLength(t)} style={{
+                          padding:'9px 0',borderRadius:7,border:`2px solid ${termLength===t?'#C5A059':isDark?'#374151':'#D0CDBE'}`,
+                          background:termLength===t?'#C5A059':C.bg2,color:termLength===t?'#0A192F':C.t3,
+                          fontSize:12,fontWeight:700,cursor:'pointer',fontFamily:"'DM Sans',sans-serif"
+                        }}>{t}</button>
+                      ))}
+                    </div>
+                  </div>
+                  {/* Face slider */}
+                  <div>
+                    <div style={{fontSize:11,color:C.t3,marginBottom:6,display:'flex',justifyContent:'space-between'}}>
+                      <span>Coverage amount</span>
+                      <span style={{color:C.t2,fontWeight:500,fontFamily:"'DM Mono',monospace"}}>{fmtF(termFace)}</span>
+                    </div>
+                    <input type="range" min="50000" max="1000000" step="25000" value={termFace}
+                      onChange={e=>setTermFace(+e.target.value)}
+                      style={{width:'100%',accentColor:C.gold}}/>
+                    <div style={{display:'flex',justifyContent:'space-between',fontSize:10,color:C.t4}}>
+                      <span>$50,000</span><span>$1,000,000</span>
+                    </div>
+                  </div>
+
+                  <button onClick={()=>{if(ageOK){track('Quote Requested',{tier:'term',mode:'term',gsb:false,face:faceBand(termFace)});setHasQuoted(true);setMobileTab('results');setTimeout(()=>window.scrollTo({top:0,behavior:'instant'}),0);}}}
+                    style={{width:'100%',padding:'18px 0',borderRadius:12,border:'none',cursor:ageOK?'pointer':'not-allowed',background:ageOK?C.gold:'#2A3547',color:ageOK?C.bg0:C.t4,fontSize:17,fontWeight:700,letterSpacing:0.5,opacity:ageOK?1:0.4,fontFamily:"'DM Sans',sans-serif",marginTop:8}}>
+                    ⚡ Get Term Quotes
+                  </button>
+                </div>
+              </>
               ) : null}
 
               {/* ── CV MOBILE INPUTS ── */}
@@ -2666,15 +2597,43 @@ export default function QuoteMark() {
           {mobileTab === 'results' && (
             <div ref={mobileResultsRef}>
               {quoteMode==='term' ? (
-                /* ── MOBILE TERM RESULTS — Coming Soon ── */
-                <div style={{display:'flex',flexDirection:'column',alignItems:'center',justifyContent:'center',padding:'60px 20px',textAlign:'center',gap:16}}>
-                  <div style={{fontSize:48,opacity:0.5}}>⏱️</div>
-                  <div style={{fontFamily:"'Barlow Condensed',sans-serif",fontSize:24,fontWeight:700,color:'#C5A059'}}>Coming Soon</div>
-                  <div style={{fontSize:13,color:C.t4,lineHeight:1.7,maxWidth:260}}>Term Life quoting is under development. Check back soon for 10/15/20/30-year term rates from top carriers.</div>
-                  <button onClick={()=>setMobileTab('quote')} style={{marginTop:8,padding:'13px 28px',borderRadius:10,border:`1px solid ${C.bd2}`,background:C.bg2,color:C.t2,fontSize:14,fontWeight:600,cursor:'pointer',fontFamily:"'DM Sans',sans-serif"}}>
-                    ← Back
-                  </button>
-                </div>
+                /* ── MOBILE TERM RESULTS ── */
+                !ageOK ? (
+                  <div style={{display:'flex',flexDirection:'column',alignItems:'center',justifyContent:'center',paddingTop:80,gap:16,textAlign:'center'}}>
+                    <div style={{fontSize:52,opacity:0.4}}>📋</div>
+                    <div style={{fontFamily:"'Barlow Condensed',sans-serif",fontSize:22,fontWeight:700,color:C.t4}}>Enter client info first</div>
+                    <button onClick={()=>setMobileTab('quote')} style={{marginTop:8,padding:'13px 28px',borderRadius:10,border:`1px solid ${C.bd2}`,background:C.bg2,color:C.t2,fontSize:14,fontWeight:600,cursor:'pointer',fontFamily:"'DM Sans',sans-serif"}}>← Back to Quote</button>
+                  </div>
+                ) : !termResults || termResults.length === 0 ? (
+                  <div style={{display:'flex',flexDirection:'column',alignItems:'center',justifyContent:'center',paddingTop:80,gap:16,textAlign:'center'}}>
+                    <div style={{fontSize:52,opacity:0.4}}>🔍</div>
+                    <div style={{fontFamily:"'Barlow Condensed',sans-serif",fontSize:20,fontWeight:700,color:C.t4}}>No quotes for this profile</div>
+                    <div style={{fontSize:12,color:C.t4,maxWidth:260,lineHeight:1.6}}>Try a different age, face amount, or term length. Some carriers don't offer 25/35/40-year term or above age 65.</div>
+                  </div>
+                ) : (
+                  <>
+                    <div style={{background:C.bg3,border:`1px solid ${C.bd}`,borderRadius:10,padding:'10px 14px',marginBottom:14,fontSize:13,color:C.t2}}>
+                      {fmtF(termFace)} · {termLength}-year · Age {age} · {gender==='male'?'M':'F'} · {smoker?'Smoker':'NS'} · {usState||'—'}
+                    </div>
+                    <div style={{display:'flex',flexDirection:'column',gap:8}}>
+                      {termResults.map(r => {
+                        const brandColor = CARRIER_META[r.id]?.brand || '#C5A059';
+                        return (
+                          <div key={r.id} style={{background:isDark?'#1E293B':'#FFFFFF',border:`1px solid ${C.bd2}`,borderLeft:`4px solid ${brandColor}`,borderRadius:10,padding:'12px 14px',display:'flex',alignItems:'center',gap:12}}>
+                            <div style={{flex:1,minWidth:0}}>
+                              <div style={{fontSize:14,fontWeight:700,color:C.t0,whiteSpace:'nowrap',overflow:'hidden',textOverflow:'ellipsis'}}>{r.name}</div>
+                              <div style={{fontSize:10,color:C.t4,marginTop:2,whiteSpace:'nowrap',overflow:'hidden',textOverflow:'ellipsis'}}>{r.sub} · {r.tierUsed}</div>
+                            </div>
+                            <div style={{textAlign:'right',flexShrink:0}}>
+                              <div style={{fontFamily:"'DM Mono',monospace",fontSize:22,fontWeight:800,color:C.t0,lineHeight:1}}>${r.prem.toFixed(2)}</div>
+                              <div style={{fontSize:9,color:C.t4,marginTop:2}}>/mo · {r.termLen}y</div>
+                            </div>
+                          </div>
+                        );
+                      })}
+                    </div>
+                  </>
+                )
               ) : !hasQuoted ? (
                 <div style={{display:'flex',flexDirection:'column',alignItems:'center',justifyContent:'center',paddingTop:80,gap:16,textAlign:'center'}}>
                   <div style={{fontSize:52,opacity:0.4}}>📋</div>
@@ -3449,11 +3408,64 @@ export default function QuoteMark() {
           </button>
           </>
           ) : quoteMode==='term' ? (
-          <div style={{display:'flex',flexDirection:'column',alignItems:'center',justifyContent:'center',flex:1,padding:'60px 20px',textAlign:'center',gap:16}}>
-            <div style={{fontSize:48,opacity:0.5}}>⏱️</div>
-            <div style={{fontFamily:"'Barlow Condensed',sans-serif",fontSize:24,fontWeight:700,color:'#C5A059'}}>Coming Soon</div>
-            <div style={{fontSize:13,color:C.t4,lineHeight:1.7,maxWidth:260}}>Term Life quoting is under development. Check back soon for 10/15/20/30-year term rates from top carriers.</div>
-          </div>
+          <>
+            {/* ── DESKTOP TERM INPUTS ── */}
+            <div style={{display:'flex',flexDirection:'column',gap:12}}>
+              <div style={{fontSize:10,fontWeight:700,letterSpacing:1.8,color:'#C5A059',textTransform:'uppercase'}}>Client Info</div>
+              <div>
+                <div style={{fontSize:11,color:C.t3,marginBottom:6,fontWeight:600}}>Age</div>
+                <input inputMode="numeric" placeholder="e.g. 35" value={age}
+                  onChange={e=>setAge(e.target.value.replace(/\D/g,''))}
+                  style={{...inp,fontFamily:"'DM Mono',monospace",fontSize:15}}/>
+              </div>
+              <div style={{display:'flex',gap:6}}>
+                <button className='qm-btn' style={togBtn(gender==='male')} onClick={()=>setGender('male')}>👨 Male</button>
+                <button className='qm-btn' style={togBtn(gender==='female')} onClick={()=>setGender('female')}>👩 Female</button>
+              </div>
+              <div style={{display:'flex',gap:6}}>
+                <button className='qm-btn' style={togBtn(!smoker)} onClick={()=>setSmoker(false)}>Non-smoker</button>
+                <button className='qm-btn' style={togBtn(smoker)} onClick={()=>setSmoker(true)}>Smoker</button>
+              </div>
+              <div>
+                <div style={{fontSize:11,color:C.t3,marginBottom:6,fontWeight:600}}>State</div>
+                <select value={usState} onChange={e=>setUsState(e.target.value)} style={{...inp,paddingRight:30,appearance:'none'}}>
+                  <option value="">— Select —</option>
+                  {Object.entries(STATE_NAMES).map(([code,name])=>(<option key={code} value={code}>{code} — {name}</option>))}
+                </select>
+              </div>
+
+              <div style={{fontSize:10,fontWeight:700,letterSpacing:1.8,color:'#C5A059',textTransform:'uppercase',marginTop:6}}>Term Settings</div>
+              <div>
+                <div style={{fontSize:11,color:C.t3,marginBottom:6,fontWeight:600}}>Term Length (years)</div>
+                <div style={{display:'grid',gridTemplateColumns:'repeat(7,1fr)',gap:4}}>
+                  {['10','15','20','25','30','35','40'].map(t=>(
+                    <button key={t} onClick={()=>setTermLength(t)} style={{
+                      padding:'9px 0',borderRadius:7,border:`2px solid ${termLength===t?'#C5A059':isDark?'#374151':'#D0CDBE'}`,
+                      background:termLength===t?'#C5A059':C.bg2,color:termLength===t?'#0A192F':C.t3,
+                      fontSize:12,fontWeight:700,cursor:'pointer',fontFamily:"'DM Sans',sans-serif"
+                    }}>{t}</button>
+                  ))}
+                </div>
+              </div>
+              <div>
+                <div style={{fontSize:11,color:C.t3,marginBottom:6,display:'flex',justifyContent:'space-between'}}>
+                  <span>Coverage amount</span>
+                  <span style={{color:C.t2,fontWeight:500,fontFamily:"'DM Mono',monospace"}}>{fmtF(termFace)}</span>
+                </div>
+                <input type="range" min="50000" max="1000000" step="25000" value={termFace}
+                  onChange={e=>setTermFace(+e.target.value)}
+                  style={{width:'100%',accentColor:C.gold}}/>
+                <div style={{display:'flex',justifyContent:'space-between',fontSize:10,color:C.t4}}>
+                  <span>$50,000</span><span>$1,000,000</span>
+                </div>
+              </div>
+
+              <button onClick={()=>{if(ageOK){track('Quote Requested',{tier:'term',mode:'term',gsb:false,face:faceBand(termFace)});setHasQuoted(true);}}}
+                style={{width:'100%',padding:'14px 0',borderRadius:10,border:'none',cursor:ageOK?'pointer':'not-allowed',background:ageOK?C.gold:'#2A3547',color:ageOK?C.bg0:C.t4,fontSize:14,fontWeight:700,letterSpacing:0.5,opacity:ageOK?1:0.4,fontFamily:"'DM Sans',sans-serif",marginTop:8}}>
+                ⚡ Get Term Quotes
+              </button>
+            </div>
+          </>
           ) : null}
 
           {quoteMode==='cv' && (
@@ -3553,11 +3565,85 @@ export default function QuoteMark() {
               );})()}
             </div>
           ):quoteMode==='term'?(
-            <div style={{display:'flex',flexDirection:'column',alignItems:'center',justifyContent:'center',height:'100%',gap:20,padding:40,textAlign:'center'}}>
-              <div style={{fontSize:56,opacity:0.5}}>⏱️</div>
-              <div style={{fontFamily:"'Barlow Condensed',sans-serif",fontSize:28,fontWeight:700,color:'#C5A059'}}>Coming Soon</div>
-              <div style={{fontSize:14,color:C.t4,lineHeight:1.8,maxWidth:340}}>Term Life quoting is under development. Check back soon for 10/15/20/30-year term rates from top carriers.</div>
-            </div>
+            !ageOK ? (
+              <div style={{display:'flex',flexDirection:'column',alignItems:'center',justifyContent:'center',height:'100%',gap:14,padding:40}}>
+                <div style={{fontSize:48,opacity:0.5}}>📋</div>
+                <div style={{fontFamily:"'Barlow Condensed',sans-serif",fontSize:22,fontWeight:700,color:C.t4}}>Enter client info to get term quotes</div>
+                <div style={{fontSize:13,color:C.t4,textAlign:'center',lineHeight:1.8}}>
+                  {carriers.filter(c=>c.enabled&&c.termOnly).length} term carriers · {Object.keys(TERM_RATES).length} products
+                </div>
+              </div>
+            ) : !termResults || termResults.length === 0 ? (
+              <div style={{display:'flex',flexDirection:'column',alignItems:'center',justifyContent:'center',height:'100%',gap:14,padding:40,textAlign:'center'}}>
+                <div style={{fontSize:48,opacity:0.5}}>🔍</div>
+                <div style={{fontFamily:"'Barlow Condensed',sans-serif",fontSize:22,fontWeight:700,color:C.t4}}>No quotes for this profile</div>
+                <div style={{fontSize:13,color:C.t4,maxWidth:340,lineHeight:1.7}}>Try a different age, face amount, or term length. Most carriers don't quote 25/35/40-year term, or above age 65 on shorter terms.</div>
+              </div>
+            ) : (
+              <div style={{padding:24}}>
+                <div style={{background:C.bg3,border:`1px solid ${C.bd}`,borderRadius:10,padding:'10px 14px',marginBottom:14,display:'flex',alignItems:'center',justifyContent:'space-between',flexWrap:'wrap',gap:6}}>
+                  <div style={{fontSize:13,color:C.t2,display:'flex',gap:8,flexWrap:'wrap',alignItems:'center'}}>
+                    <span style={{fontFamily:"'DM Mono',monospace",fontWeight:600,color:C.t0}}>{fmtF(termFace)}</span>
+                    <span style={{color:C.t4}}>·</span>
+                    <span>{termLength}-year</span>
+                    <span style={{color:C.t4}}>·</span>
+                    <span>Age {age}</span>
+                    <span style={{color:C.t4}}>·</span>
+                    <span>{gender==='male'?'M':'F'} · {smoker?'Smoker':'NS'}</span>
+                    {usState&&<><span style={{color:C.t4}}>·</span><span>{usState}</span></>}
+                  </div>
+                  <div style={{fontSize:11,color:C.t3}}>{termResults.length} quotes · sorted by price</div>
+                </div>
+                <div style={{display:'flex',flexDirection:'column',gap:8}}>
+                  {termResults.map(r => {
+                    const brandColor = CARRIER_META[r.id]?.brand || '#C5A059';
+                    const isHov = hovCard === r.id;
+                    return (
+                      <div key={r.id}
+                        onMouseEnter={()=>setHovCard(r.id)}
+                        onMouseLeave={()=>setHovCard(null)}
+                        style={{
+                          background: isDark ? (isHov?'#2A3A57':'#1E293B') : (isHov?'#FAFAF6':'#FFFFFF'),
+                          border:`1px solid ${isHov?brandColor:C.bd2}`,
+                          borderLeft:`${isHov?6:4}px solid ${brandColor}`,
+                          borderRadius:10,padding:'10px 18px',
+                          display:'flex',alignItems:'center',gap:18,
+                          transition:'background 0.12s, border-color 0.12s, border-left-width 0.12s, box-shadow 0.15s',
+                          boxShadow: isDark
+                            ? (isHov?`0 0 0 2px ${brandColor}66, 0 8px 28px rgba(0,0,0,0.5)`:'none')
+                            : (isHov?`0 0 0 2px ${brandColor}33, 0 8px 24px -4px rgba(15,23,42,0.18)`:'0 1px 2px rgba(0,0,0,0.04)')
+                        }}>
+                        <div style={{flexShrink:0,width:96,display:'flex',alignItems:'center',justifyContent:'center'}}>
+                          <CarrierLogo carrierId={r.id} name={r.name} small={true}/>
+                        </div>
+                        <div style={{flex:1,minWidth:0}}>
+                          <div style={{fontSize:15,fontWeight:700,color:C.t0,letterSpacing:'-0.2px',whiteSpace:'nowrap',overflow:'hidden',textOverflow:'ellipsis'}}>{r.name}</div>
+                          <div style={{fontSize:11,color:C.t4,marginTop:2,whiteSpace:'nowrap',overflow:'hidden',textOverflow:'ellipsis'}}>{r.sub} · {r.tierUsed}</div>
+                        </div>
+                        <div style={{flexShrink:0,width:80,textAlign:'right'}}>
+                          <div style={{fontSize:9,color:C.t4,fontWeight:600,letterSpacing:1,textTransform:'uppercase',marginBottom:2}}>Face</div>
+                          <div style={{fontFamily:"'DM Mono',monospace",fontSize:13,fontWeight:500,color:C.t1}}>{fmtF(r.face)}</div>
+                        </div>
+                        <div style={{flexShrink:0,width:60,textAlign:'right'}}>
+                          <div style={{fontSize:9,color:C.t4,fontWeight:600,letterSpacing:1,textTransform:'uppercase',marginBottom:2}}>Term</div>
+                          <div style={{fontFamily:"'DM Mono',monospace",fontSize:13,fontWeight:500,color:C.t1}}>{r.termLen}y</div>
+                        </div>
+                        <div style={{flexShrink:0,width:130,textAlign:'right'}}>
+                          <div style={{display:'flex',alignItems:'baseline',justifyContent:'flex-end',gap:5}}>
+                            <span style={{fontFamily:"'DM Mono',monospace",fontSize:30,fontWeight:800,color:C.t0,letterSpacing:'-0.8px',lineHeight:1}}>${r.prem.toFixed(2)}</span>
+                            <span style={{fontSize:10,color:C.t4,fontWeight:400}}>/mo</span>
+                          </div>
+                          <div style={{fontSize:10,color:C.t4,marginTop:3,fontFamily:"'DM Mono',monospace"}}>${(r.prem*12).toFixed(0)}/yr</div>
+                        </div>
+                        <div style={{flexShrink:0}}>
+                          <EAppBtn carrierId={r.id} compact={true} lightMode={!isDark}/>
+                        </div>
+                      </div>
+                    );
+                  })}
+                </div>
+              </div>
+            )
           ):!hasQuoted?(
             <div style={{display:'flex',flexDirection:'column',alignItems:'center',justifyContent:'center',height:'100%',gap:14,padding:40}}>
               <div style={{fontSize:48,opacity:0.5}}>📋</div>
