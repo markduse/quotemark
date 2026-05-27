@@ -819,16 +819,52 @@ const GSB = [
 //   age      — anchor age as string (25, 30, 35, 40, 45, 50, 55, 60, 65, 70, 75)
 //   face     — anchor face as string (50000, 100000, 250000, 500000, 1000000)
 
-// Tier priority: which tier we pick when the carrier has multiple. We prefer
-// the BEST (cheapest) tier the carrier offers — that's what ITK returns by
-// default for a profile with no underwriting items. Lower index = better.
+// ── HEALTH CLASS ↔ CARRIER TIER MAPPING ──
+// Agents pick a generic class (Pref+/Pref/Std+/Std). Each carrier names their
+// tiers differently — Foresters has 'Approved', Protective has 'Ultimate Preferred',
+// etc. We map the generic to whatever the carrier actually offers, walking DOWN
+// the ladder if the carrier doesn't have the agent's chosen class.
+// Each generic class lists the carrier-specific tier names that BELONG in that
+// class. Order = preference within the class (first match wins). When a carrier
+// doesn't offer a tier in the chosen class, resolveTier() walks DOWN to the
+// next class (pp → p → sp → s) and the worst case falls back to the carrier's
+// first tier (handles single-tier products like HMS, Trendsetter, Continuation).
+const HEALTH_CLASS_TIERS = {
+  pp: ['Preferred Plus','Ultimate Preferred','Elite'],
+  p:  ['Preferred','Super Preferred'],
+  sp: ['Standard Plus','Select','Level'],
+  s:  ['Standard','Approved'],
+};
+const HEALTH_CLASS_ORDER = ['pp','p','sp','s'];
+const HEALTH_CLASS_LABEL = { pp:'Preferred Plus', p:'Preferred', sp:'Standard Plus', s:'Standard' };
+const HEALTH_CLASS_SHORT = { pp:'Pref+', p:'Pref', sp:'Std+', s:'Std' };
+
+// Resolve a generic health class → the carrier's actual tier name.
+// Walks the chosen class's tier list first; if no carrier match, walks DOWN
+// the ladder (pp→p→sp→s). Final fallback: the carrier's first tier (catches
+// single-tier products like Americo HMS, Trans Trendsetter, Continuation,
+// Payment Protector, Simple Term, Foresters Strong Foundation).
+function resolveTier(productData, generic) {
+  if (!productData) return null;
+  const tiers = Object.keys(productData);
+  if (!tiers.length) return null;
+  const startIdx = Math.max(0, HEALTH_CLASS_ORDER.indexOf(generic || 'p'));
+  for (let i = startIdx; i < HEALTH_CLASS_ORDER.length; i++) {
+    for (const t of HEALTH_CLASS_TIERS[HEALTH_CLASS_ORDER[i]] || []) {
+      if (tiers.includes(t)) return t;
+    }
+  }
+  // No match in any class — return first carrier tier (single-tier products)
+  return tiers[0];
+}
+
+// Legacy auto-pick: used only when no health class is provided.
 const TERM_TIER_PRIORITY = [
-  'Preferred Plus', 'Ultimate Preferred', 'Super Preferred', 'Preferred',
-  'Select', 'Approved', 'Level', 'Standard', 'Standard Extra',
-  // Carrier-proprietary single-tier names — treat as "the rate":
-  'Trendsetter Super 2021', 'Trendsetter LB 2017',
-  'Continuation 10', 'Continuation 25', 'HMS', 'Payment Protector', 'Payment Protector Continuation',
-  'Simple Term', 'Simple Term Deluxe',
+  'Preferred Plus','Ultimate Preferred','Super Preferred','Elite','Preferred',
+  'Select','Standard Plus','Standard Extra','Standard','Approved','Level',
+  'Trendsetter Super 2021','Trendsetter LB 2017',
+  'Continuation 10','Continuation 25','HMS','Payment Protector','Payment Protector Continuation',
+  'Simple Term','Simple Term Deluxe',
 ];
 
 function pickBestTier(productData) {
@@ -906,11 +942,13 @@ const TERM_CARRIERS = Object.keys(TERM_RATES).map(product => {
     enabled: true,
     termOnly: true,
     supportedTerms: terms,
-    fn: (age, male, smoker, tier, face, termLen) => {
+    fn: (age, male, smoker, healthClass, face, termLen) => {
       const tl = String(termLen || '10');
       if (!terms.includes(tl)) return null;
       const cls = (male ? 'M' : 'F') + (smoker ? 'S' : 'NS');
-      return termPrem(product, tl, age, cls, face);
+      const productData = TERM_RATES[product]?.[tl];
+      const tier = resolveTier(productData, healthClass);
+      return termPrem(product, tl, age, cls, face, tier);
     }
   };
 });
@@ -2078,14 +2116,9 @@ export default function QuoteMark() {
       let prem = null;
       let tierUsed = null;
       try {
-        prem = carr.fn(a, male, smoker, 'B', termFace, termLength);
-        // Determine which tier was selected for display
         const productData = TERM_RATES?.[carr.product]?.[String(termLength)];
-        if (productData) {
-          for (const t of ['Preferred Plus','Ultimate Preferred','Super Preferred','Preferred','Select','Approved','Level','Standard','Standard Plus','Standard Extra','Trendsetter Super 2021','Trendsetter LB 2017','Continuation 10','Continuation 25','HMS','Payment Protector','Payment Protector Continuation','Simple Term','Simple Term Deluxe','Elite']) {
-            if (productData[t]) { tierUsed = t; break; }
-          }
-        }
+        tierUsed = resolveTier(productData, termHealth);
+        prem = carr.fn(a, male, smoker, termHealth, termFace, termLength);
       } catch (e) {
         console.error(`[QuoteMark] term ${carr.id} threw:`, e);
       }
@@ -2107,7 +2140,7 @@ export default function QuoteMark() {
 
     // Sort by monthly premium ascending (cheapest first)
     return results.sort((a, b) => a.prem - b.prem);
-  }, [quoteMode, ageOK, ageNum, termLength, termFace, gender, smoker, activeCarriers]);
+  }, [quoteMode, ageOK, ageNum, termLength, termFace, gender, smoker, activeCarriers, termHealth]);
 
   // ── INPUT STYLES ──
   const inp = {background:C.bg2,border:`1px solid ${C.bd}`,color:C.t1,borderRadius:8,padding:'9px 12px',fontSize:13,width:'100%',boxSizing:'border-box',outline:'none',fontFamily:"'DM Sans',sans-serif"};
@@ -2487,6 +2520,22 @@ export default function QuoteMark() {
                       ))}
                     </div>
                   </div>
+                  {/* Health class pills */}
+                  <div>
+                    <div style={{fontSize:11,color:C.t3,marginBottom:6,fontWeight:600,display:'flex',justifyContent:'space-between'}}>
+                      <span>Health Class</span>
+                      <span style={{color:C.t4,fontWeight:500,fontSize:10}}>{HEALTH_CLASS_LABEL[termHealth]}</span>
+                    </div>
+                    <div style={{display:'grid',gridTemplateColumns:'repeat(4,1fr)',gap:4}}>
+                      {[{k:'pp',label:'Pref+'},{k:'p',label:'Pref'},{k:'sp',label:'Std+'},{k:'s',label:'Std'}].map(({k,label})=>(
+                        <button key={k} onClick={()=>setTermHealth(k)} style={{
+                          padding:'10px 0',borderRadius:7,border:`2px solid ${termHealth===k?'#C5A059':isDark?'#374151':'#D0CDBE'}`,
+                          background:termHealth===k?'#C5A059':C.bg2,color:termHealth===k?'#0A192F':C.t3,
+                          fontSize:12,fontWeight:700,cursor:'pointer',fontFamily:"'DM Sans',sans-serif"
+                        }}>{label}</button>
+                      ))}
+                    </div>
+                  </div>
                   {/* Face slider */}
                   <div>
                     <div style={{fontSize:11,color:C.t3,marginBottom:6,display:'flex',justifyContent:'space-between'}}>
@@ -2622,7 +2671,7 @@ export default function QuoteMark() {
                           <div key={r.id} style={{background:isDark?'#1E293B':'#FFFFFF',border:`1px solid ${C.bd2}`,borderLeft:`4px solid ${brandColor}`,borderRadius:10,padding:'12px 14px',display:'flex',alignItems:'center',gap:12}}>
                             <div style={{flex:1,minWidth:0}}>
                               <div style={{fontSize:14,fontWeight:700,color:C.t0,whiteSpace:'nowrap',overflow:'hidden',textOverflow:'ellipsis'}}>{r.name}</div>
-                              <div style={{fontSize:10,color:C.t4,marginTop:2,whiteSpace:'nowrap',overflow:'hidden',textOverflow:'ellipsis'}}>{r.sub} · {r.tierUsed}</div>
+                              <div style={{fontSize:10,color:C.t4,marginTop:2,whiteSpace:'nowrap',overflow:'hidden',textOverflow:'ellipsis'}}>{r.sub}{r.tierUsed && r.tierUsed !== r.sub ? ` · ${r.tierUsed}` : ''}</div>
                             </div>
                             <div style={{textAlign:'right',flexShrink:0}}>
                               <div style={{fontFamily:"'DM Mono',monospace",fontSize:22,fontWeight:800,color:C.t0,lineHeight:1}}>${r.prem.toFixed(2)}</div>
@@ -3448,6 +3497,21 @@ export default function QuoteMark() {
                 </div>
               </div>
               <div>
+                <div style={{fontSize:11,color:C.t3,marginBottom:6,fontWeight:600,display:'flex',justifyContent:'space-between'}}>
+                  <span>Health Class</span>
+                  <span style={{color:C.t4,fontWeight:500,fontSize:10}}>{HEALTH_CLASS_LABEL[termHealth]}</span>
+                </div>
+                <div style={{display:'grid',gridTemplateColumns:'repeat(4,1fr)',gap:4}}>
+                  {[{k:'pp',label:'Pref+'},{k:'p',label:'Pref'},{k:'sp',label:'Std+'},{k:'s',label:'Std'}].map(({k,label})=>(
+                    <button key={k} onClick={()=>setTermHealth(k)} style={{
+                      padding:'9px 0',borderRadius:7,border:`2px solid ${termHealth===k?'#C5A059':isDark?'#374151':'#D0CDBE'}`,
+                      background:termHealth===k?'#C5A059':C.bg2,color:termHealth===k?'#0A192F':C.t3,
+                      fontSize:12,fontWeight:700,cursor:'pointer',fontFamily:"'DM Sans',sans-serif"
+                    }}>{label}</button>
+                  ))}
+                </div>
+              </div>
+              <div>
                 <div style={{fontSize:11,color:C.t3,marginBottom:6,display:'flex',justifyContent:'space-between'}}>
                   <span>Coverage amount</span>
                   <span style={{color:C.t2,fontWeight:500,fontFamily:"'DM Mono',monospace"}}>{fmtF(termFace)}</span>
@@ -3618,7 +3682,7 @@ export default function QuoteMark() {
                         </div>
                         <div style={{flex:1,minWidth:0}}>
                           <div style={{fontSize:15,fontWeight:700,color:C.t0,letterSpacing:'-0.2px',whiteSpace:'nowrap',overflow:'hidden',textOverflow:'ellipsis'}}>{r.name}</div>
-                          <div style={{fontSize:11,color:C.t4,marginTop:2,whiteSpace:'nowrap',overflow:'hidden',textOverflow:'ellipsis'}}>{r.sub} · {r.tierUsed}</div>
+                          <div style={{fontSize:11,color:C.t4,marginTop:2,whiteSpace:'nowrap',overflow:'hidden',textOverflow:'ellipsis'}}>{r.sub}{r.tierUsed && r.tierUsed !== r.sub ? ` · ${r.tierUsed}` : ''}</div>
                         </div>
                         <div style={{flexShrink:0,width:80,textAlign:'right'}}>
                           <div style={{fontSize:9,color:C.t4,fontWeight:600,letterSpacing:1,textTransform:'uppercase',marginBottom:2}}>Face</div>
