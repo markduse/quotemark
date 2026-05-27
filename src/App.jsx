@@ -2635,14 +2635,6 @@ export default function QuoteMark() {
                     <button className='qm-btn' style={mTogBtn(!smoker)} onClick={()=>setSmoker(false)}>Non-smoker</button>
                     <button className='qm-btn' style={mTogBtn(smoker,'#EF4444')} onClick={()=>setSmoker(true)}>Smoker</button>
                   </div>
-                  {/* State */}
-                  <div>
-                    <div style={{fontSize:11,color:C.t3,marginBottom:6,fontWeight:600}}>State</div>
-                    <select value={usState} onChange={e=>setUsState(e.target.value)} style={{...inp,paddingRight:30,appearance:'none'}}>
-                      <option value="">— Select —</option>
-                      {Object.entries(STATE_NAMES).map(([code,name])=>(<option key={code} value={code}>{code} — {name}</option>))}
-                    </select>
-                  </div>
 
                   <div style={{fontSize:10,fontWeight:700,letterSpacing:1.8,color:'#C5A059',textTransform:'uppercase',marginTop:6}}>Term Settings</div>
                   {/* Term Length pills */}
@@ -2839,8 +2831,17 @@ export default function QuoteMark() {
                   </div>
                 ) : (
                   <>
+                    {termRec.recommended === 'decline' && (
+                      <div style={{background:'rgba(239,68,68,0.10)',border:'1px solid rgba(239,68,68,0.4)',borderRadius:10,padding:'12px 14px',marginBottom:10,display:'flex',gap:10,alignItems:'flex-start'}}>
+                        <div style={{fontSize:18,lineHeight:1,flexShrink:0}}>⚠</div>
+                        <div style={{fontSize:12,color:C.t1,lineHeight:1.5}}>
+                          <div style={{fontWeight:700,marginBottom:2}}>Profile may not qualify for term</div>
+                          <div style={{color:C.t3}}>{termRec.reasons.join(' · ')}. Quotes below are best-case estimates — verify with carrier underwriting before promising rates.</div>
+                        </div>
+                      </div>
+                    )}
                     <div style={{background:C.bg3,border:`1px solid ${C.bd}`,borderRadius:10,padding:'10px 14px',marginBottom:14,fontSize:13,color:C.t2}}>
-                      {fmtF(termFace)} · {termLength}-year · Age {age} · {gender==='male'?'M':'F'} · {smoker?'Smoker':'NS'} · {usState||'—'}
+                      {fmtF(termFace)} · {termLength}-year · Age {age} · {gender==='male'?'M':'F'} · {smoker?'Smoker':'NS'} · {HEALTH_CLASS_SHORT[termHealth]}{termBMI!=null ? ` · BMI ${termBMI.toFixed(1)}`:''}
                     </div>
                     <div style={{display:'flex',flexDirection:'column',gap:8}}>
                       {termResults.map(r => {
@@ -3653,13 +3654,6 @@ export default function QuoteMark() {
                 <button className='qm-btn' style={togBtn(!smoker)} onClick={()=>setSmoker(false)}>Non-smoker</button>
                 <button className='qm-btn' style={togBtn(smoker)} onClick={()=>setSmoker(true)}>Smoker</button>
               </div>
-              <div>
-                <div style={{fontSize:11,color:C.t3,marginBottom:6,fontWeight:600}}>State</div>
-                <select value={usState} onChange={e=>setUsState(e.target.value)} style={{...inp,paddingRight:30,appearance:'none'}}>
-                  <option value="">— Select —</option>
-                  {Object.entries(STATE_NAMES).map(([code,name])=>(<option key={code} value={code}>{code} — {name}</option>))}
-                </select>
-              </div>
 
               <div style={{fontSize:10,fontWeight:700,letterSpacing:1.8,color:'#C5A059',textTransform:'uppercase',marginTop:6}}>Term Settings</div>
               <div>
@@ -3862,6 +3856,15 @@ export default function QuoteMark() {
               </div>
             ) : (
               <div style={{padding:24}}>
+                {termRec.recommended === 'decline' && (
+                  <div style={{background:'rgba(239,68,68,0.10)',border:'1px solid rgba(239,68,68,0.4)',borderRadius:10,padding:'12px 16px',marginBottom:12,display:'flex',gap:12,alignItems:'flex-start'}}>
+                    <div style={{fontSize:20,lineHeight:1,flexShrink:0}}>⚠</div>
+                    <div style={{fontSize:13,color:C.t1,lineHeight:1.55}}>
+                      <div style={{fontWeight:700,marginBottom:2}}>Profile may not qualify for term</div>
+                      <div style={{color:C.t3}}>{termRec.reasons.join(' · ')}. Quotes below are best-case estimates — verify with carrier underwriting before promising rates.</div>
+                    </div>
+                  </div>
+                )}
                 <div style={{background:C.bg3,border:`1px solid ${C.bd}`,borderRadius:10,padding:'10px 14px',marginBottom:14,display:'flex',alignItems:'center',justifyContent:'space-between',flexWrap:'wrap',gap:6}}>
                   <div style={{fontSize:13,color:C.t2,display:'flex',gap:8,flexWrap:'wrap',alignItems:'center'}}>
                     <span style={{fontFamily:"'DM Mono',monospace",fontWeight:600,color:C.t0}}>{fmtF(termFace)}</span>
@@ -3871,7 +3874,9 @@ export default function QuoteMark() {
                     <span>Age {age}</span>
                     <span style={{color:C.t4}}>·</span>
                     <span>{gender==='male'?'M':'F'} · {smoker?'Smoker':'NS'}</span>
-                    {usState&&<><span style={{color:C.t4}}>·</span><span>{usState}</span></>}
+                    <span style={{color:C.t4}}>·</span>
+                    <span>{HEALTH_CLASS_SHORT[termHealth]}</span>
+                    {termBMI!=null && <><span style={{color:C.t4}}>·</span><span>BMI {termBMI.toFixed(1)}</span></>}
                   </div>
                   <div style={{fontSize:11,color:C.t3}}>{termResults.length} quotes · sorted by price</div>
                 </div>
