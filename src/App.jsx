@@ -1535,6 +1535,121 @@ function getCompBadge(carrierId, tier) {
 }
 
 function getAutoTier(sel){const active=sel.filter(id=>id!=='none');if(!active.length)return 'B';const order=['E','D','C','B'],tiers=active.map(id=>CONDITIONS.find(c=>c.id===id)?.tier||'B');for(const t of order)if(tiers.includes(t))return t;return 'B';}
+
+// ── TERM UNDERWRITING ENGINE ──
+// Maps each FE condition to its impact on a TERM quote. Term UW is stricter
+// than FE — many "Standard FE" risks are decline-on-term. 'decline' means
+// the client likely won't qualify; we still show them at 'Std' for now but
+// surface a warning. Calibrated against ITK underwriting playbooks.
+const COND_TERM_IMPACT = {
+  // Clean
+  none: 'pp',
+  // Heart & Blood — mild
+  htn: 'p', hcl: 'p',
+  // Heart & Blood — moderate (resolved/controlled)
+  afib_ctrl: 'sp', aneurysm_old: 'sp', pad_old: 'sp',
+  // Heart & Blood — significant but stable
+  angina_2plus: 's', angio_2plus: 's', mi_4plus: 's', stent_2plus: 's',
+  stroke_4plus: 's', cardiomyo_old: 's', cad: 's', pacemaker_old: 's',
+  // Heart & Blood — recent or active
+  mi_2to4: 'decline', stroke_2to4: 'decline', angina_1yr: 'decline',
+  stent_1to2: 'decline', pacemaker_new: 'decline', chf: 'decline',
+  mi_1yr: 'decline', stroke_1yr: 'decline',
+  // Diabetes
+  diabetes_oral: 'sp', diabetes_ins: 's',
+  diabetes_comp: 'decline', diabetes_coma: 'decline',
+  // Respiratory
+  asthma_b: 'p', sleep_apnea: 'p',
+  asthma_mod: 'sp', copd_no_o2: 's', bronchitis_chr: 's',
+  copd_o2: 'decline', pulm_fib: 'decline',
+  // Cancer
+  basal_cell: 'p', cancer_5plus: 'sp', cancer_4plus: 's',
+  cancer_2to4: 'decline', melanoma_2to4: 'decline',
+  cancer_lt2: 'decline', chemo_active: 'decline',
+  // Neurological
+  seizures_rare: 'sp', neuropathy: 'p',
+  ms: 's', parkinsons: 's',
+  seizures_freq: 'decline', alzheimers: 'decline', als: 'decline',
+  // Mental Health
+  anxiety: 'p', ptsd: 'p', bipolar: 'sp',
+  schizophrenia: 's', alcohol_2plus: 'sp',
+  alcohol_2yr: 'decline',
+  // Kidney
+  kidney_disease: 'decline', dialysis: 'decline',
+  // Liver
+  hep_c_cured: 'sp', hep_b: 'sp',
+  hep_c_active: 's', cirrhosis: 'decline', hep_c_curr: 's',
+  // Other
+  thyroid: 'p', arthritis: 'p', rheum_arth: 'p', gerd: 'p',
+  obesity: 'sp', crohn: 'sp', restless_leg: 'p',
+  lupus: 's', chronic_pain: 's', sarcoidosis: 's', pancreatitis: 's',
+  dui_2plus: 's', dui_2yr: 'decline', sickle_cell: 'decline',
+  // Knockouts (term always declines)
+  home_o2_24hr: 'decline', nursing_home: 'decline', hospice: 'decline',
+  transplant_rec: 'decline', wheelchair: 'decline', aids_hiv: 'decline',
+  terminal: 'decline', felony: 'decline',
+};
+
+const TERM_CLASS_RANK = { pp:0, p:1, sp:2, s:3, decline:99 };
+
+// Compute BMI from height (inches) and weight (lbs). Returns null if invalid.
+function calcBMI(heightIn, weightLb) {
+  const h = +heightIn, w = +weightLb;
+  if (!h || !w || h < 36 || h > 90 || w < 60 || w > 700) return null;
+  return (w / (h * h)) * 703;
+}
+
+// BMI → term class (rough industry standard build chart).
+function bmiToTermClass(bmi) {
+  if (bmi == null) return null;
+  if (bmi >= 40) return 'decline';
+  if (bmi >= 36) return 's';
+  if (bmi >= 32) return 'sp';
+  if (bmi >= 30) return 'p';
+  if (bmi >= 19) return 'pp';
+  return 'sp'; // underweight is a flag too
+}
+
+function worseClass(a, b) {
+  return TERM_CLASS_RANK[b] > TERM_CLASS_RANK[a] ? b : a;
+}
+
+// Recommend a term health class from conditions + BMI + age + family hx.
+// Returns { recommended: 'pp'|'p'|'sp'|'s'|'decline', reasons: [string] }
+function recommendTermClass(selectedConds, bmi, age, opts = {}) {
+  let worst = 'pp';
+  const reasons = [];
+  const active = (selectedConds || []).filter(id => id !== 'none');
+  for (const cid of active) {
+    const impact = COND_TERM_IMPACT[cid] || 'p';
+    if (TERM_CLASS_RANK[impact] > TERM_CLASS_RANK[worst]) {
+      worst = impact;
+      const cond = CONDITIONS.find(c => c.id === cid);
+      reasons.push(`${cond?.label || cid}`);
+    }
+  }
+  if (bmi != null) {
+    const bc = bmiToTermClass(bmi);
+    if (bc && TERM_CLASS_RANK[bc] > TERM_CLASS_RANK[worst]) {
+      worst = bc;
+      reasons.push(`BMI ${bmi.toFixed(1)}`);
+    }
+  }
+  // Family hx of premature CVD/cancer (parent before 60) — bump down one class
+  if (opts.familyHx && worst !== 'decline') {
+    const bumped = worst === 'pp' ? 'p' : worst === 'p' ? 'sp' : worst === 'sp' ? 's' : 's';
+    if (TERM_CLASS_RANK[bumped] > TERM_CLASS_RANK[worst]) {
+      worst = bumped;
+      reasons.push('Family history (pre-60)');
+    }
+  }
+  // Age penalty — Preferred Plus rarely issued past 65, Preferred past 75
+  if (age != null) {
+    if (age >= 65 && worst === 'pp') { worst = 'p'; reasons.push('Age 65+'); }
+    if (age >= 75 && worst === 'p')  { worst = 'sp'; reasons.push('Age 75+'); }
+  }
+  return { recommended: worst, reasons };
+}
 function solveForFace(budget,age,male,smoker,tier,fn){let lo=1000,hi=50000,best=0;for(let i=0;i<50;i++){const mid=Math.round((lo+hi)/2/1000)*1000;if(lo>hi)break;const p=fn(age,male,smoker,tier,mid);if(p!==null&&p<=budget+0.001){best=mid;lo=mid+1000;}else hi=mid-1000;}return best>0?best:null;}
 function calcAge(mm,dd,yyyy){if(!mm||!dd||!yyyy||yyyy.length<4)return null;const b=new Date(+yyyy,+mm-1,+dd),t=new Date();let a=t.getFullYear()-b.getFullYear();if(t.getMonth()-b.getMonth()<0||(t.getMonth()===b.getMonth()&&t.getDate()<b.getDate()))a--;return isNaN(a)?null:a;}
 
@@ -1840,9 +1955,15 @@ export default function QuoteMark() {
   const cvDobYyyyRefM= React.useRef(null);
   const [termLength,setTermLength] = useState('10'); // '10' | '15' | '20' | '30'
   const [termFace,setTermFace] = useState(100000); // $25k-$300k
-  const [termHealth,setTermHealth] = useState('pp'); // 'pp'=Preferred Plus, 'p'=Preferred, 'sp'=Standard Plus, 's'=Standard
+  const [termHealth,setTermHealth] = useState('p'); // 'pp'=Preferred Plus, 'p'=Preferred, 'sp'=Standard Plus, 's'=Standard
+  const [termHealthManual,setTermHealthManual] = useState(false); // true once user clicks a pill — disables auto-recommend
   const [termAge,setTermAge] = useState(''); // term allows 18-75
   const [termDob,setTermDob] = useState({mm:'',dd:'',yyyy:''});
+  // Term-specific underwriting inputs
+  const [termHtFt,setTermHtFt]   = useState(''); // e.g. '5'
+  const [termHtIn,setTermHtIn]   = useState(''); // e.g. '10'
+  const [termWtLb,setTermWtLb]   = useState(''); // weight in lbs
+  const [termFamHx,setTermFamHx] = useState(false); // family hx of cancer/CVD before 60
 
   // ── PROFILE STATE ──
   const [mobileTab2, setMobileTab2] = useState(null); // null | 'profile'
@@ -1950,6 +2071,23 @@ export default function QuoteMark() {
 
   const autoTier = useMemo(()=>getAutoTier(selected),[selected]);
   const uwTier   = tierOvr||autoTier;
+
+  // ── TERM UW RECOMMENDATION ──
+  // Recompute the recommended term class whenever inputs change. If the user
+  // hasn't manually clicked a pill, auto-sync termHealth to the recommendation.
+  const termBMI = useMemo(()=>{
+    const inches = (parseInt(termHtFt)||0)*12 + (parseInt(termHtIn)||0);
+    return calcBMI(inches, +termWtLb);
+  },[termHtFt,termHtIn,termWtLb]);
+  const termRec = useMemo(()=>{
+    const a = parseInt(age, 10);
+    return recommendTermClass(selected, termBMI, isNaN(a)?null:a, {familyHx: termFamHx});
+  },[selected,termBMI,age,termFamHx]);
+  useEffect(()=>{
+    if (termHealthManual) return;
+    if (termRec.recommended === 'decline') return; // keep user's class; show warning instead
+    setTermHealth(termRec.recommended);
+  },[termRec.recommended,termHealthManual]);
   const ageNum   = parseInt(age);
   const ageOK    = age && ageNum>=1 && ageNum<=89;
 
@@ -2520,21 +2658,61 @@ export default function QuoteMark() {
                       ))}
                     </div>
                   </div>
-                  {/* Health class pills */}
+                  {/* Height / Weight → BMI */}
                   <div>
                     <div style={{fontSize:11,color:C.t3,marginBottom:6,fontWeight:600,display:'flex',justifyContent:'space-between'}}>
+                      <span>Height & Weight</span>
+                      {termBMI!=null && <span style={{color:C.t4,fontWeight:500,fontSize:10,fontFamily:"'DM Mono',monospace"}}>BMI {termBMI.toFixed(1)}</span>}
+                    </div>
+                    <div style={{display:'grid',gridTemplateColumns:'1fr 1fr 1.2fr',gap:6}}>
+                      <input inputMode="numeric" placeholder="ft" value={termHtFt}
+                        onChange={e=>setTermHtFt(e.target.value.replace(/\D/g,'').slice(0,1))}
+                        style={{...mInp,textAlign:'center',fontFamily:"'DM Mono',monospace"}}/>
+                      <input inputMode="numeric" placeholder="in" value={termHtIn}
+                        onChange={e=>setTermHtIn(e.target.value.replace(/\D/g,'').slice(0,2))}
+                        style={{...mInp,textAlign:'center',fontFamily:"'DM Mono',monospace"}}/>
+                      <input inputMode="numeric" placeholder="weight (lb)" value={termWtLb}
+                        onChange={e=>setTermWtLb(e.target.value.replace(/\D/g,'').slice(0,3))}
+                        style={{...mInp,textAlign:'center',fontFamily:"'DM Mono',monospace"}}/>
+                    </div>
+                  </div>
+                  {/* Family history toggle */}
+                  <button onClick={()=>setTermFamHx(v=>!v)} style={{
+                    padding:'10px 12px',borderRadius:8,border:`1px solid ${termFamHx?'#C5A059':C.bd}`,
+                    background:termFamHx?'rgba(197,160,89,0.12)':C.bg2,color:C.t2,textAlign:'left',cursor:'pointer',
+                    fontSize:12,fontFamily:"'DM Sans',sans-serif",display:'flex',alignItems:'center',gap:8
+                  }}>
+                    <span style={{width:16,height:16,borderRadius:4,border:`2px solid ${termFamHx?'#C5A059':C.bd2}`,background:termFamHx?'#C5A059':'transparent',display:'flex',alignItems:'center',justifyContent:'center',fontSize:11,color:C.bg0,fontWeight:900,flexShrink:0}}>{termFamHx?'✓':''}</span>
+                    <span>Family history of cancer or heart disease before age 60</span>
+                  </button>
+                  {/* Health class pills */}
+                  <div>
+                    <div style={{fontSize:11,color:C.t3,marginBottom:6,fontWeight:600,display:'flex',justifyContent:'space-between',alignItems:'center'}}>
                       <span>Health Class</span>
-                      <span style={{color:C.t4,fontWeight:500,fontSize:10}}>{HEALTH_CLASS_LABEL[termHealth]}</span>
+                      {termRec.recommended==='decline' ? (
+                        <span style={{color:'#EF4444',fontWeight:700,fontSize:10}}>⚠ Likely Decline</span>
+                      ) : !termHealthManual && termRec.reasons.length ? (
+                        <span style={{color:C.gold,fontWeight:600,fontSize:10}}>✨ Auto · {HEALTH_CLASS_SHORT[termRec.recommended]}</span>
+                      ) : termHealthManual ? (
+                        <button onClick={()=>setTermHealthManual(false)} style={{background:'transparent',border:'none',color:C.t4,fontSize:10,cursor:'pointer',padding:0,textDecoration:'underline'}}>reset to auto</button>
+                      ) : (
+                        <span style={{color:C.t4,fontWeight:500,fontSize:10}}>{HEALTH_CLASS_LABEL[termHealth]}</span>
+                      )}
                     </div>
                     <div style={{display:'grid',gridTemplateColumns:'repeat(4,1fr)',gap:4}}>
                       {[{k:'pp',label:'Pref+'},{k:'p',label:'Pref'},{k:'sp',label:'Std+'},{k:'s',label:'Std'}].map(({k,label})=>(
-                        <button key={k} onClick={()=>setTermHealth(k)} style={{
+                        <button key={k} onClick={()=>{setTermHealth(k);setTermHealthManual(true);}} style={{
                           padding:'10px 0',borderRadius:7,border:`2px solid ${termHealth===k?'#C5A059':isDark?'#374151':'#D0CDBE'}`,
                           background:termHealth===k?'#C5A059':C.bg2,color:termHealth===k?'#0A192F':C.t3,
                           fontSize:12,fontWeight:700,cursor:'pointer',fontFamily:"'DM Sans',sans-serif"
                         }}>{label}</button>
                       ))}
                     </div>
+                    {termRec.reasons.length > 0 && (
+                      <div style={{marginTop:6,fontSize:10,color:C.t4,lineHeight:1.5}}>
+                        {termRec.recommended==='decline'?'Decline factors':'Class driven by'}: {termRec.reasons.join(' · ')}
+                      </div>
+                    )}
                   </div>
                   {/* Face slider */}
                   <div>
@@ -3496,20 +3674,59 @@ export default function QuoteMark() {
                   ))}
                 </div>
               </div>
+              {/* Height / Weight → BMI */}
               <div>
                 <div style={{fontSize:11,color:C.t3,marginBottom:6,fontWeight:600,display:'flex',justifyContent:'space-between'}}>
+                  <span>Height & Weight</span>
+                  {termBMI!=null && <span style={{color:C.t4,fontWeight:500,fontSize:10,fontFamily:"'DM Mono',monospace"}}>BMI {termBMI.toFixed(1)}</span>}
+                </div>
+                <div style={{display:'grid',gridTemplateColumns:'1fr 1fr 1.2fr',gap:6}}>
+                  <input inputMode="numeric" placeholder="ft" value={termHtFt}
+                    onChange={e=>setTermHtFt(e.target.value.replace(/\D/g,'').slice(0,1))}
+                    style={{...inp,textAlign:'center',fontFamily:"'DM Mono',monospace"}}/>
+                  <input inputMode="numeric" placeholder="in" value={termHtIn}
+                    onChange={e=>setTermHtIn(e.target.value.replace(/\D/g,'').slice(0,2))}
+                    style={{...inp,textAlign:'center',fontFamily:"'DM Mono',monospace"}}/>
+                  <input inputMode="numeric" placeholder="weight (lb)" value={termWtLb}
+                    onChange={e=>setTermWtLb(e.target.value.replace(/\D/g,'').slice(0,3))}
+                    style={{...inp,textAlign:'center',fontFamily:"'DM Mono',monospace"}}/>
+                </div>
+              </div>
+              <button onClick={()=>setTermFamHx(v=>!v)} style={{
+                padding:'9px 11px',borderRadius:8,border:`1px solid ${termFamHx?'#C5A059':C.bd}`,
+                background:termFamHx?'rgba(197,160,89,0.12)':C.bg2,color:C.t2,textAlign:'left',cursor:'pointer',
+                fontSize:11,fontFamily:"'DM Sans',sans-serif",display:'flex',alignItems:'center',gap:8
+              }}>
+                <span style={{width:14,height:14,borderRadius:3,border:`2px solid ${termFamHx?'#C5A059':C.bd2}`,background:termFamHx?'#C5A059':'transparent',display:'flex',alignItems:'center',justifyContent:'center',fontSize:10,color:C.bg0,fontWeight:900,flexShrink:0}}>{termFamHx?'✓':''}</span>
+                <span>Family history of cancer / heart disease (pre-60)</span>
+              </button>
+              <div>
+                <div style={{fontSize:11,color:C.t3,marginBottom:6,fontWeight:600,display:'flex',justifyContent:'space-between',alignItems:'center'}}>
                   <span>Health Class</span>
-                  <span style={{color:C.t4,fontWeight:500,fontSize:10}}>{HEALTH_CLASS_LABEL[termHealth]}</span>
+                  {termRec.recommended==='decline' ? (
+                    <span style={{color:'#EF4444',fontWeight:700,fontSize:10}}>⚠ Likely Decline</span>
+                  ) : !termHealthManual && termRec.reasons.length ? (
+                    <span style={{color:C.gold,fontWeight:600,fontSize:10}}>✨ Auto · {HEALTH_CLASS_SHORT[termRec.recommended]}</span>
+                  ) : termHealthManual ? (
+                    <button onClick={()=>setTermHealthManual(false)} style={{background:'transparent',border:'none',color:C.t4,fontSize:10,cursor:'pointer',padding:0,textDecoration:'underline'}}>reset to auto</button>
+                  ) : (
+                    <span style={{color:C.t4,fontWeight:500,fontSize:10}}>{HEALTH_CLASS_LABEL[termHealth]}</span>
+                  )}
                 </div>
                 <div style={{display:'grid',gridTemplateColumns:'repeat(4,1fr)',gap:4}}>
                   {[{k:'pp',label:'Pref+'},{k:'p',label:'Pref'},{k:'sp',label:'Std+'},{k:'s',label:'Std'}].map(({k,label})=>(
-                    <button key={k} onClick={()=>setTermHealth(k)} style={{
+                    <button key={k} onClick={()=>{setTermHealth(k);setTermHealthManual(true);}} style={{
                       padding:'9px 0',borderRadius:7,border:`2px solid ${termHealth===k?'#C5A059':isDark?'#374151':'#D0CDBE'}`,
                       background:termHealth===k?'#C5A059':C.bg2,color:termHealth===k?'#0A192F':C.t3,
                       fontSize:12,fontWeight:700,cursor:'pointer',fontFamily:"'DM Sans',sans-serif"
                     }}>{label}</button>
                   ))}
                 </div>
+                {termRec.reasons.length > 0 && (
+                  <div style={{marginTop:6,fontSize:10,color:C.t4,lineHeight:1.4}}>
+                    {termRec.recommended==='decline'?'Decline factors':'Class driven by'}: {termRec.reasons.join(' · ')}
+                  </div>
+                )}
               </div>
               <div>
                 <div style={{fontSize:11,color:C.t3,marginBottom:6,display:'flex',justifyContent:'space-between'}}>
