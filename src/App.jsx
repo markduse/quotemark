@@ -1651,6 +1651,155 @@ function recommendTermClass(selectedConds, bmi, age, opts = {}) {
   return { recommended: worst, reasons };
 }
 function solveForFace(budget,age,male,smoker,tier,fn){let lo=1000,hi=50000,best=0;for(let i=0;i<50;i++){const mid=Math.round((lo+hi)/2/1000)*1000;if(lo>hi)break;const p=fn(age,male,smoker,tier,mid);if(p!==null&&p<=budget+0.001){best=mid;lo=mid+1000;}else hi=mid-1000;}return best>0?best:null;}
+
+// ── CASH VALUE CORRIDOR ──
+// Estimates the 3-5% growth corridor for a whole-life policy after the
+// 2-year dry period. Net-contribution factor approximates the % of premium
+// that becomes cash value (rest goes to mortality + carrier expenses).
+// NOTE: arg order matches call sites (monthlyPremium, policyYear, age).
+function calculateCVCorridor(monthlyPremium, policyYear, age) {
+  const totalPaid = Math.round(monthlyPremium * 12 * policyYear);
+  if (policyYear <= 2) return { low: 0, high: 0, totalPaid };
+  const netFactor = age < 40 ? 0.90 : age <= 60 ? 0.80 : 0.70;
+  const annualNet = monthlyPremium * 12 * netFactor;
+  const n = policyYear - 2;
+  const low  = Math.round(annualNet * (Math.pow(1.03, n) - 1) / 0.03);
+  const high = Math.round(annualNet * (Math.pow(1.05, n) - 1) / 0.05);
+  return { low, high, totalPaid };
+}
+
+// ── CASH VALUE PROJECTION COMPONENT ──
+// Full projection card with interactive slider, snapshot table, break-even
+// badge. Used on desktop CV results panel.
+const CashValueProjection = ({ monthlyPremium, policyYears, issueAge, C, isDark }) => {
+  const age = issueAge;
+  const [sliderYear, setSliderYear] = React.useState(policyYears || 10);
+  React.useEffect(()=>{ if (policyYears) setSliderYear(policyYears); },[policyYears]);
+  const fmt = n => '$' + Math.round(n).toLocaleString();
+  const snapshots = [5, 10, 20];
+  const current = calculateCVCorridor(monthlyPremium, sliderYear, age);
+
+  let breakEvenYear = null;
+  for (let y = 3; y <= 30; y++) {
+    const { high, totalPaid } = calculateCVCorridor(monthlyPremium, y, age);
+    if (high >= totalPaid) { breakEvenYear = y; break; }
+  }
+
+  const netPct = age < 40 ? 90 : age <= 60 ? 80 : 70;
+  const amber = '#F59E0B';
+  const green = '#34D399';
+
+  return (
+    <div style={{display:'flex',flexDirection:'column',gap:16,padding:24,maxWidth:720,margin:'0 auto',width:'100%'}}>
+      {/* Header */}
+      <div style={{display:'flex',alignItems:'center',gap:12,paddingBottom:12,borderBottom:`1px solid ${C.bd}`}}>
+        <span style={{fontSize:28}}>💰</span>
+        <div>
+          <div style={{fontSize:18,fontWeight:800,color:C.t0,fontFamily:"'DM Sans',sans-serif"}}>Cash Value Projection</div>
+          <div style={{fontSize:12,color:C.t4,marginTop:2}}>Whole life policies · Agent reference only · {age} y/o · ${monthlyPremium.toLocaleString()}/mo</div>
+        </div>
+        <div style={{marginLeft:'auto',background:'rgba(245,158,11,0.1)',border:'1px solid rgba(245,158,11,0.25)',borderRadius:8,padding:'4px 10px',fontSize:11,color:amber,fontWeight:700}}>
+          {netPct}% net contribution
+        </div>
+      </div>
+
+      {/* Slider */}
+      <div style={{background:C.bg3,border:`1px solid ${C.bd}`,borderRadius:12,padding:16}}>
+        <div style={{display:'flex',justifyContent:'space-between',alignItems:'center',marginBottom:10}}>
+          <span style={{fontSize:12,fontWeight:600,color:C.t3,textTransform:'uppercase',letterSpacing:1.2}}>Policy Year</span>
+          <span style={{fontSize:22,fontWeight:800,color:amber,fontFamily:"'DM Mono',monospace"}}>Year {sliderYear}</span>
+        </div>
+        <input type="range" min="1" max="30" value={sliderYear}
+          onChange={e=>setSliderYear(Number(e.target.value))}
+          style={{width:'100%',accentColor:amber,cursor:'pointer',height:6}}/>
+        <div style={{display:'flex',justifyContent:'space-between',fontSize:10,color:C.t4,marginTop:6}}>
+          {[1,5,10,15,20,25,30].map(y=>(
+            <span key={y} onClick={()=>setSliderYear(y)} style={{cursor:'pointer',color:sliderYear===y?amber:C.t4,fontWeight:sliderYear===y?700:400}}>{y}</span>
+          ))}
+        </div>
+      </div>
+
+      {/* Current year big card */}
+      <div style={{background:isDark?'rgba(245,158,11,0.07)':'rgba(245,158,11,0.05)',border:'1px solid rgba(245,158,11,0.28)',borderRadius:12,padding:18}}>
+        <div style={{fontSize:10,fontWeight:700,letterSpacing:1.8,color:amber,textTransform:'uppercase',marginBottom:14}}>
+          Year {sliderYear} · Estimated Cash Value
+        </div>
+        {sliderYear <= 2 ? (
+          <div style={{textAlign:'center',padding:'16px 0'}}>
+            <div style={{fontSize:28,marginBottom:8}}>⏳</div>
+            <div style={{color:C.t3,fontSize:14,fontWeight:600}}>2-Year Dry Period</div>
+            <div style={{color:C.t4,fontSize:12,marginTop:4}}>Cash value begins accumulating after month 24</div>
+          </div>
+        ) : (
+          <>
+            <div style={{display:'flex',gap:10,marginBottom:14}}>
+              <div style={{flex:1,background:C.bg2,border:`1px solid ${C.bd}`,borderRadius:10,padding:'12px 14px'}}>
+                <div style={{fontSize:10,color:C.t4,marginBottom:6,fontWeight:600}}>CONSERVATIVE · 3%</div>
+                <div style={{fontSize:22,fontWeight:800,color:C.t1,fontFamily:"'DM Mono',monospace"}}>{fmt(current.low)}</div>
+              </div>
+              <div style={{flex:1,background:C.bg2,border:'1px solid rgba(245,158,11,0.4)',borderRadius:10,padding:'12px 14px'}}>
+                <div style={{fontSize:10,color:amber,marginBottom:6,fontWeight:600}}>TARGET · 5%</div>
+                <div style={{fontSize:22,fontWeight:800,color:amber,fontFamily:"'DM Mono',monospace"}}>{fmt(current.high)}</div>
+              </div>
+            </div>
+            <div style={{display:'flex',alignItems:'center',justifyContent:'space-between',fontSize:12}}>
+              <span style={{color:C.t4}}>Total premiums paid: <strong style={{color:C.t2,fontFamily:"'DM Mono',monospace"}}>{fmt(current.totalPaid)}</strong></span>
+              {breakEvenYear && sliderYear >= breakEvenYear && (
+                <span style={{background:'rgba(16,185,129,0.15)',border:'1px solid rgba(16,185,129,0.35)',color:green,borderRadius:20,padding:'3px 10px',fontWeight:700,fontSize:11}}>
+                  ✓ Break-even reached Yr {breakEvenYear}
+                </span>
+              )}
+            </div>
+          </>
+        )}
+      </div>
+
+      {/* Snapshot table */}
+      <div style={{background:C.bg3,border:`1px solid ${C.bd}`,borderRadius:12,overflow:'hidden'}}>
+        <div style={{padding:'10px 16px',borderBottom:`1px solid ${C.bd}`,display:'flex',alignItems:'center',justifyContent:'space-between'}}>
+          <span style={{fontSize:10,fontWeight:700,letterSpacing:1.8,color:C.t4,textTransform:'uppercase'}}>Performance Corridor</span>
+          <span style={{fontSize:10,color:C.t4}}>5 · 10 · 20 year snapshots</span>
+        </div>
+        <table style={{width:'100%',borderCollapse:'collapse'}}>
+          <thead>
+            <tr style={{background:isDark?'rgba(255,255,255,0.025)':'rgba(0,0,0,0.025)'}}>
+              {['Year','Conservative (3%)','Target (5%)','Total Paid'].map(h=>(
+                <th key={h} style={{padding:'8px 16px',textAlign:h==='Year'?'left':'right',fontSize:11,color:C.t4,fontWeight:600}}>{h}</th>
+              ))}
+            </tr>
+          </thead>
+          <tbody>
+            {snapshots.map((yr,i)=>{
+              const d = calculateCVCorridor(monthlyPremium, yr, age);
+              const isBE = breakEvenYear === yr;
+              const pastBE = breakEvenYear && yr >= breakEvenYear;
+              const isActive = sliderYear === yr;
+              return (
+                <tr key={yr} onClick={()=>setSliderYear(yr)}
+                  style={{borderTop:i>0?`1px solid ${C.bd}`:'none',cursor:'pointer',
+                    background:isActive?(isDark?'rgba(245,158,11,0.07)':'rgba(245,158,11,0.05)'):'transparent',
+                    transition:'background 0.15s'}}>
+                  <td style={{padding:'11px 16px',fontSize:13,fontWeight:700,color:isActive?amber:C.t1}}>
+                    Year {yr}
+                    {isBE&&<span style={{marginLeft:8,fontSize:10,background:'rgba(16,185,129,0.15)',border:'1px solid rgba(16,185,129,0.35)',color:green,borderRadius:10,padding:'1px 7px',fontWeight:700}}>Break-even</span>}
+                  </td>
+                  <td style={{padding:'11px 16px',textAlign:'right',fontSize:12,color:C.t2,fontFamily:"'DM Mono',monospace"}}>{yr<=2?'—':fmt(d.low)}</td>
+                  <td style={{padding:'11px 16px',textAlign:'right',fontSize:12,fontWeight:700,color:pastBE?green:amber,fontFamily:"'DM Mono',monospace"}}>{yr<=2?'—':fmt(d.high)}</td>
+                  <td style={{padding:'11px 16px',textAlign:'right',fontSize:12,color:C.t3,fontFamily:"'DM Mono',monospace"}}>{fmt(d.totalPaid)}</td>
+                </tr>
+              );
+            })}
+          </tbody>
+        </table>
+      </div>
+
+      {/* Disclaimer */}
+      <div style={{fontSize:10,color:C.t4,lineHeight:1.7,background:C.bg3,borderRadius:8,padding:'10px 14px',border:`1px solid ${C.bd}`}}>
+        ⚠️ <strong>Agent reference only.</strong> Net contribution {netPct}% applied for age {age}. Growth modeled as future value of annuity (3–5% corridors). Actual cash values depend on carrier-specific accumulation tables, policy fees, loan activity, and dividend participation. Always refer to the carrier's official policy illustration before presenting to client.
+      </div>
+    </div>
+  );
+};
 function calcAge(mm,dd,yyyy){if(!mm||!dd||!yyyy||yyyy.length<4)return null;const b=new Date(+yyyy,+mm-1,+dd),t=new Date();let a=t.getFullYear()-b.getFullYear();if(t.getMonth()-b.getMonth()<0||(t.getMonth()===b.getMonth()&&t.getDate()<b.getDate()))a--;return isNaN(a)?null:a;}
 
 const fmt$ = n => (n!=null&&typeof n==='number') ? `$${n.toFixed(2)}` : '—';
