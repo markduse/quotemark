@@ -1643,8 +1643,30 @@ function recommendTermClass(selectedConds, bmi, age, opts = {}) {
       reasons.push('Family history (pre-60)');
     }
   }
-  // Age penalty — Preferred Plus rarely issued past 65, Preferred past 75
-  if (age != null) {
+  // Smoker — verified against ITK raw data:
+  //   age <60 smokers: most quote at Pref or Std+, none at Pref+
+  //   age 60-69 smokers: most quote at Std+ or Std
+  //   age 70+ smokers: 11 products quote at Std, only 3 at higher tiers
+  // So smoker bumps one class always, with age floors for older smokers.
+  if (opts.smoker && worst !== 'decline') {
+    const bumped = worst === 'pp' ? 'p' : worst === 'p' ? 'sp' : worst === 'sp' ? 's' : 's';
+    if (TERM_CLASS_RANK[bumped] > TERM_CLASS_RANK[worst]) {
+      worst = bumped;
+      reasons.push('Smoker');
+    }
+    if (age != null) {
+      if (age >= 60 && TERM_CLASS_RANK[worst] < TERM_CLASS_RANK['sp']) {
+        worst = 'sp';
+        reasons.push('Smoker 60+');
+      }
+      if (age >= 70 && TERM_CLASS_RANK[worst] < TERM_CLASS_RANK['s']) {
+        worst = 's';
+        reasons.push('Smoker 70+');
+      }
+    }
+  }
+  // Non-smoker age penalty — Preferred Plus rarely issued past 65, Pref past 75
+  if (age != null && !opts.smoker) {
     if (age >= 65 && worst === 'pp') { worst = 'p'; reasons.push('Age 65+'); }
     if (age >= 75 && worst === 'p')  { worst = 'sp'; reasons.push('Age 75+'); }
   }
@@ -2216,8 +2238,8 @@ export default function QuoteMark() {
   },[termHtFt,termHtIn,termWtLb]);
   const termRec = useMemo(()=>{
     const a = parseInt(age, 10);
-    return recommendTermClass(selected, termBMI, isNaN(a)?null:a, {familyHx: termFamHx});
-  },[selected,termBMI,age,termFamHx]);
+    return recommendTermClass(selected, termBMI, isNaN(a)?null:a, {familyHx: termFamHx, smoker});
+  },[selected,termBMI,age,termFamHx,smoker]);
   useEffect(()=>{
     if (termHealthManual) return;
     if (termRec.recommended === 'decline') return; // keep user's class; show warning instead
