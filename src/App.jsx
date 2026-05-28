@@ -978,6 +978,28 @@ function termSlug(productName) {
     .replace(/[()]/g, '').replace(/[^a-z0-9]+/g, '_').replace(/^_+|_+$/g, '');
 }
 
+// Underwriting type per term product. Drives the badge on result rows:
+//   'instant'    = eApp instant decision, no exam, no APS (green ⚡ badge)
+//   'medical'    = paramedical exam + blood work required (amber ⚠ badge)
+//   'simplified' = no medical exam but MIB/Rx/phone check (no badge — default)
+const TERM_UW_TYPE = {
+  // Instant decision (per Mark's input + carrier knowledge)
+  'American Amicable (Term Made Simple)':      'instant',
+  'InstaBrain (IB Term)':                       'instant',
+  'InstaBrain (PureTerm)':                      'instant',
+  'Royal Neighbors (Jet Term)':                 'instant',  // 'JET' = instant eApp
+  'SBLI (EasyTrak)':                            'instant',
+  'Transamerica (Trendsetter Super 2021)':      'instant',  // Super 2021 = no-exam variant
+  // Fully underwritten — requires medical exam + blood/urine
+  'Foresters (Your Term Medical)':              'medical',
+  'John Hancock (Simple Term with Vitality 2023)': 'medical',
+  'Kansas City Life':                           'medical',
+  'National Life Group (LSW Level Term)':       'medical',
+  'Protective (Classic Choice Term)':           'medical',
+  'Transamerica (Trendsetter LB 2017)':         'medical',
+  // Everything else defaults to 'simplified' (no exam but MIB/Rx/phone check)
+};
+
 // Brand colors per term carrier company — used by initials-fallback logo
 // and the left-border accent on result rows.
 const TERM_BRAND = {
@@ -1010,6 +1032,7 @@ const TERM_CARRIERS = Object.keys(TERM_RATES).map(product => {
     sub,
     abbr: name.split(/\s+/).map(w => w[0]).join('').toUpperCase().slice(0,3),
     brand: TERM_BRAND[name] || '#C5A059',
+    uwType: TERM_UW_TYPE[product] || 'simplified',
     enabled: true,
     termOnly: true,
     supportedTerms: terms,
@@ -2132,6 +2155,36 @@ const CarrierLogo = ({carrierId, name, small=false}) => {
       {initials}
     </div>
   );
+};
+
+// Underwriting type badge for term result rows.
+//   instant  → green pill, ⚡ INSTANT  (eApp instant decision, no exam)
+//   medical  → amber pill, 🩺 EXAM    (paramedical + blood/urine required)
+//   simplified → nothing rendered (the default — no extra UI noise)
+const UWBadge = ({uwType, small=false}) => {
+  if (uwType === 'instant') {
+    return (
+      <span title="Instant decision via eApp — no exam, no blood work" style={{
+        display:'inline-flex',alignItems:'center',gap:3,
+        background:'rgba(16,185,129,0.14)',border:'1px solid rgba(16,185,129,0.4)',
+        color:'#10B981',borderRadius:5,padding: small?'1px 5px':'2px 6px',
+        fontSize: small?9:10,fontWeight:800,letterSpacing:0.4,whiteSpace:'nowrap',
+        fontFamily:"'DM Sans',sans-serif",lineHeight:1.2,
+      }}>⚡ INSTANT</span>
+    );
+  }
+  if (uwType === 'medical') {
+    return (
+      <span title="Requires paramedical exam + blood work" style={{
+        display:'inline-flex',alignItems:'center',gap:3,
+        background:'rgba(245,158,11,0.14)',border:'1px solid rgba(245,158,11,0.4)',
+        color:'#F59E0B',borderRadius:5,padding: small?'1px 5px':'2px 6px',
+        fontSize: small?9:10,fontWeight:800,letterSpacing:0.4,whiteSpace:'nowrap',
+        fontFamily:"'DM Sans',sans-serif",lineHeight:1.2,
+      }}>🩺 EXAM</span>
+    );
+  }
+  return null;
 };
 
 // eApp button — full-width (standard) or compact (GSB footer)
@@ -3437,7 +3490,10 @@ export default function QuoteMark() {
                           <div key={r.id} style={{background:isDark?'#1E293B':'#FFFFFF',border:`1px solid ${C.bd2}`,borderLeft:`4px solid ${brandColor}`,borderRadius:10,padding:'10px 12px',display:'flex',alignItems:'center',gap:10}}>
                             <div style={{flexShrink:0}}><CarrierLogo carrierId={r.id} name={r.name} small={true}/></div>
                             <div style={{flex:1,minWidth:0}}>
-                              <div style={{fontSize:14,fontWeight:700,color:C.t0,whiteSpace:'nowrap',overflow:'hidden',textOverflow:'ellipsis'}}>{r.name}</div>
+                              <div style={{display:'flex',alignItems:'center',gap:6}}>
+                                <div style={{fontSize:14,fontWeight:700,color:C.t0,whiteSpace:'nowrap',overflow:'hidden',textOverflow:'ellipsis',minWidth:0,flex:1}}>{r.name}</div>
+                                <UWBadge uwType={r.uwType} small={true}/>
+                              </div>
                               <div style={{fontSize:10,color:C.t4,marginTop:2,whiteSpace:'nowrap',overflow:'hidden',textOverflow:'ellipsis'}}>{r.sub}{r.tierUsed && r.tierUsed !== r.sub ? ` · ${r.tierUsed}` : ''}</div>
                             </div>
                             <div style={{textAlign:'right',flexShrink:0}}>
@@ -4734,7 +4790,10 @@ export default function QuoteMark() {
                           <CarrierLogo carrierId={r.id} name={r.name} small={true}/>
                         </div>
                         <div style={{flex:1,minWidth:0}}>
-                          <div style={{fontSize:15,fontWeight:700,color:C.t0,letterSpacing:'-0.2px',whiteSpace:'nowrap',overflow:'hidden',textOverflow:'ellipsis'}}>{r.name}</div>
+                          <div style={{display:'flex',alignItems:'center',gap:8}}>
+                            <div style={{fontSize:15,fontWeight:700,color:C.t0,letterSpacing:'-0.2px',whiteSpace:'nowrap',overflow:'hidden',textOverflow:'ellipsis'}}>{r.name}</div>
+                            <UWBadge uwType={r.uwType}/>
+                          </div>
                           <div style={{fontSize:11,color:C.t4,marginTop:2,whiteSpace:'nowrap',overflow:'hidden',textOverflow:'ellipsis'}}>{r.sub}{r.tierUsed && r.tierUsed !== r.sub ? ` · ${r.tierUsed}` : ''}</div>
                         </div>
                         <div style={{flexShrink:0,width:80,textAlign:'right'}}>
