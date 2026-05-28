@@ -6,6 +6,7 @@ import FEX_RATES from "./data/fex_rates.json";
 import RATE_FACTORS from "./data/rate_factors.json";
 import RESTRICTIONS from "./data/restrictions.json";
 import TERM_RATES from "./data/term_rates.json";
+import IUL_RATES  from "./data/iul_rates.json";
 
 // ── FONTS ──
 const FONT_LINK = "https://fonts.googleapis.com/css2?family=DM+Mono:wght@400;500&family=DM+Sans:wght@400;500;600;700&family=Barlow+Condensed:wght@700;800&display=swap";
@@ -919,6 +920,57 @@ function termPrem(product, termLen, age, classKey, face, tierOverride=null) {
   const rate = aLo === aHi ? rLo : rLo + (age - aLo) / (aHi - aLo) * (rHi - rLo);
   return Math.round(rate * 100) / 100;
 }
+
+// ═══════════════════════════════════════════════════════════
+// ── IUL LOOKUP — bilinear interp on age × premium anchors ──
+// ═══════════════════════════════════════════════════════════
+// Data shape: IUL_RATES[product][class][age][premium] = face_amount
+// Mirrors ITK's IUL quoter: input premium → output face amount per carrier.
+function iulFaceFor(product, classKey, age, premium) {
+  const tbl = IUL_RATES?.[product]?.[classKey];
+  if (!tbl) return null;
+  const ages = Object.keys(tbl).map(Number).sort((a,b)=>a-b);
+  if (!ages.length || age < ages[0] || age > ages[ages.length-1]) return null;
+  let aLo = ages[0], aHi = ages[ages.length-1];
+  if (tbl[String(age)]) { aLo = aHi = age; }
+  else for (let i=0;i<ages.length-1;i++) if (age>=ages[i]&&age<=ages[i+1]) { aLo=ages[i]; aHi=ages[i+1]; break; }
+
+  function faceAt(a) {
+    const row = tbl[String(a)];
+    if (!row) return null;
+    const prems = Object.keys(row).map(Number).sort((a,b)=>a-b);
+    if (!prems.length || premium < prems[0] || premium > prems[prems.length-1]) return null;
+    if (row[String(premium)] != null) return row[String(premium)];
+    let pLo = prems[0], pHi = prems[prems.length-1];
+    for (let i=0;i<prems.length-1;i++) if (premium>=prems[i]&&premium<=prems[i+1]) { pLo=prems[i]; pHi=prems[i+1]; break; }
+    const fLo = row[String(pLo)], fHi = row[String(pHi)];
+    if (fLo == null || fHi == null) return null;
+    if (pLo === pHi) return fLo;
+    return fLo + (premium - pLo) / (pHi - pLo) * (fHi - fLo);
+  }
+  const fL = faceAt(aLo), fH = faceAt(aHi);
+  if (fL == null || fH == null) return null;
+  return Math.round(aLo === aHi ? fL : fL + (age - aLo) / (aHi - aLo) * (fH - fL));
+}
+
+// Auto-generate IUL quote carriers from iul_rates.json keys.
+const IUL_QUOTE_CARRIERS = Object.keys(IUL_RATES).map(product => {
+  const m = product.match(/^(.*?)\s*\((.+)\)\s*$/);
+  const name = m ? m[1].trim() : product;
+  const sub  = m ? m[2].trim() : 'IUL';
+  return {
+    id: 'iul_quote_' + product.toLowerCase().replace(/[^a-z0-9]+/g,'_').replace(/^_|_$/g,''),
+    product,
+    name, sub,
+    brand: name.startsWith('Mutual of Omaha') ? '#1D4ED8'
+         : name.startsWith('Americo')         ? '#1E40AF'
+         : '#C5A059',
+    fn: (age, male, smoker, premium) => {
+      const cls = (male?'M':'F') + (smoker?'S':'NS');
+      return iulFaceFor(product, cls, age, premium);
+    },
+  };
+});
 
 // Slug helper — product name → carrier id
 function termSlug(productName) {
@@ -2260,6 +2312,9 @@ export default function QuoteMark() {
   const [termWtLb,setTermWtLb]   = useState(''); // weight in lbs
   const [termFamHx,setTermFamHx] = useState(false); // family hx of cancer/CVD before 60
 
+  // IUL quoter inputs (mirrors ITK: premium → face per carrier)
+  const [iulPremium,setIulPremium] = useState(200); // $/month
+
   // ── PROFILE STATE ──
   const [mobileTab2, setMobileTab2] = useState(null); // null | 'profile'
   const [showProfileModal, setShowProfileModal] = useState(false);
@@ -2574,6 +2629,21 @@ export default function QuoteMark() {
     // Sort by monthly premium ascending (cheapest first)
     return results.sort((a, b) => a.prem - b.prem);
   }, [quoteMode, ageOK, ageNum, termLength, termFace, gender, smoker, activeCarriers, termHealth]);
+
+  // ── IUL QUOTE RESULTS ──
+  // For the given premium + client profile, look up the face amount each
+  // IUL carrier would issue. Sort by face desc (most coverage first).
+  const iulQuoteResults = useMemo(()=>{
+    if (quoteMode !== 'iul' || !ageOK) return null;
+    const male = gender === 'male';
+    const a = ageNum;
+    const results = IUL_QUOTE_CARRIERS.map(c => {
+      const face = c.fn(a, male, smoker, iulPremium);
+      if (face == null) return null;
+      return { ...c, face, premium: iulPremium };
+    }).filter(r => r != null);
+    return results.sort((a, b) => b.face - a.face);
+  }, [quoteMode, ageOK, ageNum, gender, smoker, iulPremium]);
 
   // ── INPUT STYLES ──
   const inp = {background:C.bg2,border:`1px solid ${C.bd}`,color:C.t1,borderRadius:8,padding:'9px 12px',fontSize:13,width:'100%',boxSizing:'border-box',outline:'none',fontFamily:"'DM Sans',sans-serif"};
@@ -3078,13 +3148,77 @@ export default function QuoteMark() {
               </>
               ) : null}
 
-              {/* ── IUL MOBILE — Carrier comparison cards ── */}
+              {/* ── IUL MOBILE — Quote inputs + carrier face cards ── */}
               {quoteMode==='iul' && (
                 <div style={{display:'flex',flexDirection:'column',gap:14}}>
-                  <div style={{display:'flex',alignItems:'center',gap:10,paddingBottom:8,borderBottom:`1px solid ${C.bd}`}}>
+                  {/* Form: Age, Sex, Smoker, Premium */}
+                  <div style={{fontSize:10,fontWeight:700,letterSpacing:1.8,color:'#C5A059',textTransform:'uppercase'}}>Client Info</div>
+                  <div>
+                    <div style={{fontSize:11,color:C.t3,marginBottom:6,fontWeight:600}}>Age</div>
+                    <input inputMode="numeric" placeholder="e.g. 45" value={age}
+                      onChange={e=>setAge(e.target.value.replace(/\D/g,''))}
+                      style={{...mInp,fontFamily:"'DM Mono',monospace",fontSize:16}}/>
+                  </div>
+                  <div style={{display:'flex',gap:6}}>
+                    <button className='qm-btn' style={mTogBtn(gender==='male')} onClick={()=>setGender('male')}>👨 Male</button>
+                    <button className='qm-btn' style={mTogBtn(gender==='female')} onClick={()=>setGender('female')}>👩 Female</button>
+                  </div>
+                  <div style={{display:'flex',gap:6}}>
+                    <button className='qm-btn' style={mTogBtn(!smoker)} onClick={()=>setSmoker(false)}>Non-smoker</button>
+                    <button className='qm-btn' style={mTogBtn(smoker,'#EF4444')} onClick={()=>setSmoker(true)}>Smoker</button>
+                  </div>
+                  <div>
+                    <div style={{fontSize:11,color:C.t3,marginBottom:6,display:'flex',justifyContent:'space-between'}}>
+                      <span>Monthly Premium</span>
+                      <span style={{color:'#C5A059',fontWeight:700,fontFamily:"'DM Mono',monospace"}}>${iulPremium}/mo</span>
+                    </div>
+                    <input type="range" min="50" max="500" step="25" value={iulPremium}
+                      onChange={e=>setIulPremium(+e.target.value)}
+                      style={{width:'100%',accentColor:C.gold}}/>
+                    <div style={{display:'flex',justifyContent:'space-between',fontSize:10,color:C.t4}}>
+                      <span>$50</span><span>$500</span>
+                    </div>
+                  </div>
+
+                  {/* Results */}
+                  {!ageOK ? (
+                    <div style={{padding:'24px 0',textAlign:'center',color:C.t4,fontSize:13}}>Enter age to see IUL quotes</div>
+                  ) : !iulQuoteResults || iulQuoteResults.length === 0 ? (
+                    <div style={{padding:'24px 0',textAlign:'center',color:C.t4,fontSize:13,lineHeight:1.6}}>
+                      No IUL quotes for this profile.<br/>Try a different age or premium amount.
+                    </div>
+                  ) : (
+                    <>
+                      <div style={{fontSize:10,fontWeight:700,letterSpacing:1.8,color:'#C5A059',textTransform:'uppercase',marginTop:6}}>Face Amounts</div>
+                      <div style={{display:'flex',flexDirection:'column',gap:8}}>
+                        {iulQuoteResults.map(r => (
+                          <div key={r.id} style={{background:isDark?'#1E293B':'#FFFFFF',border:`1px solid ${C.bd2}`,borderLeft:`4px solid ${r.brand}`,borderRadius:10,padding:'12px 14px',display:'flex',alignItems:'center',gap:12}}>
+                            <div style={{flexShrink:0}}><CarrierLogo carrierId={r.id} name={r.name} small={true}/></div>
+                            <div style={{flex:1,minWidth:0}}>
+                              <div style={{fontSize:13,fontWeight:700,color:C.t0,whiteSpace:'nowrap',overflow:'hidden',textOverflow:'ellipsis'}}>{r.name}</div>
+                              <div style={{fontSize:10,color:C.t4,marginTop:2,whiteSpace:'nowrap',overflow:'hidden',textOverflow:'ellipsis'}}>{r.sub}</div>
+                            </div>
+                            <div style={{textAlign:'right',flexShrink:0}}>
+                              <div style={{fontFamily:"'DM Mono',monospace",fontSize:18,fontWeight:800,color:C.t0,lineHeight:1}}>${(r.face/1000).toFixed(0)}k</div>
+                              <div style={{fontSize:9,color:C.t4,marginTop:2}}>face · ${iulPremium}/mo</div>
+                            </div>
+                          </div>
+                        ))}
+                      </div>
+                    </>
+                  )}
+
+                  <div style={{padding:'10px 12px',background:C.bg3,border:`1px solid ${C.bd}`,borderRadius:8,fontSize:11,color:C.t4,lineHeight:1.6,marginTop:6}}>
+                    💡 Face amounts shown are what each carrier will issue for your client at this premium. Pull the carrier's full illustration before presenting to the client.
+                  </div>
+
+                  {/* Original spec snapshot kept below */}
+                  <div style={{fontSize:10,fontWeight:700,letterSpacing:1.8,color:C.t4,textTransform:'uppercase',marginTop:14,paddingTop:14,borderTop:`1px solid ${C.bd}`}}>Carrier Specs</div>
+                  <div style={{fontSize:10,color:C.t4,marginTop:-8,marginBottom:4}}>Cap rates / par / floor / underwriting type</div>
+                  <div style={{display:'flex',alignItems:'center',gap:10,paddingBottom:8}}>
                     <span style={{fontSize:24}}>📈</span>
                     <div>
-                      <div style={{fontSize:16,fontWeight:800,color:C.t0}}>IUL Carrier Comparison</div>
+                      <div style={{fontSize:16,fontWeight:800,color:C.t0}}>IUL Carrier Specs</div>
                       <div style={{fontSize:11,color:C.t4,marginTop:1}}>Spec snapshot · Agent reference only</div>
                     </div>
                   </div>
@@ -4255,16 +4389,36 @@ export default function QuoteMark() {
               <div style={{background:'rgba(245,158,11,0.08)',border:'1px solid rgba(245,158,11,0.3)',borderRadius:8,padding:'10px 12px',fontSize:11,color:C.t3,lineHeight:1.5}}>
                 ⚠ Cap rates reset periodically. Verify against the carrier's current brochure before quoting.
               </div>
-              <div style={{display:'flex',flexDirection:'column',gap:5,fontSize:11,color:C.t3,padding:'4px 0'}}>
-                <div style={{fontWeight:700,color:C.t2,marginBottom:4}}>Quick reference</div>
-                <div style={{display:'flex',justifyContent:'space-between'}}><span>Products tracked</span><span style={{fontFamily:"'DM Mono',monospace",color:C.t1}}>{IUL_CARRIERS.length}</span></div>
-                <div style={{display:'flex',justifyContent:'space-between'}}><span>Carriers</span><span style={{fontFamily:"'DM Mono',monospace",color:C.t1}}>{[...new Set(IUL_CARRIERS.map(c=>c.name))].length}</span></div>
-                <div style={{display:'flex',justifyContent:'space-between'}}><span>Cap range</span><span style={{fontFamily:"'DM Mono',monospace",color:C.t1}}>{Math.min(...IUL_CARRIERS.map(c=>c.cap))}–{Math.max(...IUL_CARRIERS.map(c=>c.cap))}%</span></div>
-                <div style={{display:'flex',justifyContent:'space-between'}}><span>Issue ages</span><span style={{fontFamily:"'DM Mono',monospace",color:C.t1}}>{Math.min(...IUL_CARRIERS.map(c=>c.issueAges.min))}–{Math.max(...IUL_CARRIERS.map(c=>c.issueAges.max))}</span></div>
+              <div style={{fontSize:10,fontWeight:700,letterSpacing:1.8,color:'#C5A059',textTransform:'uppercase',marginTop:6}}>Client Info</div>
+              <div>
+                <div style={{fontSize:11,color:C.t3,marginBottom:6,fontWeight:600}}>Age</div>
+                <input inputMode="numeric" placeholder="e.g. 45" value={age}
+                  onChange={e=>setAge(e.target.value.replace(/\D/g,''))}
+                  style={{...inp,fontFamily:"'DM Mono',monospace",fontSize:15}}/>
+              </div>
+              <div style={{display:'flex',gap:6}}>
+                <button className='qm-btn' style={togBtn(gender==='male')} onClick={()=>setGender('male')}>👨 Male</button>
+                <button className='qm-btn' style={togBtn(gender==='female')} onClick={()=>setGender('female')}>👩 Female</button>
+              </div>
+              <div style={{display:'flex',gap:6}}>
+                <button className='qm-btn' style={togBtn(!smoker)} onClick={()=>setSmoker(false)}>Non-smoker</button>
+                <button className='qm-btn' style={togBtn(smoker)} onClick={()=>setSmoker(true)}>Smoker</button>
+              </div>
+              <div>
+                <div style={{fontSize:11,color:C.t3,marginBottom:6,display:'flex',justifyContent:'space-between'}}>
+                  <span>Monthly Premium</span>
+                  <span style={{color:'#C5A059',fontWeight:700,fontFamily:"'DM Mono',monospace"}}>${iulPremium}/mo</span>
+                </div>
+                <input type="range" min="50" max="500" step="25" value={iulPremium}
+                  onChange={e=>setIulPremium(+e.target.value)}
+                  style={{width:'100%',accentColor:C.gold}}/>
+                <div style={{display:'flex',justifyContent:'space-between',fontSize:10,color:C.t4}}>
+                  <span>$50</span><span>$500</span>
+                </div>
               </div>
               <div style={{padding:'10px 11px',background:C.bg3,border:`1px solid ${C.bd}`,borderRadius:8,fontSize:11,color:C.t3,lineHeight:1.6}}>
                 <div style={{fontWeight:700,color:C.t2,marginBottom:4}}>💡 Tip</div>
-                Use these specs to pick which carrier to illustrate. Then pull the live illustration from the carrier's own software for the actual client presentation.
+                Face shown is what each carrier issues for this premium. Use it to pick the carrier, then pull the carrier's official illustration for the client.
               </div>
             </div>
           )}
@@ -4358,12 +4512,57 @@ export default function QuoteMark() {
               <div style={{display:'flex',alignItems:'center',gap:14,paddingBottom:14,marginBottom:18,borderBottom:`1px solid ${C.bd}`}}>
                 <span style={{fontSize:32}}>📈</span>
                 <div style={{flex:1}}>
-                  <div style={{fontSize:20,fontWeight:800,color:C.t0}}>IUL Carrier Comparison</div>
-                  <div style={{fontSize:12,color:C.t4,marginTop:2}}>Indexed Universal Life · {IUL_CARRIERS.length} products across {[...new Set(IUL_CARRIERS.map(c=>c.name))].length} carriers</div>
+                  <div style={{fontSize:20,fontWeight:800,color:C.t0}}>IUL Quote · Premium → Face</div>
+                  <div style={{fontSize:12,color:C.t4,marginTop:2}}>{IUL_QUOTE_CARRIERS.length} carriers · live lookup mirrors Insurance Toolkits</div>
                 </div>
                 <div style={{background:'rgba(245,158,11,0.1)',border:'1px solid rgba(245,158,11,0.3)',borderRadius:6,padding:'4px 10px',fontSize:11,color:'#F59E0B',fontWeight:700}}>
                   Agent reference only
                 </div>
+              </div>
+
+              {/* Quote results */}
+              {!ageOK ? (
+                <div style={{padding:'40px 24px',textAlign:'center',color:C.t4}}>
+                  <div style={{fontSize:48,opacity:0.4,marginBottom:8}}>📋</div>
+                  <div style={{fontSize:16,fontWeight:700,marginBottom:6,color:C.t3}}>Enter client info</div>
+                  <div style={{fontSize:12,maxWidth:340,margin:'0 auto',lineHeight:1.6}}>Set age, sex, smoker, and monthly premium in the sidebar to see face amounts each IUL carrier will issue.</div>
+                </div>
+              ) : !iulQuoteResults || iulQuoteResults.length === 0 ? (
+                <div style={{padding:'40px 24px',textAlign:'center',color:C.t4}}>
+                  <div style={{fontSize:48,opacity:0.4,marginBottom:8}}>🔍</div>
+                  <div style={{fontSize:16,fontWeight:700,marginBottom:6,color:C.t3}}>No IUL quotes for this profile</div>
+                  <div style={{fontSize:12,maxWidth:340,margin:'0 auto',lineHeight:1.6}}>Try a different age or premium amount. Data range: ages 18–75, premium $50–$500/mo.</div>
+                </div>
+              ) : (
+                <div style={{marginBottom:24}}>
+                  <div style={{background:C.bg3,border:`1px solid ${C.bd}`,borderRadius:10,padding:'10px 14px',marginBottom:12,display:'flex',justifyContent:'space-between',fontSize:13,color:C.t2,flexWrap:'wrap',gap:6}}>
+                    <span><span style={{fontFamily:"'DM Mono',monospace",fontWeight:600,color:C.t0}}>${iulPremium}/mo</span> · Age {age} · {gender==='male'?'M':'F'} · {smoker?'Smoker':'NS'}</span>
+                    <span style={{fontSize:11,color:C.t3}}>{iulQuoteResults.length} carriers · sorted by face desc</span>
+                  </div>
+                  <div style={{display:'flex',flexDirection:'column',gap:10}}>
+                    {iulQuoteResults.map(r => (
+                      <div key={r.id} style={{background:isDark?'#1E293B':'#FFFFFF',border:`1px solid ${C.bd2}`,borderLeft:`5px solid ${r.brand}`,borderRadius:12,padding:'14px 20px',display:'flex',alignItems:'center',gap:18}}>
+                        <div style={{flexShrink:0,width:120,display:'flex',alignItems:'center',justifyContent:'center'}}>
+                          <CarrierLogo carrierId={r.id} name={r.name} small={false}/>
+                        </div>
+                        <div style={{flex:1,minWidth:0}}>
+                          <div style={{fontSize:16,fontWeight:800,color:C.t0,letterSpacing:'-0.2px'}}>{r.name}</div>
+                          <div style={{fontSize:12,color:C.t4,marginTop:2}}>{r.sub}</div>
+                          <div style={{fontSize:10,color:C.t4,marginTop:5,fontStyle:'italic'}}>Premium ${iulPremium}/mo buys this face amount</div>
+                        </div>
+                        <div style={{textAlign:'right',flexShrink:0}}>
+                          <div style={{fontFamily:"'DM Mono',monospace",fontSize:32,fontWeight:800,color:C.t0,lineHeight:1}}>${r.face.toLocaleString()}</div>
+                          <div style={{fontSize:10,color:C.t4,marginTop:4,fontWeight:600,letterSpacing:1,textTransform:'uppercase'}}>Face Amount</div>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              )}
+
+              {/* Spec cards header */}
+              <div style={{display:'flex',alignItems:'center',gap:10,paddingBottom:10,marginBottom:14,borderTop:`1px solid ${C.bd}`,paddingTop:18}}>
+                <div style={{fontSize:11,color:C.t4,fontWeight:700,letterSpacing:1.5,textTransform:'uppercase'}}>Carrier Specs · Cap / Par / Floor reference</div>
               </div>
               <div style={{display:'grid',gridTemplateColumns:'repeat(auto-fit,minmax(360px,1fr))',gap:14}}>
                 {IUL_CARRIERS.map(c => (
