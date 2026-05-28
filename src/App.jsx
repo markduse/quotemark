@@ -1007,56 +1007,80 @@ function termSlug(productName) {
     .replace(/[()]/g, '').replace(/[^a-z0-9]+/g, '_').replace(/^_+|_+$/g, '');
 }
 
-// Underwriting type per term product. Drives the badge on result rows:
-//   'instant'    = eApp instant decision, no exam, no APS (green ⚡ badge)
-//   'medical'    = paramedical exam + blood work required (amber ⚠ badge)
-//   'simplified' = no medical exam but MIB/Rx/phone check (no badge — default)
+// ── UW BADGE LOGIC ──
+// Mark caught it: top tiers (Preferred Plus / Preferred) of multi-tier products
+// typically require labs even on carriers that have instant paths for Standard.
+// Trans Trendsetter Super 2021 Pref+ requires recent blood work, for example.
+// So the badge has to be aware of which tier the agent landed on.
 //
-// Verified against carrier UW guides + product brochures (May 2026):
-//   - Americo Instant Decision Term Series: all 6 products are instant
-//     (Term 100/125, Continuation 10/25, Payment Protector +Continuation, HMS)
-//     [americo.com/Content/TermSeriesAtAGlance.pdf]
-//   - AmAm: Term Made Simple + Home Protector are POS-instant via eApp;
-//     other AmAm term products require phone interview (simplified, not instant)
-//     [americanamicable.com brochures]
-//   - Foresters Strong Foundation: POS instant decision available
-//     during business hours [Foresters Field Guide]
-//   - RN Jet Term: instant POS, no para-med, no phone interview
-//   - SBLI EasyTrak: decisions in <45s via eApp [SBLI announcements]
-//   - Trans Super 2021: POS for Standard+ best risk (mostly instant)
-//   - Trans LB 2017: traditional UW + paramedical exam typically required
-//   - MOO Term Life Express: instant per Mark + Express series convention
-//   - InstaBrain (Fidelity): all products are instant by design
-const TERM_UW_TYPE = {
-  // ── INSTANT decision via eApp ──
-  'American Amicable (Term Made Simple)':       'instant',
-  'American Amicable (Home Protector)':         'instant',
-  'Americo (Continuation 10)':                  'instant',
-  'Americo (Continuation 25)':                  'instant',
-  'Americo (HMS Term 100)':                     'instant',
-  'Americo (HMS Term 125)':                     'instant',
-  'Americo (Payment Protector)':                'instant',
-  'Americo (Payment Protector Continuation)':   'instant',
-  'Foresters (Strong Foundation)':              'instant',
-  'InstaBrain (IB Term)':                       'instant',
-  'InstaBrain (PureTerm)':                      'instant',
-  'Mutual of Omaha (Term Life Express)':        'instant',
-  'Royal Neighbors (Jet Term)':                 'instant',
-  'SBLI (EasyTrak)':                            'instant',
-  'Transamerica (Trendsetter Super 2021)':      'instant',
-  // ── EXAM required (paramedical + blood/urine) ──
-  'Foresters (Your Term Medical)':              'medical',
-  'John Hancock (Simple Term with Vitality 2023)': 'medical',
-  'Kansas City Life':                           'medical',
-  'National Life Group (LSW Level Term)':       'medical',
-  'Protective (Classic Choice Term)':           'medical',
-  'Transamerica (Trendsetter LB 2017)':         'medical',
-  // ── Default ('simplified') — no exam but phone interview / MIB / Rx check
-  // These render WITHOUT a badge:
+// Products fall into 3 categories:
+//   1. ALWAYS_INSTANT — designed as no-exam (single tier or all-instant)
+//   2. ALWAYS_EXAM    — traditional UW required regardless of tier
+//   3. TIER_DEPENDENT — instant for Std/Std+, exam for Pref+/Pref
+//
+// Verified against carrier UW guides + product brochures (May 2026).
+
+// Products that are TRULY instant regardless of tier:
+//   - Single-tier "Approved" products (no preferred class to underwrite)
+//   - Carriers whose entire product line is designed as no-exam
+const TERM_ALWAYS_INSTANT = new Set([
+  // AmAm — Term Made Simple per Mark + single-tier "Approved" products
+  'American Amicable (Term Made Simple)',
+  'American Amicable (Home Protector)',          // POS decision, single-tier
+  // Americo — entire "Instant Decision Term Series"
+  'Americo (Continuation 10)',
+  'Americo (Continuation 25)',
+  'Americo (HMS Term 100)',
+  'Americo (HMS Term 125)',
+  'Americo (Payment Protector)',
+  'Americo (Payment Protector Continuation)',
+  // Foresters Strong Foundation — single-tier non-med w/ POS decision
+  'Foresters (Strong Foundation)',
+  // InstaBrain — designed as fully-online no-exam product line
+  'InstaBrain (IB Term)',
+  'InstaBrain (PureTerm)',
+  // MOO Express series — simplified-issue by design
+  'Mutual of Omaha (Term Life Express)',
+  // Royal Neighbors Jet — instant POS, no para-med
+  'Royal Neighbors (Jet Term)',
+]);
+
+// Products that ALWAYS require para-medical exam + blood/urine regardless of tier:
+const TERM_ALWAYS_EXAM = new Set([
+  'Foresters (Your Term Medical)',
+  'John Hancock (Simple Term with Vitality 2023)',
+  'Kansas City Life',
+  'National Life Group (LSW Level Term)',
+  'Protective (Classic Choice Term)',
+  'Transamerica (Trendsetter LB 2017)',
+]);
+
+// Tier-dependent products — instant for Std/Std+, EXAM for Pref+/Pref.
+// Most carriers require recent labs to certify the top rate classes.
+// Trans Trendsetter Super 2021 confirmed by Mark (Pref+ needs recent bloods).
+const TERM_TIER_DEPENDENT = new Set([
+  'Transamerica (Trendsetter Super 2021)',
+  'SBLI (EasyTrak)',
+]);
+
+const TOP_TIERS_REQUIRING_LABS = new Set([
+  'Preferred Plus', 'Ultimate Preferred', 'Elite', 'Super Preferred', 'Preferred'
+]);
+
+// Compute the UW badge for a given product + the tier it resolved to.
+// Returns 'instant' | 'medical' | 'simplified' (default = no badge rendered).
+function getUwType(productName, tierUsed) {
+  if (TERM_ALWAYS_INSTANT.has(productName)) return 'instant';
+  if (TERM_ALWAYS_EXAM.has(productName))    return 'medical';
+  if (TERM_TIER_DEPENDENT.has(productName)) {
+    return TOP_TIERS_REQUIRING_LABS.has(tierUsed) ? 'medical' : 'instant';
+  }
+  // Default (no badge): simplified-issue (MIB/Rx/phone). Includes:
   //   AmAm Easy Term, Home Certainty, Pioneer Security, Safecare, Survivor Protector
   //   Foresters Your Term (non-med, being discontinued)
   //   UHL Simple Term
-};
+  return 'simplified';
+}
 
 // Brand colors per term carrier company — used by initials-fallback logo
 // and the left-border accent on result rows.
@@ -1090,7 +1114,8 @@ const TERM_CARRIERS = Object.keys(TERM_RATES).map(product => {
     sub,
     abbr: name.split(/\s+/).map(w => w[0]).join('').toUpperCase().slice(0,3),
     brand: TERM_BRAND[name] || '#C5A059',
-    uwType: TERM_UW_TYPE[product] || 'simplified',
+    // uwType is now computed at render time via getUwType(product, tierUsed)
+    // since some products are tier-dependent (Trans Super, SBLI)
     enabled: true,
     termOnly: true,
     supportedTerms: terms,
@@ -2211,10 +2236,13 @@ const CarrierLogo = ({carrierId, name, small=false}) => {
 //   instant  → green pill, ⚡ INSTANT  (eApp instant decision, no exam)
 //   medical  → amber pill, 🩺 EXAM    (paramedical + blood/urine required)
 //   simplified → nothing rendered (the default — no extra UI noise)
-const UWBadge = ({uwType, small=false}) => {
+const UWBadge = ({uwType, productName, tier, small=false}) => {
   if (uwType === 'instant') {
+    const tip = productName && TERM_TIER_DEPENDENT.has(productName)
+      ? `Instant POS decision at ${tier}. (Pref+/Pref tiers on this product require recent labs and would not be instant.)`
+      : 'Instant decision via eApp — no exam, no blood work';
     return (
-      <span title="Instant decision via eApp — no exam, no blood work" style={{
+      <span title={tip} style={{
         display:'inline-flex',alignItems:'center',gap:3,
         background:'rgba(16,185,129,0.14)',border:'1px solid rgba(16,185,129,0.4)',
         color:'#10B981',borderRadius:5,padding: small?'1px 5px':'2px 6px',
@@ -2224,8 +2252,11 @@ const UWBadge = ({uwType, small=false}) => {
     );
   }
   if (uwType === 'medical') {
+    const tip = productName && TERM_TIER_DEPENDENT.has(productName)
+      ? `${tier} on this product requires recent labs / paramedical exam. Drop to Std/Std+ for instant POS.`
+      : 'Requires paramedical exam + blood work';
     return (
-      <span title="Requires paramedical exam + blood work" style={{
+      <span title={tip} style={{
         display:'inline-flex',alignItems:'center',gap:3,
         background:'rgba(245,158,11,0.14)',border:'1px solid rgba(245,158,11,0.4)',
         color:'#F59E0B',borderRadius:5,padding: small?'1px 5px':'2px 6px',
@@ -2730,6 +2761,7 @@ export default function QuoteMark() {
         prem,
         termLen: termLength,
         tierUsed: tierUsed || 'Standard',
+        uwType: getUwType(carr.product, tierUsed || 'Standard'),
       };
     }).filter(r => r != null);
 
@@ -3606,7 +3638,7 @@ export default function QuoteMark() {
                             <div style={{flex:1,minWidth:0}}>
                               <div style={{display:'flex',alignItems:'center',gap:6}}>
                                 <div style={{fontSize:14,fontWeight:700,color:C.t0,whiteSpace:'nowrap',overflow:'hidden',textOverflow:'ellipsis',minWidth:0,flex:1}}>{r.name}</div>
-                                <UWBadge uwType={r.uwType} small={true}/>
+                                <UWBadge uwType={r.uwType} productName={r.product} tier={r.tierUsed} small={true}/>
                               </div>
                               <div style={{fontSize:10,color:C.t4,marginTop:2,whiteSpace:'nowrap',overflow:'hidden',textOverflow:'ellipsis'}}>{r.sub}{r.tierUsed && r.tierUsed !== r.sub && r.tierUsed !== 'Approved' ? ` · ${r.tierUsed}` : ''}</div>
                             </div>
@@ -4956,7 +4988,7 @@ export default function QuoteMark() {
                         <div style={{flex:1,minWidth:0}}>
                           <div style={{display:'flex',alignItems:'center',gap:8}}>
                             <div style={{fontSize:15,fontWeight:700,color:C.t0,letterSpacing:'-0.2px',whiteSpace:'nowrap',overflow:'hidden',textOverflow:'ellipsis'}}>{r.name}</div>
-                            <UWBadge uwType={r.uwType}/>
+                            <UWBadge uwType={r.uwType} productName={r.product} tier={r.tierUsed}/>
                           </div>
                           <div style={{fontSize:11,color:C.t4,marginTop:2,whiteSpace:'nowrap',overflow:'hidden',textOverflow:'ellipsis'}}>{r.sub}{r.tierUsed && r.tierUsed !== r.sub && r.tierUsed !== 'Approved' ? ` · ${r.tierUsed}` : ''}</div>
                         </div>
