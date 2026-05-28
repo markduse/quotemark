@@ -1011,23 +1011,51 @@ function termSlug(productName) {
 //   'instant'    = eApp instant decision, no exam, no APS (green ⚡ badge)
 //   'medical'    = paramedical exam + blood work required (amber ⚠ badge)
 //   'simplified' = no medical exam but MIB/Rx/phone check (no badge — default)
+//
+// Verified against carrier UW guides + product brochures (May 2026):
+//   - Americo Instant Decision Term Series: all 6 products are instant
+//     (Term 100/125, Continuation 10/25, Payment Protector +Continuation, HMS)
+//     [americo.com/Content/TermSeriesAtAGlance.pdf]
+//   - AmAm: Term Made Simple + Home Protector are POS-instant via eApp;
+//     other AmAm term products require phone interview (simplified, not instant)
+//     [americanamicable.com brochures]
+//   - Foresters Strong Foundation: POS instant decision available
+//     during business hours [Foresters Field Guide]
+//   - RN Jet Term: instant POS, no para-med, no phone interview
+//   - SBLI EasyTrak: decisions in <45s via eApp [SBLI announcements]
+//   - Trans Super 2021: POS for Standard+ best risk (mostly instant)
+//   - Trans LB 2017: traditional UW + paramedical exam typically required
+//   - MOO Term Life Express: instant per Mark + Express series convention
+//   - InstaBrain (Fidelity): all products are instant by design
 const TERM_UW_TYPE = {
-  // Instant decision (per Mark's input + carrier knowledge)
-  'American Amicable (Term Made Simple)':      'instant',
+  // ── INSTANT decision via eApp ──
+  'American Amicable (Term Made Simple)':       'instant',
+  'American Amicable (Home Protector)':         'instant',
+  'Americo (Continuation 10)':                  'instant',
+  'Americo (Continuation 25)':                  'instant',
+  'Americo (HMS Term 100)':                     'instant',
+  'Americo (HMS Term 125)':                     'instant',
+  'Americo (Payment Protector)':                'instant',
+  'Americo (Payment Protector Continuation)':   'instant',
+  'Foresters (Strong Foundation)':              'instant',
   'InstaBrain (IB Term)':                       'instant',
   'InstaBrain (PureTerm)':                      'instant',
-  'Mutual of Omaha (Term Life Express)':        'instant',  // Express = instant eApp
-  'Royal Neighbors (Jet Term)':                 'instant',  // 'JET' = instant eApp
+  'Mutual of Omaha (Term Life Express)':        'instant',
+  'Royal Neighbors (Jet Term)':                 'instant',
   'SBLI (EasyTrak)':                            'instant',
-  'Transamerica (Trendsetter Super 2021)':      'instant',  // Super 2021 = no-exam variant
-  // Fully underwritten — requires medical exam + blood/urine
+  'Transamerica (Trendsetter Super 2021)':      'instant',
+  // ── EXAM required (paramedical + blood/urine) ──
   'Foresters (Your Term Medical)':              'medical',
   'John Hancock (Simple Term with Vitality 2023)': 'medical',
   'Kansas City Life':                           'medical',
   'National Life Group (LSW Level Term)':       'medical',
   'Protective (Classic Choice Term)':           'medical',
   'Transamerica (Trendsetter LB 2017)':         'medical',
-  // Everything else defaults to 'simplified' (no exam but MIB/Rx/phone check)
+  // ── Default ('simplified') — no exam but phone interview / MIB / Rx check
+  // These render WITHOUT a badge:
+  //   AmAm Easy Term, Home Certainty, Pioneer Security, Safecare, Survivor Protector
+  //   Foresters Your Term (non-med, being discontinued)
+  //   UHL Simple Term
 };
 
 // Brand colors per term carrier company — used by initials-fallback logo

@@ -1,5 +1,6 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 60">
-  <rect width="200" height="60" rx="6" fill="#FFFFFF"/>
-  <rect x="20" y="14" width="160" height="32" rx="4" fill="#1E3A8A"/>
-  <text x="100" y="36" text-anchor="middle" font-family="Arial, sans-serif" font-weight="900" font-size="22" fill="#FFFFFF" letter-spacing="3">SBLI</text>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 300 90" preserveAspectRatio="xMidYMid meet">
+  <rect width="300" height="90" rx="8" fill="#FFFFFF"/>
+  <!-- Brand-correct: red bold "SBLI" wordmark with blue tagline -->
+  <text x="150" y="46" text-anchor="middle" font-family="'Arial Black', 'Helvetica Neue', sans-serif" font-weight="900" font-size="42" fill="#C8102E" letter-spacing="1">SBLI</text>
+  <text x="150" y="68" text-anchor="middle" font-family="Arial, sans-serif" font-weight="600" font-size="9" fill="#003B7A" letter-spacing="3.5">LIFE INSURANCE</text>
 </svg>
