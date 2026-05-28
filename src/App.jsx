@@ -2449,7 +2449,7 @@ export default function QuoteMark() {
   // IUL quoter inputs — supports both directions:
   //   'face'    = input premium → output face per carrier (default)
   //   'premium' = input face → output required premium per carrier
-  const [iulMode,setIulMode]       = useState('face'); // 'face' | 'premium'
+  const [iulMode,setIulMode]       = useState('premium'); // 'premium' = enter Face amount (default, matches FE); 'face' = enter Monthly budget
   const [iulPremium,setIulPremium] = useState(200);    // $/month input
   const [iulFace,setIulFace]       = useState(150000); // target face input
 
@@ -3172,6 +3172,19 @@ export default function QuoteMark() {
                       ))}
                     </div>
                   </div>
+                  {/* Face slider — directly under Term Length for consistency */}
+                  <div>
+                    <div style={{fontSize:11,color:C.t3,marginBottom:6,display:'flex',justifyContent:'space-between'}}>
+                      <span>Coverage amount</span>
+                      <span style={{color:C.t2,fontWeight:500,fontFamily:"'DM Mono',monospace"}}>{fmtF(termFace)}</span>
+                    </div>
+                    <input type="range" min="50000" max="1000000" step="25000" value={termFace}
+                      onChange={e=>setTermFace(+e.target.value)}
+                      style={{width:'100%',accentColor:C.gold}}/>
+                    <div style={{display:'flex',justifyContent:'space-between',fontSize:10,color:C.t4}}>
+                      <span>$50,000</span><span>$1,000,000</span>
+                    </div>
+                  </div>
                   {/* Height / Weight → BMI */}
                   <div>
                     <div style={{fontSize:11,color:C.t3,marginBottom:6,fontWeight:600,display:'flex',justifyContent:'space-between'}}>
@@ -3281,20 +3294,6 @@ export default function QuoteMark() {
                       </div>
                     )}
                   </div>
-                  {/* Face slider */}
-                  <div>
-                    <div style={{fontSize:11,color:C.t3,marginBottom:6,display:'flex',justifyContent:'space-between'}}>
-                      <span>Coverage amount</span>
-                      <span style={{color:C.t2,fontWeight:500,fontFamily:"'DM Mono',monospace"}}>{fmtF(termFace)}</span>
-                    </div>
-                    <input type="range" min="50000" max="1000000" step="25000" value={termFace}
-                      onChange={e=>setTermFace(+e.target.value)}
-                      style={{width:'100%',accentColor:C.gold}}/>
-                    <div style={{display:'flex',justifyContent:'space-between',fontSize:10,color:C.t4}}>
-                      <span>$50,000</span><span>$1,000,000</span>
-                    </div>
-                  </div>
-
                   <button onClick={()=>{if(ageOK){track('Quote Requested',{tier:'term',mode:'term',gsb:false,face:faceBand(termFace)});setHasQuoted(true);setMobileTab('results');setTimeout(()=>window.scrollTo({top:0,behavior:'instant'}),0);}}}
                     style={{width:'100%',padding:'18px 0',borderRadius:12,border:'none',cursor:ageOK?'pointer':'not-allowed',background:ageOK?C.gold:'#2A3547',color:ageOK?C.bg0:C.t4,fontSize:17,fontWeight:700,letterSpacing:0.5,opacity:ageOK?1:0.4,fontFamily:"'DM Sans',sans-serif",marginTop:8}}>
                     ⚡ Get Term Quotes
@@ -3322,20 +3321,20 @@ export default function QuoteMark() {
                     <button className='qm-btn' style={mTogBtn(!smoker)} onClick={()=>setSmoker(false)}>Non-smoker</button>
                     <button className='qm-btn' style={mTogBtn(smoker,'#EF4444')} onClick={()=>setSmoker(true)}>Smoker</button>
                   </div>
-                  {/* Mode toggle: solve for face vs solve for premium */}
+                  {/* Mode toggle — same FE labels: Face amount / Monthly budget */}
                   <div>
-                    <div style={{fontSize:11,color:C.t3,marginBottom:6,fontWeight:600}}>Solve For</div>
-                    <div style={{display:'grid',gridTemplateColumns:'1fr 1fr',gap:4}}>
-                      <button onClick={()=>setIulMode('face')} title="Input the monthly premium your client can afford; see what face amount each carrier will issue" style={{
-                        padding:'10px 0',borderRadius:7,border:`2px solid ${iulMode==='face'?'#C5A059':isDark?'#374151':'#D0CDBE'}`,
-                        background:iulMode==='face'?'#C5A059':C.bg2,color:iulMode==='face'?'#0A192F':C.t3,
-                        fontSize:12,fontWeight:700,cursor:'pointer',fontFamily:"'DM Sans',sans-serif"
-                      }}>💵 Face from Premium</button>
-                      <button onClick={()=>setIulMode('premium')} title="Input the face amount your client wants; see the monthly premium each carrier requires" style={{
+                    <div style={{fontSize:11,color:C.t3,marginBottom:6,fontWeight:600}}>Quote Target</div>
+                    <div style={{display:'grid',gridTemplateColumns:'1fr 1fr',gap:6}}>
+                      <button onClick={()=>setIulMode('premium')} title="Input target face amount, see required premium per carrier" style={{
                         padding:'10px 0',borderRadius:7,border:`2px solid ${iulMode==='premium'?'#C5A059':isDark?'#374151':'#D0CDBE'}`,
                         background:iulMode==='premium'?'#C5A059':C.bg2,color:iulMode==='premium'?'#0A192F':C.t3,
-                        fontSize:12,fontWeight:700,cursor:'pointer',fontFamily:"'DM Sans',sans-serif"
-                      }}>📊 Premium for Face</button>
+                        fontSize:13,fontWeight:700,cursor:'pointer',fontFamily:"'DM Sans',sans-serif"
+                      }}>Face amount</button>
+                      <button onClick={()=>setIulMode('face')} title="Input monthly budget, see face amount each carrier will issue" style={{
+                        padding:'10px 0',borderRadius:7,border:`2px solid ${iulMode==='face'?'#C5A059':isDark?'#374151':'#D0CDBE'}`,
+                        background:iulMode==='face'?'#C5A059':C.bg2,color:iulMode==='face'?'#0A192F':C.t3,
+                        fontSize:13,fontWeight:700,cursor:'pointer',fontFamily:"'DM Sans',sans-serif"
+                      }}>Monthly budget</button>
                     </div>
                   </div>
 
@@ -3618,18 +3617,18 @@ export default function QuoteMark() {
                 ) : (
                   <>
                     {termRec.recommended === 'decline' && (
-                      <div style={{background:'rgba(239,68,68,0.10)',border:'1px solid rgba(239,68,68,0.4)',borderRadius:10,padding:'12px 14px',marginBottom:10,display:'flex',gap:10,alignItems:'flex-start'}}>
-                        <div style={{fontSize:18,lineHeight:1,flexShrink:0}}>⚠</div>
-                        <div style={{fontSize:12,color:C.t1,lineHeight:1.5}}>
-                          <div style={{fontWeight:700,marginBottom:2}}>Profile may not qualify for term</div>
-                          <div style={{color:C.t3}}>{termRec.reasons.join(' · ')}. Quotes below are best-case estimates — verify with carrier underwriting before promising rates.</div>
+                      <div style={{background:'linear-gradient(135deg, rgba(239,68,68,0.18), rgba(239,68,68,0.08))',border:'1.5px solid rgba(239,68,68,0.5)',borderRadius:12,padding:'14px 16px',marginBottom:12,display:'flex',gap:12,alignItems:'flex-start',boxShadow:'0 2px 12px rgba(239,68,68,0.15)'}}>
+                        <div style={{fontSize:26,lineHeight:1,flexShrink:0}}>⚠</div>
+                        <div style={{flex:1,minWidth:0}}>
+                          <div style={{fontSize:15,fontWeight:800,color:'#FCA5A5',letterSpacing:0.2,marginBottom:4}}>Profile may not qualify for term</div>
+                          <div style={{fontSize:11,color:C.t3,lineHeight:1.55}}>{termRec.reasons.join(' · ')}. Quotes below are <strong>best-case estimates only</strong> — verify with carrier underwriting before promising rates.</div>
                         </div>
                       </div>
                     )}
                     <div style={{background:C.bg3,border:`1px solid ${C.bd}`,borderRadius:10,padding:'10px 14px',marginBottom:14,fontSize:13,color:C.t2}}>
                       {fmtF(termFace)} · {termLength}-year · Age {age} · {gender==='male'?'M':'F'} · {smoker?'Smoker':'NS'} · {HEALTH_CLASS_SHORT[termHealth]}{termBMI!=null ? ` · BMI ${termBMI.toFixed(1)}`:''}
                     </div>
-                    <div style={{display:'flex',flexDirection:'column',gap:8}}>
+                    <div style={{display:'flex',flexDirection:'column',gap:8, opacity: termRec.recommended === 'decline' ? 0.55 : 1, filter: termRec.recommended === 'decline' ? 'grayscale(40%)' : 'none', transition:'opacity 0.2s, filter 0.2s'}}>
                       {termResults.map(r => {
                         const brandColor = CARRIER_META[r.id]?.brand || r.brand || '#C5A059';
                         return (
@@ -4465,6 +4464,19 @@ export default function QuoteMark() {
                   ))}
                 </div>
               </div>
+              {/* Coverage slider — directly under Term Length for consistency */}
+              <div>
+                <div style={{fontSize:11,color:C.t3,marginBottom:6,display:'flex',justifyContent:'space-between'}}>
+                  <span>Coverage amount</span>
+                  <span style={{color:C.t2,fontWeight:500,fontFamily:"'DM Mono',monospace"}}>{fmtF(termFace)}</span>
+                </div>
+                <input type="range" min="50000" max="1000000" step="25000" value={termFace}
+                  onChange={e=>setTermFace(+e.target.value)}
+                  style={{width:'100%',accentColor:C.gold}}/>
+                <div style={{display:'flex',justifyContent:'space-between',fontSize:10,color:C.t4}}>
+                  <span>$50,000</span><span>$1,000,000</span>
+                </div>
+              </div>
               {/* Height / Weight → BMI */}
               <div>
                 <div style={{fontSize:11,color:C.t3,marginBottom:6,fontWeight:600,display:'flex',justifyContent:'space-between'}}>
@@ -4564,19 +4576,6 @@ export default function QuoteMark() {
                   </div>
                 )}
               </div>
-              <div>
-                <div style={{fontSize:11,color:C.t3,marginBottom:6,display:'flex',justifyContent:'space-between'}}>
-                  <span>Coverage amount</span>
-                  <span style={{color:C.t2,fontWeight:500,fontFamily:"'DM Mono',monospace"}}>{fmtF(termFace)}</span>
-                </div>
-                <input type="range" min="50000" max="1000000" step="25000" value={termFace}
-                  onChange={e=>setTermFace(+e.target.value)}
-                  style={{width:'100%',accentColor:C.gold}}/>
-                <div style={{display:'flex',justifyContent:'space-between',fontSize:10,color:C.t4}}>
-                  <span>$50,000</span><span>$1,000,000</span>
-                </div>
-              </div>
-
               <button onClick={()=>{if(ageOK){track('Quote Requested',{tier:'term',mode:'term',gsb:false,face:faceBand(termFace)});setHasQuoted(true);}}}
                 style={{width:'100%',padding:'14px 0',borderRadius:10,border:'none',cursor:ageOK?'pointer':'not-allowed',background:ageOK?C.gold:'#2A3547',color:ageOK?C.bg0:C.t4,fontSize:14,fontWeight:700,letterSpacing:0.5,opacity:ageOK?1:0.4,fontFamily:"'DM Sans',sans-serif",marginTop:8}}>
                 ⚡ Get Term Quotes
@@ -4606,20 +4605,20 @@ export default function QuoteMark() {
                 <button className='qm-btn' style={togBtn(!smoker)} onClick={()=>setSmoker(false)}>Non-smoker</button>
                 <button className='qm-btn' style={togBtn(smoker)} onClick={()=>setSmoker(true)}>Smoker</button>
               </div>
-              {/* Mode toggle */}
+              {/* Mode toggle — Face amount / Monthly budget (matches FE) */}
               <div>
-                <div style={{fontSize:11,color:C.t3,marginBottom:6,fontWeight:600}}>Solve For</div>
-                <div style={{display:'grid',gridTemplateColumns:'1fr 1fr',gap:4}}>
-                  <button onClick={()=>setIulMode('face')} title="Input the monthly premium your client can afford; see what face amount each carrier will issue" style={{
-                    padding:'9px 0',borderRadius:7,border:`2px solid ${iulMode==='face'?'#C5A059':isDark?'#374151':'#D0CDBE'}`,
-                    background:iulMode==='face'?'#C5A059':C.bg2,color:iulMode==='face'?'#0A192F':C.t3,
-                    fontSize:12,fontWeight:700,cursor:'pointer',fontFamily:"'DM Sans',sans-serif"
-                  }}>💵 Face from Premium</button>
-                  <button onClick={()=>setIulMode('premium')} title="Input the face amount your client wants; see the monthly premium each carrier requires" style={{
+                <div style={{fontSize:11,color:C.t3,marginBottom:6,fontWeight:600}}>Quote Target</div>
+                <div style={{display:'grid',gridTemplateColumns:'1fr 1fr',gap:6}}>
+                  <button onClick={()=>setIulMode('premium')} title="Input target face amount, see required premium per carrier" style={{
                     padding:'9px 0',borderRadius:7,border:`2px solid ${iulMode==='premium'?'#C5A059':isDark?'#374151':'#D0CDBE'}`,
                     background:iulMode==='premium'?'#C5A059':C.bg2,color:iulMode==='premium'?'#0A192F':C.t3,
-                    fontSize:12,fontWeight:700,cursor:'pointer',fontFamily:"'DM Sans',sans-serif"
-                  }}>📊 Premium for Face</button>
+                    fontSize:13,fontWeight:700,cursor:'pointer',fontFamily:"'DM Sans',sans-serif"
+                  }}>Face amount</button>
+                  <button onClick={()=>setIulMode('face')} title="Input monthly budget, see face amount each carrier will issue" style={{
+                    padding:'9px 0',borderRadius:7,border:`2px solid ${iulMode==='face'?'#C5A059':isDark?'#374151':'#D0CDBE'}`,
+                    background:iulMode==='face'?'#C5A059':C.bg2,color:iulMode==='face'?'#0A192F':C.t3,
+                    fontSize:13,fontWeight:700,cursor:'pointer',fontFamily:"'DM Sans',sans-serif"
+                  }}>Monthly budget</button>
                 </div>
               </div>
               {iulMode === 'face' ? (
@@ -4940,11 +4939,11 @@ export default function QuoteMark() {
             ) : (
               <div style={{padding:24}}>
                 {termRec.recommended === 'decline' && (
-                  <div style={{background:'rgba(239,68,68,0.10)',border:'1px solid rgba(239,68,68,0.4)',borderRadius:10,padding:'12px 16px',marginBottom:12,display:'flex',gap:12,alignItems:'flex-start'}}>
-                    <div style={{fontSize:20,lineHeight:1,flexShrink:0}}>⚠</div>
-                    <div style={{fontSize:13,color:C.t1,lineHeight:1.55}}>
-                      <div style={{fontWeight:700,marginBottom:2}}>Profile may not qualify for term</div>
-                      <div style={{color:C.t3}}>{termRec.reasons.join(' · ')}. Quotes below are best-case estimates — verify with carrier underwriting before promising rates.</div>
+                  <div style={{background:'linear-gradient(135deg, rgba(239,68,68,0.18), rgba(239,68,68,0.08))',border:'1.5px solid rgba(239,68,68,0.5)',borderRadius:12,padding:'18px 20px',marginBottom:16,display:'flex',gap:16,alignItems:'flex-start',boxShadow:'0 4px 16px rgba(239,68,68,0.15)'}}>
+                    <div style={{fontSize:34,lineHeight:1,flexShrink:0}}>⚠</div>
+                    <div style={{flex:1,minWidth:0}}>
+                      <div style={{fontSize:20,fontWeight:800,color:'#FCA5A5',letterSpacing:0.2,marginBottom:6,lineHeight:1.2}}>Profile may not qualify for term</div>
+                      <div style={{fontSize:13,color:C.t3,lineHeight:1.6}}>{termRec.reasons.join(' · ')}. Quotes below are <strong style={{color:C.t2}}>best-case estimates only</strong> — verify with carrier underwriting before promising rates.</div>
                     </div>
                   </div>
                 )}
@@ -4963,7 +4962,7 @@ export default function QuoteMark() {
                   </div>
                   <div style={{fontSize:11,color:C.t3}}>{termResults.length} quotes · sorted by price</div>
                 </div>
-                <div style={{display:'flex',flexDirection:'column',gap:8}}>
+                <div style={{display:'flex',flexDirection:'column',gap:8, opacity: termRec.recommended === 'decline' ? 0.5 : 1, filter: termRec.recommended === 'decline' ? 'grayscale(45%)' : 'none', transition:'opacity 0.25s, filter 0.25s'}}>
                   {termResults.map(r => {
                     const brandColor = CARRIER_META[r.id]?.brand || r.brand || '#C5A059';
                     const isHov = hovCard === r.id;
