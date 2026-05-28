@@ -1759,7 +1759,7 @@ const CARRIER_META = {
   instabrain: { img:'',              eapp:'https://portal.instabrain.io/App/?redirected=true',  brand:'#38BDF8' }, // Instabrain — Light Blue
   john_hancock: { img:'',            eapp:'https://www.johnhancock.com/agent-portal',           brand:'#1E40AF' }, // John Hancock — Blue
   mutual_of_omaha: { img:'',         eapp:'https://www.mutualofomaha.com/agent-login',          brand:'#2563EB' }, // Mutual of Omaha — Royal Blue
-  sbli: { img:'',                    eapp:'https://www.sbli.com/agent-portal',                  brand:'#059669' }, // SBLI — Emerald Green
+  // sbli already defined above with /logos/sbli.svg — don't redefine
   royal_neighbors: { img:'',         eapp:'https://agent.royalneighbors.org/login',             brand:'#16A34A' }, // Royal Neighbors — Green
   transamerica: { img:'',            eapp:'https://www.transamerica.com/financial-professionals/', brand:'#EF4444' }, // Transamerica — Red
 };
@@ -2800,14 +2800,121 @@ export default function QuoteMark() {
   const togBtn = (active) => isDark ? {flex:1,padding:'9px 0',minHeight:40,borderRadius:7,border:`2px solid ${active?'#C5A059':'#374151'}`,cursor:'pointer',fontSize:12,fontWeight:600,background:active?'#C5A059':'#0F172A',color:active?'#0A192F':'#94A3B8',fontFamily:"'DM Sans',sans-serif"} : {flex:1,padding:'9px 0',minHeight:40,borderRadius:7,border:`2px solid ${active?'#0A192F':'#D0CDBE'}`,cursor:'pointer',fontSize:12,fontWeight:600,background:active?'#0A192F':C.selInactive,color:active?'#FFFFFF':'#6B7280',fontFamily:"'DM Sans',sans-serif"};
   const sec = {background:C.bg3,border:`1px solid ${C.bd}`,borderRadius:12,padding:16};
   const lbl = {fontSize:10,fontWeight:700,letterSpacing:1.8,color:C.t4,textTransform:'uppercase',marginBottom:10};
+  // Mobile-tier styles (also used by ClientInfoBlock in desktop calls when sized for variant)
+  const mInp = {background:C.bg2,border:`1px solid ${C.bd}`,color:C.t1,borderRadius:10,padding:'12px 14px',fontSize:15,width:'100%',boxSizing:'border-box',outline:'none',fontFamily:"'DM Sans',sans-serif",WebkitAppearance:'none'};
+  const mTogBtn = (active,color) => isDark ? {flex:1,padding:'14px 0',minHeight:48,borderRadius:10,border:`2px solid ${active?'#C5A059':'#374151'}`,cursor:'pointer',fontSize:14,fontWeight:600,background:active?'#C5A059':'#0F172A',color:active?'#0A192F':'#94A3B8',fontFamily:"'DM Sans',sans-serif"} : {flex:1,padding:'14px 0',minHeight:48,borderRadius:10,border:`2px solid ${active?'#0A192F':'#D0CDBE'}`,cursor:'pointer',fontSize:14,fontWeight:600,background:active?'#0A192F':'#F2F1EC',color:active?'#FFFFFF':'#6B7280',fontFamily:"'DM Sans',sans-serif"};
+
+  // ── DOB → age auto-sync (when all 3 fields valid, compute age and set it) ──
+  useEffect(()=>{
+    const {mm,dd,yyyy} = dob;
+    if (mm && dd && yyyy && yyyy.length===4) {
+      const d = new Date(`${yyyy}-${mm.padStart(2,'0')}-${dd.padStart(2,'0')}`);
+      if (!isNaN(d)) {
+        const a = Math.floor((Date.now()-d.getTime())/31557600000);
+        if (a>0 && a<120 && String(a)!==age) setAge(String(a));
+      }
+    }
+  },[dob.mm,dob.dd,dob.yyyy]); // eslint-disable-line
+
+  // ── REUSABLE CLIENT INFO BLOCK ──
+  // Used by FE / Term / IUL on both mobile and desktop.
+  // Reads/writes shared state: dob, age, gender, smoker, usState.
+  // Defined as a render *function* (not a component) so React doesn't
+  // remount it on each App render — that would steal focus from DOB inputs.
+  const renderClientInfo = ({variant='mobile', wrap=true, showState=true}={}) => {
+    const isM = variant==='mobile';
+    const I  = isM ? mInp : inp;
+    const T  = isM ? mTogBtn : togBtn;
+    const rDd = isM ? dobDdRef  : dobDdRefD;
+    const rYy = isM ? dobYyyyRef: dobYyyyRefD;
+    const titleStyle = {fontSize:isM?11:10,fontWeight:700,letterSpacing:1.8,color:isM?C.t4:'#C5A059',textTransform:'uppercase',marginBottom:isM?12:6};
+    const labelStyle = {fontSize:isM?12:11,color:C.t3,marginBottom:isM?8:6,fontWeight:600};
+    const inner = (
+      <>
+        <div style={titleStyle}>Client Info</div>
+        {/* DOB / Age row */}
+        <div style={{marginBottom:isM?14:12}}>
+          <div style={{fontSize:isM?12:11,color:C.t3,marginBottom:isM?8:6}}>Date of birth <span style={{color:C.t4}}>· or enter age →</span></div>
+          <div style={{display:'flex',gap:isM?6:5,alignItems:'center',flexWrap:'wrap'}}>
+            <input type="text" inputMode="numeric" maxLength="2" placeholder="mm" value={dob.mm}
+              onChange={e=>{const v=e.target.value.replace(/\D/g,'');setDob(p=>({...p,mm:v}));if(v.length===2)rDd.current?.focus();}}
+              style={{...I,width:isM?52:44,textAlign:'center',padding:isM?'11px 4px':'8px 4px'}}/>
+            <span style={{color:C.t4,fontSize:isM?14:12}}>/</span>
+            <input ref={rDd} type="text" inputMode="numeric" maxLength="2" placeholder="dd" value={dob.dd}
+              onChange={e=>{const v=e.target.value.replace(/\D/g,'');setDob(p=>({...p,dd:v}));if(v.length===2)rYy.current?.focus();}}
+              style={{...I,width:isM?52:44,textAlign:'center',padding:isM?'11px 4px':'8px 4px'}}/>
+            <span style={{color:C.t4,fontSize:isM?14:12}}>/</span>
+            <input ref={rYy} type="text" inputMode="numeric" maxLength="4" placeholder="yyyy" value={dob.yyyy}
+              onChange={e=>setDob(p=>({...p,yyyy:e.target.value.replace(/\D/g,'')}))}
+              style={{...I,width:isM?72:62,textAlign:'center',padding:isM?'11px 6px':'8px 4px'}}/>
+            <span style={{color:C.t4,fontSize:isM?12:11,flexShrink:0}}>or</span>
+            <input type="text" inputMode="numeric" maxLength="2" placeholder="age" value={age}
+              onChange={e=>{setAge(e.target.value.replace(/\D/g,''));setDob({mm:'',dd:'',yyyy:''});}}
+              style={{...I,width:isM?64:52,padding:isM?'11px 8px':'8px 6px',borderColor:age&&!ageOK?'#EF4444':C.bd}}/>
+          </div>
+          {age&&ageOK&&<div style={{fontSize:isM?11:10,color:C.green,marginTop:isM?6:4}}>✓ Age {age}</div>}
+          {age&&!ageOK&&parseInt(age)>0&&<div style={{fontSize:isM?11:10,color:'#EF4444',marginTop:isM?6:4}}>Age must be 1–89</div>}
+        </div>
+
+        {/* Gender + Tobacco — side by side on desktop, stacked on mobile */}
+        {isM ? (
+          <>
+            <div style={{marginBottom:14}}>
+              <div style={labelStyle}>Gender</div>
+              <div style={{display:'flex',gap:8}}>
+                <button className='qm-btn' style={T(gender==='male')} onClick={()=>setGender('male')}>{!isDark&&gender==='male'?'✓ ':''}👨 Male</button>
+                <button className='qm-btn' style={T(gender==='female')} onClick={()=>setGender('female')}>{!isDark&&gender==='female'?'✓ ':''}👩 Female</button>
+              </div>
+            </div>
+            <div style={{marginBottom:showState?14:0}}>
+              <div style={labelStyle}>Tobacco</div>
+              <div style={{display:'flex',gap:8}}>
+                <button className='qm-btn' style={T(!smoker)} onClick={()=>setSmoker(false)}>{!isDark&&!smoker?'✓ ':''}Non-smoker</button>
+                <button className='qm-btn' style={T(smoker,'#EF4444')} onClick={()=>setSmoker(true)}>{!isDark&&smoker?'✓ ':''}Smoker</button>
+              </div>
+            </div>
+          </>
+        ) : (
+          <div style={{display:'grid',gridTemplateColumns:'1fr 1fr',gap:10,marginBottom:showState?12:0}}>
+            <div>
+              <div style={{...labelStyle,marginBottom:4}}>Tobacco</div>
+              <div style={{display:'flex',gap:5}}>
+                <button className="qm-btn" style={T(!smoker)} onClick={()=>setSmoker(false)}>{!isDark&&!smoker?'✓ ':''}Non-smoker</button>
+                <button className="qm-btn" style={T(smoker)} onClick={()=>setSmoker(true)}>{!isDark&&smoker?'✓ ':''}Smoker</button>
+              </div>
+            </div>
+            <div>
+              <div style={{...labelStyle,marginBottom:4}}>Gender</div>
+              <div style={{display:'flex',gap:5}}>
+                <button className="qm-btn" style={T(gender==='male')} onClick={()=>setGender('male')}>{!isDark&&gender==='male'?'✓ ':''}Male</button>
+                <button className="qm-btn" style={T(gender==='female')} onClick={()=>setGender('female')}>{!isDark&&gender==='female'?'✓ ':''}Female</button>
+              </div>
+            </div>
+          </div>
+        )}
+
+        {/* State */}
+        {showState && (
+          <div>
+            <div style={{...labelStyle,marginBottom:isM?8:4}}>State {!isM&&<span style={{color:C.t4,fontWeight:400}}>· filters carrier availability</span>}</div>
+            <select value={usState} onChange={e=>setUsState(e.target.value)} style={{...I,cursor:'pointer'}}>
+              <option value="">— Select state —</option>
+              {US_STATES.map(s=><option key={s} value={s}>{s} — {STATE_NAMES[s]}</option>)}
+            </select>
+          </div>
+        )}
+      </>
+    );
+    if (!wrap) return inner;
+    return isM
+      ? <div style={{background:C.bg2,border:`1px solid ${C.bd}`,borderRadius:12,padding:16}}>{inner}</div>
+      : <div style={sec}>{inner}</div>;
+  };
 
   // ─────────────────────────────────────────────────
   // ── MOBILE RENDER (<768px)
   // ─────────────────────────────────────────────────
   if (isMobile) {
-    const mInp = {background:C.bg2,border:`1px solid ${C.bd}`,color:C.t1,borderRadius:10,padding:'12px 14px',fontSize:15,width:'100%',boxSizing:'border-box',outline:'none',fontFamily:"'DM Sans',sans-serif",WebkitAppearance:'none'};
-    const mTogBtn = (active,color) => isDark ? {flex:1,padding:'14px 0',minHeight:48,borderRadius:10,border:`2px solid ${active?'#C5A059':'#374151'}`,cursor:'pointer',fontSize:14,fontWeight:600,background:active?'#C5A059':'#0F172A',color:active?'#0A192F':'#94A3B8',fontFamily:"'DM Sans',sans-serif"} : {flex:1,padding:'14px 0',minHeight:48,borderRadius:10,border:`2px solid ${active?'#0A192F':'#D0CDBE'}`,cursor:'pointer',fontSize:14,fontWeight:600,background:active?'#0A192F':'#F2F1EC',color:active?'#FFFFFF':'#6B7280',fontFamily:"'DM Sans',sans-serif"};
-
     return (
       <div style={{fontFamily:"'DM Sans',sans-serif",background:C.bg0,minHeight:'100vh',color:C.t1,position:'relative',paddingBottom:100,backgroundImage:isDark?'radial-gradient(circle,#1E293B 1px,transparent 1px)':'radial-gradient(circle,#D8D5CC 1px,transparent 1px)',backgroundSize:'24px 24px'}}>
 
@@ -2872,62 +2979,8 @@ export default function QuoteMark() {
 
               {quoteMode==='fe' ? (
               <>
-              {/* Age row */}
-              <div style={{background:C.bg2,border:`1px solid ${C.bd}`,borderRadius:12,padding:16}}>
-                <div style={{fontSize:11,fontWeight:700,letterSpacing:1.8,color:C.t4,textTransform:'uppercase',marginBottom:12}}>Client Info</div>
-
-                {/* DOB */}
-                <div style={{marginBottom:14}}>
-                  <div style={{fontSize:12,color:C.t3,marginBottom:8}}>Date of birth <span style={{color:C.t4}}>· or enter age →</span></div>
-                  <div style={{display:'flex',gap:6,alignItems:'center'}}>
-                    <input type="text" inputMode="numeric" maxLength="2" placeholder="mm" value={dob.mm}
-                      onChange={e=>{const v=e.target.value;setDob(p=>({...p,mm:v}));if(v.length===2)dobDdRef.current?.focus();}}
-                      style={{...mInp,width:52,textAlign:'center',padding:'11px 4px'}}/>
-                    <span style={{color:C.t4}}>/</span>
-                    <input ref={dobDdRef} type="text" inputMode="numeric" maxLength="2" placeholder="dd" value={dob.dd}
-                      onChange={e=>{const v=e.target.value;setDob(p=>({...p,dd:v}));if(v.length===2)dobYyyyRef.current?.focus();}}
-                      style={{...mInp,width:52,textAlign:'center',padding:'11px 4px'}}/>
-                    <span style={{color:C.t4}}>/</span>
-                    <input ref={dobYyyyRef} type="text" inputMode="numeric" maxLength="4" placeholder="yyyy" value={dob.yyyy}
-                      onChange={e=>setDob(p=>({...p,yyyy:e.target.value}))}
-                      style={{...mInp,width:72,textAlign:'center',padding:'11px 6px'}}/>
-                    <span style={{color:C.t4,fontSize:12,flexShrink:0}}>or</span>
-                    <input type="text" inputMode="numeric" maxLength="2" placeholder="age" value={age}
-                      onChange={e=>{setAge(e.target.value);setDob({mm:'',dd:'',yyyy:''}); }}
-                      style={{...mInp,width:64,padding:'11px 8px',borderColor:age&&!ageOK?'#EF4444':C.bd}}/>
-                  </div>
-                  {age&&ageOK&&<div style={{fontSize:11,color:C.green,marginTop:6}}>✓ Age {age}</div>}
-                  {age&&!ageOK&&parseInt(age)>0&&<div style={{fontSize:11,color:'#EF4444',marginTop:6}}>Age must be 1–89</div>}
-                </div>
-
-                {/* Gender */}
-                <div style={{marginBottom:14}}>
-                  <div style={{fontSize:12,color:C.t3,marginBottom:8}}>Gender</div>
-                  <div style={{display:'flex',gap:8}}>
-                    <button className='qm-btn' style={mTogBtn(gender==='male')} onClick={()=>setGender('male')}>{!isDark&&gender==='male'?'✓ ':''}👨 Male</button>
-                    <button className='qm-btn' style={mTogBtn(gender==='female')} onClick={()=>setGender('female')}>{!isDark&&gender==='female'?'✓ ':''}👩 Female</button>
-                  </div>
-                </div>
-
-                {/* Smoker */}
-                <div style={{marginBottom:14}}>
-                  <div style={{fontSize:12,color:C.t3,marginBottom:8}}>Tobacco</div>
-                  <div style={{display:'flex',gap:8}}>
-                    <button className='qm-btn' style={mTogBtn(!smoker)} onClick={()=>setSmoker(false)}>{!isDark&&!smoker?'✓ ':''}Non-smoker</button>
-                    <button className='qm-btn' style={mTogBtn(smoker,'#EF4444')} onClick={()=>setSmoker(true)}>{!isDark&&smoker?'✓ ':''}Smoker</button>
-                  </div>
-                </div>
-
-                {/* State */}
-                <div>
-                  <div style={{fontSize:12,color:C.t3,marginBottom:8}}>State</div>
-                  <select value={usState} onChange={e=>setUsState(e.target.value)}
-                    style={{...mInp,cursor:'pointer'}}>
-                    <option value="">— Select state —</option>
-                    {US_STATES.map(s=><option key={s} value={s}>{s} — {STATE_NAMES[s]}</option>)}
-                  </select>
-                </div>
-              </div>
+              {/* Unified Client Info */}
+              {renderClientInfo({variant:'mobile'})}
 
               {/* Quote Target */}
               <div style={{background:C.bg2,border:`1px solid ${C.bd}`,borderRadius:12,padding:16,overflow:'hidden'}}>
@@ -3139,24 +3192,8 @@ export default function QuoteMark() {
               <>
                 {/* ── MOBILE TERM INPUTS ── */}
                 <div style={{display:'flex',flexDirection:'column',gap:12}}>
-                  <div style={{fontSize:10,fontWeight:700,letterSpacing:1.8,color:'#C5A059',textTransform:'uppercase'}}>Client Info</div>
-                  {/* Age */}
-                  <div>
-                    <div style={{fontSize:11,color:C.t3,marginBottom:6,fontWeight:600}}>Age</div>
-                    <input inputMode="numeric" placeholder="e.g. 35" value={age}
-                      onChange={e=>setAge(e.target.value.replace(/\D/g,''))}
-                      style={{...inp,fontFamily:"'DM Mono',monospace",fontSize:15}}/>
-                  </div>
-                  {/* Gender */}
-                  <div style={{display:'flex',gap:6}}>
-                    <button className='qm-btn' style={mTogBtn(gender==='male')} onClick={()=>setGender('male')}>👨 Male</button>
-                    <button className='qm-btn' style={mTogBtn(gender==='female')} onClick={()=>setGender('female')}>👩 Female</button>
-                  </div>
-                  {/* Tobacco */}
-                  <div style={{display:'flex',gap:6}}>
-                    <button className='qm-btn' style={mTogBtn(!smoker)} onClick={()=>setSmoker(false)}>Non-smoker</button>
-                    <button className='qm-btn' style={mTogBtn(smoker,'#EF4444')} onClick={()=>setSmoker(true)}>Smoker</button>
-                  </div>
+                  {/* Unified Client Info */}
+                  {renderClientInfo({variant:'mobile'})}
 
                   <div style={{fontSize:10,fontWeight:700,letterSpacing:1.8,color:'#C5A059',textTransform:'uppercase',marginTop:6}}>Term Settings</div>
                   {/* Term Length pills */}
@@ -3305,22 +3342,8 @@ export default function QuoteMark() {
               {/* ── IUL MOBILE — Quote inputs + carrier face cards ── */}
               {quoteMode==='iul' && (
                 <div style={{display:'flex',flexDirection:'column',gap:14}}>
-                  {/* Form: Age, Sex, Smoker, Premium */}
-                  <div style={{fontSize:10,fontWeight:700,letterSpacing:1.8,color:'#C5A059',textTransform:'uppercase'}}>Client Info</div>
-                  <div>
-                    <div style={{fontSize:11,color:C.t3,marginBottom:6,fontWeight:600}}>Age</div>
-                    <input inputMode="numeric" placeholder="e.g. 45" value={age}
-                      onChange={e=>setAge(e.target.value.replace(/\D/g,''))}
-                      style={{...mInp,fontFamily:"'DM Mono',monospace",fontSize:16}}/>
-                  </div>
-                  <div style={{display:'flex',gap:6}}>
-                    <button className='qm-btn' style={mTogBtn(gender==='male')} onClick={()=>setGender('male')}>👨 Male</button>
-                    <button className='qm-btn' style={mTogBtn(gender==='female')} onClick={()=>setGender('female')}>👩 Female</button>
-                  </div>
-                  <div style={{display:'flex',gap:6}}>
-                    <button className='qm-btn' style={mTogBtn(!smoker)} onClick={()=>setSmoker(false)}>Non-smoker</button>
-                    <button className='qm-btn' style={mTogBtn(smoker,'#EF4444')} onClick={()=>setSmoker(true)}>Smoker</button>
-                  </div>
+                  {/* Unified Client Info */}
+                  {renderClientInfo({variant:'mobile'})}
                   {/* Mode toggle — same FE labels: Face amount / Monthly budget */}
                   <div>
                     <div style={{fontSize:11,color:C.t3,marginBottom:6,fontWeight:600}}>Quote Target</div>
@@ -4158,56 +4181,8 @@ export default function QuoteMark() {
 
           {quoteMode==='fe' ? (
           <>
-          {/* 1 — CLIENT INFO */}
-          <div style={sec}>
-            <div style={lbl}>Client Info</div>
-            <div style={{marginBottom:12}}>
-              <div style={{fontSize:11,color:C.t3,marginBottom:6}}>Date of birth <span style={{color:C.t4}}>· or enter age below</span></div>
-              <div style={{display:'flex',gap:5,alignItems:'center',marginBottom:8}}>
-                <input type="text" maxLength="2" placeholder="mm" value={dob.mm}
-                  onChange={e=>{const v=e.target.value;setDob(p=>({...p,mm:v}));if(v.length===2)dobDdRefD.current?.focus();}}
-                  style={{...inp,width:44,textAlign:'center',padding:'8px 4px'}}/>
-                <span style={{color:C.t4,fontSize:12}}>/</span>
-                <input ref={dobDdRefD} type="text" maxLength="2" placeholder="dd" value={dob.dd}
-                  onChange={e=>{const v=e.target.value;setDob(p=>({...p,dd:v}));if(v.length===2)dobYyyyRefD.current?.focus();}}
-                  style={{...inp,width:44,textAlign:'center',padding:'8px 4px'}}/>
-                <span style={{color:C.t4,fontSize:12}}>/</span>
-                <input ref={dobYyyyRefD} type="text" maxLength="4" placeholder="yyyy" value={dob.yyyy}
-                  onChange={e=>setDob(p=>({...p,yyyy:e.target.value}))}
-                  style={{...inp,width:62,textAlign:'center',padding:'8px 4px'}}/>
-                <span style={{color:C.t4,fontSize:11,flexShrink:0}}>or</span>
-                <input type="number" min="50" max="89" placeholder="age" value={age}
-                  onChange={e=>{setAge(e.target.value);setDob({mm:'',dd:'',yyyy:''});}}
-                  style={{...inp,width:52,padding:'8px 6px',borderColor:age&&!ageOK?'#EF4444':C.bd}}/>
-              </div>
-              {age&&ageOK&&<div style={{fontSize:10,color:C.green}}>✓ Age {age}</div>}
-              {age&&!ageOK&&parseInt(age)>0&&<div style={{fontSize:10,color:'#EF4444'}}>Age must be 1–89</div>}
-            </div>
-            <div style={{display:'grid',gridTemplateColumns:'1fr 1fr',gap:10,marginBottom:12}}>
-              <div>
-                <div style={{fontSize:11,color:C.t3,marginBottom:4}}>Tobacco</div>
-                <div style={{display:'flex',gap:5}}>
-                  <button className="qm-btn" style={togBtn(!smoker)} onClick={()=>{setSmoker(false);}}>{!isDark&&!smoker?'✓ ':''}Non-smoker</button>
-                  <button className="qm-btn" style={togBtn(smoker)} onClick={()=>{setSmoker(true);}}>{!isDark&&smoker?'✓ ':''}Smoker</button>
-                </div>
-              </div>
-              <div>
-                <div style={{fontSize:11,color:C.t3,marginBottom:4}}>Gender</div>
-                <div style={{display:'flex',gap:5}}>
-                  <button className="qm-btn" style={togBtn(gender==='male')} onClick={()=>{setGender('male');}}>{!isDark&&gender==='male'?'✓ ':''}Male</button>
-                  <button className="qm-btn" style={togBtn(gender==='female')} onClick={()=>{setGender('female');}}>{!isDark&&gender==='female'?'✓ ':''}Female</button>
-                </div>
-              </div>
-            </div>
-            <div>
-              <div style={{fontSize:11,color:C.t3,marginBottom:4}}>State <span style={{color:C.t4}}>· filters carrier availability</span></div>
-              <select value={usState} onChange={e=>{setUsState(e.target.value);}}
-                style={{...inp,cursor:'pointer'}}>
-                <option value="">— Select state —</option>
-                {US_STATES.map(s=><option key={s} value={s}>{s} — {STATE_NAMES[s]}</option>)}
-              </select>
-            </div>
-          </div>
+          {/* 1 — CLIENT INFO (unified) */}
+          {renderClientInfo({variant:'desktop'})}
 
           {/* 2 — QUOTE TARGET */}
           <div style={sec}>
@@ -4435,21 +4410,8 @@ export default function QuoteMark() {
           <>
             {/* ── DESKTOP TERM INPUTS ── */}
             <div style={{display:'flex',flexDirection:'column',gap:12}}>
-              <div style={{fontSize:10,fontWeight:700,letterSpacing:1.8,color:'#C5A059',textTransform:'uppercase'}}>Client Info</div>
-              <div>
-                <div style={{fontSize:11,color:C.t3,marginBottom:6,fontWeight:600}}>Age</div>
-                <input inputMode="numeric" placeholder="e.g. 35" value={age}
-                  onChange={e=>setAge(e.target.value.replace(/\D/g,''))}
-                  style={{...inp,fontFamily:"'DM Mono',monospace",fontSize:15}}/>
-              </div>
-              <div style={{display:'flex',gap:6}}>
-                <button className='qm-btn' style={togBtn(gender==='male')} onClick={()=>setGender('male')}>👨 Male</button>
-                <button className='qm-btn' style={togBtn(gender==='female')} onClick={()=>setGender('female')}>👩 Female</button>
-              </div>
-              <div style={{display:'flex',gap:6}}>
-                <button className='qm-btn' style={togBtn(!smoker)} onClick={()=>setSmoker(false)}>Non-smoker</button>
-                <button className='qm-btn' style={togBtn(smoker)} onClick={()=>setSmoker(true)}>Smoker</button>
-              </div>
+              {/* Unified Client Info */}
+              {renderClientInfo({variant:'desktop'})}
 
               <div style={{fontSize:10,fontWeight:700,letterSpacing:1.8,color:'#C5A059',textTransform:'uppercase',marginTop:6}}>Term Settings</div>
               <div>
@@ -4590,21 +4552,8 @@ export default function QuoteMark() {
               <div style={{background:'rgba(245,158,11,0.08)',border:'1px solid rgba(245,158,11,0.3)',borderRadius:8,padding:'10px 12px',fontSize:11,color:C.t3,lineHeight:1.5}}>
                 ⚠ Cap rates reset periodically. Verify against the carrier's current brochure before quoting.
               </div>
-              <div style={{fontSize:10,fontWeight:700,letterSpacing:1.8,color:'#C5A059',textTransform:'uppercase',marginTop:6}}>Client Info</div>
-              <div>
-                <div style={{fontSize:11,color:C.t3,marginBottom:6,fontWeight:600}}>Age</div>
-                <input inputMode="numeric" placeholder="e.g. 45" value={age}
-                  onChange={e=>setAge(e.target.value.replace(/\D/g,''))}
-                  style={{...inp,fontFamily:"'DM Mono',monospace",fontSize:15}}/>
-              </div>
-              <div style={{display:'flex',gap:6}}>
-                <button className='qm-btn' style={togBtn(gender==='male')} onClick={()=>setGender('male')}>👨 Male</button>
-                <button className='qm-btn' style={togBtn(gender==='female')} onClick={()=>setGender('female')}>👩 Female</button>
-              </div>
-              <div style={{display:'flex',gap:6}}>
-                <button className='qm-btn' style={togBtn(!smoker)} onClick={()=>setSmoker(false)}>Non-smoker</button>
-                <button className='qm-btn' style={togBtn(smoker)} onClick={()=>setSmoker(true)}>Smoker</button>
-              </div>
+              {/* Unified Client Info */}
+              {renderClientInfo({variant:'desktop'})}
               {/* Mode toggle — Face amount / Monthly budget (matches FE) */}
               <div>
                 <div style={{fontSize:11,color:C.t3,marginBottom:6,fontWeight:600}}>Quote Target</div>
