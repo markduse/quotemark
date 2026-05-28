@@ -953,6 +953,115 @@ const TERM_CARRIERS = Object.keys(TERM_RATES).map(product => {
   };
 });
 
+// ═══════════════════════════════════════════════════════════
+// ── IUL CARRIERS — Scope B: static spec sheet comparison ──
+// ═══════════════════════════════════════════════════════════
+// Agent reference only. Cap rates reset by carriers periodically — always
+// verify against the carrier brochure before quoting. Products marked
+// needsVerify: true are best-guess placeholders pending Mark's confirmation.
+const IUL_CARRIERS = [
+  {
+    id: 'iul_moo_express',
+    name: 'Mutual of Omaha',
+    product: 'IUL Express',
+    abbr: 'MOO',
+    brand: '#003B71',
+    issueAges: { min: 18, max: 75 },
+    faceRange: {
+      min: 25000, max: 300000,
+      ageBands: [
+        { ages: '18–50', min: 25000, max: 300000 },
+        { ages: '51–60', min: 25000, max: 250000 },
+        { ages: '61–75', min: 25000, max: 150000 },
+      ],
+    },
+    cap: 8.5, par: 100, floor: 0,
+    indexStrategy: 'S&P 500 · Annual Point-to-Point',
+    underwriting: 'Simplified Issue · no medical exam',
+    dbOptions: ['A: Level'],
+    riders: ['Accelerated Death Benefit (Terminal)', 'Chronic Illness', "Children's Term", 'Disability Income'],
+    bestFor: 'Simplified-issue clients age 50–75 wanting tax-advantaged accumulation without exam hassle.',
+    knockouts: ['Diabetes diagnosed <45', 'Pacemaker', 'Hodgkin\'s', 'Severe asthma', 'Muscular Dystrophy', 'Sickle Cell'],
+    source: 'MOO Express Life Reference Guide (27857_0823)',
+    verified: '2026-05',
+  },
+  {
+    id: 'iul_moo_lpa',
+    name: 'Mutual of Omaha',
+    product: 'Life Protection Advantage IUL',
+    abbr: 'MOO',
+    brand: '#003B71',
+    issueAges: { min: 18, max: 80 },
+    faceRange: { min: 100000, max: 5000000, ageBands: null },
+    cap: 9.0, par: 100, floor: 0,
+    indexStrategy: 'S&P 500 · Annual Point-to-Point',
+    underwriting: 'Fully Underwritten',
+    dbOptions: ['A: Level', 'B: Increasing'],
+    riders: ['Long-Term Care', 'Chronic Illness', 'Terminal Illness', 'Guaranteed Refund Option', "Children's Term", 'Waiver of Premium'],
+    bestFor: 'DB-focused plan with strong LTC rider. Best-in-class age-90 guaranteed premium per the MOO competitive snapshot.',
+    knockouts: [],
+    source: 'MOO LPA IUL Competitive Snapshot (450595_0924)',
+    verified: '2026-05',
+  },
+  {
+    id: 'iul_americo_eagle',
+    name: 'Americo',
+    product: 'Eagle Premier IUL',
+    abbr: 'AME',
+    brand: '#E31837',
+    issueAges: { min: 0, max: 80 },
+    faceRange: { min: 25000, max: 1000000, ageBands: null },
+    cap: 9.5, par: 100, floor: 0,
+    indexStrategy: 'S&P 500 · Annual Point-to-Point',
+    underwriting: 'Simplified Issue',
+    dbOptions: ['A: Level', 'B: Increasing'],
+    riders: ['Accelerated Death Benefit', 'Chronic Illness', 'Terminal Illness', "Children's Term", 'Waiver of Premium'],
+    bestFor: 'Mid-market accumulation product with broad face range and competitive cap.',
+    knockouts: [],
+    source: '⚠ Product name needs Mark\'s confirmation — Americo has multiple cash-value lines',
+    verified: '2026-05',
+    needsVerify: true,
+  },
+  {
+    id: 'iul_amam_survivor',
+    name: 'American Amicable',
+    product: 'Survivor Protector IUL',
+    abbr: 'AAM',
+    brand: '#1B3A6B',
+    issueAges: { min: 18, max: 80 },
+    faceRange: { min: 25000, max: 250000, ageBands: null },
+    cap: 9.0, par: 100, floor: 0,
+    indexStrategy: 'S&P 500 · Annual Point-to-Point',
+    underwriting: 'Simplified Issue',
+    dbOptions: ['A: Level'],
+    riders: ['Accelerated Death Benefit', 'Chronic Illness', 'Terminal Illness'],
+    bestFor: 'Simplified-issue IUL for FE-style sales. Lower face limits but fast issue.',
+    knockouts: [],
+    source: '⚠ Product name needs Mark\'s confirmation',
+    verified: '2026-05',
+    needsVerify: true,
+  },
+  {
+    id: 'iul_foresters_smart',
+    name: 'Foresters',
+    product: 'Smart UL',
+    abbr: 'FOR',
+    brand: '#1A5234',
+    issueAges: { min: 0, max: 85 },
+    faceRange: { min: 25000, max: 1500000, ageBands: null },
+    cap: 10.0, par: 100, floor: 0,
+    indexStrategy: 'S&P 500 · Annual Point-to-Point',
+    underwriting: 'Simplified Issue · non-med up to face cap',
+    dbOptions: ['A: Level', 'B: Increasing'],
+    riders: ['Accelerated Death Benefit', 'Chronic Illness', 'Critical Illness', 'Common Carrier AD&D', 'Family Health Benefit'],
+    bestFor: 'Foresters member benefits + community programs. Highest cap and broadest face range among Mark\'s 4 carriers.',
+    knockouts: [],
+    source: '⚠ Product name needs Mark\'s confirmation',
+    verified: '2026-05',
+    needsVerify: true,
+  },
+];
+const fmtFace = n => '$' + (n >= 1000000 ? (n/1000000)+'M' : (n/1000)+'k');
 
 // Each carrier gets a single neutral initials label — no per-carrier glow colors
 
@@ -2100,7 +2209,7 @@ export default function QuoteMark() {
   const [reqSent,setReqSent]   = useState(false);
 
   // ── TERM MODE STATE ──
-  const [quoteMode,setQuoteMode] = useState('fe'); // 'fe' | 'term' | 'cv'
+  const [quoteMode,setQuoteMode] = useState('fe'); // 'fe' | 'term' | 'iul' | 'cv'
   const [cvMonthly,setCvMonthly]     = useState('');
   const [cvPolicyYrs,setCvPolicyYrs] = useState('');
   const [cvDob,setCvDob]             = useState({mm:'',dd:'',yyyy:''});
@@ -2485,16 +2594,23 @@ export default function QuoteMark() {
               flex:1,padding:'10px 0',borderRadius:18,border:'none',
               background:quoteMode==='term'?'#C5A059':'transparent',
               color:quoteMode==='term'?'#0A192F':C.t3,
-              fontSize:13,fontWeight:700,cursor:'pointer',fontFamily:"'DM Sans',sans-serif",
+              fontSize:12,fontWeight:700,cursor:'pointer',fontFamily:"'DM Sans',sans-serif",
               transition:'all 0.18s'
-            }}>⏱️ Term Life</button>
+            }}>⏱️ Term</button>
+            <button onClick={()=>{track('Tab Switch',{to:'iul'});setQuoteMode('iul');}} style={{
+              flex:1,padding:'10px 0',borderRadius:18,border:'none',
+              background:quoteMode==='iul'?'#C5A059':'transparent',
+              color:quoteMode==='iul'?'#0A192F':C.t3,
+              fontSize:12,fontWeight:700,cursor:'pointer',fontFamily:"'DM Sans',sans-serif",
+              transition:'all 0.18s'
+            }}>📈 IUL</button>
             <button onClick={()=>{track('Tab Switch',{to:'cv'});setQuoteMode('cv');}} style={{
               flex:1,padding:'10px 0',borderRadius:18,border:'none',
               background:quoteMode==='cv'?'#C5A059':'transparent',
               color:quoteMode==='cv'?'#0B1120':C.t3,
-              fontSize:13,fontWeight:700,cursor:'pointer',fontFamily:"'DM Sans',sans-serif",
+              fontSize:12,fontWeight:700,cursor:'pointer',fontFamily:"'DM Sans',sans-serif",
               transition:'all 0.18s'
-            }}>💰 Cash Value</button>
+            }}>💰 Cash</button>
           </div>
         </div>
 
@@ -2932,6 +3048,91 @@ export default function QuoteMark() {
                 </div>
               </>
               ) : null}
+
+              {/* ── IUL MOBILE — Carrier comparison cards ── */}
+              {quoteMode==='iul' && (
+                <div style={{display:'flex',flexDirection:'column',gap:14}}>
+                  <div style={{display:'flex',alignItems:'center',gap:10,paddingBottom:8,borderBottom:`1px solid ${C.bd}`}}>
+                    <span style={{fontSize:24}}>📈</span>
+                    <div>
+                      <div style={{fontSize:16,fontWeight:800,color:C.t0}}>IUL Carrier Comparison</div>
+                      <div style={{fontSize:11,color:C.t4,marginTop:1}}>Spec snapshot · Agent reference only</div>
+                    </div>
+                  </div>
+                  <div style={{background:'rgba(245,158,11,0.08)',border:'1px solid rgba(245,158,11,0.3)',borderRadius:8,padding:'10px 12px',fontSize:11,color:C.t3,lineHeight:1.5}}>
+                    ⚠ Cap rates reset periodically. Always verify against the carrier's current brochure before quoting clients.
+                  </div>
+                  {IUL_CARRIERS.map(c => (
+                    <div key={c.id} style={{background:C.bg3,border:`1px solid ${C.bd}`,borderRadius:12,overflow:'hidden'}}>
+                      <div style={{height:4,background:c.brand}}/>
+                      <div style={{padding:'14px 14px 12px'}}>
+                        <div style={{display:'flex',justifyContent:'space-between',alignItems:'flex-start',gap:8,marginBottom:10}}>
+                          <div style={{flex:1,minWidth:0}}>
+                            <div style={{fontSize:11,color:C.t4,fontWeight:600}}>{c.name}</div>
+                            <div style={{fontSize:15,fontWeight:800,color:C.t0,marginTop:1,lineHeight:1.2}}>{c.product}</div>
+                          </div>
+                          {c.needsVerify && <span style={{fontSize:9,color:'#F59E0B',background:'rgba(245,158,11,0.12)',border:'1px solid rgba(245,158,11,0.35)',borderRadius:4,padding:'2px 6px',fontWeight:700,flexShrink:0}}>VERIFY</span>}
+                        </div>
+                        {/* Cap / Par / Floor */}
+                        <div style={{display:'grid',gridTemplateColumns:'1fr 1fr 1fr',gap:6,marginBottom:12}}>
+                          <div style={{background:C.bg2,borderRadius:8,padding:'9px 10px',textAlign:'center'}}>
+                            <div style={{fontSize:9,color:C.t4,fontWeight:700,letterSpacing:1}}>CAP</div>
+                            <div style={{fontSize:18,fontWeight:800,color:c.brand,fontFamily:"'DM Mono',monospace"}}>{c.cap}%</div>
+                          </div>
+                          <div style={{background:C.bg2,borderRadius:8,padding:'9px 10px',textAlign:'center'}}>
+                            <div style={{fontSize:9,color:C.t4,fontWeight:700,letterSpacing:1}}>PAR</div>
+                            <div style={{fontSize:18,fontWeight:800,color:C.t1,fontFamily:"'DM Mono',monospace"}}>{c.par}%</div>
+                          </div>
+                          <div style={{background:C.bg2,borderRadius:8,padding:'9px 10px',textAlign:'center'}}>
+                            <div style={{fontSize:9,color:C.t4,fontWeight:700,letterSpacing:1}}>FLOOR</div>
+                            <div style={{fontSize:18,fontWeight:800,color:C.t1,fontFamily:"'DM Mono',monospace"}}>{c.floor}%</div>
+                          </div>
+                        </div>
+                        {/* Quick specs */}
+                        <div style={{display:'flex',flexDirection:'column',gap:5,fontSize:11,color:C.t2}}>
+                          <div style={{display:'flex',justifyContent:'space-between'}}><span style={{color:C.t4}}>Issue ages</span><span style={{fontFamily:"'DM Mono',monospace"}}>{c.issueAges.min}–{c.issueAges.max}</span></div>
+                          <div style={{display:'flex',justifyContent:'space-between'}}><span style={{color:C.t4}}>Face range</span><span style={{fontFamily:"'DM Mono',monospace"}}>{fmtFace(c.faceRange.min)}–{fmtFace(c.faceRange.max)}</span></div>
+                          <div style={{display:'flex',justifyContent:'space-between'}}><span style={{color:C.t4}}>Index</span><span style={{fontSize:10}}>{c.indexStrategy}</span></div>
+                          <div style={{display:'flex',justifyContent:'space-between'}}><span style={{color:C.t4}}>UW</span><span style={{fontSize:10}}>{c.underwriting}</span></div>
+                          <div style={{display:'flex',justifyContent:'space-between'}}><span style={{color:C.t4}}>DB options</span><span style={{fontSize:10}}>{c.dbOptions.join(', ')}</span></div>
+                        </div>
+                        {/* Age-banded face if present */}
+                        {c.faceRange.ageBands && (
+                          <div style={{marginTop:10,background:C.bg2,borderRadius:6,padding:'8px 10px',fontSize:10,color:C.t3}}>
+                            <div style={{fontWeight:700,marginBottom:4,color:C.t4,letterSpacing:0.5}}>FACE BY AGE BAND</div>
+                            {c.faceRange.ageBands.map(b => (
+                              <div key={b.ages} style={{display:'flex',justifyContent:'space-between'}}>
+                                <span>{b.ages}</span><span style={{fontFamily:"'DM Mono',monospace"}}>{fmtFace(b.min)}–{fmtFace(b.max)}</span>
+                              </div>
+                            ))}
+                          </div>
+                        )}
+                        {/* Riders */}
+                        <div style={{marginTop:12}}>
+                          <div style={{fontSize:9,color:C.t4,fontWeight:700,letterSpacing:1,marginBottom:5}}>RIDERS AVAILABLE</div>
+                          <div style={{display:'flex',flexWrap:'wrap',gap:4}}>
+                            {c.riders.map(r => (
+                              <span key={r} style={{fontSize:10,background:C.bg2,border:`1px solid ${C.bd}`,borderRadius:4,padding:'3px 7px',color:C.t2}}>{r}</span>
+                            ))}
+                          </div>
+                        </div>
+                        {/* Knockouts */}
+                        {c.knockouts && c.knockouts.length > 0 && (
+                          <div style={{marginTop:10}}>
+                            <div style={{fontSize:9,color:'#EF4444',fontWeight:700,letterSpacing:1,marginBottom:5}}>AUTO-DECLINE</div>
+                            <div style={{fontSize:10,color:C.t3,lineHeight:1.5}}>{c.knockouts.join(' · ')}</div>
+                          </div>
+                        )}
+                        {/* Best for */}
+                        <div style={{marginTop:12,padding:'9px 11px',background:`${c.brand}11`,border:`1px solid ${c.brand}33`,borderRadius:7,fontSize:11,color:C.t2,lineHeight:1.5,fontStyle:'italic'}}>
+                          {c.bestFor}
+                        </div>
+                        <div style={{marginTop:8,fontSize:9,color:C.t4,fontStyle:'italic'}}>Source: {c.source}</div>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              )}
 
               {/* ── CV MOBILE INPUTS ── */}
               {quoteMode==='cv' && (
@@ -3532,6 +3733,13 @@ export default function QuoteMark() {
             fontSize:12,fontWeight:700,cursor:'pointer',fontFamily:"'DM Sans',sans-serif",
             transition:'all 0.18s',letterSpacing:0.3,whiteSpace:'nowrap'
           }}>⏱️ Term Life</button>
+          <button onClick={()=>{track('Tab Switch',{to:'iul'});setQuoteMode('iul');}} style={{
+            padding:'7px 20px',borderRadius:20,border:'none',
+            background:quoteMode==='iul'?'#C5A059':'transparent',
+            color:quoteMode==='iul'?'#0A192F':C.t3,
+            fontSize:12,fontWeight:700,cursor:'pointer',fontFamily:"'DM Sans',sans-serif",
+            transition:'all 0.18s',letterSpacing:0.3,whiteSpace:'nowrap'
+          }}>📈 IUL</button>
           <button onClick={()=>{track('Tab Switch',{to:'cv'});setQuoteMode('cv');}} style={{
             padding:'7px 20px',borderRadius:20,border:'none',
             background:quoteMode==='cv'?'#C5A059':'transparent',
@@ -3993,6 +4201,26 @@ export default function QuoteMark() {
           </>
           ) : null}
 
+          {quoteMode==='iul' && (
+            <div style={{display:'flex',flexDirection:'column',gap:12}}>
+              <div style={{fontSize:10,fontWeight:700,letterSpacing:1.8,color:'#C5A059',textTransform:'uppercase',marginBottom:2}}>IUL Carriers</div>
+              <div style={{background:'rgba(245,158,11,0.08)',border:'1px solid rgba(245,158,11,0.3)',borderRadius:8,padding:'10px 12px',fontSize:11,color:C.t3,lineHeight:1.5}}>
+                ⚠ Cap rates reset periodically. Verify against the carrier's current brochure before quoting.
+              </div>
+              <div style={{display:'flex',flexDirection:'column',gap:5,fontSize:11,color:C.t3,padding:'4px 0'}}>
+                <div style={{fontWeight:700,color:C.t2,marginBottom:4}}>Quick reference</div>
+                <div style={{display:'flex',justifyContent:'space-between'}}><span>Products tracked</span><span style={{fontFamily:"'DM Mono',monospace",color:C.t1}}>{IUL_CARRIERS.length}</span></div>
+                <div style={{display:'flex',justifyContent:'space-between'}}><span>Carriers</span><span style={{fontFamily:"'DM Mono',monospace",color:C.t1}}>{[...new Set(IUL_CARRIERS.map(c=>c.name))].length}</span></div>
+                <div style={{display:'flex',justifyContent:'space-between'}}><span>Cap range</span><span style={{fontFamily:"'DM Mono',monospace",color:C.t1}}>{Math.min(...IUL_CARRIERS.map(c=>c.cap))}–{Math.max(...IUL_CARRIERS.map(c=>c.cap))}%</span></div>
+                <div style={{display:'flex',justifyContent:'space-between'}}><span>Issue ages</span><span style={{fontFamily:"'DM Mono',monospace",color:C.t1}}>{Math.min(...IUL_CARRIERS.map(c=>c.issueAges.min))}–{Math.max(...IUL_CARRIERS.map(c=>c.issueAges.max))}</span></div>
+              </div>
+              <div style={{padding:'10px 11px',background:C.bg3,border:`1px solid ${C.bd}`,borderRadius:8,fontSize:11,color:C.t3,lineHeight:1.6}}>
+                <div style={{fontWeight:700,color:C.t2,marginBottom:4}}>💡 Tip</div>
+                Use these specs to pick which carrier to illustrate. Then pull the live illustration from the carrier's own software for the actual client presentation.
+              </div>
+            </div>
+          )}
+
           {quoteMode==='cv' && (
             <div style={{display:'flex',flexDirection:'column',gap:12}}>
               <div style={{fontSize:10,fontWeight:700,letterSpacing:1.8,color:'#C5A059',textTransform:'uppercase',marginBottom:2}}>Policy Details</div>
@@ -4077,7 +4305,95 @@ export default function QuoteMark() {
 
         {/* ── RESULTS PANEL ── */}
         <div style={{padding:'0',overflowY:'auto',display:'flex',flexDirection:'column'}}>
-          {quoteMode==='cv'?(
+          {quoteMode==='iul'?(
+            <div style={{padding:24,overflowY:'auto'}}>
+              <div style={{display:'flex',alignItems:'center',gap:14,paddingBottom:14,marginBottom:18,borderBottom:`1px solid ${C.bd}`}}>
+                <span style={{fontSize:32}}>📈</span>
+                <div style={{flex:1}}>
+                  <div style={{fontSize:20,fontWeight:800,color:C.t0}}>IUL Carrier Comparison</div>
+                  <div style={{fontSize:12,color:C.t4,marginTop:2}}>Indexed Universal Life · {IUL_CARRIERS.length} products across {[...new Set(IUL_CARRIERS.map(c=>c.name))].length} carriers</div>
+                </div>
+                <div style={{background:'rgba(245,158,11,0.1)',border:'1px solid rgba(245,158,11,0.3)',borderRadius:6,padding:'4px 10px',fontSize:11,color:'#F59E0B',fontWeight:700}}>
+                  Agent reference only
+                </div>
+              </div>
+              <div style={{display:'grid',gridTemplateColumns:'repeat(auto-fit,minmax(360px,1fr))',gap:14}}>
+                {IUL_CARRIERS.map(c => (
+                  <div key={c.id} style={{background:C.bg3,border:`1px solid ${C.bd}`,borderRadius:12,overflow:'hidden',display:'flex',flexDirection:'column'}}>
+                    <div style={{height:5,background:c.brand}}/>
+                    <div style={{padding:'16px 18px 14px',display:'flex',flexDirection:'column',gap:12,flex:1}}>
+                      {/* Header */}
+                      <div style={{display:'flex',justifyContent:'space-between',alignItems:'flex-start',gap:10}}>
+                        <div style={{flex:1,minWidth:0}}>
+                          <div style={{fontSize:11,color:C.t4,fontWeight:600,textTransform:'uppercase',letterSpacing:0.8}}>{c.name}</div>
+                          <div style={{fontSize:17,fontWeight:800,color:C.t0,marginTop:2,lineHeight:1.2}}>{c.product}</div>
+                        </div>
+                        {c.needsVerify && <span style={{fontSize:10,color:'#F59E0B',background:'rgba(245,158,11,0.12)',border:'1px solid rgba(245,158,11,0.35)',borderRadius:5,padding:'3px 8px',fontWeight:700,flexShrink:0,letterSpacing:0.5}}>VERIFY</span>}
+                      </div>
+                      {/* Cap / Par / Floor */}
+                      <div style={{display:'grid',gridTemplateColumns:'1fr 1fr 1fr',gap:8}}>
+                        <div style={{background:C.bg2,border:`1px solid ${C.bd}`,borderRadius:8,padding:'10px',textAlign:'center'}}>
+                          <div style={{fontSize:9,color:C.t4,fontWeight:700,letterSpacing:1.2}}>CAP</div>
+                          <div style={{fontSize:22,fontWeight:800,color:c.brand,fontFamily:"'DM Mono',monospace",marginTop:2}}>{c.cap}%</div>
+                        </div>
+                        <div style={{background:C.bg2,border:`1px solid ${C.bd}`,borderRadius:8,padding:'10px',textAlign:'center'}}>
+                          <div style={{fontSize:9,color:C.t4,fontWeight:700,letterSpacing:1.2}}>PAR</div>
+                          <div style={{fontSize:22,fontWeight:800,color:C.t1,fontFamily:"'DM Mono',monospace",marginTop:2}}>{c.par}%</div>
+                        </div>
+                        <div style={{background:C.bg2,border:`1px solid ${C.bd}`,borderRadius:8,padding:'10px',textAlign:'center'}}>
+                          <div style={{fontSize:9,color:C.t4,fontWeight:700,letterSpacing:1.2}}>FLOOR</div>
+                          <div style={{fontSize:22,fontWeight:800,color:C.t1,fontFamily:"'DM Mono',monospace",marginTop:2}}>{c.floor}%</div>
+                        </div>
+                      </div>
+                      {/* Specs */}
+                      <div style={{display:'flex',flexDirection:'column',gap:5,fontSize:12,color:C.t2}}>
+                        <div style={{display:'flex',justifyContent:'space-between'}}><span style={{color:C.t4}}>Issue ages</span><span style={{fontFamily:"'DM Mono',monospace"}}>{c.issueAges.min}–{c.issueAges.max}</span></div>
+                        <div style={{display:'flex',justifyContent:'space-between'}}><span style={{color:C.t4}}>Face range</span><span style={{fontFamily:"'DM Mono',monospace"}}>{fmtFace(c.faceRange.min)}–{fmtFace(c.faceRange.max)}</span></div>
+                        <div style={{display:'flex',justifyContent:'space-between',gap:8}}><span style={{color:C.t4,flexShrink:0}}>Index</span><span style={{fontSize:11,textAlign:'right'}}>{c.indexStrategy}</span></div>
+                        <div style={{display:'flex',justifyContent:'space-between',gap:8}}><span style={{color:C.t4,flexShrink:0}}>UW</span><span style={{fontSize:11,textAlign:'right'}}>{c.underwriting}</span></div>
+                        <div style={{display:'flex',justifyContent:'space-between'}}><span style={{color:C.t4}}>DB options</span><span style={{fontSize:11}}>{c.dbOptions.join(', ')}</span></div>
+                      </div>
+                      {/* Age bands */}
+                      {c.faceRange.ageBands && (
+                        <div style={{background:C.bg2,borderRadius:7,padding:'8px 11px',fontSize:11}}>
+                          <div style={{fontWeight:700,marginBottom:5,color:C.t4,letterSpacing:0.5,fontSize:9}}>FACE BY AGE BAND</div>
+                          {c.faceRange.ageBands.map(b => (
+                            <div key={b.ages} style={{display:'flex',justifyContent:'space-between',color:C.t2,marginBottom:2}}>
+                              <span>{b.ages}</span><span style={{fontFamily:"'DM Mono',monospace"}}>{fmtFace(b.min)}–{fmtFace(b.max)}</span>
+                            </div>
+                          ))}
+                        </div>
+                      )}
+                      {/* Riders */}
+                      <div>
+                        <div style={{fontSize:9,color:C.t4,fontWeight:700,letterSpacing:1.2,marginBottom:6}}>RIDERS AVAILABLE</div>
+                        <div style={{display:'flex',flexWrap:'wrap',gap:5}}>
+                          {c.riders.map(r => (
+                            <span key={r} style={{fontSize:10,background:C.bg2,border:`1px solid ${C.bd}`,borderRadius:5,padding:'3px 8px',color:C.t2}}>{r}</span>
+                          ))}
+                        </div>
+                      </div>
+                      {/* Knockouts */}
+                      {c.knockouts && c.knockouts.length > 0 && (
+                        <div>
+                          <div style={{fontSize:9,color:'#EF4444',fontWeight:700,letterSpacing:1.2,marginBottom:6}}>AUTO-DECLINE</div>
+                          <div style={{fontSize:11,color:C.t3,lineHeight:1.55}}>{c.knockouts.join(' · ')}</div>
+                        </div>
+                      )}
+                      {/* Best for */}
+                      <div style={{marginTop:'auto',padding:'10px 12px',background:`${c.brand}11`,border:`1px solid ${c.brand}33`,borderRadius:8,fontSize:12,color:C.t2,lineHeight:1.55,fontStyle:'italic'}}>
+                        {c.bestFor}
+                      </div>
+                      <div style={{fontSize:10,color:C.t4,fontStyle:'italic'}}>Source: {c.source}</div>
+                    </div>
+                  </div>
+                ))}
+              </div>
+              <div style={{marginTop:18,padding:'14px 18px',background:C.bg3,border:`1px solid ${C.bd}`,borderRadius:10,fontSize:11,color:C.t4,lineHeight:1.7}}>
+                <strong style={{color:C.t3}}>About this comparison.</strong> Cap rates, par rates, face limits, and issue ages are based on the most recent carrier brochures available. IUL products change frequently — always confirm against the carrier's current spec sheet before quoting clients. This view is for agent decision support, not client deliverables. For client-ready illustrations, use each carrier's official illustration software.
+              </div>
+            </div>
+          ):quoteMode==='cv'?(
             <div style={{display:'flex',justifyContent:'center',width:'100%',overflowY:'auto'}}>
               {(()=>{const age=(cvAgeMode==='age' ? Number(cvAgeInput) : (cvDob.mm&&cvDob.dd&&cvDob.yyyy&&cvDob.yyyy.length===4 ? Math.floor((Date.now()-new Date(`${cvDob.yyyy}-${cvDob.mm}-${cvDob.dd}`))/31557600000) : null));return cvMonthly&&cvPolicyYrs&&Number(cvMonthly)>0&&Number(cvPolicyYrs)>0&&age?(
                 <CashValueProjection monthlyPremium={Number(cvMonthly)} policyYears={Number(cvPolicyYrs)} issueAge={age} C={C} isDark={isDark}/>
