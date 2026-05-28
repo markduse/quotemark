@@ -1,4 +1,4 @@
-# CLAUDE.md — DFG Exam Prep Project
+# CLAUDE.md — QuoteMark Project
 
 > This file is read by Claude Code at the start of every session.
 > It contains full project context, goals, stack, and known issues.
@@ -8,250 +8,277 @@
 
 ## WHO THIS IS FOR
 
-**Duse Financial Group (DFG)** — a final expense telesales agency based in Troy, MI.
-- Managing Partner: Mark Dusevic
-- Brand: Duse Financial Group / Pinnacle Life Agency / Pinnacle Life Solutions
-- This app is an internal training tool for new agent recruits who need to pass the
-  **Michigan Life Producer state licensing exam** (PSI) before they can sell.
+**QuoteMark** — a multi-product life insurance quoting tool built by:
+- **MPD Investment Group LLC** d/b/a QuoteMark
+- Owner / lead: Mark Dusevic
+- Primary user: telesales agents working final expense + adjacent life products
 
-The goal: any 18-year-old with zero insurance background studies this app and passes
-the exam with 85%+.
+**Sister agency (separate project)**: Duse Financial Group (DFG) — a final
+expense telesales agency in Troy, MI that Mark runs. DFG agents use QuoteMark
+as their daily quoting tool. DFG's exam prep app is a *different* repo
+(`dfg-exam-prep`, deployed at `studyduse.netlify.app`) — don't confuse them.
+
+The goal: an agent on a live call types client age + a few details and gets
+real-time, multi-carrier quotes in under 3 seconds so they can quote, pivot
+between products (FE → Term → IUL → CV exit), and close.
 
 ---
 
 ## WHAT THIS APP IS
 
-**studyduse.netlify.app** — A mobile-first, gamified quiz app for Michigan Life Producer
-exam prep.
+**quotemarko.netlify.app** — Currently 4 product tabs sharing one Client Info intake:
 
-- 151 PSI-aligned multiple choice questions across all exam topic areas
-- Instant ✅/❌ feedback with explanation after every answer
-- Streak counter, per-question timer, progress bar, score/pass-fail at end
-- "Weak Spots" mode that retries previously missed questions (localStorage)
-- 4 quiz modes: Mixed, Weak Spots, Regulation-only, Policies-only
-- 4 session lengths: 25 / 50 / 75 / 100 questions
-- DFG branding: deep navy (#1B2A4A), champagne gold (#C8A84B), cream (#F8F4EE)
-- Fonts: Syne (headings/UI), DM Sans (body)
+| Tab | Products | Ages | What it does |
+|---|---|---|---|
+| 🏛️ FEX / WL | 73 final expense + whole life products across ~30 carriers | 1–89 | Juvenile WL → young adult WL → senior FE, all one flow. Age-aware UX hides tobacco/health for kids. |
+| ⏱️ Term | 28 term life products | 18+ | Term length + face slider; UW class auto-recommended from age/BMI/conditions |
+| 📈 IUL | 2 IUL products + spec snapshot for 4 carriers | 18+ | Solve for face *or* premium; cap/par/floor reference cards |
+| 💰 Cash Value | CV corridor estimator | 1–89 | Existing policy → estimated current cash value (low/high band) |
+
+Shared concepts across all 4 tabs:
+- **Unified ClientInfo block** — DOB-or-age, gender, tobacco (when relevant), US state
+- **DOB ↔ age sync** — type DOB, age auto-fills; type age, DOB clears
+- **Age-bracket awareness** — juvenile (1–17), young adult (18–49), senior (50–89) drive
+  banner copy, default face amounts, and which form fields are visible
 
 ---
 
 ## TECH STACK
 
-Currently a **single-file static app**:
-- Pure HTML / CSS / Vanilla JS — no framework, no build step
-- All 151 questions are hardcoded in a `QB` array inside `index.html`
-- `netlify.toml` for redirect config
-- Deployed on Netlify via GitHub auto-deploy (push to `main` = live in ~30 seconds)
-- No backend. No auth. No database.
-- localStorage used for persisting missed question IDs between sessions (`dfg_missed`)
+- **React 18 + Vite** — SPA, no SSR
+- **Single-file architecture** — `src/App.jsx` is ~5600 lines (entire UI, state,
+  rate engine, carrier configs). Will split when complexity demands it; don't
+  prematurely refactor.
+- **Auth**: Supabase (email/password). Agents sign in at the gate; no anon mode.
+- **Hosting**: Netlify, GitHub auto-deploy (`git push origin main` → live in ~20s)
+- **Analytics**: PostHog with `autocapture:false` (only explicit `track()` calls fire)
+- **No backend** — all rates are baked into JSON data files at build time
+- **No database** — Supabase auth only; no profile storage yet
+- **Domain owned**: `quotemarko.com` (Mark bought it). `quotemark.com` and
+  `quotemark.app` were taken. Open question: rebrand to "Quotemarko" everywhere,
+  or keep "QuoteMark" wordmark and just point `quotemarko.com` → Netlify.
 
-**Repo:** github.com/markduse/dfg-exam-prep (private)
-**Live URL:** https://studyduse.netlify.app/
+**Repo**: `github.com/markduse/quotemark` (private)
+**Live**: `https://quotemarko.netlify.app/`
 
 ---
 
-## QUESTION BANK STRUCTURE
+## DATA STRUCTURE — `src/data/`
 
-Each question object in the `QB` array:
-```js
-{
-  cat: "Regulation",           // Topic category (see below)
-  q:   "Question text here?",  // The question
-  o:   ["A","B","C","D"],      // 4 answer options (always 4)
-  a:   1,                      // Index of correct answer (0-based)
-  e:   "Explanation text."     // Why the answer is correct
-}
-```
-
-**Current categories and question counts:**
-| Category | Questions | PSI Exam Weight |
+| File | Size | What it holds |
 |---|---|---|
-| Regulation | 30 | 20% (20 items) |
-| General Insurance | 20 | 10% (10 items) |
-| Policies | 30 | 20% (20 items) |
-| Provisions & Riders | 30 | 20% (20 items) |
-| Underwriting & Basics | 20 | 15% (15 items) |
-| Annuities | 10 | 5% (5 items) |
-| Federal Taxes | 10 | 5% (5 items) |
+| `fex_rates.json` | ~400 KB | 86k+ cells. Shape: `{"Company||Plan": {tier: {age: {face: monthlyPremium}}}}`. Tiers = MNS/MS/FNS/FS. Ages 1–89. Faces $2k–$100k (sparse anchors per product). |
+| `term_rates.json` | ~400 KB | 23k cells, 28 products. 100% match to ITK as of May 2026 scrape. |
+| `iul_rates.json` | ~30 KB | 201 cells, 2 products (MOO IUL Express + 1 other). |
+| `rate_factors.json` | small | Formula-based carriers: `(rate/1000 × units + policyFee) × modalFactor`. Used for Accendo, Lifeshield, Aetna Protection Series. |
+| `restrictions.json` | small | Per-carrier state availability + min/max face caps. |
 
-**Target:** Expand to 300+ questions total, maintaining category ratios.
-All questions must match PSI Michigan Life Producer exam style and difficulty.
-Every question needs a solid `e` explanation — not just "the answer is B."
+**Rate lookup** (`fexLookup` in App.jsx ~line 1439):
+1. Snap age to exact match in tier table
+2. From available face anchors ≤ requested face, pick the largest (never overshoot)
+3. If requested face < all anchors (juvenile case), use the smallest anchor
+4. Return `{prem, face: effectiveFace}` — UI labels it as "for $X face" if capped
 
----
-
-## PSI EXAM FACTS (hardcode these into any new content)
-
-- **Exam:** Michigan Life Producer (Series 16-65)
-- **Questions:** 100 (plus 5-10 unscored experimental)
-- **Pass score:** 72% (72 correct)
-- **Time:** 120 minutes
-- **Fee:** $41 (non-refundable, valid 1 year)
-- **Administered by:** PSI Exams
-- **Regulator:** DIFS (Michigan Dept of Insurance and Financial Services)
-- **Prelicensing:** 20 hours required before sitting for exam
-- **CE requirement:** 24 hours per 2-year cycle (3 hours must be ethics)
-- **License application:** Filed through NIPR
-- **Grace period (life):** 31 days
-- **Incontestability:** 2 years
-- **Free look:** 10 days minimum
-- **Group conversion:** 31 days
+`buildResult` (~line 2644) wraps `fexLookup` and applies: state checks, age max
+per tier, GI fallback to Modified, capped-face display flag, and per-carrier
+disability or knockout rules. It also respects optional `sub`/`productName`
+overrides returned by carrier `fn()` — used for age-dependent product variants
+(e.g., MOO switches to "Children's Whole Life" sub-label when age < 18).
 
 ---
 
-## KNOWN ISSUES / BUGS (fix these first)
+## KEY CONCEPTS
 
-1. **Timer resets don't feel smooth** — there's a visible jump when moving to next question
-2. **Weak Spots mode on first use** — if no questions have been missed yet, it falls back
-   to the full QB silently. Should show a message: "No missed questions yet. Try Mixed mode first."
-3. **Score ring animation** — the SVG stroke animation on the results screen sometimes
-   doesn't trigger on iOS Safari. Needs a requestAnimationFrame fix.
-4. **Font loading flash** — Syne/DM Sans load async from Google Fonts causing FOUT
-   (flash of unstyled text). Add `font-display: swap` or preload headers.
-5. **Results screen topic breakdown bars** — bars don't animate in on iOS.
-   CSS transition on `width` from 0 needs to be triggered after paint, not on render.
-6. **No visual confirmation that localStorage saved** — user doesn't know their missed
-   questions are being tracked. Add a subtle toast.
-7. **"Weak Spots" mode doesn't clear after a retry session** — missed IDs accumulate
-   forever. Need a "Clear history" button or auto-clear on perfect retry.
+**UW Tiers** (`B/C/D/E`):
+- **B** — Preferred (clean health, full benefit day 1)
+- **C** — Standard (moderate history, full benefit day 1)
+- **D** — Modified / Graded (2–3yr waiting period, scaled payout)
+- **E** — Guaranteed Issue (no health questions, knockout conditions present)
 
----
+**Smoker × Gender combos** in rate tables: `MNS / MS / FNS / FS`
 
-## PLANNED FEATURES (priority order)
+**Age brackets** (`isJuvenile / isYoungAdult / isSenior` in App.jsx ~line 2581):
+- 1–17: Juvenile WL — guaranteed issue, no tobacco/health UI
+- 18–49: Adult WL — standard UW; banner reminds agent term is usually cheaper
+- 50–89: Senior FE — full UW flow with health conditions search
 
-### HIGH PRIORITY
-- [ ] **Expand question bank to 300+** — add ~150 more questions, especially:
-  - More Regulation edge cases (Michigan-specific statutes)
-  - More Provisions & Riders variations
-  - Add missing categories: Group Health, Disability Income, Medicare/Medicaid basics
-    (these appear on the Life+Health combined exam which some agents take)
-- [ ] **Topic filter on splash screen** — let user pick ANY single category, not just
-  Regulation and Policies. Dropdown or scrollable chip list.
-- [ ] **Study Mode** — separate from quiz mode. Shows question → answer → explanation
-  without timing pressure. Tap to advance. Good for first-pass reading.
-- [ ] **Score history** — last 5 quiz scores stored in localStorage, shown on splash.
-  Simple bar chart. Shows trend over time.
+**GSB toggle** (Guaranteed Self-Build): when ON, computes modal premium from a
+target face. When OFF, agent picks face directly.
 
-### MEDIUM PRIORITY
-- [ ] **Definitions/Glossary tab** — key insurance terms with definitions. Searchable.
-  ~100 terms. No navigation overhaul needed — just a bottom tab or swipe.
-- [ ] **Agent leaderboard** — if multiple agents use the same device or share a code,
-  show a simple leaderboard. Could be as simple as entering your name before quiz.
-- [ ] **Cheat sheet quick-reference** — a swipeable "cheat sheet" screen with the
-  key numbers (31-day grace, 24 CE hours, 72% pass score, etc.) formatted like
-  flash reference cards. Based on the study guide cheat sheets.
-- [ ] **Share score card** — after results, generate a shareable image (canvas-based)
-  so agents can post their score to the DFG group chat.
-
-### LOW PRIORITY / FUTURE
-- [ ] Dark/light mode toggle
-- [ ] Haptic feedback on mobile (Vibration API)
-- [ ] PWA manifest so it installs to home screen like a native app
-- [ ] Backend sync so scores persist across devices (Supabase would work well here)
-- [ ] Admin view for Mark to see which questions agents are missing most
+**Auto-tier recommendation**: `termRec` / FEX `autoTier` look at age + BMI +
+selected health conditions + family history and pick the most-likely class.
+Agent can override.
 
 ---
 
-## FILE STRUCTURE (current)
+## SCRAPING / DATA SOURCING
 
-```
-dfg-exam-prep/
-├── index.html        ← entire app (HTML + CSS + JS + question bank)
-├── netlify.toml      ← Netlify redirect config
-└── CLAUDE.md         ← this file
-```
+**Primary source**: ITK (Insurance Toolkits) — `api.insurancetoolkits.com/quoter/`
+- JWT auth (extracted from browser session)
+- Toolkit param: `TERM` / `FEX` / `IUL`
+- Two scrape patterns in `scripts/`:
+  - `scrape_itk_rates.js` — Playwright UI automation (older, fragile, has Mark's
+    password in plaintext — **rotate when convenient**)
+  - `itk_gap_scrape.js` — JWT-based, paste into ITK browser console, auto-
+    captures token. Faster + more reliable.
 
-**Refactor target** (do when adding Study Mode or Glossary):
-```
-dfg-exam-prep/
-├── index.html
-├── netlify.toml
-├── CLAUDE.md
-├── css/
-│   └── styles.css
-├── js/
-│   ├── app.js        ← state machine, routing
-│   ├── quiz.js       ← quiz logic
-│   └── results.js    ← results logic
-└── data/
-    ├── questions.js  ← QB array (all questions)
-    └── glossary.js   ← definitions
-```
-Don't refactor until the feature set justifies it. Single-file is fine for now.
+**Secondary source**: InstaBrain portal — used for accurate IB Term + PureTerm
+direct quotes when ITK has gaps. Requires Mark's logged-in browser session
+(captured via Chrome MCP in past sessions).
+
+**Manual research**: Carrier portals (Foresters, MOO, Royal Neighbors) for
+juvenile + IUL spec sheets.
+
+**Analysis scripts** (added Phase D recent session):
+- `analyze_fex_coverage.mjs` — cells/products per age bracket, gap density
+- `test_age_spectrum.mjs` — smoke test across 10 profiles (5yo daughter,
+  22yo male, 65yo female, etc.)
+- `merge_gap.mjs` — merges scraped JSON into `fex_rates.json` with dedupe
 
 ---
 
-## DESIGN RULES (do not break these)
+## CARRIER LANDSCAPE (FEX/WL, in App.jsx ~line 1488)
 
-- **Mobile-first always.** Max content width ~420px. Test everything on 375px viewport.
-- **DFG color palette:**
-  - Navy: `#1B2A4A` (primary bg, headers)
-  - Navy dark: `#0f1e36` (page bg)
-  - Gold: `#C8A84B` (accent, CTAs, highlights)
-  - Gold light: `#e2c46e` (hover states)
-  - Card bg: `#1e3153`
-  - Green: `#22c55e` (correct answers, pass)
-  - Red: `#ef4444` (wrong answers, fail)
-  - Gray: `#94a3b8` (secondary text)
-- **Fonts:** Syne (700/800 for headings, labels, UI text), DM Sans (body, options)
-- **No purple gradients.** No Inter. No generic AI design.
-- **Tap targets:** minimum 48px height on all interactive elements.
-- **Animations:** subtle and fast. Nothing over 400ms. No bouncy animations on results.
-- **Tone:** confident, direct, no fluff. This is for people who want to pass and start
-  earning. Not a fun learning game — a serious prep tool with good UX.
+~30 carriers configured. Major ones:
+- **Mutual of Omaha** (`moo`) — Living Promise (45+), Children's WL (1–17,
+  added recently)
+- **Transamerica** (`ta`, `ta_exp`) — Immediate Solution, Express, Easy Solution
+- **Foresters** (`for`) — PlanRight + BrightFuture juvenile
+- **Royal Neighbors** (`rn`, `rna_gi`) — Jet WL + GI
+- **American Amicable** (`amam`, `amam_gs`) — Family Choice + Golden Solution
+- **Liberty Bankers** (`lb`) — SIMPL WL + Home Service
+- **Accendo / Aetna CVS** (`acc`, `cont`) — Protection Series FE
+- **AIG / Corebridge** (`cbg`) — SIWL + GIWL
+- **United Home Life** (`uhl`) — Premier / Deluxe / EIWL
+- **Baltimore Life** (`bl_sg`) — iProvide + aPriority
+- **Senior Life** (`sl_pp`, `sl`) — Platinum Protection
+- **Americo** (`amr`) — Eagle Select
+- **Lifeshield** (`ls`) — Survivor Level/Graded
+- **AHL** (`ahl`, `ahl_gs`) — Patriot + GuideStar
+- **Occidental** — Family Choice + Family Legacy
+- **Bankers Fidelity / Aetna** — Protection Series
 
----
-
-## BRANDING CONTEXT
-
-- App name on screen: "DFG · Exam Prep" or "Duse Financial Group"
-- Tagline: "Pass the Exam. Get Licensed. Start Earning."
-- Do NOT use "Pinnacle" branding in this app — it's DFG-branded.
-- The study guide PDF this was built from is titled:
-  "DFG Licensing System — Michigan Life Producer State Licensing Exam Study Guide"
+Some are `enabled: false` (Aflac, Lafayette Life, Polish Falcons, Better Life,
+Royal Arcanum) — kept for future activation.
 
 ---
 
-## HOW TO RUN LOCALLY
+## DESIGN RULES (don't break these)
+
+- **Mobile-first.** Max content width ~420px. Always test 375px viewport first.
+- **Brand colors**:
+  - Gold: `#C5A059` (primary accent, CTAs, active states)
+  - Navy: `#0A192F` (primary dark, buttons in light mode)
+  - Dark BG: `#0B1120` / `#0F172A` (dark-mode page bg)
+  - Light BG: `#FAF9F6` / cream tones
+  - Green: `#22C55E` (success, pass tier)
+  - Red: `#EF4444` (decline, smoker)
+- **Fonts**:
+  - **Barlow Condensed** (700/800) — QuoteMark wordmark, big headings
+  - **DM Sans** (body, UI, options)
+  - **DM Mono** (numerical premiums, dates, monospace data)
+- **Tone**: confident, direct. Agents use this on live calls — no jokes, no fluff,
+  no fake urgency. Numbers and product names speak for themselves.
+- **Tap targets**: minimum 40px on desktop, 48px on mobile.
+- **Animations**: ≤200ms, no bounce, no spring physics.
+
+---
+
+## ENVIRONMENT
 
 ```bash
-# No build step needed. Just open the file.
-open index.html
+# Setup
+npm install
 
-# Or use a local server (avoids any CORS issues with future features):
-npx serve .
-# → http://localhost:3000
+# Dev server
+npx vite                       # → http://localhost:5173
+
+# Build
+npx vite build                 # outputs to dist/
+
+# Deploy (auto)
+git push origin main           # Netlify deploys in ~20s
 ```
 
----
-
-## DEPLOY
-
-Push to `main` branch → Netlify auto-deploys in ~20 seconds.
-
-```bash
-git add .
-git commit -m "your message"
-git push origin main
-```
-
-Check deploy status: https://app.netlify.com/sites/studyduse/deploys
+`.env` vars:
+- `VITE_SUPABASE_URL`
+- `VITE_SUPABASE_ANON_KEY`
+- `VITE_POSTHOG_KEY`
 
 ---
 
-## QUESTIONS / CONTENT ACCURACY
+## KNOWN ISSUES
 
-All questions are aligned to the **official PSI Michigan Life Producer content outline
-(Series 16-65)**. The source of truth is:
-`https://proctor2.psionline.com/programs/MIINS/`
-
-When adding questions, always:
-1. Map to a specific PSI content outline section
-2. Write the explanation as if teaching someone who has never heard of insurance
-3. Bold the key fact in the explanation using `<strong>` tags
-4. Make distractors (wrong answers) plausible — real exam traps, not obviously wrong
+1. **`scripts/scrape_itk_rates.js` line 19 has Mark's ITK password in plain
+   text.** Move to `.env` + rotate the password.
+2. **Build chunk size > 500 kB** — Vite warns. Single-file App.jsx is the
+   reason. Refactor will help (data files into dynamic imports).
+3. **`fex_rates.json` face anchors are sparse at low ages** — the lookup
+   handles this via snap-to-largest-band ≤ requested, but agents may see
+   "(for $X face)" disclosures more often at juvenile ages. UX is honest;
+   just be aware.
+4. **CLAUDE.md previously held the wrong project's content** (DFG exam prep)
+   — fixed in this file. If you see `dfg-exam-prep` references anywhere in
+   the QuoteMark repo, those are stale.
 
 ---
 
-*Last updated by Claude · March 2026*
-*Built for Duse Financial Group · studyduse.netlify.app*
+## RECENTLY SHIPPED
+
+- **Unified ClientInfo component** across all 4 tabs × mobile+desktop
+- **DOB ↔ age auto-sync** with focus auto-advance mm → dd → yyyy
+- **FEX/WL age expansion** — 1–89 with age-aware UX (juvenile banner, hidden
+  tobacco/health for kids, smart face defaults)
+- **MOO Children's WL** wired as age-dependent product variant on the existing
+  MOO carrier card
+- **`buildResult` sub/productName override** — generic hook for future
+  age-dependent variants (Foresters BrightFuture, Royal Neighbors Junior, etc.)
+- **Coverage analysis + smoke-test scripts** — `analyze_fex_coverage.mjs`,
+  `test_age_spectrum.mjs`
+- **Term scrape via InstaBrain portal** — accepted 1% drift, 100% ITK match for
+  primary term carriers
+- **Tier-aware UW badges** (instant vs. exam) for term products
+
+---
+
+## SHELVED / FUTURE WORK
+
+**Domain decision** (shelved):
+- Option A: Keep "QuoteMark" UI, point `quotemarko.com` → Netlify (cheapest)
+- Option B: Rebrand UI to "Quotemarko" everywhere
+- Option C: Pick a new name entirely
+
+**Gerber Grow-Up rates** (deferred): household-name juvenile WL but not on ITK.
+Adding requires manual rate transcription from their PDF brochure (~30 min).
+Existing 10 juvenile products cover the major bases (MOO, Foresters, Royal
+Neighbors, AmAm, Trans, Baltimore, AHL, Occidental).
+
+**Other potential adds**:
+- Score / quote history per agent (would need Supabase profile table)
+- Agent leaderboard / DFG-shared deals view
+- Carrier comparison sheet (side-by-side spec table)
+- PWA install + offline-cached rate files
+- Refactor App.jsx into module structure when it crosses ~7k lines
+
+---
+
+## HOW TO ASK FOR HELP
+
+When asking Claude to work on QuoteMark, useful context to include:
+1. **Which tab** (FEX/WL, Term, IUL, CV) — most logic is tab-specific
+2. **Mobile or desktop** layout — they're in different branches of App.jsx
+3. **Carrier ID** if changing a single carrier (e.g. `moo`, `ta`, `for`)
+4. **Whether this is a rate fix or UI fix** — rate issues usually need a
+   scrape; UI issues are just code
+
+Reference files for future sessions:
+- `src/App.jsx` — everything
+- `src/data/fex_rates.json` — FE/WL rate truth
+- `src/data/term_rates.json` — Term rate truth
+- `scripts/analyze_fex_coverage.mjs` — diagnose coverage gaps
+- `scripts/test_age_spectrum.mjs` — verify quote engine after rate changes
+
+---
+
+*Last updated by Claude · 2026-05-28*
+*Built for MPD Investment Group LLC d/b/a QuoteMark · quotemarko.netlify.app*
