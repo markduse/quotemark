@@ -48,9 +48,14 @@ function productKey(r) {
   return r.company;
 }
 
+// CRITICAL: strip thousands separator before parseFloat. ITK returns
+// "1,007.55" for premiums ≥ $1,000 and parseFloat("1,007.55") === 1.
+// Without this, all high-face / older-age cells were stored as $1.
+function num(s) { return parseFloat(String(s).replace(/,/g, '')); }
+
 let added = 0, dup = 0;
 for (const r of gap) {
-  const m = parseFloat(r.monthly);
+  const m = num(r.monthly);
   if (isNaN(m) || m <= 0) continue;
   const product = productKey(r);
   const tier    = extractTier(r);
