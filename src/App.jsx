@@ -987,6 +987,7 @@ const TERM_UW_TYPE = {
   'American Amicable (Term Made Simple)':      'instant',
   'InstaBrain (IB Term)':                       'instant',
   'InstaBrain (PureTerm)':                      'instant',
+  'Mutual of Omaha (Term Life Express)':        'instant',  // Express = instant eApp
   'Royal Neighbors (Jet Term)':                 'instant',  // 'JET' = instant eApp
   'SBLI (EasyTrak)':                            'instant',
   'Transamerica (Trendsetter Super 2021)':      'instant',  // Super 2021 = no-exam variant
@@ -1672,8 +1673,14 @@ const CARRIER_META = {
   moo:  { img:'/logos/moo.jpg',   eapp:'https://www.mutualofomaha.com/agent-login',            brand:'#1D4ED8' }, // Mutual of Omaha
   laf:  { img:'/logos/laf.png',       eapp:'https://www.lafayettelife.com/agent-resources',        brand:'#8B5CF6' }, // Lafayette
   for:  { img:'/logos/for.png',   eapp:'https://www.forestersfinancial.com/us/agent-portal',   brand:'#6B21A8' }, // Foresters
-  amr:  { img:'/logos/amr.png',       eapp:'https://www.americo.com/agent-access',                brand:'#60A5FA' }, // Americo
+  amr:  { img:'/logos/amr.svg',       eapp:'https://www.americo.com/agent-access',                brand:'#1E40AF' }, // Americo
   amam: { img:'/logos/amam.png', eapp:'https://www.insuranceapplication.com',                brand:'#3B82F6' }, // American Amicable
+  // Added May 2026 — branded SVG wordmarks for term carriers without official PNGs
+  jhc:        { img:'/logos/jhc.svg',        eapp:'https://www.johnhancock.com/financial-professionals.html', brand:'#000000' }, // John Hancock
+  kcl:        { img:'/logos/kcl.svg',        eapp:'https://www.kclife.com/agents',                            brand:'#15803D' }, // Kansas City Life
+  nlg:        { img:'/logos/nlg.svg',        eapp:'https://www.nationallife.com/agents',                      brand:'#0F766E' }, // National Life Group
+  protective: { img:'/logos/protective.svg', eapp:'https://www.protective.com/financial-professionals',       brand:'#003E7E' }, // Protective Life
+  sbli:       { img:'/logos/sbli.svg',       eapp:'https://www.sbli.com/agents',                              brand:'#1E3A8A' }, // SBLI
   bl_sg:{ img:'/logos/balt.png',                     eapp:'https://www.baltlife.com',                       brand:'#1D4ED8' }, // Baltimore Life Silver Guard
   ts:   { img:'/logos/ts.png',        eapp:'https://www.trustage.com/agents',                brand:'#FDE68A' }, // TruStage
   ls:   { img:'/logos/ls.jpg',    eapp:'https://www.lifeshield.com/agent',               brand:'#1D4ED8' }, // LifeShield
@@ -2108,6 +2115,11 @@ function termLogoKey(name) {
   if (n.startsWith('royal neighbors')) return 'rn';
   if (n.startsWith('transamerica')) return 'ta';
   if (n.startsWith('uhl')) return 'uhl';
+  if (n.startsWith('john hancock')) return 'jhc';
+  if (n.startsWith('kansas city')) return 'kcl';
+  if (n.startsWith('national life')) return 'nlg';
+  if (n.startsWith('protective')) return 'protective';
+  if (n.startsWith('sbli')) return 'sbli';
   return null;
 }
 
@@ -3153,7 +3165,7 @@ export default function QuoteMark() {
                   {/* Health class pills */}
                   <div>
                     <div style={{fontSize:11,color:C.t3,marginBottom:6,fontWeight:600,display:'flex',justifyContent:'space-between',alignItems:'center'}}>
-                      <span>Health Class</span>
+                      <span title="Pref+ is the toughest underwriting class — ideal BMI, no tobacco, no chronic conditions, no family history of cardiac/cancer before 60. ~10-15% of applicants qualify. Hover each pill for full criteria.">Health Class <span style={{fontSize:9,color:C.t4,cursor:'help'}}>ⓘ</span></span>
                       {termRec.recommended==='decline' ? (
                         <span style={{color:'#EF4444',fontWeight:700,fontSize:10}}>⚠ Likely Decline</span>
                       ) : !termHealthManual && termRec.reasons.length ? (
@@ -3165,8 +3177,13 @@ export default function QuoteMark() {
                       )}
                     </div>
                     <div style={{display:'grid',gridTemplateColumns:'repeat(4,1fr)',gap:4}}>
-                      {[{k:'pp',label:'Pref+'},{k:'p',label:'Pref'},{k:'sp',label:'Std+'},{k:'s',label:'Std'}].map(({k,label})=>(
-                        <button key={k} onClick={()=>{setTermHealth(k);setTermHealthManual(true);}} style={{
+                      {[
+                        {k:'pp', label:'Pref+', tip:'PREFERRED PLUS — The toughest underwriting class. Best rates available. Requires: ideal BMI (~21-27), no tobacco use ever, no chronic conditions, no family history of cardiac/cancer before 60, perfect cholesterol & blood pressure, no DUIs, ideal driving record. Maybe 10-15% of applicants qualify.'},
+                        {k:'p',  label:'Pref',  tip:'PREFERRED — Excellent health but not perfect. Requires: BMI ~28 or below, no tobacco use ever, minor controlled conditions OK (mild HTN with 1 med, mild HCL), generally good labs. About 25% of applicants qualify.'},
+                        {k:'sp', label:'Std+',  tip:'STANDARD PLUS — Slightly better than average health. Often controlled conditions like diabetes oral, mild family history, or BMI 30-32. Common starting point for older applicants. About 25-30% qualify.'},
+                        {k:'s',  label:'Std',   tip:'STANDARD — Average health risk. Multiple controlled conditions, BMI 32-35, slight family history, older smokers often land here. The most common class. About 30-40% qualify.'},
+                      ].map(({k,label,tip})=>(
+                        <button key={k} title={tip} onClick={()=>{setTermHealth(k);setTermHealthManual(true);}} style={{
                           padding:'10px 0',borderRadius:7,border:`2px solid ${termHealth===k?'#C5A059':isDark?'#374151':'#D0CDBE'}`,
                           background:termHealth===k?'#C5A059':C.bg2,color:termHealth===k?'#0A192F':C.t3,
                           fontSize:12,fontWeight:700,cursor:'pointer',fontFamily:"'DM Sans',sans-serif"
@@ -3494,7 +3511,7 @@ export default function QuoteMark() {
                                 <div style={{fontSize:14,fontWeight:700,color:C.t0,whiteSpace:'nowrap',overflow:'hidden',textOverflow:'ellipsis',minWidth:0,flex:1}}>{r.name}</div>
                                 <UWBadge uwType={r.uwType} small={true}/>
                               </div>
-                              <div style={{fontSize:10,color:C.t4,marginTop:2,whiteSpace:'nowrap',overflow:'hidden',textOverflow:'ellipsis'}}>{r.sub}{r.tierUsed && r.tierUsed !== r.sub ? ` · ${r.tierUsed}` : ''}</div>
+                              <div style={{fontSize:10,color:C.t4,marginTop:2,whiteSpace:'nowrap',overflow:'hidden',textOverflow:'ellipsis'}}>{r.sub}{r.tierUsed && r.tierUsed !== r.sub && r.tierUsed !== 'Approved' ? ` · ${r.tierUsed}` : ''}</div>
                             </div>
                             <div style={{textAlign:'right',flexShrink:0}}>
                               <div style={{fontFamily:"'DM Mono',monospace",fontSize:22,fontWeight:800,color:C.t0,lineHeight:1}}>${r.prem.toFixed(2)}</div>
@@ -4794,7 +4811,7 @@ export default function QuoteMark() {
                             <div style={{fontSize:15,fontWeight:700,color:C.t0,letterSpacing:'-0.2px',whiteSpace:'nowrap',overflow:'hidden',textOverflow:'ellipsis'}}>{r.name}</div>
                             <UWBadge uwType={r.uwType}/>
                           </div>
-                          <div style={{fontSize:11,color:C.t4,marginTop:2,whiteSpace:'nowrap',overflow:'hidden',textOverflow:'ellipsis'}}>{r.sub}{r.tierUsed && r.tierUsed !== r.sub ? ` · ${r.tierUsed}` : ''}</div>
+                          <div style={{fontSize:11,color:C.t4,marginTop:2,whiteSpace:'nowrap',overflow:'hidden',textOverflow:'ellipsis'}}>{r.sub}{r.tierUsed && r.tierUsed !== r.sub && r.tierUsed !== 'Approved' ? ` · ${r.tierUsed}` : ''}</div>
                         </div>
                         <div style={{flexShrink:0,width:80,textAlign:'right'}}>
                           <div style={{fontSize:9,color:C.t4,fontWeight:600,letterSpacing:1,textTransform:'uppercase',marginBottom:2}}>Face</div>
