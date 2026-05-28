@@ -2578,6 +2578,20 @@ export default function QuoteMark() {
   },[termRec.recommended,termHealthManual]);
   const ageNum   = parseInt(age);
   const ageOK    = age && ageNum>=1 && ageNum<=89;
+  // ── Age-bracket helpers — drive intake UX (FE / WL spans 1-89 now) ──
+  const isJuvenile = ageOK && ageNum < 18;        // 1-17 — no medical, juvenile WL
+  const isYoungAdult = ageOK && ageNum >= 18 && ageNum < 50; // 18-49 — adult WL
+  const isSenior = ageOK && ageNum >= 50;         // 50-89 — traditional FE
+  // Auto-snap face slider to age-appropriate default when bracket changes
+  useEffect(()=>{
+    if (!ageOK) return;
+    if (isJuvenile && faceAmt > 50000) setFaceAmt(25000);   // Juvenile typical: $25k
+    else if (isYoungAdult && faceAmt < 5000) setFaceAmt(20000); // Young adult: $20k
+    // Seniors keep whatever they had (existing FE default $10k)
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  },[isJuvenile, isYoungAdult]);
+  // Force smoker=false for juveniles (tobacco UI hidden, kids don't smoke)
+  useEffect(()=>{ if (isJuvenile && smoker) setSmoker(false); },[isJuvenile]); // eslint-disable-line
 
   const toggleOvr = (t) => {
     setTierOvr(p => {
@@ -2821,7 +2835,7 @@ export default function QuoteMark() {
   // Reads/writes shared state: dob, age, gender, smoker, usState.
   // Defined as a render *function* (not a component) so React doesn't
   // remount it on each App render — that would steal focus from DOB inputs.
-  const renderClientInfo = ({variant='mobile', wrap=true, showState=true}={}) => {
+  const renderClientInfo = ({variant='mobile', wrap=true, showState=true, hideTobacco=false}={}) => {
     const isM = variant==='mobile';
     const I  = isM ? mInp : inp;
     const T  = isM ? mTogBtn : togBtn;
@@ -2866,31 +2880,43 @@ export default function QuoteMark() {
                 <button className='qm-btn' style={T(gender==='female')} onClick={()=>setGender('female')}>{!isDark&&gender==='female'?'✓ ':''}👩 Female</button>
               </div>
             </div>
-            <div style={{marginBottom:showState?14:0}}>
-              <div style={labelStyle}>Tobacco</div>
-              <div style={{display:'flex',gap:8}}>
-                <button className='qm-btn' style={T(!smoker)} onClick={()=>setSmoker(false)}>{!isDark&&!smoker?'✓ ':''}Non-smoker</button>
-                <button className='qm-btn' style={T(smoker,'#EF4444')} onClick={()=>setSmoker(true)}>{!isDark&&smoker?'✓ ':''}Smoker</button>
+            {!hideTobacco && (
+              <div style={{marginBottom:showState?14:0}}>
+                <div style={labelStyle}>Tobacco</div>
+                <div style={{display:'flex',gap:8}}>
+                  <button className='qm-btn' style={T(!smoker)} onClick={()=>setSmoker(false)}>{!isDark&&!smoker?'✓ ':''}Non-smoker</button>
+                  <button className='qm-btn' style={T(smoker,'#EF4444')} onClick={()=>setSmoker(true)}>{!isDark&&smoker?'✓ ':''}Smoker</button>
+                </div>
               </div>
-            </div>
+            )}
           </>
         ) : (
-          <div style={{display:'grid',gridTemplateColumns:'1fr 1fr',gap:10,marginBottom:showState?12:0}}>
-            <div>
-              <div style={{...labelStyle,marginBottom:4}}>Tobacco</div>
-              <div style={{display:'flex',gap:5}}>
-                <button className="qm-btn" style={T(!smoker)} onClick={()=>setSmoker(false)}>{!isDark&&!smoker?'✓ ':''}Non-smoker</button>
-                <button className="qm-btn" style={T(smoker)} onClick={()=>setSmoker(true)}>{!isDark&&smoker?'✓ ':''}Smoker</button>
-              </div>
-            </div>
-            <div>
+          hideTobacco ? (
+            <div style={{marginBottom:showState?12:0}}>
               <div style={{...labelStyle,marginBottom:4}}>Gender</div>
               <div style={{display:'flex',gap:5}}>
                 <button className="qm-btn" style={T(gender==='male')} onClick={()=>setGender('male')}>{!isDark&&gender==='male'?'✓ ':''}Male</button>
                 <button className="qm-btn" style={T(gender==='female')} onClick={()=>setGender('female')}>{!isDark&&gender==='female'?'✓ ':''}Female</button>
               </div>
             </div>
-          </div>
+          ) : (
+            <div style={{display:'grid',gridTemplateColumns:'1fr 1fr',gap:10,marginBottom:showState?12:0}}>
+              <div>
+                <div style={{...labelStyle,marginBottom:4}}>Tobacco</div>
+                <div style={{display:'flex',gap:5}}>
+                  <button className="qm-btn" style={T(!smoker)} onClick={()=>setSmoker(false)}>{!isDark&&!smoker?'✓ ':''}Non-smoker</button>
+                  <button className="qm-btn" style={T(smoker)} onClick={()=>setSmoker(true)}>{!isDark&&smoker?'✓ ':''}Smoker</button>
+                </div>
+              </div>
+              <div>
+                <div style={{...labelStyle,marginBottom:4}}>Gender</div>
+                <div style={{display:'flex',gap:5}}>
+                  <button className="qm-btn" style={T(gender==='male')} onClick={()=>setGender('male')}>{!isDark&&gender==='male'?'✓ ':''}Male</button>
+                  <button className="qm-btn" style={T(gender==='female')} onClick={()=>setGender('female')}>{!isDark&&gender==='female'?'✓ ':''}Female</button>
+                </div>
+              </div>
+            </div>
+          )
         )}
 
         {/* State */}
@@ -2945,7 +2971,7 @@ export default function QuoteMark() {
               color:quoteMode==='fe'?(isDark?'#0A192F':'#FFFFFF'):C.t3,
               fontSize:13,fontWeight:700,cursor:'pointer',fontFamily:"'DM Sans',sans-serif",
               transition:'all 0.18s'
-            }}>🏛️ Final Expense</button>
+            }}>🏛️ FEX / WL</button>
             <button onClick={()=>{track('Tab Switch',{to:'term'});setQuoteMode('term');}} style={{
               flex:1,padding:'10px 0',borderRadius:18,border:'none',
               background:quoteMode==='term'?'#C5A059':'transparent',
@@ -2979,8 +3005,22 @@ export default function QuoteMark() {
 
               {quoteMode==='fe' ? (
               <>
-              {/* Unified Client Info */}
-              {renderClientInfo({variant:'mobile'})}
+              {/* Unified Client Info (juvenile hides tobacco) */}
+              {renderClientInfo({variant:'mobile', hideTobacco:isJuvenile})}
+
+              {/* Age-bracket banner */}
+              {isJuvenile && (
+                <div style={{background:'rgba(59,130,246,0.10)',border:'1px solid rgba(59,130,246,0.35)',borderRadius:10,padding:'12px 14px',fontSize:12,color:C.t2,lineHeight:1.5}}>
+                  <div style={{fontWeight:700,color:'#60A5FA',marginBottom:4,fontSize:11,letterSpacing:0.5}}>👶 JUVENILE WHOLE LIFE</div>
+                  No medical questions. Coverage typically $15k–$45k. Most carriers issue guaranteed for ages 0–17.
+                </div>
+              )}
+              {isYoungAdult && (
+                <div style={{background:'rgba(34,197,94,0.08)',border:'1px solid rgba(34,197,94,0.28)',borderRadius:10,padding:'12px 14px',fontSize:12,color:C.t2,lineHeight:1.5}}>
+                  <div style={{fontWeight:700,color:'#22C55E',marginBottom:4,fontSize:11,letterSpacing:0.5}}>👤 ADULT WHOLE LIFE</div>
+                  Standard adult underwriting. Tip: term life is usually cheaper for ages 18–49 if pure death benefit is the goal.
+                </div>
+              )}
 
               {/* Quote Target */}
               <div style={{background:C.bg2,border:`1px solid ${C.bd}`,borderRadius:12,padding:16,overflow:'hidden'}}>
@@ -3031,7 +3071,7 @@ export default function QuoteMark() {
                           }}
                           style={{width:'100%',accentColor:C.gold,height:42,cursor:'pointer',marginBottom:6}}/>
                         <div style={{display:'flex',justifyContent:'space-between',fontSize:11,color:C.t4}}>
-                          <span>$2,000</span><span>$100,000</span>
+                          <span>$1,000</span><span>$100,000</span>
                         </div>
                       </>
                     ) : (
@@ -3067,7 +3107,8 @@ export default function QuoteMark() {
                 )}
               </div>
 
-              {/* Health conditions — search only */}
+              {/* Health conditions — search only (hidden for juveniles) */}
+              {!isJuvenile && (
               <div style={{background:C.bg2,border:`1px solid ${C.bd}`,borderRadius:12,padding:16,overflow:'hidden',boxSizing:'border-box',width:'100%'}}>
                 <div style={{fontSize:11,fontWeight:700,letterSpacing:1.8,color:C.t4,textTransform:'uppercase',marginBottom:12}}>Health Conditions</div>
                 <div style={{position:'relative',marginBottom:10,display:'flex',alignItems:'center',width:'100%',boxSizing:'border-box'}}>
@@ -3174,6 +3215,7 @@ export default function QuoteMark() {
                   </div>
                 </div>
               </div>
+              )}
 
               {/* GET QUOTES button */}
               <button onClick={()=>{if(ageOK){track('Quote Requested',{tier:uwTier,mode,gsb:gsbOn,face:faceBand(faceAmt)});setHasQuoted(true);if(isMobile){setMobileTab('results');setTimeout(()=>window.scrollTo({top:0,behavior:'instant'}),0);}}}} style={{
@@ -4131,7 +4173,7 @@ export default function QuoteMark() {
             color:quoteMode==='fe'?(isDark?'#0B1120':'#FFFFFF'):C.t3,
             fontSize:12,fontWeight:700,cursor:'pointer',fontFamily:"'DM Sans',sans-serif",
             transition:'all 0.18s',letterSpacing:0.3,whiteSpace:'nowrap'
-          }}>🏛️ Final Expense</button>
+          }}>🏛️ FEX / WL</button>
           <button onClick={()=>{track('Tab Switch',{to:'term'});setQuoteMode('term');}} style={{
             padding:'7px 20px',borderRadius:20,border:'none',
             background:quoteMode==='term'?'#C5A059':'transparent',
@@ -4181,8 +4223,22 @@ export default function QuoteMark() {
 
           {quoteMode==='fe' ? (
           <>
-          {/* 1 — CLIENT INFO (unified) */}
-          {renderClientInfo({variant:'desktop'})}
+          {/* 1 — CLIENT INFO (unified, juvenile hides tobacco) */}
+          {renderClientInfo({variant:'desktop', hideTobacco:isJuvenile})}
+
+          {/* Age-bracket banner */}
+          {isJuvenile && (
+            <div style={{background:'rgba(59,130,246,0.10)',border:'1px solid rgba(59,130,246,0.35)',borderRadius:10,padding:'10px 12px',fontSize:11,color:C.t2,lineHeight:1.5}}>
+              <div style={{fontWeight:700,color:'#60A5FA',marginBottom:3,fontSize:10,letterSpacing:0.5}}>👶 JUVENILE WHOLE LIFE</div>
+              No medical questions. Coverage typically $15k–$45k.
+            </div>
+          )}
+          {isYoungAdult && (
+            <div style={{background:'rgba(34,197,94,0.08)',border:'1px solid rgba(34,197,94,0.28)',borderRadius:10,padding:'10px 12px',fontSize:11,color:C.t2,lineHeight:1.5}}>
+              <div style={{fontWeight:700,color:'#22C55E',marginBottom:3,fontSize:10,letterSpacing:0.5}}>👤 ADULT WHOLE LIFE</div>
+              Standard underwriting. Term is usually cheaper for pure DB.
+            </div>
+          )}
 
           {/* 2 — QUOTE TARGET */}
           <div style={sec}>
@@ -4272,7 +4328,8 @@ export default function QuoteMark() {
             )}
           </div>
 
-          {/* 3 — UW ASSESSMENT (collapsible) */}
+          {/* 3 — UW ASSESSMENT (hidden for juveniles — GIWL kids' policies have no UW tiers) */}
+          {!isJuvenile && (
           <div style={{...sec,border:`1px solid ${TIER_INFO[uwTier].bd}`}}>
             <div onClick={()=>setUwOpen(p=>!p)} style={{display:'flex',alignItems:'center',justifyContent:'space-between',cursor:'pointer',userSelect:'none',marginBottom:uwOpen?12:0}}>
               <div style={lbl}>UW Assessment</div>
@@ -4328,8 +4385,10 @@ export default function QuoteMark() {
               </>
             )}
           </div>
+          )}
 
-          {/* 4 — HEALTH CONDITIONS */}
+          {/* 4 — HEALTH CONDITIONS (hidden for juveniles) */}
+          {!isJuvenile && (
           <div style={sec}>
             <div style={lbl}>Health Conditions</div>
             <div style={{position:'relative',marginBottom:8,display:'flex',alignItems:'center'}}>
@@ -4393,6 +4452,7 @@ export default function QuoteMark() {
               </div>
             )}
           </div>
+          )}
 
           <button onClick={()=>{if(ageOK){track('Quote Requested',{tier:uwTier,mode,gsb:gsbOn,face:faceBand(faceAmt)});setHasQuoted(true);if(isMobile){setMobileTab('results');setTimeout(()=>window.scrollTo({top:0,behavior:'instant'}),0);}}}} style={{
             width:'100%',padding:'13px 0',borderRadius:10,border:'none',
