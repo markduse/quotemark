@@ -926,6 +926,24 @@ function termSlug(productName) {
     .replace(/[()]/g, '').replace(/[^a-z0-9]+/g, '_').replace(/^_+|_+$/g, '');
 }
 
+// Brand colors per term carrier company — used by initials-fallback logo
+// and the left-border accent on result rows.
+const TERM_BRAND = {
+  'Mutual of Omaha': '#1D4ED8',
+  'American Amicable': '#3B82F6',
+  'Americo': '#1E40AF',
+  'Foresters': '#6B21A8',
+  'InstaBrain': '#0EA5E9',           // Fidelity Life's InstaBrain product line
+  'John Hancock': '#000000',
+  'Kansas City Life': '#15803D',
+  'National Life Group': '#0F766E',
+  'Protective': '#DC2626',
+  'Royal Neighbors': '#16A34A',
+  'SBLI': '#1E3A8A',
+  'Transamerica': '#EF4444',
+  'UHL': '#B91C1C',
+};
+
 // Auto-generate one carrier entry per product in term_rates.json
 const TERM_CARRIERS = Object.keys(TERM_RATES).map(product => {
   const terms = Object.keys(TERM_RATES[product]).sort((a,b)=>+a-+b);
@@ -939,6 +957,7 @@ const TERM_CARRIERS = Object.keys(TERM_RATES).map(product => {
     name,
     sub,
     abbr: name.split(/\s+/).map(w => w[0]).join('').toUpperCase().slice(0,3),
+    brand: TERM_BRAND[name] || '#C5A059',
     enabled: true,
     termOnly: true,
     supportedTerms: terms,
@@ -2000,22 +2019,65 @@ const CompBadge = ({carrierId, tier}) => {
 };
 
 // Carrier logo — white badge container so logos render in their natural colors
+// Map a term product's display name to an existing FE logo key.
+// Term carrier IDs are auto-generated (e.g. 'term_mutual_of_omaha_term_life_express')
+// and not in CARRIER_META, so this falls back via the company prefix.
+function termLogoKey(name) {
+  if (!name) return null;
+  const n = name.toLowerCase();
+  if (n.startsWith('mutual of omaha')) return 'moo';
+  if (n.startsWith('american amicable')) return 'amam';
+  if (n.startsWith('americo')) return 'amr';
+  if (n.startsWith('foresters')) return 'for';
+  if (n.startsWith('instabrain')) return 'fid';        // InstaBrain is Fidelity Life's brand
+  if (n.startsWith('royal neighbors')) return 'rn';
+  if (n.startsWith('transamerica')) return 'ta';
+  if (n.startsWith('uhl')) return 'uhl';
+  return null;
+}
+
 const CarrierLogo = ({carrierId, name, small=false}) => {
-  const meta = CARRIER_META[carrierId];
+  // Look up by FE carrier ID first; if not found, fall back to a term-product
+  // name match against the existing FE logo set.
+  const meta = CARRIER_META[carrierId] || CARRIER_META[termLogoKey(name)];
   const [err,setErr] = React.useState(false);
   const w = small ? 110 : 124;
   const h = small ? 48 : 54;
-  if(!meta?.img || err) {
-    return null;
+  if (meta?.img && !err) {
+    return (
+      <div style={{width:w,height:h,borderRadius:4,background:'#FFFFFF',display:'flex',alignItems:'center',justifyContent:'center',overflow:'hidden',flexShrink:0,padding:'1px',boxSizing:'border-box',boxShadow:'0 1px 3px rgba(0,0,0,0.18)'}}>
+        <img
+          src={meta.img}
+          alt={name}
+          onError={()=>setErr(true)}
+          style={{width:'100%',height:'100%',objectFit:'contain'}}
+        />
+      </div>
+    );
   }
+  // Fallback: colored initials box. Use the carrier brand color if available,
+  // else gold. Initials = first letter of each word (max 3).
+  const brand = meta?.brand || '#C5A059';
+  const initials = (name || '?')
+    .replace(/\s*\(.+?\)\s*/g, '')   // strip "(...)" suffix
+    .split(/\s+/)
+    .map(w => w[0])
+    .filter(Boolean)
+    .slice(0, 3)
+    .join('')
+    .toUpperCase();
   return (
-    <div style={{width:w,height:h,borderRadius:4,background:'#FFFFFF',display:'flex',alignItems:'center',justifyContent:'center',overflow:'hidden',flexShrink:0,padding:'1px',boxSizing:'border-box',boxShadow:'0 1px 3px rgba(0,0,0,0.18)'}}>
-      <img
-        src={meta.img}
-        alt={name}
-        onError={()=>setErr(true)}
-        style={{width:'100%',height:'100%',objectFit:'contain'}}
-      />
+    <div style={{
+      width: w, height: h, borderRadius: 4,
+      background: `linear-gradient(135deg, ${brand}, ${brand}cc)`,
+      display: 'flex', alignItems: 'center', justifyContent: 'center',
+      overflow: 'hidden', flexShrink: 0,
+      boxShadow: '0 1px 3px rgba(0,0,0,0.18)',
+      color: '#FFFFFF', fontFamily: "'DM Sans',sans-serif",
+      fontWeight: 800, fontSize: small ? 17 : 19,
+      letterSpacing: 0.5,
+    }}>
+      {initials}
     </div>
   );
 };
@@ -3236,9 +3298,10 @@ export default function QuoteMark() {
                     </div>
                     <div style={{display:'flex',flexDirection:'column',gap:8}}>
                       {termResults.map(r => {
-                        const brandColor = CARRIER_META[r.id]?.brand || '#C5A059';
+                        const brandColor = CARRIER_META[r.id]?.brand || r.brand || '#C5A059';
                         return (
-                          <div key={r.id} style={{background:isDark?'#1E293B':'#FFFFFF',border:`1px solid ${C.bd2}`,borderLeft:`4px solid ${brandColor}`,borderRadius:10,padding:'12px 14px',display:'flex',alignItems:'center',gap:12}}>
+                          <div key={r.id} style={{background:isDark?'#1E293B':'#FFFFFF',border:`1px solid ${C.bd2}`,borderLeft:`4px solid ${brandColor}`,borderRadius:10,padding:'10px 12px',display:'flex',alignItems:'center',gap:10}}>
+                            <div style={{flexShrink:0}}><CarrierLogo carrierId={r.id} name={r.name} small={true}/></div>
                             <div style={{flex:1,minWidth:0}}>
                               <div style={{fontSize:14,fontWeight:700,color:C.t0,whiteSpace:'nowrap',overflow:'hidden',textOverflow:'ellipsis'}}>{r.name}</div>
                               <div style={{fontSize:10,color:C.t4,marginTop:2,whiteSpace:'nowrap',overflow:'hidden',textOverflow:'ellipsis'}}>{r.sub}{r.tierUsed && r.tierUsed !== r.sub ? ` · ${r.tierUsed}` : ''}</div>
@@ -4451,7 +4514,7 @@ export default function QuoteMark() {
                 </div>
                 <div style={{display:'flex',flexDirection:'column',gap:8}}>
                   {termResults.map(r => {
-                    const brandColor = CARRIER_META[r.id]?.brand || '#C5A059';
+                    const brandColor = CARRIER_META[r.id]?.brand || r.brand || '#C5A059';
                     const isHov = hovCard === r.id;
                     return (
                       <div key={r.id}
