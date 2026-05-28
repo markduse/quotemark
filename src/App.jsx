@@ -954,14 +954,16 @@ const TERM_CARRIERS = Object.keys(TERM_RATES).map(product => {
 });
 
 // ═══════════════════════════════════════════════════════════
-// ── IUL CARRIERS — Scope B: static spec sheet comparison ──
+// ── PERMANENT CASH VALUE CARRIERS — IUL + Fixed UL comparison ──
 // ═══════════════════════════════════════════════════════════
-// Agent reference only. Cap rates reset by carriers periodically — always
-// verify against the carrier brochure before quoting. Products marked
-// needsVerify: true are best-guess placeholders pending Mark's confirmation.
+// type: 'IUL' = indexed, has cap/par/floor; 'UL' = traditional fixed-rate UL
+// (no index, just a guaranteed minimum rate + current crediting rate).
+// Web research May 2026 confirmed AmAm and Foresters don't offer IUL —
+// only fixed UL — so Mark's 'IUL' lineup is really 2 IUL carriers + 2 UL.
 const IUL_CARRIERS = [
   {
     id: 'iul_moo_express',
+    type: 'IUL',
     name: 'Mutual of Omaha',
     product: 'IUL Express',
     abbr: 'MOO',
@@ -987,6 +989,7 @@ const IUL_CARRIERS = [
   },
   {
     id: 'iul_moo_lpa',
+    type: 'IUL',
     name: 'Mutual of Omaha',
     product: 'Life Protection Advantage IUL',
     abbr: 'MOO',
@@ -1004,61 +1007,67 @@ const IUL_CARRIERS = [
     verified: '2026-05',
   },
   {
-    id: 'iul_americo_eagle',
+    id: 'iul_americo_instant',
+    type: 'IUL',
     name: 'Americo',
-    product: 'Eagle Premier IUL',
+    product: 'Instant Decision IUL (Series 336)',
     abbr: 'AME',
     brand: '#E31837',
-    issueAges: { min: 0, max: 80 },
-    faceRange: { min: 25000, max: 1000000, ageBands: null },
+    issueAges: { min: 18, max: 80 },
+    faceRange: { min: 50000, max: 450000, ageBands: null },
     cap: 9.5, par: 100, floor: 0,
-    indexStrategy: 'S&P 500 · Annual Point-to-Point',
-    underwriting: 'Simplified Issue',
+    indexStrategy: 'S&P 500 · Annual Point-to-Point (cap OR participation rate option)',
+    underwriting: 'Simplified Issue · eApp + instant decision · non-med up to $450k',
     dbOptions: ['A: Level', 'B: Increasing'],
-    riders: ['Accelerated Death Benefit', 'Chronic Illness', 'Terminal Illness', "Children's Term", 'Waiver of Premium'],
-    bestFor: 'Mid-market accumulation product with broad face range and competitive cap.',
+    riders: ['Critical Illness (included)', 'Chronic Illness (included)', 'Terminal Illness (included)'],
+    bestFor: 'Fast simplified-issue IUL. Living benefits included at no extra cost. Choose between capped or participation-rate crediting.',
     knockouts: [],
-    source: '⚠ Product name needs Mark\'s confirmation — Americo has multiple cash-value lines',
+    source: 'americoiul.com SpecFlyerIUL + IUL Agent Guide (Series 336). Current cap at Tools.Americoagent.com',
     verified: '2026-05',
-    needsVerify: true,
+    capNote: 'Cap as of Apr 2025 — verify current rate via Americo Agent Portal',
   },
   {
-    id: 'iul_amam_survivor',
+    id: 'ul_amam_easy',
+    type: 'UL',
     name: 'American Amicable',
-    product: 'Survivor Protector IUL',
+    product: 'Easy UL',
     abbr: 'AAM',
     brand: '#1B3A6B',
-    issueAges: { min: 18, max: 80 },
-    faceRange: { min: 25000, max: 250000, ageBands: null },
-    cap: 9.0, par: 100, floor: 0,
-    indexStrategy: 'S&P 500 · Annual Point-to-Point',
-    underwriting: 'Simplified Issue',
+    issueAges: { min: 18, max: 75 },
+    faceRange: { min: 25000, max: 300000, ageBands: null },
+    cap: null, par: null, floor: null,
+    guaranteedRate: 3.0,
+    indexStrategy: 'Fixed interest (not indexed)',
+    underwriting: 'Simplified Issue · no medical exam',
     dbOptions: ['A: Level'],
-    riders: ['Accelerated Death Benefit', 'Chronic Illness', 'Terminal Illness'],
-    bestFor: 'Simplified-issue IUL for FE-style sales. Lower face limits but fast issue.',
+    riders: ['Terminal Illness ABR (included)', 'Confined Care ABR (included)', 'Disability Income', 'Family Insurance', "Children's Insurance", 'AD&D', 'Waiver of Premium'],
+    bestFor: '15-year no-lapse guarantee. 3% guaranteed min rate. Best for clients wanting permanent coverage without market exposure or simplified-issue convenience.',
     knockouts: [],
-    source: '⚠ Product name needs Mark\'s confirmation',
+    source: 'AmAm Easy UL brochure (9810/5-13) — Form 09-9817. Verified May 2026.',
     verified: '2026-05',
-    needsVerify: true,
+    notIULNote: 'Traditional fixed-rate UL — NOT indexed. Confirmed by AmAm brochure.',
   },
   {
-    id: 'iul_foresters_smart',
+    id: 'ul_foresters_smart',
+    type: 'UL',
     name: 'Foresters',
-    product: 'Smart UL',
+    product: 'SMART UL',
     abbr: 'FOR',
     brand: '#1A5234',
-    issueAges: { min: 0, max: 85 },
+    issueAges: { min: 18, max: 85 },
     faceRange: { min: 25000, max: 1500000, ageBands: null },
-    cap: 10.0, par: 100, floor: 0,
-    indexStrategy: 'S&P 500 · Annual Point-to-Point',
+    cap: null, par: null, floor: null,
+    guaranteedRate: 2.0,
+    currentRate: 4.75,
+    indexStrategy: 'Fixed interest · current rate 4.75% (Foresters announcement)',
     underwriting: 'Simplified Issue · non-med up to face cap',
     dbOptions: ['A: Level', 'B: Increasing'],
     riders: ['Accelerated Death Benefit', 'Chronic Illness', 'Critical Illness', 'Common Carrier AD&D', 'Family Health Benefit'],
-    bestFor: 'Foresters member benefits + community programs. Highest cap and broadest face range among Mark\'s 4 carriers.',
+    bestFor: 'Foresters member benefits + community programs. Higher current crediting rate than many UL competitors. Foresters does NOT offer IUL.',
     knockouts: [],
-    source: '⚠ Product name needs Mark\'s confirmation',
+    source: 'Foresters SMART UL Product Guide + ezbiz UW Guide. Current rate per Foresters announcement.',
     verified: '2026-05',
-    needsVerify: true,
+    notIULNote: 'Traditional fixed-rate UL — NOT indexed. Foresters does not offer IUL.',
   },
 ];
 const fmtFace = n => '$' + (n >= 1000000 ? (n/1000000)+'M' : (n/1000)+'k');
@@ -3068,25 +3077,43 @@ export default function QuoteMark() {
                       <div style={{padding:'14px 14px 12px'}}>
                         <div style={{display:'flex',justifyContent:'space-between',alignItems:'flex-start',gap:8,marginBottom:10}}>
                           <div style={{flex:1,minWidth:0}}>
-                            <div style={{fontSize:11,color:C.t4,fontWeight:600}}>{c.name}</div>
+                            <div style={{display:'flex',alignItems:'center',gap:6}}>
+                              <div style={{fontSize:11,color:C.t4,fontWeight:600}}>{c.name}</div>
+                              <span style={{fontSize:8,fontWeight:800,background:c.type==='IUL'?c.brand:'transparent',color:c.type==='IUL'?'#FFFFFF':C.t4,border:c.type==='IUL'?'none':`1px solid ${C.bd2}`,borderRadius:3,padding:'1px 5px',letterSpacing:0.6}}>{c.type}</span>
+                            </div>
                             <div style={{fontSize:15,fontWeight:800,color:C.t0,marginTop:1,lineHeight:1.2}}>{c.product}</div>
                           </div>
                           {c.needsVerify && <span style={{fontSize:9,color:'#F59E0B',background:'rgba(245,158,11,0.12)',border:'1px solid rgba(245,158,11,0.35)',borderRadius:4,padding:'2px 6px',fontWeight:700,flexShrink:0}}>VERIFY</span>}
                         </div>
-                        {/* Cap / Par / Floor */}
+                        {/* Cap / Par / Floor (IUL) OR Guaranteed / Current (UL) */}
                         <div style={{display:'grid',gridTemplateColumns:'1fr 1fr 1fr',gap:6,marginBottom:12}}>
-                          <div style={{background:C.bg2,borderRadius:8,padding:'9px 10px',textAlign:'center'}}>
-                            <div style={{fontSize:9,color:C.t4,fontWeight:700,letterSpacing:1}}>CAP</div>
-                            <div style={{fontSize:18,fontWeight:800,color:c.brand,fontFamily:"'DM Mono',monospace"}}>{c.cap}%</div>
-                          </div>
-                          <div style={{background:C.bg2,borderRadius:8,padding:'9px 10px',textAlign:'center'}}>
-                            <div style={{fontSize:9,color:C.t4,fontWeight:700,letterSpacing:1}}>PAR</div>
-                            <div style={{fontSize:18,fontWeight:800,color:C.t1,fontFamily:"'DM Mono',monospace"}}>{c.par}%</div>
-                          </div>
-                          <div style={{background:C.bg2,borderRadius:8,padding:'9px 10px',textAlign:'center'}}>
-                            <div style={{fontSize:9,color:C.t4,fontWeight:700,letterSpacing:1}}>FLOOR</div>
-                            <div style={{fontSize:18,fontWeight:800,color:C.t1,fontFamily:"'DM Mono',monospace"}}>{c.floor}%</div>
-                          </div>
+                          {c.type === 'IUL' ? (
+                            <>
+                              <div style={{background:C.bg2,borderRadius:8,padding:'9px 10px',textAlign:'center'}}>
+                                <div style={{fontSize:9,color:C.t4,fontWeight:700,letterSpacing:1}}>CAP</div>
+                                <div style={{fontSize:18,fontWeight:800,color:c.brand,fontFamily:"'DM Mono',monospace"}}>{c.cap}%</div>
+                              </div>
+                              <div style={{background:C.bg2,borderRadius:8,padding:'9px 10px',textAlign:'center'}}>
+                                <div style={{fontSize:9,color:C.t4,fontWeight:700,letterSpacing:1}}>PAR</div>
+                                <div style={{fontSize:18,fontWeight:800,color:C.t1,fontFamily:"'DM Mono',monospace"}}>{c.par}%</div>
+                              </div>
+                              <div style={{background:C.bg2,borderRadius:8,padding:'9px 10px',textAlign:'center'}}>
+                                <div style={{fontSize:9,color:C.t4,fontWeight:700,letterSpacing:1}}>FLOOR</div>
+                                <div style={{fontSize:18,fontWeight:800,color:C.t1,fontFamily:"'DM Mono',monospace"}}>{c.floor}%</div>
+                              </div>
+                            </>
+                          ) : (
+                            <>
+                              <div style={{background:C.bg2,borderRadius:8,padding:'9px 10px',textAlign:'center'}}>
+                                <div style={{fontSize:9,color:C.t4,fontWeight:700,letterSpacing:1}}>GUARANTEED</div>
+                                <div style={{fontSize:18,fontWeight:800,color:c.brand,fontFamily:"'DM Mono',monospace"}}>{c.guaranteedRate}%</div>
+                              </div>
+                              <div style={{background:C.bg2,borderRadius:8,padding:'9px 10px',textAlign:'center',gridColumn:'span 2'}}>
+                                <div style={{fontSize:9,color:C.t4,fontWeight:700,letterSpacing:1}}>CURRENT RATE</div>
+                                <div style={{fontSize:18,fontWeight:800,color:C.t1,fontFamily:"'DM Mono',monospace"}}>{c.currentRate ? c.currentRate+'%' : 'check carrier'}</div>
+                              </div>
+                            </>
+                          )}
                         </div>
                         {/* Quick specs */}
                         <div style={{display:'flex',flexDirection:'column',gap:5,fontSize:11,color:C.t2}}>
@@ -4310,8 +4337,8 @@ export default function QuoteMark() {
               <div style={{display:'flex',alignItems:'center',gap:14,paddingBottom:14,marginBottom:18,borderBottom:`1px solid ${C.bd}`}}>
                 <span style={{fontSize:32}}>📈</span>
                 <div style={{flex:1}}>
-                  <div style={{fontSize:20,fontWeight:800,color:C.t0}}>IUL Carrier Comparison</div>
-                  <div style={{fontSize:12,color:C.t4,marginTop:2}}>Indexed Universal Life · {IUL_CARRIERS.length} products across {[...new Set(IUL_CARRIERS.map(c=>c.name))].length} carriers</div>
+                  <div style={{fontSize:20,fontWeight:800,color:C.t0}}>IUL & Permanent UL Comparison</div>
+                  <div style={{fontSize:12,color:C.t4,marginTop:2}}>{IUL_CARRIERS.filter(c=>c.type==='IUL').length} IUL + {IUL_CARRIERS.filter(c=>c.type==='UL').length} fixed UL · {[...new Set(IUL_CARRIERS.map(c=>c.name))].length} carriers</div>
                 </div>
                 <div style={{background:'rgba(245,158,11,0.1)',border:'1px solid rgba(245,158,11,0.3)',borderRadius:6,padding:'4px 10px',fontSize:11,color:'#F59E0B',fontWeight:700}}>
                   Agent reference only
@@ -4325,25 +4352,43 @@ export default function QuoteMark() {
                       {/* Header */}
                       <div style={{display:'flex',justifyContent:'space-between',alignItems:'flex-start',gap:10}}>
                         <div style={{flex:1,minWidth:0}}>
-                          <div style={{fontSize:11,color:C.t4,fontWeight:600,textTransform:'uppercase',letterSpacing:0.8}}>{c.name}</div>
+                          <div style={{display:'flex',alignItems:'center',gap:8}}>
+                            <div style={{fontSize:11,color:C.t4,fontWeight:600,textTransform:'uppercase',letterSpacing:0.8}}>{c.name}</div>
+                            <span style={{fontSize:9,fontWeight:800,background:c.type==='IUL'?c.brand:'transparent',color:c.type==='IUL'?'#FFFFFF':C.t4,border:c.type==='IUL'?'none':`1px solid ${C.bd2}`,borderRadius:3,padding:'2px 6px',letterSpacing:0.6}}>{c.type}</span>
+                          </div>
                           <div style={{fontSize:17,fontWeight:800,color:C.t0,marginTop:2,lineHeight:1.2}}>{c.product}</div>
                         </div>
                         {c.needsVerify && <span style={{fontSize:10,color:'#F59E0B',background:'rgba(245,158,11,0.12)',border:'1px solid rgba(245,158,11,0.35)',borderRadius:5,padding:'3px 8px',fontWeight:700,flexShrink:0,letterSpacing:0.5}}>VERIFY</span>}
                       </div>
-                      {/* Cap / Par / Floor */}
+                      {/* Cap / Par / Floor (IUL) OR Guaranteed / Current (UL) */}
                       <div style={{display:'grid',gridTemplateColumns:'1fr 1fr 1fr',gap:8}}>
-                        <div style={{background:C.bg2,border:`1px solid ${C.bd}`,borderRadius:8,padding:'10px',textAlign:'center'}}>
-                          <div style={{fontSize:9,color:C.t4,fontWeight:700,letterSpacing:1.2}}>CAP</div>
-                          <div style={{fontSize:22,fontWeight:800,color:c.brand,fontFamily:"'DM Mono',monospace",marginTop:2}}>{c.cap}%</div>
-                        </div>
-                        <div style={{background:C.bg2,border:`1px solid ${C.bd}`,borderRadius:8,padding:'10px',textAlign:'center'}}>
-                          <div style={{fontSize:9,color:C.t4,fontWeight:700,letterSpacing:1.2}}>PAR</div>
-                          <div style={{fontSize:22,fontWeight:800,color:C.t1,fontFamily:"'DM Mono',monospace",marginTop:2}}>{c.par}%</div>
-                        </div>
-                        <div style={{background:C.bg2,border:`1px solid ${C.bd}`,borderRadius:8,padding:'10px',textAlign:'center'}}>
-                          <div style={{fontSize:9,color:C.t4,fontWeight:700,letterSpacing:1.2}}>FLOOR</div>
-                          <div style={{fontSize:22,fontWeight:800,color:C.t1,fontFamily:"'DM Mono',monospace",marginTop:2}}>{c.floor}%</div>
-                        </div>
+                        {c.type === 'IUL' ? (
+                          <>
+                            <div style={{background:C.bg2,border:`1px solid ${C.bd}`,borderRadius:8,padding:'10px',textAlign:'center'}}>
+                              <div style={{fontSize:9,color:C.t4,fontWeight:700,letterSpacing:1.2}}>CAP</div>
+                              <div style={{fontSize:22,fontWeight:800,color:c.brand,fontFamily:"'DM Mono',monospace",marginTop:2}}>{c.cap}%</div>
+                            </div>
+                            <div style={{background:C.bg2,border:`1px solid ${C.bd}`,borderRadius:8,padding:'10px',textAlign:'center'}}>
+                              <div style={{fontSize:9,color:C.t4,fontWeight:700,letterSpacing:1.2}}>PAR</div>
+                              <div style={{fontSize:22,fontWeight:800,color:C.t1,fontFamily:"'DM Mono',monospace",marginTop:2}}>{c.par}%</div>
+                            </div>
+                            <div style={{background:C.bg2,border:`1px solid ${C.bd}`,borderRadius:8,padding:'10px',textAlign:'center'}}>
+                              <div style={{fontSize:9,color:C.t4,fontWeight:700,letterSpacing:1.2}}>FLOOR</div>
+                              <div style={{fontSize:22,fontWeight:800,color:C.t1,fontFamily:"'DM Mono',monospace",marginTop:2}}>{c.floor}%</div>
+                            </div>
+                          </>
+                        ) : (
+                          <>
+                            <div style={{background:C.bg2,border:`1px solid ${C.bd}`,borderRadius:8,padding:'10px',textAlign:'center'}}>
+                              <div style={{fontSize:9,color:C.t4,fontWeight:700,letterSpacing:1.2}}>GUARANTEED</div>
+                              <div style={{fontSize:22,fontWeight:800,color:c.brand,fontFamily:"'DM Mono',monospace",marginTop:2}}>{c.guaranteedRate}%</div>
+                            </div>
+                            <div style={{background:C.bg2,border:`1px solid ${C.bd}`,borderRadius:8,padding:'10px',textAlign:'center',gridColumn:'span 2'}}>
+                              <div style={{fontSize:9,color:C.t4,fontWeight:700,letterSpacing:1.2}}>CURRENT CREDITING RATE</div>
+                              <div style={{fontSize:22,fontWeight:800,color:C.t1,fontFamily:"'DM Mono',monospace",marginTop:2}}>{c.currentRate ? c.currentRate+'%' : 'verify w/ carrier'}</div>
+                            </div>
+                          </>
+                        )}
                       </div>
                       {/* Specs */}
                       <div style={{display:'flex',flexDirection:'column',gap:5,fontSize:12,color:C.t2}}>
