@@ -2834,6 +2834,54 @@ export default function QuoteMark() {
                     <span style={{width:16,height:16,borderRadius:4,border:`2px solid ${termFamHx?'#C5A059':C.bd2}`,background:termFamHx?'#C5A059':'transparent',display:'flex',alignItems:'center',justifyContent:'center',fontSize:11,color:C.bg0,fontWeight:900,flexShrink:0}}>{termFamHx?'✓':''}</span>
                     <span>Family history of cancer or heart disease before age 60</span>
                   </button>
+                  {/* Conditions picker (shares `selected` state with FE tab) */}
+                  <div>
+                    <div style={{fontSize:11,color:C.t3,marginBottom:6,fontWeight:600,display:'flex',justifyContent:'space-between'}}>
+                      <span>Health Conditions</span>
+                      {selected.filter(c=>c!=='none').length>0 && <span style={{color:C.t4,fontWeight:500,fontSize:10}}>{selected.filter(c=>c!=='none').length} active</span>}
+                    </div>
+                    <input placeholder="Search conditions or medications…" value={search} onChange={e=>setSearch(e.target.value)} style={{...mInp,fontSize:13,padding:'10px 12px'}}/>
+                    {search.length>=2 && filteredConds.length>0 && (
+                      <div style={{marginTop:6,maxHeight:200,overflowY:'auto',background:C.bg3,border:`1px solid ${C.bd}`,borderRadius:8,padding:6,display:'flex',flexDirection:'column',gap:3}}>
+                        {filteredConds.slice(0,8).map(c=>{
+                          const active=selected.includes(c.id);
+                          return (
+                            <div key={c.id} onClick={()=>{toggleCond(c.id);setSearch('');}} style={{
+                              display:'flex',alignItems:'center',justifyContent:'space-between',gap:8,
+                              padding:'7px 10px',borderRadius:6,cursor:'pointer',
+                              background:active?'rgba(197,160,89,0.10)':'transparent',
+                              fontSize:12,color:C.t1
+                            }}>
+                              <span>{c.label.replace('⚠ ','')}</span>
+                              <span style={{fontSize:9,color:C.t4}}>{c.cat}</span>
+                            </div>
+                          );
+                        })}
+                      </div>
+                    )}
+                    {search.length>=2 && filteredConds.length===0 && (
+                      <div style={{marginTop:6,fontSize:12,color:C.t4,padding:'8px 4px'}}>No matches — try a different term</div>
+                    )}
+                    {selected.filter(c=>c!=='none').length>0 && (
+                      <div style={{marginTop:8,display:'flex',flexWrap:'wrap',gap:5}}>
+                        {selected.filter(c=>c!=='none').map(id=>{
+                          const cond=CONDITIONS.find(c=>c.id===id);
+                          return(
+                            <span key={id} onClick={()=>toggleCond(id)} style={{
+                              background:TIER_INFO[cond?.tier||'B'].pill,
+                              border:`1px solid ${TIER_INFO[cond?.tier||'B'].bd}`,
+                              borderRadius:20,padding:'4px 10px 4px 8px',fontSize:11,
+                              color:TIER_INFO[cond?.tier||'B'].dot,
+                              cursor:'pointer',display:'inline-flex',alignItems:'center',gap:4,fontWeight:600
+                            }}>
+                              {cond?.label.replace('⚠ ','')}
+                              <span style={{opacity:0.7,fontWeight:400,fontSize:13,lineHeight:1}}>×</span>
+                            </span>
+                          );
+                        })}
+                      </div>
+                    )}
+                  </div>
                   {/* Health class pills */}
                   <div>
                     <div style={{fontSize:11,color:C.t3,marginBottom:6,fontWeight:600,display:'flex',justifyContent:'space-between',alignItems:'center'}}>
@@ -3851,6 +3899,51 @@ export default function QuoteMark() {
                 <span style={{width:14,height:14,borderRadius:3,border:`2px solid ${termFamHx?'#C5A059':C.bd2}`,background:termFamHx?'#C5A059':'transparent',display:'flex',alignItems:'center',justifyContent:'center',fontSize:10,color:C.bg0,fontWeight:900,flexShrink:0}}>{termFamHx?'✓':''}</span>
                 <span>Family history of cancer / heart disease (pre-60)</span>
               </button>
+              {/* Conditions picker (shares `selected` state with FE tab) */}
+              <div>
+                <div style={{fontSize:11,color:C.t3,marginBottom:6,fontWeight:600,display:'flex',justifyContent:'space-between'}}>
+                  <span>Health Conditions</span>
+                  {selected.filter(c=>c!=='none').length>0 && <span style={{color:C.t4,fontWeight:500,fontSize:10}}>{selected.filter(c=>c!=='none').length} active</span>}
+                </div>
+                <input placeholder="Search conditions or medications…" value={search} onChange={e=>setSearch(e.target.value)} style={{...inp,fontSize:12}}/>
+                {search.length>=2 && filteredConds.length>0 && (
+                  <div style={{marginTop:6,maxHeight:180,overflowY:'auto',background:C.bg3,border:`1px solid ${C.bd}`,borderRadius:8,padding:5,display:'flex',flexDirection:'column',gap:2}}>
+                    {filteredConds.slice(0,8).map(c=>(
+                      <div key={c.id} onClick={()=>{toggleCond(c.id);setSearch('');}} style={{
+                        display:'flex',alignItems:'center',justifyContent:'space-between',gap:8,
+                        padding:'6px 9px',borderRadius:5,cursor:'pointer',
+                        background:selected.includes(c.id)?'rgba(197,160,89,0.10)':'transparent',
+                        fontSize:11,color:C.t1
+                      }}>
+                        <span>{c.label.replace('⚠ ','')}</span>
+                        <span style={{fontSize:9,color:C.t4}}>{c.cat}</span>
+                      </div>
+                    ))}
+                  </div>
+                )}
+                {search.length>=2 && filteredConds.length===0 && (
+                  <div style={{marginTop:6,fontSize:11,color:C.t4,padding:'6px 4px'}}>No matches — try a different term</div>
+                )}
+                {selected.filter(c=>c!=='none').length>0 && (
+                  <div style={{marginTop:7,display:'flex',flexWrap:'wrap',gap:4}}>
+                    {selected.filter(c=>c!=='none').map(id=>{
+                      const cond=CONDITIONS.find(c=>c.id===id);
+                      return(
+                        <span key={id} onClick={()=>toggleCond(id)} style={{
+                          background:TIER_INFO[cond?.tier||'B'].pill,
+                          border:`1px solid ${TIER_INFO[cond?.tier||'B'].bd}`,
+                          borderRadius:20,padding:'3px 9px 3px 7px',fontSize:10,
+                          color:TIER_INFO[cond?.tier||'B'].dot,
+                          cursor:'pointer',display:'inline-flex',alignItems:'center',gap:4,fontWeight:600
+                        }}>
+                          {cond?.label.replace('⚠ ','')}
+                          <span style={{opacity:0.7,fontWeight:400,fontSize:12,lineHeight:1}}>×</span>
+                        </span>
+                      );
+                    })}
+                  </div>
+                )}
+              </div>
               <div>
                 <div style={{fontSize:11,color:C.t3,marginBottom:6,fontWeight:600,display:'flex',justifyContent:'space-between',alignItems:'center'}}>
                   <span>Health Class</span>
