@@ -1525,6 +1525,11 @@ const CARRIERS = [
    product:{B:'Level',C:'Level',D:'Graded',E:null},
    stateCheck:(s)=>(fexStateOK('Mutual of Omaha (Living Promise)',s)),
    fn:(age,male,smoker,tier,face)=>{
+     // Juvenile (1-17): MOO Children's Whole Life — guaranteed issue, no medical questions
+     if(age<18){
+       const r=fexLookup('Mutual of Omaha (Children\'s Whole Life)','Children\'s Whole Life Approved',age,male,false,face,true);
+       return r ? {...r,sub:"Children's Whole Life",productName:'Approved'} : null;
+     }
      if(tier==='B'||tier==='C') return fexPrem('Mutual of Omaha (Living Promise)','Living Promise Level',age,male,smoker,face);
      if(tier==='D') return fexPrem('Mutual of Omaha (Living Promise)','Living Promise Graded',age,male,smoker,face);
      return null;
@@ -2663,13 +2668,15 @@ export default function QuoteMark() {
     if(!pName){const reason=effTier==='E'?'No GI product offered':effTier==='D'?'Level plans only':'Not available for this tier';return{...carr,face:null,prem:null,productName:null,reason};}
     // Check age-dependent face cap
     if(maxFace && face > maxFace) return{...carr,face:null,prem:null,productName:pName,activeTier:effTier,reason:`Max coverage ${fmtF(maxFace)}`};
-    let prem=null, effFace=face, pNameEff=pName;
+    let prem=null, effFace=face, pNameEff=pName, subOverride=null;
     try{
       const res=carr.fn(a,male,smoker,effTier,face);
       if(res && typeof res==='object') {
         // factorCalc maxFace exceeded: {prem:null, face:null, maxFace:N}
         if(res.maxFace && res.prem==null) return{...carr,face:null,prem:null,productName:pNameEff,activeTier:effTier,reason:`Max coverage ${fmtF(res.maxFace)}`};
         prem=res.prem; effFace=res.face; // fexLookup/factorCalc returns {prem,face}
+        if(res.sub) subOverride=res.sub; // age-dependent product variant (e.g. MOO Children's WL)
+        if(res.productName) pNameEff=res.productName;
       } else {
         prem=res; // legacy csvLookup carriers return a plain number
       }
@@ -2698,9 +2705,9 @@ export default function QuoteMark() {
     if(isCapped){
       // maxFace already checked above — if we got here, carrier accepts this face
       // Show with the nearest available band premium
-      return{...carr,face:effFace,prem,productName:pNameEff,activeTier:effTier,capped:true,reason:null};
+      return{...carr,...(subOverride?{sub:subOverride}:{}),face:effFace,prem,productName:pNameEff,activeTier:effTier,capped:true,reason:null};
     }
-    return{...carr,face:prem!=null?effFace:null,prem,productName:pNameEff,activeTier:effTier,reason};
+    return{...carr,...(subOverride?{sub:subOverride}:{}),face:prem!=null?effFace:null,prem,productName:pNameEff,activeTier:effTier,reason};
   }
 
 
