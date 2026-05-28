@@ -954,12 +954,13 @@ const TERM_CARRIERS = Object.keys(TERM_RATES).map(product => {
 });
 
 // ═══════════════════════════════════════════════════════════
-// ── PERMANENT CASH VALUE CARRIERS — IUL + Fixed UL comparison ──
+// ── IUL CARRIERS — Scope B: static spec sheet comparison ──
 // ═══════════════════════════════════════════════════════════
-// type: 'IUL' = indexed, has cap/par/floor; 'UL' = traditional fixed-rate UL
-// (no index, just a guaranteed minimum rate + current crediting rate).
-// Web research May 2026 confirmed AmAm and Foresters don't offer IUL —
-// only fixed UL — so Mark's 'IUL' lineup is really 2 IUL carriers + 2 UL.
+// Only carriers in Mark's portfolio with TRUE indexed UL products.
+// Verified May 2026: AmAm + Foresters do NOT offer IUL (only fixed UL).
+// AmAm Products at a Glance lists 3 UL products (Easy UL, UL Performer,
+// SecureLife Plus) — all flexible-premium adjustable life, none indexed.
+// Foresters ezbiz lists 1 UL product (SMART UL) — traditional UL.
 const IUL_CARRIERS = [
   {
     id: 'iul_moo_express',
@@ -1025,49 +1026,6 @@ const IUL_CARRIERS = [
     source: 'americoiul.com SpecFlyerIUL + IUL Agent Guide (Series 336). Current cap at Tools.Americoagent.com',
     verified: '2026-05',
     capNote: 'Cap as of Apr 2025 — verify current rate via Americo Agent Portal',
-  },
-  {
-    id: 'ul_amam_easy',
-    type: 'UL',
-    name: 'American Amicable',
-    product: 'Easy UL',
-    abbr: 'AAM',
-    brand: '#1B3A6B',
-    issueAges: { min: 18, max: 75 },
-    faceRange: { min: 25000, max: 300000, ageBands: null },
-    cap: null, par: null, floor: null,
-    guaranteedRate: 3.0,
-    indexStrategy: 'Fixed interest (not indexed)',
-    underwriting: 'Simplified Issue · no medical exam',
-    dbOptions: ['A: Level'],
-    riders: ['Terminal Illness ABR (included)', 'Confined Care ABR (included)', 'Disability Income', 'Family Insurance', "Children's Insurance", 'AD&D', 'Waiver of Premium'],
-    bestFor: '15-year no-lapse guarantee. 3% guaranteed min rate. Best for clients wanting permanent coverage without market exposure or simplified-issue convenience.',
-    knockouts: [],
-    source: 'AmAm Easy UL brochure (9810/5-13) — Form 09-9817. Verified May 2026.',
-    verified: '2026-05',
-    notIULNote: 'Traditional fixed-rate UL — NOT indexed. Confirmed by AmAm brochure.',
-  },
-  {
-    id: 'ul_foresters_smart',
-    type: 'UL',
-    name: 'Foresters',
-    product: 'SMART UL',
-    abbr: 'FOR',
-    brand: '#1A5234',
-    issueAges: { min: 18, max: 85 },
-    faceRange: { min: 25000, max: 1500000, ageBands: null },
-    cap: null, par: null, floor: null,
-    guaranteedRate: 2.0,
-    currentRate: 4.75,
-    indexStrategy: 'Fixed interest · current rate 4.75% (Foresters announcement)',
-    underwriting: 'Simplified Issue · non-med up to face cap',
-    dbOptions: ['A: Level', 'B: Increasing'],
-    riders: ['Accelerated Death Benefit', 'Chronic Illness', 'Critical Illness', 'Common Carrier AD&D', 'Family Health Benefit'],
-    bestFor: 'Foresters member benefits + community programs. Higher current crediting rate than many UL competitors. Foresters does NOT offer IUL.',
-    knockouts: [],
-    source: 'Foresters SMART UL Product Guide + ezbiz UW Guide. Current rate per Foresters announcement.',
-    verified: '2026-05',
-    notIULNote: 'Traditional fixed-rate UL — NOT indexed. Foresters does not offer IUL.',
   },
 ];
 const fmtFace = n => '$' + (n >= 1000000 ? (n/1000000)+'M' : (n/1000)+'k');
@@ -4337,8 +4295,8 @@ export default function QuoteMark() {
               <div style={{display:'flex',alignItems:'center',gap:14,paddingBottom:14,marginBottom:18,borderBottom:`1px solid ${C.bd}`}}>
                 <span style={{fontSize:32}}>📈</span>
                 <div style={{flex:1}}>
-                  <div style={{fontSize:20,fontWeight:800,color:C.t0}}>IUL & Permanent UL Comparison</div>
-                  <div style={{fontSize:12,color:C.t4,marginTop:2}}>{IUL_CARRIERS.filter(c=>c.type==='IUL').length} IUL + {IUL_CARRIERS.filter(c=>c.type==='UL').length} fixed UL · {[...new Set(IUL_CARRIERS.map(c=>c.name))].length} carriers</div>
+                  <div style={{fontSize:20,fontWeight:800,color:C.t0}}>IUL Carrier Comparison</div>
+                  <div style={{fontSize:12,color:C.t4,marginTop:2}}>Indexed Universal Life · {IUL_CARRIERS.length} products across {[...new Set(IUL_CARRIERS.map(c=>c.name))].length} carriers</div>
                 </div>
                 <div style={{background:'rgba(245,158,11,0.1)',border:'1px solid rgba(245,158,11,0.3)',borderRadius:6,padding:'4px 10px',fontSize:11,color:'#F59E0B',fontWeight:700}}>
                   Agent reference only
