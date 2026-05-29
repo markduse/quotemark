@@ -1492,10 +1492,18 @@ function factorCalc(carrier, tier, age, male, smoker, face) {
   const combo = male ? (smoker ? 'MS' : 'MNS') : (smoker ? 'FS' : 'FNS');
   const rate = cfg.tiers?.[tier]?.[combo]?.[String(age)];
   if (rate == null) return null;
-  const units = face / cfg.unitSize;
-  const fee = (cfg.policyFeeThreshold && face < cfg.policyFeeThreshold) ? (cfg.policyFeeLow||cfg.policyFee) : cfg.policyFee;
+  // Carriers using factor formulas (Accendo, AHL, Trans Imm, Aetna, Royal
+  // Neighbors, Fidelity, Lifeshield, Foresters, Liberty Bankers, AmAm Senior
+  // Choice/Golden, Baltimore, Senior Life, Trans Exp) sell in fixed-size
+  // chunks: $1k for most, $500 for AHL. Round face DOWN to the nearest unit
+  // so we display what the carrier will actually issue, not the math-only
+  // figure. Matches what ITK does (with their "rounded to $X" warning).
+  const units = Math.floor(face / cfg.unitSize);
+  if (units < 1) return null;
+  const effFace = units * cfg.unitSize;
+  const fee = (cfg.policyFeeThreshold && effFace < cfg.policyFeeThreshold) ? (cfg.policyFeeLow||cfg.policyFee) : cfg.policyFee;
   const monthly = Math.round((rate * units + fee) * cfg.modalFactor * 100) / 100;
-  return { prem: monthly, face: face }; // exact face — no banding
+  return { prem: monthly, face: effFace, roundedTo: cfg.unitSize };
 }
 
 // State check: company-only restriction keys
@@ -2740,7 +2748,7 @@ export default function QuoteMark() {
     if(!pName){const reason=effTier==='E'?'No GI product offered':effTier==='D'?'Level plans only':'Not available for this tier';return{...carr,face:null,prem:null,productName:null,reason};}
     // Check age-dependent face cap
     if(maxFace && face > maxFace) return{...carr,face:null,prem:null,productName:pName,activeTier:effTier,reason:`Max coverage ${fmtF(maxFace)}`};
-    let prem=null, effFace=face, pNameEff=pName, subOverride=null;
+    let prem=null, effFace=face, pNameEff=pName, subOverride=null, roundedTo=null;
     try{
       const res=carr.fn(a,male,smoker,effTier,face);
       if(res && typeof res==='object') {
@@ -2749,6 +2757,7 @@ export default function QuoteMark() {
         prem=res.prem; effFace=res.face; // fexLookup/factorCalc returns {prem,face}
         if(res.sub) subOverride=res.sub; // age-dependent product variant (e.g. MOO Children's WL)
         if(res.productName) pNameEff=res.productName;
+        if(res.roundedTo) roundedTo=res.roundedTo; // carrier's face increment (factorCalc only)
       } else {
         prem=res; // legacy csvLookup carriers return a plain number
       }
@@ -2777,9 +2786,9 @@ export default function QuoteMark() {
     if(isCapped){
       // maxFace already checked above — if we got here, carrier accepts this face
       // Show with the nearest available band premium
-      return{...carr,...(subOverride?{sub:subOverride}:{}),face:effFace,prem,productName:pNameEff,activeTier:effTier,capped:true,reason:null};
+      return{...carr,...(subOverride?{sub:subOverride}:{}),face:effFace,prem,productName:pNameEff,activeTier:effTier,capped:true,roundedTo,reason:null};
     }
-    return{...carr,...(subOverride?{sub:subOverride}:{}),face:prem!=null?effFace:null,prem,productName:pNameEff,activeTier:effTier,reason};
+    return{...carr,...(subOverride?{sub:subOverride}:{}),face:prem!=null?effFace:null,prem,productName:pNameEff,activeTier:effTier,roundedTo,reason};
   }
 
 
@@ -2819,7 +2828,19 @@ export default function QuoteMark() {
         return buildResult(carr,a,male,face);
       });
     }
-    return list.sort((a,b)=>{if(a.prem==null&&b.prem==null)return 0;if(a.prem==null)return 1;if(b.prem==null)return-1;if(a.capped!==b.capped)return a.capped?1:-1;return a.prem-b.prem;});
+    return list.sort((a,b)=>{
+      if(a.prem==null&&b.prem==null)return 0;
+      if(a.prem==null)return 1;
+      if(b.prem==null)return-1;
+      if(a.capped!==b.capped)return a.capped?1:-1;
+      // Budget mode: sort by face DESC (most coverage for the budget) — matches ITK.
+      // Face mode: sort by premium ASC (cheapest first).
+      if (mode==='budget') {
+        if (a.face !== b.face) return (b.face||0) - (a.face||0);
+        return a.prem - b.prem; // tiebreaker
+      }
+      return a.prem - b.prem;
+    });
   },[hasQuoted,age,gender,smoker,uwTier,mode,faceAmt,budget,gsbOn,gsbFace,activeCarriers,usState]);
 
   // ── TERM LIFE RESULTS ──
@@ -4003,9 +4024,14 @@ export default function QuoteMark() {
                                 <span style={{fontSize:38,fontWeight:800,color:C.t0,letterSpacing:'-1.2px',fontFamily:"'DM Mono',monospace"}}>${r.prem}</span>
                                 <span style={{fontSize:10,color:C.t4,fontWeight:400,letterSpacing:0.3}}>/mo EFT</span>
                               </div>
-                              <div style={{display:'flex',gap:6,marginBottom:10,flexWrap:'wrap'}}>
+                              <div style={{display:'flex',gap:6,marginBottom:10,flexWrap:'wrap',alignItems:'center'}}>
                                 <span style={{fontSize:12,color:C.t2}}>{fmtF(r.face||0)}</span>
                                 {r.capped&&<span style={{fontSize:10,color:C.t4,fontStyle:'italic'}}>Max coverage</span>}
+                                {!r.capped&&r.roundedTo&&mode==='budget'&&(
+                                  <span style={{fontSize:9,color:'#F59E0B',background:'rgba(245,158,11,0.10)',border:'1px solid rgba(245,158,11,0.3)',borderRadius:3,padding:'1px 5px',fontWeight:700,letterSpacing:0.4}}>
+                                    ${r.roundedTo>=1000?r.roundedTo/1000+'k':r.roundedTo} INC
+                                  </span>
+                                )}
                                 <TierBadge tier={r.activeTier} productName={r.productName}/>
                               </div>
                               {CARRIER_META[r.id]?.eapp && (
@@ -5375,6 +5401,12 @@ export default function QuoteMark() {
                           <div style={{fontSize:9,color:C.t4,fontWeight:600,letterSpacing:1,textTransform:'uppercase',marginBottom:2}}>Face</div>
                           <div style={{fontFamily:"'DM Mono',monospace",fontSize:13,fontWeight:500,color:C.t1}}>{fmtF(r.face)}</div>
                           {r.capped&&<div style={{fontSize:9,color:C.t4,fontStyle:'italic',marginTop:1}}>capped</div>}
+                          {!r.capped&&r.roundedTo&&mode==='budget'&&(
+                            <div title={`${r.name} issues face amounts in $${r.roundedTo.toLocaleString()} increments. Rate calculated at $${(r.face||0).toLocaleString()}.`}
+                              style={{fontSize:8,color:'#F59E0B',background:'rgba(245,158,11,0.10)',border:'1px solid rgba(245,158,11,0.3)',borderRadius:3,padding:'1px 5px',marginTop:3,display:'inline-block',fontWeight:700,letterSpacing:0.4,cursor:'help'}}>
+                              ${r.roundedTo>=1000?r.roundedTo/1000+'k':r.roundedTo} INC
+                            </div>
+                          )}
                         </div>
                         {/* Coverage tier */}
                         <div style={{flexShrink:0,minWidth:90,display:'flex',justifyContent:'center'}}>
