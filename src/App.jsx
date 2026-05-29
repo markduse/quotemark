@@ -1944,13 +1944,21 @@ function solveForFace(budget,age,male,smoker,tier,fn){
   // Binary search for the largest face the carrier will write at this premium.
   // fn() returns either a plain number (legacy csvLookup carriers) or
   // {prem, face} (fexLookup/factorCalc) — unwrap before comparing to budget.
+  //
+  // Step is $100 (was $1,000) — gives factorCalc carriers (AHL Patriot,
+  // Americo, Trans Express, etc., which can quote any face amount via
+  // rate × units + fee) a much closer fit to the budget. Banded carriers
+  // (MOO Living Promise, Aetna Protection, etc.) snap inside fexLookup so
+  // they still return their actual issuable bands — the smaller step just
+  // ensures the search doesn't miss a band that sits between $1k multiples
+  // (e.g., Aetna $7.5k anchor).
   let lo=1000,hi=50000,best=0;
-  for(let i=0;i<50;i++){
-    const mid=Math.round((lo+hi)/2/1000)*1000;
+  for(let i=0;i<80;i++){
+    const mid=Math.round((lo+hi)/2/100)*100;
     if(lo>hi)break;
     const r=fn(age,male,smoker,tier,mid);
     const p=(r && typeof r==='object') ? r.prem : r;
-    if(p!=null && p<=budget+0.001){best=mid;lo=mid+1000;}else hi=mid-1000;
+    if(p!=null && p<=budget+0.001){best=mid;lo=mid+100;}else hi=mid-100;
   }
   return best>0?best:null;
 }
@@ -2822,16 +2830,18 @@ export default function QuoteMark() {
     const male = gender==='male';
     const a = ageNum;
 
-    // Budget-mode: per-carrier binary search for max face fitting the monthly budget
-    // Step is $5k to match the slider granularity
+    // Budget-mode: per-carrier binary search for max face fitting the monthly budget.
+    // Step is $1k for finer matching — term face anchors are usually $25k+ but
+    // the per-$1000 rate scaling means a tighter step gets the premium much
+    // closer to the agent's budget.
     const solveTermFace = (carrFn) => {
       let lo=25000, hi=1000000, best=0;
-      for(let i=0;i<40;i++){
-        const mid=Math.round((lo+hi)/2/5000)*5000;
+      for(let i=0;i<60;i++){
+        const mid=Math.round((lo+hi)/2/1000)*1000;
         if(lo>hi)break;
         let p=null;
         try { p = carrFn(a, male, smoker, termHealth, mid, termLength); } catch(e) {}
-        if (p!=null && p<=termBudget+0.001) { best=mid; lo=mid+5000; } else { hi=mid-5000; }
+        if (p!=null && p<=termBudget+0.001) { best=mid; lo=mid+1000; } else { hi=mid-1000; }
       }
       return best>0 ? best : null;
     };
