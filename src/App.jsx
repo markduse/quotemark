@@ -1117,6 +1117,17 @@ const TERM_CARRIERS = Object.keys(TERM_RATES).map(product => {
   const m = product.match(/^(.*?)\s*\((.+)\)\s*$/);
   const name = m ? m[1].trim() : product;
   const sub  = m ? m[2].trim() : 'Term Life';
+  // Compute issue-age min/max — the widest range across any tier/class combo.
+  // Drives the "compatible carriers" banner so agents know who can write the client.
+  let minAge = Infinity, maxAge = 0;
+  for (const tl of terms) {
+    for (const tier of Object.keys(TERM_RATES[product][tl] || {})) {
+      for (const cls of Object.keys(TERM_RATES[product][tl][tier] || {})) {
+        const ages = Object.keys(TERM_RATES[product][tl][tier][cls] || {}).map(Number);
+        if (ages.length) { minAge = Math.min(minAge, ...ages); maxAge = Math.max(maxAge, ...ages); }
+      }
+    }
+  }
   return {
     id: termSlug(product),
     product,                   // full key for term_rates.json lookup
@@ -1129,6 +1140,8 @@ const TERM_CARRIERS = Object.keys(TERM_RATES).map(product => {
     enabled: true,
     termOnly: true,
     supportedTerms: terms,
+    minAge: isFinite(minAge) ? minAge : null,
+    maxAge: maxAge || null,
     fn: (age, male, smoker, healthClass, face, termLen) => {
       const tl = String(termLen || '10');
       if (!terms.includes(tl)) return null;
@@ -2444,6 +2457,7 @@ export default function QuoteMark() {
   const [search,setSearch]     = useState('');
   const [hasQuoted,setHasQuoted]   = useState(false);
   const [iulSpecsOpen,setIulSpecsOpen] = useState(false); // IUL "Carrier Specs" collapsed by default
+  const [termCompatOpen,setTermCompatOpen] = useState(false); // Term "Compatible carriers" banner expanded list
   // ── CTA click feedback — pulse animation + haptic on mobile.
   // Wrap your onClick handler in fireCta(e, () => { ...real handler }).
   const fireCta = (e, fn) => {
@@ -2857,6 +2871,22 @@ export default function QuoteMark() {
     // Sort: budget-mode → largest face first; face-mode → cheapest premium first
     return results.sort((a, b) => termMode === 'budget' ? b.face - a.face : a.prem - b.prem);
   }, [quoteMode, ageOK, ageNum, termLength, termFace, termMode, termBudget, gender, smoker, activeCarriers, termHealth]);
+
+  // Compatibility map — which term carriers can/can't write at the entered age.
+  // Helps explain why a 65yo client only sees 19 of 28 carriers without making
+  // the agent guess. Uses the issue-age range we precomputed on TERM_CARRIERS.
+  const termCompat = useMemo(()=>{
+    if (quoteMode !== 'term' || !ageOK) return null;
+    const a = ageNum;
+    const writers = [], excluded = [];
+    for (const c of TERM_CARRIERS) {
+      const min = c.minAge ?? 0;
+      const max = c.maxAge ?? 100;
+      if (a >= min && a <= max) writers.push(c);
+      else excluded.push({name:c.name, sub:c.sub, minAge:c.minAge, maxAge:c.maxAge, reason: a > max ? `Max age ${c.maxAge}` : `Min age ${c.minAge}`});
+    }
+    return { writers: writers.length, total: TERM_CARRIERS.length, excluded };
+  }, [quoteMode, ageOK, ageNum]);
 
   // ── IUL QUOTE RESULTS ──
   // Two modes:
@@ -3769,9 +3799,37 @@ export default function QuoteMark() {
                         </div>
                       </div>
                     )}
-                    <div style={{background:C.bg3,border:`1px solid ${C.bd}`,borderRadius:10,padding:'10px 14px',marginBottom:14,fontSize:13,color:C.t2}}>
+                    <div style={{background:C.bg3,border:`1px solid ${C.bd}`,borderRadius:10,padding:'10px 14px',marginBottom:10,fontSize:13,color:C.t2}}>
                       {termMode==='budget' ? `$${termBudget}/mo budget` : fmtF(termFace)} · {termLength}-year · Age {age} · {gender==='male'?'M':'F'} · {smoker?'Smoker':'NS'} · {HEALTH_CLASS_SHORT[termHealth]}{termBMI!=null ? ` · BMI ${termBMI.toFixed(1)}`:''}
                     </div>
+                    {/* Compatible carriers banner — mobile */}
+                    {termCompat && termCompat.excluded.length > 0 && (
+                      <div style={{background:isDark?'rgba(59,130,246,0.06)':'rgba(59,130,246,0.04)',border:`1px solid ${isDark?'rgba(59,130,246,0.25)':'rgba(59,130,246,0.2)'}`,borderRadius:10,marginBottom:12,fontSize:12,overflow:'hidden'}}>
+                        <button onClick={()=>setTermCompatOpen(v=>!v)} style={{
+                          width:'100%',background:'transparent',border:'none',cursor:'pointer',
+                          padding:'10px 12px',display:'flex',alignItems:'center',justifyContent:'space-between',gap:8,
+                          fontFamily:"'DM Sans',sans-serif",textAlign:'left'
+                        }}>
+                          <div style={{display:'flex',alignItems:'center',gap:8,minWidth:0}}>
+                            <span style={{fontSize:12,color:'#60A5FA',transition:'transform 0.18s',transform:termCompatOpen?'rotate(90deg)':'rotate(0deg)',flexShrink:0}}>▸</span>
+                            <span style={{color:C.t2,fontSize:11,lineHeight:1.4}}>
+                              <strong style={{color:C.t0}}>{termCompat.writers}/{termCompat.total}</strong> writing at age {age} · <span style={{color:C.t4}}>{termCompat.excluded.length} excluded</span>
+                            </span>
+                          </div>
+                          <span style={{fontSize:10,color:C.t4,flexShrink:0}}>{termCompatOpen?'Hide':'See'}</span>
+                        </button>
+                        {termCompatOpen && (
+                          <div style={{padding:'4px 12px 10px',display:'flex',flexDirection:'column',gap:4}}>
+                            {termCompat.excluded.map(e => (
+                              <div key={e.name+'·'+e.sub} style={{display:'flex',justifyContent:'space-between',gap:8,fontSize:10,padding:'5px 8px',background:C.bg2,borderRadius:5,border:`1px solid ${C.bd}`}}>
+                                <span style={{color:C.t2,minWidth:0,overflow:'hidden',textOverflow:'ellipsis',whiteSpace:'nowrap'}}><strong style={{color:C.t1}}>{e.name}</strong> · <span style={{color:C.t4}}>{e.sub}</span></span>
+                                <span style={{color:C.t4,fontFamily:"'DM Mono',monospace",flexShrink:0}}>{e.reason}</span>
+                              </div>
+                            ))}
+                          </div>
+                        )}
+                      </div>
+                    )}
                     <div style={{display:'flex',flexDirection:'column',gap:8, opacity: termRec.recommended === 'decline' ? 0.55 : 1, filter: termRec.recommended === 'decline' ? 'grayscale(40%)' : 'none', transition:'opacity 0.2s, filter 0.2s'}}>
                       {termResults.map(r => {
                         const brandColor = CARRIER_META[r.id]?.brand || r.brand || '#C5A059';
@@ -5072,6 +5130,34 @@ export default function QuoteMark() {
                   </div>
                   <div style={{fontSize:11,color:C.t3}}>{termResults.length} quotes · sorted by {termMode==='budget' ? 'face' : 'price'}</div>
                 </div>
+                {/* Compatible carriers — transparency about which products will write this client */}
+                {termCompat && termCompat.excluded.length > 0 && (
+                  <div style={{background:isDark?'rgba(59,130,246,0.06)':'rgba(59,130,246,0.04)',border:`1px solid ${isDark?'rgba(59,130,246,0.25)':'rgba(59,130,246,0.2)'}`,borderRadius:10,marginBottom:14,fontSize:12,overflow:'hidden'}}>
+                    <button onClick={()=>setTermCompatOpen(v=>!v)} style={{
+                      width:'100%',background:'transparent',border:'none',cursor:'pointer',
+                      padding:'10px 14px',display:'flex',alignItems:'center',justifyContent:'space-between',gap:10,
+                      fontFamily:"'DM Sans',sans-serif",textAlign:'left'
+                    }}>
+                      <div style={{display:'flex',alignItems:'center',gap:10}}>
+                        <span style={{fontSize:14,color:'#60A5FA',transition:'transform 0.18s',transform:termCompatOpen?'rotate(90deg)':'rotate(0deg)'}}>▸</span>
+                        <span style={{color:C.t2}}>
+                          <strong style={{color:C.t0}}>{termCompat.writers}</strong> of {termCompat.total} term products will write at age {age} · <span style={{color:C.t4}}>{termCompat.excluded.length} can't issue at this age</span>
+                        </span>
+                      </div>
+                      <span style={{fontSize:11,color:C.t4}}>{termCompatOpen?'Hide':'See excluded'}</span>
+                    </button>
+                    {termCompatOpen && (
+                      <div style={{padding:'4px 14px 12px',display:'flex',flexDirection:'column',gap:5}}>
+                        {termCompat.excluded.map(e => (
+                          <div key={e.name+'·'+e.sub} style={{display:'flex',justifyContent:'space-between',gap:10,fontSize:11,padding:'6px 10px',background:C.bg2,borderRadius:6,border:`1px solid ${C.bd}`}}>
+                            <span style={{color:C.t2}}><strong style={{color:C.t1}}>{e.name}</strong> · <span style={{color:C.t4}}>{e.sub}</span></span>
+                            <span style={{color:C.t4,fontFamily:"'DM Mono',monospace"}}>{e.reason}</span>
+                          </div>
+                        ))}
+                      </div>
+                    )}
+                  </div>
+                )}
                 <div style={{display:'flex',flexDirection:'column',gap:8, opacity: termRec.recommended === 'decline' ? 0.5 : 1, filter: termRec.recommended === 'decline' ? 'grayscale(45%)' : 'none', transition:'opacity 0.25s, filter 0.25s'}}>
                   {termResults.map(r => {
                     const brandColor = CARRIER_META[r.id]?.brand || r.brand || '#C5A059';
