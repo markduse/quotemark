@@ -3136,9 +3136,9 @@ export default function QuoteMark() {
                       <>
                         <div style={{fontSize:12,color:C.t3,marginBottom:8}}>Max monthly premium</div>
                         <div style={{position:'relative'}}>
-                          <span style={{position:'absolute',left:14,top:'50%',transform:'translateY(-50%)',color:C.t3,fontSize:16}}>$</span>
-                          <input type="number" min="20" max="500" value={budget}
-                            onChange={e=>setBudget(+e.target.value)}
+                          <span style={{position:'absolute',left:14,top:'50%',transform:'translateY(-50%)',color:C.t3,fontSize:16,pointerEvents:'none'}}>$</span>
+                          <input type="text" inputMode="decimal" placeholder="100" value={budget||''}
+                            onChange={e=>{const v=e.target.value.replace(/[^0-9.]/g,'').replace(/^0+(?=\d)/,'');setBudget(v===''?0:Number(v));}}
                             style={{...mInp,paddingLeft:30,fontFamily:"'DM Mono',monospace",fontSize:17}}/>
                         </div>
                       </>
@@ -3342,16 +3342,14 @@ export default function QuoteMark() {
                     </div>
                   ) : (
                     <div>
-                      <div style={{fontSize:11,color:C.t3,marginBottom:6,display:'flex',justifyContent:'space-between'}}>
-                        <span>Monthly Premium</span>
-                        <span style={{color:'#C5A059',fontWeight:700,fontFamily:"'DM Mono',monospace"}}>${termBudget}/mo</span>
+                      <div style={{fontSize:12,color:C.t3,marginBottom:8}}>Max monthly premium</div>
+                      <div style={{position:'relative'}}>
+                        <span style={{position:'absolute',left:14,top:'50%',transform:'translateY(-50%)',color:C.t3,fontSize:16,pointerEvents:'none'}}>$</span>
+                        <input type="text" inputMode="decimal" placeholder="100" value={termBudget||''}
+                          onChange={e=>{const v=e.target.value.replace(/[^0-9.]/g,'').replace(/^0+(?=\d)/,'');setTermBudget(v===''?0:Number(v));}}
+                          style={{...mInp,paddingLeft:30,fontFamily:"'DM Mono',monospace",fontSize:17}}/>
                       </div>
-                      <input type="range" min="20" max="500" step="5" value={termBudget}
-                        onChange={e=>setTermBudget(+e.target.value)}
-                        style={{width:'100%',accentColor:C.gold}}/>
-                      <div style={{display:'flex',justifyContent:'space-between',fontSize:10,color:C.t4}}>
-                        <span>$20</span><span>$500</span>
-                      </div>
+                      <div style={{fontSize:11,color:C.t4,marginTop:6}}>Finds max face within this budget</div>
                     </div>
                   )}
                   {/* Height / Weight → BMI */}
@@ -3493,19 +3491,17 @@ export default function QuoteMark() {
                     </div>
                   </div>
 
-                  {/* Input slider — premium ($50-500) or face ($25k-$500k) depending on mode */}
+                  {/* Premium input box (face mode) or face slider (premium mode) */}
                   {iulMode === 'face' ? (
                     <div>
-                      <div style={{fontSize:11,color:C.t3,marginBottom:6,display:'flex',justifyContent:'space-between'}}>
-                        <span>Monthly Premium</span>
-                        <span style={{color:'#C5A059',fontWeight:700,fontFamily:"'DM Mono',monospace"}}>${iulPremium}/mo</span>
+                      <div style={{fontSize:12,color:C.t3,marginBottom:8}}>Monthly Premium</div>
+                      <div style={{position:'relative'}}>
+                        <span style={{position:'absolute',left:14,top:'50%',transform:'translateY(-50%)',color:C.t3,fontSize:16,pointerEvents:'none'}}>$</span>
+                        <input type="text" inputMode="decimal" placeholder="200" value={iulPremium||''}
+                          onChange={e=>{const v=e.target.value.replace(/[^0-9.]/g,'').replace(/^0+(?=\d)/,'');setIulPremium(v===''?0:Number(v));}}
+                          style={{...mInp,paddingLeft:30,fontFamily:"'DM Mono',monospace",fontSize:17}}/>
                       </div>
-                      <input type="range" min="50" max="500" step="25" value={iulPremium}
-                        onChange={e=>setIulPremium(+e.target.value)}
-                        style={{width:'100%',accentColor:C.gold}}/>
-                      <div style={{display:'flex',justifyContent:'space-between',fontSize:10,color:C.t4}}>
-                        <span>$50</span><span>$500</span>
-                      </div>
+                      <div style={{fontSize:11,color:C.t4,marginTop:6}}>Each carrier returns the face they'd issue for this premium</div>
                     </div>
                   ) : (
                     <div>
@@ -4355,10 +4351,10 @@ export default function QuoteMark() {
                   <>
                     <div style={{fontSize:11,color:C.t3,marginBottom:5}}>Max monthly premium</div>
                     <div style={{position:'relative'}}>
-                      <span style={{position:'absolute',left:12,top:'50%',transform:'translateY(-50%)',color:C.t3,fontSize:14}}>$</span>
-                      <input type="number" min="20" max="500" value={budget}
-                        onChange={e=>setBudget(+e.target.value)}
-                        style={{...inp,paddingLeft:26,fontFamily:"'DM Mono',monospace"}}/>
+                      <span style={{position:'absolute',left:12,top:'50%',transform:'translateY(-50%)',color:C.t3,fontSize:14,pointerEvents:'none'}}>$</span>
+                      <input type="text" inputMode="decimal" placeholder="100" value={budget||''}
+                        onChange={e=>{const v=e.target.value.replace(/[^0-9.]/g,'').replace(/^0+(?=\d)/,'');setBudget(v===''?0:Number(v));}}
+                        style={{...inp,paddingLeft:26,fontFamily:"'DM Mono',monospace",fontSize:16}}/>
                     </div>
                     <div style={{fontSize:11,color:C.t4,marginTop:6}}>Finds max coverage within this budget</div>
                   </>
@@ -4576,16 +4572,14 @@ export default function QuoteMark() {
                 </div>
               ) : (
                 <div>
-                  <div style={{fontSize:11,color:C.t3,marginBottom:6,display:'flex',justifyContent:'space-between'}}>
-                    <span>Monthly Premium</span>
-                    <span style={{color:'#C5A059',fontWeight:700,fontFamily:"'DM Mono',monospace"}}>${termBudget}/mo</span>
+                  <div style={{fontSize:11,color:C.t3,marginBottom:5}}>Max monthly premium</div>
+                  <div style={{position:'relative'}}>
+                    <span style={{position:'absolute',left:12,top:'50%',transform:'translateY(-50%)',color:C.t3,fontSize:14,pointerEvents:'none'}}>$</span>
+                    <input type="text" inputMode="decimal" placeholder="100" value={termBudget||''}
+                      onChange={e=>{const v=e.target.value.replace(/[^0-9.]/g,'').replace(/^0+(?=\d)/,'');setTermBudget(v===''?0:Number(v));}}
+                      style={{...inp,paddingLeft:26,fontFamily:"'DM Mono',monospace",fontSize:16}}/>
                   </div>
-                  <input type="range" min="20" max="500" step="5" value={termBudget}
-                    onChange={e=>setTermBudget(+e.target.value)}
-                    style={{width:'100%',accentColor:C.gold}}/>
-                  <div style={{display:'flex',justifyContent:'space-between',fontSize:10,color:C.t4}}>
-                    <span>$20</span><span>$500</span>
-                  </div>
+                  <div style={{fontSize:11,color:C.t4,marginTop:6}}>Finds max face within this budget</div>
                 </div>
               )}
               {/* Height / Weight → BMI */}
@@ -4721,16 +4715,14 @@ export default function QuoteMark() {
               </div>
               {iulMode === 'face' ? (
                 <div>
-                  <div style={{fontSize:11,color:C.t3,marginBottom:6,display:'flex',justifyContent:'space-between'}}>
-                    <span>Monthly Premium</span>
-                    <span style={{color:'#C5A059',fontWeight:700,fontFamily:"'DM Mono',monospace"}}>${iulPremium}/mo</span>
+                  <div style={{fontSize:11,color:C.t3,marginBottom:5}}>Monthly Premium</div>
+                  <div style={{position:'relative'}}>
+                    <span style={{position:'absolute',left:12,top:'50%',transform:'translateY(-50%)',color:C.t3,fontSize:14,pointerEvents:'none'}}>$</span>
+                    <input type="text" inputMode="decimal" placeholder="200" value={iulPremium||''}
+                      onChange={e=>{const v=e.target.value.replace(/[^0-9.]/g,'').replace(/^0+(?=\d)/,'');setIulPremium(v===''?0:Number(v));}}
+                      style={{...inp,paddingLeft:26,fontFamily:"'DM Mono',monospace",fontSize:16}}/>
                   </div>
-                  <input type="range" min="50" max="500" step="25" value={iulPremium}
-                    onChange={e=>setIulPremium(+e.target.value)}
-                    style={{width:'100%',accentColor:C.gold}}/>
-                  <div style={{display:'flex',justifyContent:'space-between',fontSize:10,color:C.t4}}>
-                    <span>$50</span><span>$500</span>
-                  </div>
+                  <div style={{fontSize:11,color:C.t4,marginTop:6}}>Each carrier returns the face they'd issue for this premium</div>
                 </div>
               ) : (
                 <div>
@@ -4806,6 +4798,12 @@ export default function QuoteMark() {
                   </div>
                 );
               })()}
+
+              {/* Estimate trigger — CV is reactive so this is a visual anchor that matches FE/Term/IUL */}
+              <button onClick={()=>{if(ageOK&&Number(cvMonthly)>0&&Number(cvPolicyYrs)>0){track('CV Estimate Viewed');setHasQuoted(true);}}}
+                style={{width:'100%',padding:'13px 0',borderRadius:10,border:'none',cursor:(ageOK&&Number(cvMonthly)>0&&Number(cvPolicyYrs)>0)?'pointer':'not-allowed',background:(ageOK&&Number(cvMonthly)>0&&Number(cvPolicyYrs)>0)?C.gold:'#2A3547',color:(ageOK&&Number(cvMonthly)>0&&Number(cvPolicyYrs)>0)?C.bg0:C.t4,fontSize:14,fontWeight:700,letterSpacing:0.5,transition:'all 0.15s',opacity:(ageOK&&Number(cvMonthly)>0&&Number(cvPolicyYrs)>0)?1:0.4,fontFamily:"'DM Sans',sans-serif"}}>
+                💰 View Cash Value Estimate
+              </button>
             </div>
           )}
 
@@ -4951,15 +4949,19 @@ export default function QuoteMark() {
             </div>
           ):quoteMode==='cv'?(
             <div style={{display:'flex',justifyContent:'center',width:'100%',overflowY:'auto'}}>
-              {(()=>{const age=(cvAgeMode==='age' ? Number(cvAgeInput) : (cvDob.mm&&cvDob.dd&&cvDob.yyyy&&cvDob.yyyy.length===4 ? Math.floor((Date.now()-new Date(`${cvDob.yyyy}-${cvDob.mm}-${cvDob.dd}`))/31557600000) : null));return cvMonthly&&cvPolicyYrs&&Number(cvMonthly)>0&&Number(cvPolicyYrs)>0&&age?(
-                <CashValueProjection monthlyPremium={Number(cvMonthly)} policyYears={Number(cvPolicyYrs)} issueAge={age} C={C} isDark={isDark}/>
-              ) : (
-                <div style={{display:'flex',flexDirection:'column',alignItems:'center',justifyContent:'center',height:'60vh',gap:16}}>
-                  <span style={{fontSize:52}}>💰</span>
-                  <div style={{fontSize:18,fontWeight:700,color:C.t2}}>Cash Value Estimator</div>
-                  <div style={{fontSize:13,textAlign:'center',maxWidth:280,lineHeight:1.6,color:C.t4}}>Enter the policy details in the sidebar to estimate surrender value.</div>
-                </div>
-              );})()}
+              {(()=>{
+                if (!ageOK || !cvMonthly || !cvPolicyYrs || !Number(cvMonthly) || !Number(cvPolicyYrs)) {
+                  return (
+                    <div style={{display:'flex',flexDirection:'column',alignItems:'center',justifyContent:'center',height:'60vh',gap:16}}>
+                      <span style={{fontSize:52}}>💰</span>
+                      <div style={{fontSize:18,fontWeight:700,color:C.t2}}>Cash Value Estimator</div>
+                      <div style={{fontSize:13,textAlign:'center',maxWidth:280,lineHeight:1.6,color:C.t4}}>Enter age, monthly premium, and years in-force in the sidebar to estimate surrender value.</div>
+                    </div>
+                  );
+                }
+                const issueAge = Math.max(0, ageNum - Number(cvPolicyYrs));
+                return <CashValueProjection monthlyPremium={Number(cvMonthly)} policyYears={Number(cvPolicyYrs)} issueAge={issueAge} C={C} isDark={isDark}/>;
+              })()}
             </div>
           ):quoteMode==='term'?(
             !ageOK ? (
