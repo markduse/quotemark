@@ -2443,6 +2443,7 @@ export default function QuoteMark() {
   const [selected,setSelected] = useState(['none']);
   const [search,setSearch]     = useState('');
   const [hasQuoted,setHasQuoted]   = useState(false);
+  const [iulSpecsOpen,setIulSpecsOpen] = useState(false); // IUL "Carrier Specs" collapsed by default
   // ── CTA click feedback — pulse animation + haptic on mobile.
   // Wrap your onClick handler in fireCta(e, () => { ...real handler }).
   const fireCta = (e, fn) => {
@@ -2909,7 +2910,7 @@ export default function QuoteMark() {
   // Reads/writes shared state: dob, age, gender, smoker, usState.
   // Defined as a render *function* (not a component) so React doesn't
   // remount it on each App render — that would steal focus from DOB inputs.
-  const renderClientInfo = ({variant='mobile', wrap=true, showState=true, hideTobacco=false}={}) => {
+  const renderClientInfo = ({variant='mobile', wrap=true, showState=true, hideTobacco=false, hideGender=false}={}) => {
     const isM = variant==='mobile';
     const I  = isM ? mInp : inp;
     const T  = isM ? mTogBtn : togBtn;
@@ -2954,13 +2955,15 @@ export default function QuoteMark() {
         {/* Gender + Tobacco — side by side on desktop, stacked on mobile */}
         {isM ? (
           <>
-            <div style={{marginBottom:14}}>
-              <div style={labelStyle}>Gender</div>
-              <div style={{display:'flex',gap:8}}>
-                <button className='qm-btn' style={T(gender==='male')} onClick={()=>setGender('male')}>{!isDark&&gender==='male'?'✓ ':''}👨 Male</button>
-                <button className='qm-btn' style={T(gender==='female')} onClick={()=>setGender('female')}>{!isDark&&gender==='female'?'✓ ':''}👩 Female</button>
+            {!hideGender && (
+              <div style={{marginBottom:14}}>
+                <div style={labelStyle}>Gender</div>
+                <div style={{display:'flex',gap:8}}>
+                  <button className='qm-btn' style={T(gender==='male')} onClick={()=>setGender('male')}>{!isDark&&gender==='male'?'✓ ':''}👨 Male</button>
+                  <button className='qm-btn' style={T(gender==='female')} onClick={()=>setGender('female')}>{!isDark&&gender==='female'?'✓ ':''}👩 Female</button>
+                </div>
               </div>
-            </div>
+            )}
             {!hideTobacco && (
               <div style={{marginBottom:showState?14:0}}>
                 <div style={labelStyle}>Tobacco</div>
@@ -2972,12 +2975,21 @@ export default function QuoteMark() {
             )}
           </>
         ) : (
-          hideTobacco ? (
+          (hideGender && hideTobacco) ? null : (hideGender || hideTobacco) ? (
             <div style={{marginBottom:showState?12:0}}>
-              <div style={{...labelStyle,marginBottom:4}}>Gender</div>
+              <div style={{...labelStyle,marginBottom:4}}>{hideGender ? 'Tobacco' : 'Gender'}</div>
               <div style={{display:'flex',gap:5}}>
-                <button className="qm-btn" style={T(gender==='male')} onClick={()=>setGender('male')}>{!isDark&&gender==='male'?'✓ ':''}Male</button>
-                <button className="qm-btn" style={T(gender==='female')} onClick={()=>setGender('female')}>{!isDark&&gender==='female'?'✓ ':''}Female</button>
+                {hideGender ? (
+                  <>
+                    <button className="qm-btn" style={T(!smoker)} onClick={()=>setSmoker(false)}>{!isDark&&!smoker?'✓ ':''}Non-smoker</button>
+                    <button className="qm-btn" style={T(smoker)} onClick={()=>setSmoker(true)}>{!isDark&&smoker?'✓ ':''}Smoker</button>
+                  </>
+                ) : (
+                  <>
+                    <button className="qm-btn" style={T(gender==='male')} onClick={()=>setGender('male')}>{!isDark&&gender==='male'?'✓ ':''}Male</button>
+                    <button className="qm-btn" style={T(gender==='female')} onClick={()=>setGender('female')}>{!isDark&&gender==='female'?'✓ ':''}Female</button>
+                  </>
+                )}
               </div>
             </div>
           ) : (
@@ -3622,7 +3634,7 @@ export default function QuoteMark() {
               {quoteMode==='cv' && (
                 <div style={{display:'flex',flexDirection:'column',gap:12}}>
                   {/* Unified Client Info — same as FE/Term/IUL (no state needed for CV) */}
-                  {renderClientInfo({variant:'mobile', showState:false, hideTobacco:false})}
+                  {renderClientInfo({variant:'mobile', showState:false, hideTobacco:true, hideGender:true})}
 
                   <div style={{fontSize:10,fontWeight:700,letterSpacing:1.8,color:'#C5A059',textTransform:'uppercase',marginTop:4}}>Existing Policy</div>
                   <div style={{background:C.bg3,border:`1px solid ${C.bd}`,borderRadius:12,padding:14,display:'flex',flexDirection:'column',gap:14}}>
@@ -4790,7 +4802,7 @@ export default function QuoteMark() {
           {quoteMode==='cv' && (
             <>
               {/* 1 — CLIENT INFO (no state, no tobacco needed for CV) */}
-              {renderClientInfo({variant:'desktop', showState:false, hideTobacco:false})}
+              {renderClientInfo({variant:'desktop', showState:false, hideTobacco:true, hideGender:true})}
 
               {/* 2 — EXISTING POLICY */}
               <div style={sec}>
@@ -4918,10 +4930,21 @@ export default function QuoteMark() {
                 </div>
               )}
 
-              {/* Spec cards header */}
-              <div style={{display:'flex',alignItems:'center',gap:10,paddingBottom:10,marginBottom:14,borderTop:`1px solid ${C.bd}`,paddingTop:18}}>
-                <div style={{fontSize:11,color:C.t4,fontWeight:700,letterSpacing:1.5,textTransform:'uppercase'}}>Carrier Specs</div>
-              </div>
+              {/* Spec cards header — click to expand/collapse */}
+              <button onClick={()=>setIulSpecsOpen(v=>!v)} style={{
+                width:'100%',display:'flex',alignItems:'center',justifyContent:'space-between',gap:10,
+                paddingBottom:10,marginBottom:iulSpecsOpen?14:0,
+                borderTop:`1px solid ${C.bd}`,paddingTop:18,
+                background:'transparent',border:'none',borderTopColor:C.bd,cursor:'pointer',
+                fontFamily:"'DM Sans',sans-serif"
+              }}>
+                <div style={{display:'flex',alignItems:'center',gap:10}}>
+                  <span style={{fontSize:14,color:C.t4,transition:'transform 0.18s',transform:iulSpecsOpen?'rotate(90deg)':'rotate(0deg)'}}>▸</span>
+                  <span style={{fontSize:11,color:C.t4,fontWeight:700,letterSpacing:1.5,textTransform:'uppercase'}}>Carrier Specs</span>
+                </div>
+                <span style={{fontSize:11,color:C.t4,fontWeight:500}}>{iulSpecsOpen?'Click to hide':`Show ${IUL_CARRIERS.length} carrier spec sheets`}</span>
+              </button>
+              {iulSpecsOpen && (
               <div style={{display:'grid',gridTemplateColumns:'repeat(auto-fit,minmax(360px,1fr))',gap:14}}>
                 {IUL_CARRIERS.map(c => (
                   <div key={c.id} style={{background:C.bg3,border:`1px solid ${C.bd}`,borderRadius:12,overflow:'hidden',display:'flex',flexDirection:'column'}}>
@@ -4980,9 +5003,12 @@ export default function QuoteMark() {
                   </div>
                 ))}
               </div>
+              )}
+              {iulSpecsOpen && (
               <div style={{marginTop:18,padding:'14px 18px',background:C.bg3,border:`1px solid ${C.bd}`,borderRadius:10,fontSize:11,color:C.t4,lineHeight:1.7}}>
                 <strong style={{color:C.t3}}>About this comparison.</strong> Cap rates, par rates, face limits, and issue ages are based on the most recent carrier brochures available. IUL products change frequently — always confirm against the carrier's current spec sheet before quoting clients. This view is for agent decision support, not client deliverables. For client-ready illustrations, use each carrier's official illustration software.
               </div>
+              )}
             </div>
           ):quoteMode==='cv'?(
             <div style={{display:'flex',justifyContent:'center',width:'100%',overflowY:'auto'}}>
