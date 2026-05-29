@@ -935,12 +935,19 @@ function iulFaceFor(product, classKey, age, premium) {
   if (tbl[String(age)]) { aLo = aHi = age; }
   else for (let i=0;i<ages.length-1;i++) if (age>=ages[i]&&age<=ages[i+1]) { aLo=ages[i]; aHi=ages[i+1]; break; }
 
+  // Premium lookup at a single age, with snap-to-nearest-anchor when premium
+  // is outside the row's range. Critical for sparse female-tier data where
+  // some ages only have a single premium anchor.
   function faceAt(a) {
     const row = tbl[String(a)];
     if (!row) return null;
     const prems = Object.keys(row).map(Number).sort((a,b)=>a-b);
-    if (!prems.length || premium < prems[0] || premium > prems[prems.length-1]) return null;
+    if (!prems.length) return null;
     if (row[String(premium)] != null) return row[String(premium)];
+    // Snap-to-nearest when premium is outside the row's anchors
+    if (premium < prems[0])                      return row[String(prems[0])];
+    if (premium > prems[prems.length-1])         return row[String(prems[prems.length-1])];
+    // Interpolate between bracketing anchors
     let pLo = prems[0], pHi = prems[prems.length-1];
     for (let i=0;i<prems.length-1;i++) if (premium>=prems[i]&&premium<=prems[i+1]) { pLo=prems[i]; pHi=prems[i+1]; break; }
     const fLo = row[String(pLo)], fHi = row[String(pHi)];
@@ -949,7 +956,10 @@ function iulFaceFor(product, classKey, age, premium) {
     return fLo + (premium - pLo) / (pHi - pLo) * (fHi - fLo);
   }
   const fL = faceAt(aLo), fH = faceAt(aHi);
-  if (fL == null || fH == null) return null;
+  // Fallback when one bracketing age can't serve this premium — use the other
+  if (fL == null && fH == null) return null;
+  if (fL == null) return Math.round(fH);
+  if (fH == null) return Math.round(fL);
   return Math.round(aLo === aHi ? fL : fL + (age - aLo) / (aHi - aLo) * (fH - fL));
 }
 
@@ -3524,16 +3534,12 @@ export default function QuoteMark() {
 
                   {/* Original spec snapshot kept below */}
                   <div style={{fontSize:10,fontWeight:700,letterSpacing:1.8,color:C.t4,textTransform:'uppercase',marginTop:14,paddingTop:14,borderTop:`1px solid ${C.bd}`}}>Carrier Specs</div>
-                  <div style={{fontSize:10,color:C.t4,marginTop:-8,marginBottom:4}}>Cap rates / par / floor / underwriting type</div>
                   <div style={{display:'flex',alignItems:'center',gap:10,paddingBottom:8}}>
                     <span style={{fontSize:24}}>📈</span>
                     <div>
                       <div style={{fontSize:16,fontWeight:800,color:C.t0}}>IUL Carrier Specs</div>
                       <div style={{fontSize:11,color:C.t4,marginTop:1}}>Spec snapshot · Agent reference only</div>
                     </div>
-                  </div>
-                  <div style={{background:'rgba(245,158,11,0.08)',border:'1px solid rgba(245,158,11,0.3)',borderRadius:8,padding:'10px 12px',fontSize:11,color:C.t3,lineHeight:1.5}}>
-                    ⚠ Cap rates reset periodically. Always verify against the carrier's current brochure before quoting clients.
                   </div>
                   {IUL_CARRIERS.map(c => (
                     <div key={c.id} style={{background:C.bg3,border:`1px solid ${C.bd}`,borderRadius:12,overflow:'hidden'}}>
@@ -3543,41 +3549,10 @@ export default function QuoteMark() {
                           <div style={{flex:1,minWidth:0}}>
                             <div style={{display:'flex',alignItems:'center',gap:6}}>
                               <div style={{fontSize:11,color:C.t4,fontWeight:600}}>{c.name}</div>
-                              <span style={{fontSize:8,fontWeight:800,background:c.type==='IUL'?c.brand:'transparent',color:c.type==='IUL'?'#FFFFFF':C.t4,border:c.type==='IUL'?'none':`1px solid ${C.bd2}`,borderRadius:3,padding:'1px 5px',letterSpacing:0.6}}>{c.type}</span>
                             </div>
                             <div style={{fontSize:15,fontWeight:800,color:C.t0,marginTop:1,lineHeight:1.2}}>{c.product}</div>
                           </div>
                           {c.needsVerify && <span style={{fontSize:9,color:'#F59E0B',background:'rgba(245,158,11,0.12)',border:'1px solid rgba(245,158,11,0.35)',borderRadius:4,padding:'2px 6px',fontWeight:700,flexShrink:0}}>VERIFY</span>}
-                        </div>
-                        {/* Cap / Par / Floor (IUL) OR Guaranteed / Current (UL) */}
-                        <div style={{display:'grid',gridTemplateColumns:'1fr 1fr 1fr',gap:6,marginBottom:12}}>
-                          {c.type === 'IUL' ? (
-                            <>
-                              <div style={{background:C.bg2,borderRadius:8,padding:'9px 10px',textAlign:'center'}}>
-                                <div style={{fontSize:9,color:C.t4,fontWeight:700,letterSpacing:1}}>CAP</div>
-                                <div style={{fontSize:18,fontWeight:800,color:c.brand,fontFamily:"'DM Mono',monospace"}}>{c.cap}%</div>
-                              </div>
-                              <div style={{background:C.bg2,borderRadius:8,padding:'9px 10px',textAlign:'center'}}>
-                                <div style={{fontSize:9,color:C.t4,fontWeight:700,letterSpacing:1}}>PAR</div>
-                                <div style={{fontSize:18,fontWeight:800,color:C.t1,fontFamily:"'DM Mono',monospace"}}>{c.par}%</div>
-                              </div>
-                              <div style={{background:C.bg2,borderRadius:8,padding:'9px 10px',textAlign:'center'}}>
-                                <div style={{fontSize:9,color:C.t4,fontWeight:700,letterSpacing:1}}>FLOOR</div>
-                                <div style={{fontSize:18,fontWeight:800,color:C.t1,fontFamily:"'DM Mono',monospace"}}>{c.floor}%</div>
-                              </div>
-                            </>
-                          ) : (
-                            <>
-                              <div style={{background:C.bg2,borderRadius:8,padding:'9px 10px',textAlign:'center'}}>
-                                <div style={{fontSize:9,color:C.t4,fontWeight:700,letterSpacing:1}}>GUARANTEED</div>
-                                <div style={{fontSize:18,fontWeight:800,color:c.brand,fontFamily:"'DM Mono',monospace"}}>{c.guaranteedRate}%</div>
-                              </div>
-                              <div style={{background:C.bg2,borderRadius:8,padding:'9px 10px',textAlign:'center',gridColumn:'span 2'}}>
-                                <div style={{fontSize:9,color:C.t4,fontWeight:700,letterSpacing:1}}>CURRENT RATE</div>
-                                <div style={{fontSize:18,fontWeight:800,color:C.t1,fontFamily:"'DM Mono',monospace"}}>{c.currentRate ? c.currentRate+'%' : 'check carrier'}</div>
-                              </div>
-                            </>
-                          )}
                         </div>
                         {/* Quick specs */}
                         <div style={{display:'flex',flexDirection:'column',gap:5,fontSize:11,color:C.t2}}>
@@ -3618,7 +3593,6 @@ export default function QuoteMark() {
                         <div style={{marginTop:12,padding:'9px 11px',background:`${c.brand}11`,border:`1px solid ${c.brand}33`,borderRadius:7,fontSize:11,color:C.t2,lineHeight:1.5,fontStyle:'italic'}}>
                           {c.bestFor}
                         </div>
-                        <div style={{marginTop:8,fontSize:9,color:C.t4,fontStyle:'italic'}}>Source: {c.source}</div>
                       </div>
                     </div>
                   ))}
@@ -4778,6 +4752,10 @@ export default function QuoteMark() {
                   ? 'Face shown is what each carrier issues for this premium. Use it to pick the carrier, then pull the carrier\'s official illustration for the client.'
                   : 'Premium shown is what each carrier needs to issue this face. Lower = better. Pull the carrier\'s official illustration before promising rates.'}
               </div>
+              <button onClick={()=>{if(ageOK){track('Quote Requested',{tier:'iul',mode:iulMode,gsb:false});setHasQuoted(true);}}}
+                style={{width:'100%',padding:'13px 0',borderRadius:10,border:'none',cursor:ageOK?'pointer':'not-allowed',background:ageOK?C.gold:'#2A3547',color:ageOK?C.bg0:C.t4,fontSize:14,fontWeight:700,letterSpacing:0.5,transition:'all 0.15s',opacity:ageOK?1:0.4,fontFamily:"'DM Sans',sans-serif"}}>
+                ⚡ Get IUL Quotes
+              </button>
             </div>
           )}
 
@@ -4907,7 +4885,7 @@ export default function QuoteMark() {
 
               {/* Spec cards header */}
               <div style={{display:'flex',alignItems:'center',gap:10,paddingBottom:10,marginBottom:14,borderTop:`1px solid ${C.bd}`,paddingTop:18}}>
-                <div style={{fontSize:11,color:C.t4,fontWeight:700,letterSpacing:1.5,textTransform:'uppercase'}}>Carrier Specs · Cap / Par / Floor reference</div>
+                <div style={{fontSize:11,color:C.t4,fontWeight:700,letterSpacing:1.5,textTransform:'uppercase'}}>Carrier Specs</div>
               </div>
               <div style={{display:'grid',gridTemplateColumns:'repeat(auto-fit,minmax(360px,1fr))',gap:14}}>
                 {IUL_CARRIERS.map(c => (
@@ -4919,41 +4897,10 @@ export default function QuoteMark() {
                         <div style={{flex:1,minWidth:0}}>
                           <div style={{display:'flex',alignItems:'center',gap:8}}>
                             <div style={{fontSize:11,color:C.t4,fontWeight:600,textTransform:'uppercase',letterSpacing:0.8}}>{c.name}</div>
-                            <span style={{fontSize:9,fontWeight:800,background:c.type==='IUL'?c.brand:'transparent',color:c.type==='IUL'?'#FFFFFF':C.t4,border:c.type==='IUL'?'none':`1px solid ${C.bd2}`,borderRadius:3,padding:'2px 6px',letterSpacing:0.6}}>{c.type}</span>
                           </div>
                           <div style={{fontSize:17,fontWeight:800,color:C.t0,marginTop:2,lineHeight:1.2}}>{c.product}</div>
                         </div>
                         {c.needsVerify && <span style={{fontSize:10,color:'#F59E0B',background:'rgba(245,158,11,0.12)',border:'1px solid rgba(245,158,11,0.35)',borderRadius:5,padding:'3px 8px',fontWeight:700,flexShrink:0,letterSpacing:0.5}}>VERIFY</span>}
-                      </div>
-                      {/* Cap / Par / Floor (IUL) OR Guaranteed / Current (UL) */}
-                      <div style={{display:'grid',gridTemplateColumns:'1fr 1fr 1fr',gap:8}}>
-                        {c.type === 'IUL' ? (
-                          <>
-                            <div style={{background:C.bg2,border:`1px solid ${C.bd}`,borderRadius:8,padding:'10px',textAlign:'center'}}>
-                              <div style={{fontSize:9,color:C.t4,fontWeight:700,letterSpacing:1.2}}>CAP</div>
-                              <div style={{fontSize:22,fontWeight:800,color:c.brand,fontFamily:"'DM Mono',monospace",marginTop:2}}>{c.cap}%</div>
-                            </div>
-                            <div style={{background:C.bg2,border:`1px solid ${C.bd}`,borderRadius:8,padding:'10px',textAlign:'center'}}>
-                              <div style={{fontSize:9,color:C.t4,fontWeight:700,letterSpacing:1.2}}>PAR</div>
-                              <div style={{fontSize:22,fontWeight:800,color:C.t1,fontFamily:"'DM Mono',monospace",marginTop:2}}>{c.par}%</div>
-                            </div>
-                            <div style={{background:C.bg2,border:`1px solid ${C.bd}`,borderRadius:8,padding:'10px',textAlign:'center'}}>
-                              <div style={{fontSize:9,color:C.t4,fontWeight:700,letterSpacing:1.2}}>FLOOR</div>
-                              <div style={{fontSize:22,fontWeight:800,color:C.t1,fontFamily:"'DM Mono',monospace",marginTop:2}}>{c.floor}%</div>
-                            </div>
-                          </>
-                        ) : (
-                          <>
-                            <div style={{background:C.bg2,border:`1px solid ${C.bd}`,borderRadius:8,padding:'10px',textAlign:'center'}}>
-                              <div style={{fontSize:9,color:C.t4,fontWeight:700,letterSpacing:1.2}}>GUARANTEED</div>
-                              <div style={{fontSize:22,fontWeight:800,color:c.brand,fontFamily:"'DM Mono',monospace",marginTop:2}}>{c.guaranteedRate}%</div>
-                            </div>
-                            <div style={{background:C.bg2,border:`1px solid ${C.bd}`,borderRadius:8,padding:'10px',textAlign:'center',gridColumn:'span 2'}}>
-                              <div style={{fontSize:9,color:C.t4,fontWeight:700,letterSpacing:1.2}}>CURRENT CREDITING RATE</div>
-                              <div style={{fontSize:22,fontWeight:800,color:C.t1,fontFamily:"'DM Mono',monospace",marginTop:2}}>{c.currentRate ? c.currentRate+'%' : 'verify w/ carrier'}</div>
-                            </div>
-                          </>
-                        )}
                       </div>
                       {/* Specs */}
                       <div style={{display:'flex',flexDirection:'column',gap:5,fontSize:12,color:C.t2}}>
@@ -4994,7 +4941,6 @@ export default function QuoteMark() {
                       <div style={{marginTop:'auto',padding:'10px 12px',background:`${c.brand}11`,border:`1px solid ${c.brand}33`,borderRadius:8,fontSize:12,color:C.t2,lineHeight:1.55,fontStyle:'italic'}}>
                         {c.bestFor}
                       </div>
-                      <div style={{fontSize:10,color:C.t4,fontStyle:'italic'}}>Source: {c.source}</div>
                     </div>
                   </div>
                 ))}
