@@ -3158,12 +3158,13 @@ export default function QuoteMark() {
               {/* Health conditions — search only (hidden for juveniles) */}
               {!isJuvenile && (
               <div style={{background:C.bg2,border:`1px solid ${C.bd}`,borderRadius:12,padding:16,overflow:'hidden',boxSizing:'border-box',width:'100%'}}>
-                <div style={{fontSize:11,fontWeight:700,letterSpacing:1.8,color:C.t4,textTransform:'uppercase',marginBottom:12}}>Health Conditions</div>
+                <div style={{fontSize:11,fontWeight:700,letterSpacing:1.8,color:C.t4,textTransform:'uppercase',marginBottom:6}}>Health Conditions & Meds</div>
+                <div style={{fontSize:11,color:C.t4,marginBottom:10,lineHeight:1.4}}>Type a medication name (lisinopril, metformin, eliquis…) and we'll suggest the condition. Or type the condition directly.</div>
                 <div style={{position:'relative',marginBottom:10,display:'flex',alignItems:'center',width:'100%',boxSizing:'border-box'}}>
                   <span style={{position:'absolute',left:12,top:'50%',transform:'translateY(-50%)',fontSize:14,color:C.t4,pointerEvents:'none',zIndex:1}}>🔍</span>
-                  <input placeholder="Condition or medication…"
+                  <input placeholder="Type meds or conditions…"
                     value={search} onChange={e=>setSearch(e.target.value)}
-                    style={{...mInp,paddingLeft:36,flex:1,minWidth:0,width:0}}/>
+                    style={{...mInp,paddingLeft:36,flex:1,minWidth:0,width:0,fontSize:13}}/>
                 </div>
                 {medHints.length>0&&search.length>=3&&(
                   <div style={{background:C.goldBg,border:`1px solid ${C.goldBd}`,borderRadius:10,padding:'10px 12px',marginBottom:10}}>
@@ -3764,7 +3765,7 @@ export default function QuoteMark() {
                       </div>
                     )}
                     <div style={{background:C.bg3,border:`1px solid ${C.bd}`,borderRadius:10,padding:'10px 14px',marginBottom:14,fontSize:13,color:C.t2}}>
-                      {fmtF(termFace)} · {termLength}-year · Age {age} · {gender==='male'?'M':'F'} · {smoker?'Smoker':'NS'} · {HEALTH_CLASS_SHORT[termHealth]}{termBMI!=null ? ` · BMI ${termBMI.toFixed(1)}`:''}
+                      {termMode==='budget' ? `$${termBudget}/mo budget` : fmtF(termFace)} · {termLength}-year · Age {age} · {gender==='male'?'M':'F'} · {smoker?'Smoker':'NS'} · {HEALTH_CLASS_SHORT[termHealth]}{termBMI!=null ? ` · BMI ${termBMI.toFixed(1)}`:''}
                     </div>
                     <div style={{display:'flex',flexDirection:'column',gap:8, opacity: termRec.recommended === 'decline' ? 0.55 : 1, filter: termRec.recommended === 'decline' ? 'grayscale(40%)' : 'none', transition:'opacity 0.2s, filter 0.2s'}}>
                       {termResults.map(r => {
@@ -3780,8 +3781,17 @@ export default function QuoteMark() {
                               <div style={{fontSize:10,color:C.t4,marginTop:2,whiteSpace:'nowrap',overflow:'hidden',textOverflow:'ellipsis'}}>{r.sub}{r.tierUsed && r.tierUsed !== r.sub && r.tierUsed !== 'Approved' ? ` · ${r.tierUsed}` : ''}</div>
                             </div>
                             <div style={{textAlign:'right',flexShrink:0}}>
-                              <div style={{fontFamily:"'DM Mono',monospace",fontSize:22,fontWeight:800,color:C.t0,lineHeight:1}}>${r.prem.toFixed(2)}</div>
-                              <div style={{fontSize:9,color:C.t4,marginTop:2}}>/mo · {r.termLen}y</div>
+                              {termMode==='budget' ? (
+                                <>
+                                  <div style={{fontFamily:"'DM Mono',monospace",fontSize:20,fontWeight:800,color:C.t0,lineHeight:1}}>{fmtF(r.face)}</div>
+                                  <div style={{fontSize:9,color:C.t4,marginTop:2}}>${r.prem.toFixed(0)}/mo · {r.termLen}y</div>
+                                </>
+                              ) : (
+                                <>
+                                  <div style={{fontFamily:"'DM Mono',monospace",fontSize:22,fontWeight:800,color:C.t0,lineHeight:1}}>${r.prem.toFixed(2)}</div>
+                                  <div style={{fontSize:9,color:C.t4,marginTop:2}}>/mo · {r.termLen}y</div>
+                                </>
+                              )}
                             </div>
                           </div>
                         );
@@ -4460,13 +4470,14 @@ export default function QuoteMark() {
           </div>
           )}
 
-          {/* 4 — HEALTH CONDITIONS (hidden for juveniles) */}
+          {/* 4 — HEALTH CONDITIONS & MEDS (hidden for juveniles) */}
           {!isJuvenile && (
           <div style={sec}>
-            <div style={lbl}>Health Conditions</div>
+            <div style={lbl}>Health Conditions & Meds</div>
+            <div style={{fontSize:10,color:C.t4,marginBottom:8,lineHeight:1.4}}>Type a medication (lisinopril, metformin, eliquis…) — we'll suggest the condition.</div>
             <div style={{position:'relative',marginBottom:8,display:'flex',alignItems:'center'}}>
               <span style={{position:'absolute',left:10,top:'50%',transform:'translateY(-50%)',fontSize:12,color:C.t4,pointerEvents:'none',zIndex:1}}>🔍</span>
-              <input placeholder="Search condition or medication…"
+              <input placeholder="Type meds or conditions…"
                 value={search} onChange={e=>setSearch(e.target.value)}
                 style={{...inp,paddingLeft:30,fontSize:12,flex:1,minWidth:0,width:0}}/>
             </div>
@@ -5032,7 +5043,7 @@ export default function QuoteMark() {
                 )}
                 <div style={{background:C.bg3,border:`1px solid ${C.bd}`,borderRadius:10,padding:'10px 14px',marginBottom:14,display:'flex',alignItems:'center',justifyContent:'space-between',flexWrap:'wrap',gap:6}}>
                   <div style={{fontSize:13,color:C.t2,display:'flex',gap:8,flexWrap:'wrap',alignItems:'center'}}>
-                    <span style={{fontFamily:"'DM Mono',monospace",fontWeight:600,color:C.t0}}>{fmtF(termFace)}</span>
+                    <span style={{fontFamily:"'DM Mono',monospace",fontWeight:600,color:C.t0}}>{termMode==='budget' ? `$${termBudget}/mo budget` : fmtF(termFace)}</span>
                     <span style={{color:C.t4}}>·</span>
                     <span>{termLength}-year</span>
                     <span style={{color:C.t4}}>·</span>
@@ -5043,7 +5054,7 @@ export default function QuoteMark() {
                     <span>{HEALTH_CLASS_SHORT[termHealth]}</span>
                     {termBMI!=null && <><span style={{color:C.t4}}>·</span><span>BMI {termBMI.toFixed(1)}</span></>}
                   </div>
-                  <div style={{fontSize:11,color:C.t3}}>{termResults.length} quotes · sorted by price</div>
+                  <div style={{fontSize:11,color:C.t3}}>{termResults.length} quotes · sorted by {termMode==='budget' ? 'face' : 'price'}</div>
                 </div>
                 <div style={{display:'flex',flexDirection:'column',gap:8, opacity: termRec.recommended === 'decline' ? 0.5 : 1, filter: termRec.recommended === 'decline' ? 'grayscale(45%)' : 'none', transition:'opacity 0.25s, filter 0.25s'}}>
                   {termResults.map(r => {
