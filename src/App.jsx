@@ -4545,13 +4545,14 @@ export default function QuoteMark() {
           </>
           ) : quoteMode==='term' ? (
           <>
-            {/* ── DESKTOP TERM INPUTS ── */}
-            <div style={{display:'flex',flexDirection:'column',gap:12}}>
-              {/* Unified Client Info */}
-              {renderClientInfo({variant:'desktop'})}
+            {/* ── DESKTOP TERM INPUTS — FEX-style sectioning ── */}
+            {/* 1 — CLIENT INFO */}
+            {renderClientInfo({variant:'desktop'})}
 
-              <div style={{fontSize:10,fontWeight:700,letterSpacing:1.8,color:'#C5A059',textTransform:'uppercase',marginTop:6}}>Term Settings</div>
-              <div>
+            {/* 2 — QUOTE TARGET (term length + face/budget) */}
+            <div style={sec}>
+              <div style={lbl}>Quote Target</div>
+              <div style={{marginBottom:12}}>
                 <div style={{fontSize:11,color:C.t3,marginBottom:6,fontWeight:600}}>Term Length (years)</div>
                 <div style={{display:'grid',gridTemplateColumns:'repeat(7,1fr)',gap:4}}>
                   {['10','15','20','25','30','35','40'].map(t=>(
@@ -4563,9 +4564,7 @@ export default function QuoteMark() {
                   ))}
                 </div>
               </div>
-              {/* Mode toggle — Face amount / Monthly budget (matches FE + IUL) */}
-              <div>
-                <div style={{fontSize:11,color:C.t3,marginBottom:6,fontWeight:600}}>Quote Target</div>
+              <div style={{marginBottom:12}}>
                 <div style={{display:'grid',gridTemplateColumns:'1fr 1fr',gap:6}}>
                   <button onClick={()=>setTermMode('face')} style={{
                     padding:'9px 0',borderRadius:7,border:`2px solid ${termMode==='face'?'#C5A059':isDark?'#374151':'#D0CDBE'}`,
@@ -4579,7 +4578,6 @@ export default function QuoteMark() {
                   }}>Monthly budget</button>
                 </div>
               </div>
-              {/* Coverage / Budget slider */}
               {termMode === 'face' ? (
                 <div>
                   <div style={{fontSize:11,color:C.t3,marginBottom:6,display:'flex',justifyContent:'space-between'}}>
@@ -4605,8 +4603,43 @@ export default function QuoteMark() {
                   <div style={{fontSize:11,color:C.t4,marginTop:6}}>Finds max face within this budget</div>
                 </div>
               )}
-              {/* Height / Weight → BMI */}
-              <div>
+            </div>
+
+            {/* 3 — UW ASSESSMENT (health class) */}
+            <div style={{...sec,border:`1px solid ${termHealth==='pp'?'#C5A059':termHealth==='p'?'#C5A059':C.bd}`}}>
+              <div style={{...lbl,marginBottom:10,display:'flex',justifyContent:'space-between',alignItems:'center'}}>
+                <span>UW Assessment</span>
+                {termRec.recommended==='decline' ? (
+                  <span style={{color:'#EF4444',fontWeight:700,fontSize:10,textTransform:'none',letterSpacing:0}}>⚠ Likely Decline</span>
+                ) : !termHealthManual && termRec.reasons.length ? (
+                  <span style={{color:C.gold,fontWeight:700,fontSize:10,textTransform:'none',letterSpacing:0}}>✨ Auto · {HEALTH_CLASS_SHORT[termRec.recommended]}</span>
+                ) : termHealthManual ? (
+                  <button onClick={()=>setTermHealthManual(false)} style={{background:'transparent',border:'none',color:C.t4,fontSize:10,cursor:'pointer',padding:0,textDecoration:'underline',textTransform:'none',letterSpacing:0}}>reset to auto</button>
+                ) : (
+                  <span style={{color:C.t4,fontWeight:500,fontSize:10,textTransform:'none',letterSpacing:0}}>{HEALTH_CLASS_LABEL[termHealth]}</span>
+                )}
+              </div>
+              <div style={{fontSize:11,color:C.t3,marginBottom:6,fontWeight:600}}>Health Class</div>
+              <div style={{display:'grid',gridTemplateColumns:'repeat(4,1fr)',gap:4,marginBottom:10}}>
+                {[{k:'pp',label:'Pref+'},{k:'p',label:'Pref'},{k:'sp',label:'Std+'},{k:'s',label:'Std'}].map(({k,label})=>(
+                  <button key={k} onClick={()=>{setTermHealth(k);setTermHealthManual(true);}} style={{
+                    padding:'9px 0',borderRadius:7,border:`2px solid ${termHealth===k?'#C5A059':isDark?'#374151':'#D0CDBE'}`,
+                    background:termHealth===k?'#C5A059':C.bg2,color:termHealth===k?'#0A192F':C.t3,
+                    fontSize:12,fontWeight:700,cursor:'pointer',fontFamily:"'DM Sans',sans-serif"
+                  }}>{label}</button>
+                ))}
+              </div>
+              {termRec.reasons.length > 0 && (
+                <div style={{fontSize:10,color:C.t4,lineHeight:1.5,padding:'7px 10px',background:C.bg2,borderRadius:6,border:`1px solid ${C.bd}`}}>
+                  {termRec.recommended==='decline'?'Decline factors':'Class driven by'}: {termRec.reasons.join(' · ')}
+                </div>
+              )}
+            </div>
+
+            {/* 4 — HEALTH PROFILE (height/weight, family history, conditions) */}
+            <div style={sec}>
+              <div style={lbl}>Health Profile</div>
+              <div style={{marginBottom:12}}>
                 <div style={{fontSize:11,color:C.t3,marginBottom:6,fontWeight:600,display:'flex',justifyContent:'space-between'}}>
                   <span>Height & Weight</span>
                   {termBMI!=null && <span style={{color:C.t4,fontWeight:500,fontSize:10,fontFamily:"'DM Mono',monospace"}}>BMI {termBMI.toFixed(1)}</span>}
@@ -4624,20 +4657,19 @@ export default function QuoteMark() {
                 </div>
               </div>
               <button onClick={()=>setTermFamHx(v=>!v)} style={{
-                padding:'9px 11px',borderRadius:8,border:`1px solid ${termFamHx?'#C5A059':C.bd}`,
+                width:'100%',padding:'9px 11px',borderRadius:8,border:`1px solid ${termFamHx?'#C5A059':C.bd}`,
                 background:termFamHx?'rgba(197,160,89,0.12)':C.bg2,color:C.t2,textAlign:'left',cursor:'pointer',
-                fontSize:11,fontFamily:"'DM Sans',sans-serif",display:'flex',alignItems:'center',gap:8
+                fontSize:11,fontFamily:"'DM Sans',sans-serif",display:'flex',alignItems:'center',gap:8,marginBottom:12
               }}>
                 <span style={{width:14,height:14,borderRadius:3,border:`2px solid ${termFamHx?'#C5A059':C.bd2}`,background:termFamHx?'#C5A059':'transparent',display:'flex',alignItems:'center',justifyContent:'center',fontSize:10,color:C.bg0,fontWeight:900,flexShrink:0}}>{termFamHx?'✓':''}</span>
                 <span>Family history of cancer / heart disease (pre-60)</span>
               </button>
-              {/* Conditions picker (shares `selected` state with FE tab) */}
               <div>
                 <div style={{fontSize:11,color:C.t3,marginBottom:6,fontWeight:600,display:'flex',justifyContent:'space-between'}}>
-                  <span>Health Conditions</span>
+                  <span>Conditions & Meds</span>
                   {selected.filter(c=>c!=='none').length>0 && <span style={{color:C.t4,fontWeight:500,fontSize:10}}>{selected.filter(c=>c!=='none').length} active</span>}
                 </div>
-                <input placeholder="Search conditions or medications…" value={search} onChange={e=>setSearch(e.target.value)} style={{...inp,fontSize:12}}/>
+                <input placeholder="Type meds or conditions…" value={search} onChange={e=>setSearch(e.target.value)} style={{...inp,fontSize:12}}/>
                 {search.length>=2 && filteredConds.length>0 && (
                   <div style={{marginTop:6,maxHeight:180,overflowY:'auto',background:C.bg3,border:`1px solid ${C.bd}`,borderRadius:8,padding:5,display:'flex',flexDirection:'column',gap:2}}>
                     {filteredConds.slice(0,8).map(c=>(
@@ -4676,112 +4708,94 @@ export default function QuoteMark() {
                   </div>
                 )}
               </div>
-              <div>
-                <div style={{fontSize:11,color:C.t3,marginBottom:6,fontWeight:600,display:'flex',justifyContent:'space-between',alignItems:'center'}}>
-                  <span>Health Class</span>
-                  {termRec.recommended==='decline' ? (
-                    <span style={{color:'#EF4444',fontWeight:700,fontSize:10}}>⚠ Likely Decline</span>
-                  ) : !termHealthManual && termRec.reasons.length ? (
-                    <span style={{color:C.gold,fontWeight:600,fontSize:10}}>✨ Auto · {HEALTH_CLASS_SHORT[termRec.recommended]}</span>
-                  ) : termHealthManual ? (
-                    <button onClick={()=>setTermHealthManual(false)} style={{background:'transparent',border:'none',color:C.t4,fontSize:10,cursor:'pointer',padding:0,textDecoration:'underline'}}>reset to auto</button>
-                  ) : (
-                    <span style={{color:C.t4,fontWeight:500,fontSize:10}}>{HEALTH_CLASS_LABEL[termHealth]}</span>
-                  )}
-                </div>
-                <div style={{display:'grid',gridTemplateColumns:'repeat(4,1fr)',gap:4}}>
-                  {[{k:'pp',label:'Pref+'},{k:'p',label:'Pref'},{k:'sp',label:'Std+'},{k:'s',label:'Std'}].map(({k,label})=>(
-                    <button key={k} onClick={()=>{setTermHealth(k);setTermHealthManual(true);}} style={{
-                      padding:'9px 0',borderRadius:7,border:`2px solid ${termHealth===k?'#C5A059':isDark?'#374151':'#D0CDBE'}`,
-                      background:termHealth===k?'#C5A059':C.bg2,color:termHealth===k?'#0A192F':C.t3,
-                      fontSize:12,fontWeight:700,cursor:'pointer',fontFamily:"'DM Sans',sans-serif"
-                    }}>{label}</button>
-                  ))}
-                </div>
-                {termRec.reasons.length > 0 && (
-                  <div style={{marginTop:6,fontSize:10,color:C.t4,lineHeight:1.4}}>
-                    {termRec.recommended==='decline'?'Decline factors':'Class driven by'}: {termRec.reasons.join(' · ')}
-                  </div>
-                )}
-              </div>
-              <button className="qm-cta" onClick={e=>fireCta(e,()=>{if(ageOK){track('Quote Requested',{tier:'term',mode:'term',gsb:false,face:faceBand(termFace)});setHasQuoted(true);}})}
-                style={{width:'100%',padding:'14px 0',borderRadius:10,border:'none',cursor:ageOK?'pointer':'not-allowed',background:ageOK?C.gold:'#2A3547',color:ageOK?C.bg0:C.t4,fontSize:14,fontWeight:700,letterSpacing:0.5,opacity:ageOK?1:0.4,fontFamily:"'DM Sans',sans-serif",marginTop:8}}>
-                ⚡ Get Term Quotes
-              </button>
             </div>
+
+            <button className="qm-cta" onClick={e=>fireCta(e,()=>{if(ageOK){track('Quote Requested',{tier:'term',mode:'term',gsb:false,face:faceBand(termFace)});setHasQuoted(true);}})}
+              style={{width:'100%',padding:'14px 0',borderRadius:10,border:'none',cursor:ageOK?'pointer':'not-allowed',background:ageOK?C.gold:'#2A3547',color:ageOK?C.bg0:C.t4,fontSize:14,fontWeight:700,letterSpacing:0.5,opacity:ageOK?1:0.4,fontFamily:"'DM Sans',sans-serif"}}>
+              ⚡ Get Term Quotes
+            </button>
           </>
           ) : null}
 
           {quoteMode==='iul' && (
-            <div style={{display:'flex',flexDirection:'column',gap:12}}>
-              <div style={{fontSize:10,fontWeight:700,letterSpacing:1.8,color:'#C5A059',textTransform:'uppercase',marginBottom:2}}>IUL Carriers</div>
-              <div style={{background:'rgba(245,158,11,0.08)',border:'1px solid rgba(245,158,11,0.3)',borderRadius:8,padding:'10px 12px',fontSize:11,color:C.t3,lineHeight:1.5}}>
-                ⚠ Cap rates reset periodically. Verify against the carrier's current brochure before quoting.
-              </div>
-              {/* Unified Client Info */}
+            <>
+              {/* 1 — CLIENT INFO */}
               {renderClientInfo({variant:'desktop'})}
-              {/* Mode toggle — Face amount / Monthly budget (matches FE) */}
-              <div>
-                <div style={{fontSize:11,color:C.t3,marginBottom:6,fontWeight:600}}>Quote Target</div>
-                <div style={{display:'grid',gridTemplateColumns:'1fr 1fr',gap:6}}>
-                  <button onClick={()=>setIulMode('premium')} title="Input target face amount, see required premium per carrier" style={{
-                    padding:'9px 0',borderRadius:7,border:`2px solid ${iulMode==='premium'?'#C5A059':isDark?'#374151':'#D0CDBE'}`,
-                    background:iulMode==='premium'?'#C5A059':C.bg2,color:iulMode==='premium'?'#0A192F':C.t3,
-                    fontSize:13,fontWeight:700,cursor:'pointer',fontFamily:"'DM Sans',sans-serif"
-                  }}>Face amount</button>
-                  <button onClick={()=>setIulMode('face')} title="Input monthly budget, see face amount each carrier will issue" style={{
-                    padding:'9px 0',borderRadius:7,border:`2px solid ${iulMode==='face'?'#C5A059':isDark?'#374151':'#D0CDBE'}`,
-                    background:iulMode==='face'?'#C5A059':C.bg2,color:iulMode==='face'?'#0A192F':C.t3,
-                    fontSize:13,fontWeight:700,cursor:'pointer',fontFamily:"'DM Sans',sans-serif"
-                  }}>Monthly budget</button>
+
+              {/* 2 — QUOTE TARGET */}
+              <div style={sec}>
+                <div style={lbl}>Quote Target</div>
+                <div style={{marginBottom:12}}>
+                  <div style={{display:'grid',gridTemplateColumns:'1fr 1fr',gap:6}}>
+                    <button onClick={()=>setIulMode('premium')} title="Input target face amount, see required premium per carrier" style={{
+                      padding:'9px 0',borderRadius:7,border:`2px solid ${iulMode==='premium'?'#C5A059':isDark?'#374151':'#D0CDBE'}`,
+                      background:iulMode==='premium'?'#C5A059':C.bg2,color:iulMode==='premium'?'#0A192F':C.t3,
+                      fontSize:13,fontWeight:700,cursor:'pointer',fontFamily:"'DM Sans',sans-serif"
+                    }}>Face amount</button>
+                    <button onClick={()=>setIulMode('face')} title="Input monthly budget, see face amount each carrier will issue" style={{
+                      padding:'9px 0',borderRadius:7,border:`2px solid ${iulMode==='face'?'#C5A059':isDark?'#374151':'#D0CDBE'}`,
+                      background:iulMode==='face'?'#C5A059':C.bg2,color:iulMode==='face'?'#0A192F':C.t3,
+                      fontSize:13,fontWeight:700,cursor:'pointer',fontFamily:"'DM Sans',sans-serif"
+                    }}>Monthly budget</button>
+                  </div>
+                </div>
+                {iulMode === 'face' ? (
+                  <div>
+                    <div style={{fontSize:11,color:C.t3,marginBottom:5}}>Monthly Premium</div>
+                    <div style={{position:'relative'}}>
+                      <span style={{position:'absolute',left:12,top:'50%',transform:'translateY(-50%)',color:C.t3,fontSize:14,pointerEvents:'none'}}>$</span>
+                      <input type="text" inputMode="decimal" placeholder="200" value={iulPremium||''}
+                        onChange={e=>{const v=e.target.value.replace(/[^0-9.]/g,'').replace(/^0+(?=\d)/,'');setIulPremium(v===''?0:Number(v));}}
+                        style={{...inp,paddingLeft:26,fontFamily:"'DM Mono',monospace",fontSize:16}}/>
+                    </div>
+                    <div style={{fontSize:11,color:C.t4,marginTop:6}}>Each carrier returns the face they'd issue for this premium</div>
+                  </div>
+                ) : (
+                  <div>
+                    <div style={{fontSize:11,color:C.t3,marginBottom:6,display:'flex',justifyContent:'space-between'}}>
+                      <span>Target Face Amount</span>
+                      <span style={{color:'#C5A059',fontWeight:700,fontFamily:"'DM Mono',monospace"}}>${(iulFace/1000).toFixed(0)}k</span>
+                    </div>
+                    <input type="range" min="25000" max="500000" step="5000" value={iulFace}
+                      onChange={e=>setIulFace(+e.target.value)}
+                      style={{width:'100%',accentColor:C.gold}}/>
+                    <div style={{display:'flex',justifyContent:'space-between',fontSize:10,color:C.t4}}>
+                      <span>$25k</span><span>$500k</span>
+                    </div>
+                  </div>
+                )}
+              </div>
+
+              {/* 3 — CARRIER NOTES */}
+              <div style={sec}>
+                <div style={lbl}>Carrier Notes</div>
+                <div style={{background:'rgba(245,158,11,0.08)',border:'1px solid rgba(245,158,11,0.3)',borderRadius:8,padding:'10px 12px',fontSize:11,color:C.t3,lineHeight:1.5,marginBottom:10}}>
+                  ⚠ Cap rates reset periodically. Verify against the carrier's current brochure before quoting.
+                </div>
+                <div style={{padding:'10px 11px',background:C.bg2,border:`1px solid ${C.bd}`,borderRadius:8,fontSize:11,color:C.t3,lineHeight:1.6}}>
+                  <div style={{fontWeight:700,color:C.t2,marginBottom:4}}>💡 Tip</div>
+                  {iulMode==='face'
+                    ? 'Face shown is what each carrier issues for this premium. Use it to pick the carrier, then pull the carrier\'s official illustration for the client.'
+                    : 'Premium shown is what each carrier needs to issue this face. Lower = better. Pull the carrier\'s official illustration before promising rates.'}
                 </div>
               </div>
-              {iulMode === 'face' ? (
-                <div>
-                  <div style={{fontSize:11,color:C.t3,marginBottom:5}}>Monthly Premium</div>
-                  <div style={{position:'relative'}}>
-                    <span style={{position:'absolute',left:12,top:'50%',transform:'translateY(-50%)',color:C.t3,fontSize:14,pointerEvents:'none'}}>$</span>
-                    <input type="text" inputMode="decimal" placeholder="200" value={iulPremium||''}
-                      onChange={e=>{const v=e.target.value.replace(/[^0-9.]/g,'').replace(/^0+(?=\d)/,'');setIulPremium(v===''?0:Number(v));}}
-                      style={{...inp,paddingLeft:26,fontFamily:"'DM Mono',monospace",fontSize:16}}/>
-                  </div>
-                  <div style={{fontSize:11,color:C.t4,marginTop:6}}>Each carrier returns the face they'd issue for this premium</div>
-                </div>
-              ) : (
-                <div>
-                  <div style={{fontSize:11,color:C.t3,marginBottom:6,display:'flex',justifyContent:'space-between'}}>
-                    <span>Target Face Amount</span>
-                    <span style={{color:'#C5A059',fontWeight:700,fontFamily:"'DM Mono',monospace"}}>${(iulFace/1000).toFixed(0)}k</span>
-                  </div>
-                  <input type="range" min="25000" max="500000" step="5000" value={iulFace}
-                    onChange={e=>setIulFace(+e.target.value)}
-                    style={{width:'100%',accentColor:C.gold}}/>
-                  <div style={{display:'flex',justifyContent:'space-between',fontSize:10,color:C.t4}}>
-                    <span>$25k</span><span>$500k</span>
-                  </div>
-                </div>
-              )}
-              <div style={{padding:'10px 11px',background:C.bg3,border:`1px solid ${C.bd}`,borderRadius:8,fontSize:11,color:C.t3,lineHeight:1.6}}>
-                <div style={{fontWeight:700,color:C.t2,marginBottom:4}}>💡 Tip</div>
-                {iulMode==='face'
-                  ? 'Face shown is what each carrier issues for this premium. Use it to pick the carrier, then pull the carrier\'s official illustration for the client.'
-                  : 'Premium shown is what each carrier needs to issue this face. Lower = better. Pull the carrier\'s official illustration before promising rates.'}
-              </div>
+
               <button className="qm-cta" onClick={e=>fireCta(e,()=>{if(ageOK){track('Quote Requested',{tier:'iul',mode:iulMode,gsb:false});setHasQuoted(true);}})}
                 style={{width:'100%',padding:'13px 0',borderRadius:10,border:'none',cursor:ageOK?'pointer':'not-allowed',background:ageOK?C.gold:'#2A3547',color:ageOK?C.bg0:C.t4,fontSize:14,fontWeight:700,letterSpacing:0.5,opacity:ageOK?1:0.4,fontFamily:"'DM Sans',sans-serif"}}>
                 ⚡ Get IUL Quotes
               </button>
-            </div>
+            </>
           )}
 
           {quoteMode==='cv' && (
-            <div style={{display:'flex',flexDirection:'column',gap:12}}>
-              {/* Unified Client Info — shared with FE/Term/IUL (state hidden, no tobacco needed for CV) */}
+            <>
+              {/* 1 — CLIENT INFO (no state, no tobacco needed for CV) */}
               {renderClientInfo({variant:'desktop', showState:false, hideTobacco:false})}
 
-              <div style={{fontSize:10,fontWeight:700,letterSpacing:1.8,color:'#C5A059',textTransform:'uppercase',marginTop:4,marginBottom:2}}>Existing Policy</div>
-              <div style={{background:C.bg3,border:`1px solid ${C.bd}`,borderRadius:12,padding:14,display:'flex',flexDirection:'column',gap:12}}>
-                <div>
+              {/* 2 — EXISTING POLICY */}
+              <div style={sec}>
+                <div style={lbl}>Existing Policy</div>
+                <div style={{marginBottom:12}}>
                   <div style={{fontSize:11,color:C.t3,marginBottom:6,fontWeight:600}}>Monthly Premium ($)</div>
                   <input inputMode="decimal" placeholder="e.g. 52.00" value={cvMonthly}
                     onChange={e=>setCvMonthly(e.target.value)}
@@ -4796,15 +4810,15 @@ export default function QuoteMark() {
                 </div>
               </div>
 
-              {/* Quick Look — uses shared age + derives issue age */}
+              {/* 3 — QUICK LOOK preview (only when inputs valid) */}
               {(()=>{
                 if(!ageOK||!cvMonthly||!cvPolicyYrs||!Number(cvMonthly)||!Number(cvPolicyYrs)) return null;
                 const currentAge = ageNum;
                 const issueAge = Math.max(0, currentAge - Number(cvPolicyYrs));
                 const d=calculateCVCorridor(Number(cvMonthly),Number(cvPolicyYrs),issueAge);
                 return (
-                  <div style={{background:'rgba(245,158,11,0.06)',border:'1px solid rgba(245,158,11,0.22)',borderRadius:10,padding:'12px 14px'}}>
-                    <div style={{fontSize:9,color:'#C5A059',fontWeight:700,marginBottom:8,letterSpacing:1.2,textTransform:'uppercase'}}>Quick Look · Age {currentAge} · Issued at {issueAge}</div>
+                  <div style={{...sec,background:'rgba(245,158,11,0.06)',border:'1px solid rgba(245,158,11,0.22)'}}>
+                    <div style={{...lbl,color:'#C5A059',marginBottom:10}}>Quick Look · Age {currentAge} · Issued at {issueAge}</div>
                     <div style={{display:'flex',justifyContent:'space-between',fontSize:12,marginBottom:4}}>
                       <span style={{color:C.t3}}>Conservative</span>
                       <strong style={{color:C.t1,fontFamily:"'DM Mono',monospace"}}>${Math.round(d.low).toLocaleString()}</strong>
@@ -4822,12 +4836,12 @@ export default function QuoteMark() {
                 );
               })()}
 
-              {/* Estimate trigger — CV is reactive so this is a visual anchor that matches FE/Term/IUL */}
+              {/* CTA */}
               <button className="qm-cta" onClick={e=>fireCta(e,()=>{if(ageOK&&Number(cvMonthly)>0&&Number(cvPolicyYrs)>0){track('CV Estimate Viewed');setHasQuoted(true);}})}
                 style={{width:'100%',padding:'13px 0',borderRadius:10,border:'none',cursor:(ageOK&&Number(cvMonthly)>0&&Number(cvPolicyYrs)>0)?'pointer':'not-allowed',background:(ageOK&&Number(cvMonthly)>0&&Number(cvPolicyYrs)>0)?C.gold:'#2A3547',color:(ageOK&&Number(cvMonthly)>0&&Number(cvPolicyYrs)>0)?C.bg0:C.t4,fontSize:14,fontWeight:700,letterSpacing:0.5,opacity:(ageOK&&Number(cvMonthly)>0&&Number(cvPolicyYrs)>0)?1:0.4,fontFamily:"'DM Sans',sans-serif"}}>
                 💰 View Cash Value Estimate
               </button>
-            </div>
+            </>
           )}
 
         </div>
