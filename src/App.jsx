@@ -1917,7 +1917,20 @@ function recommendTermClass(selectedConds, bmi, age, opts = {}) {
   }
   return { recommended: worst, reasons };
 }
-function solveForFace(budget,age,male,smoker,tier,fn){let lo=1000,hi=50000,best=0;for(let i=0;i<50;i++){const mid=Math.round((lo+hi)/2/1000)*1000;if(lo>hi)break;const p=fn(age,male,smoker,tier,mid);if(p!==null&&p<=budget+0.001){best=mid;lo=mid+1000;}else hi=mid-1000;}return best>0?best:null;}
+function solveForFace(budget,age,male,smoker,tier,fn){
+  // Binary search for the largest face the carrier will write at this premium.
+  // fn() returns either a plain number (legacy csvLookup carriers) or
+  // {prem, face} (fexLookup/factorCalc) — unwrap before comparing to budget.
+  let lo=1000,hi=50000,best=0;
+  for(let i=0;i<50;i++){
+    const mid=Math.round((lo+hi)/2/1000)*1000;
+    if(lo>hi)break;
+    const r=fn(age,male,smoker,tier,mid);
+    const p=(r && typeof r==='object') ? r.prem : r;
+    if(p!=null && p<=budget+0.001){best=mid;lo=mid+1000;}else hi=mid-1000;
+  }
+  return best>0?best:null;
+}
 
 // ── CASH VALUE CORRIDOR ──
 // Calibrated against real whole-life illustrations (Americo, Royal Neighbors,
@@ -2196,8 +2209,9 @@ const CarrierLogo = ({carrierId, name, small=false}) => {
   // name match against the existing FE logo set.
   const meta = CARRIER_META[carrierId] || CARRIER_META[termLogoKey(name)];
   const [err,setErr] = React.useState(false);
-  const w = small ? 110 : 124;
-  const h = small ? 48 : 54;
+  // Mobile-tight: shrink the small variant so carrier name doesn't get truncated
+  const w = small ? 78 : 124;
+  const h = small ? 36 : 54;
   if (meta?.img && !err) {
     return (
       <div style={{width:w,height:h,borderRadius:4,background:'#FFFFFF',display:'flex',alignItems:'center',justifyContent:'center',overflow:'hidden',flexShrink:0,padding:'1px',boxSizing:'border-box',boxShadow:'0 1px 3px rgba(0,0,0,0.18)'}}>
@@ -2871,7 +2885,14 @@ export default function QuoteMark() {
             <span style={{color:C.t4,fontSize:isM?12:11,flexShrink:0}}>or</span>
             <input type="text" inputMode="numeric" maxLength="2" placeholder="age" value={age}
               onChange={e=>{setAge(e.target.value.replace(/\D/g,''));setDob({mm:'',dd:'',yyyy:''});}}
-              style={{...I,width:isM?64:52,padding:isM?'11px 8px':'8px 6px',borderColor:age&&!ageOK?'#EF4444':C.bd}}/>
+              style={{...I,width:isM?56:48,padding:isM?'11px 6px':'8px 4px',borderColor:age&&!ageOK?'#EF4444':C.bd,textAlign:'center'}}/>
+            {/* +/- steppers */}
+            <div style={{display:'flex',flexDirection:'column',gap:2,flexShrink:0}}>
+              <button onClick={()=>{const n=Math.min(89,(parseInt(age)||0)+1);setAge(String(n));setDob({mm:'',dd:'',yyyy:''});}}
+                aria-label="Age up" style={{background:C.bg3,border:`1px solid ${C.bd}`,borderRadius:5,color:C.t2,width:isM?28:24,height:isM?22:18,padding:0,cursor:'pointer',fontSize:isM?12:10,lineHeight:1,fontFamily:"'DM Sans',sans-serif"}}>▲</button>
+              <button onClick={()=>{const n=Math.max(1,(parseInt(age)||1)-1);setAge(String(n));setDob({mm:'',dd:'',yyyy:''});}}
+                aria-label="Age down" style={{background:C.bg3,border:`1px solid ${C.bd}`,borderRadius:5,color:C.t2,width:isM?28:24,height:isM?22:18,padding:0,cursor:'pointer',fontSize:isM?12:10,lineHeight:1,fontFamily:"'DM Sans',sans-serif"}}>▼</button>
+            </div>
           </div>
           {age&&ageOK&&<div style={{fontSize:isM?11:10,color:C.green,marginTop:isM?6:4}}>✓ Age {age}</div>}
           {age&&!ageOK&&parseInt(age)>0&&<div style={{fontSize:isM?11:10,color:'#EF4444',marginTop:isM?6:4}}>Age must be 1–89</div>}
@@ -3439,48 +3460,15 @@ export default function QuoteMark() {
                     </div>
                   )}
 
-                  {/* Results */}
-                  {!ageOK ? (
-                    <div style={{padding:'24px 0',textAlign:'center',color:C.t4,fontSize:13}}>Enter age to see IUL quotes</div>
-                  ) : !iulQuoteResults || iulQuoteResults.length === 0 ? (
-                    <div style={{padding:'24px 0',textAlign:'center',color:C.t4,fontSize:13,lineHeight:1.6}}>
-                      No IUL quotes for this profile.<br/>Try a different age, premium, or face amount.
-                    </div>
-                  ) : (
-                    <>
-                      <div style={{fontSize:10,fontWeight:700,letterSpacing:1.8,color:'#C5A059',textTransform:'uppercase',marginTop:6}}>
-                        {iulMode==='face' ? 'Face Amounts' : 'Required Premiums'}
-                      </div>
-                      <div style={{display:'flex',flexDirection:'column',gap:8}}>
-                        {iulQuoteResults.map(r => (
-                          <div key={r.id} style={{background:isDark?'#1E293B':'#FFFFFF',border:`1px solid ${C.bd2}`,borderLeft:`4px solid ${r.brand}`,borderRadius:10,padding:'12px 14px',display:'flex',alignItems:'center',gap:12}}>
-                            <div style={{flexShrink:0}}><CarrierLogo carrierId={r.id} name={r.name} small={true}/></div>
-                            <div style={{flex:1,minWidth:0}}>
-                              <div style={{fontSize:13,fontWeight:700,color:C.t0,whiteSpace:'nowrap',overflow:'hidden',textOverflow:'ellipsis'}}>{r.name}</div>
-                              <div style={{fontSize:10,color:C.t4,marginTop:2,whiteSpace:'nowrap',overflow:'hidden',textOverflow:'ellipsis'}}>{r.sub}</div>
-                            </div>
-                            <div style={{textAlign:'right',flexShrink:0}}>
-                              {iulMode==='face' ? (
-                                <>
-                                  <div style={{fontFamily:"'DM Mono',monospace",fontSize:18,fontWeight:800,color:C.t0,lineHeight:1}}>${(r.face/1000).toFixed(0)}k</div>
-                                  <div style={{fontSize:9,color:C.t4,marginTop:2}}>face · ${iulPremium}/mo</div>
-                                </>
-                              ) : (
-                                <>
-                                  <div style={{fontFamily:"'DM Mono',monospace",fontSize:18,fontWeight:800,color:C.t0,lineHeight:1}}>${r.premium.toFixed(0)}<span style={{fontSize:11,color:C.t3,fontWeight:600}}>/mo</span></div>
-                                  <div style={{fontSize:9,color:C.t4,marginTop:2}}>for ${(r.face/1000).toFixed(0)}k face</div>
-                                </>
-                              )}
-                            </div>
-                          </div>
-                        ))}
-                      </div>
-                    </>
-                  )}
-
                   <div style={{padding:'10px 12px',background:C.bg3,border:`1px solid ${C.bd}`,borderRadius:8,fontSize:11,color:C.t4,lineHeight:1.6,marginTop:6}}>
                     💡 Face amounts shown are what each carrier will issue for your client at this premium. Pull the carrier's full illustration before presenting to the client.
                   </div>
+
+                  {/* Get IUL Quotes — match FE/Term pattern */}
+                  <button onClick={()=>{if(ageOK){track('Quote Requested',{tier:'iul',mode:iulMode,gsb:false});setHasQuoted(true);setMobileTab('results');setTimeout(()=>window.scrollTo({top:0,behavior:'instant'}),0);}}}
+                    style={{width:'100%',padding:'18px 0',borderRadius:12,border:'none',cursor:ageOK?'pointer':'not-allowed',background:ageOK?C.gold:'#2A3547',color:ageOK?C.bg0:C.t4,fontSize:17,fontWeight:700,letterSpacing:0.5,opacity:ageOK?1:0.4,fontFamily:"'DM Sans',sans-serif",marginTop:4}}>
+                    ⚡ Get IUL Quotes
+                  </button>
 
                   {/* Original spec snapshot kept below */}
                   <div style={{fontSize:10,fontWeight:700,letterSpacing:1.8,color:C.t4,textTransform:'uppercase',marginTop:14,paddingTop:14,borderTop:`1px solid ${C.bd}`}}>Carrier Specs</div>
@@ -3672,7 +3660,64 @@ export default function QuoteMark() {
           {/* ── RESULTS TAB ── */}
           {mobileTab === 'results' && (
             <div ref={mobileResultsRef}>
-              {quoteMode==='term' ? (
+              {quoteMode==='iul' ? (
+                /* ── MOBILE IUL RESULTS ── */
+                !ageOK ? (
+                  <div style={{display:'flex',flexDirection:'column',alignItems:'center',justifyContent:'center',paddingTop:80,gap:16,textAlign:'center'}}>
+                    <div style={{fontSize:52,opacity:0.4}}>📋</div>
+                    <div style={{fontFamily:"'Barlow Condensed',sans-serif",fontSize:22,fontWeight:700,color:C.t4}}>Enter client info first</div>
+                    <button onClick={()=>setMobileTab('quote')} style={{marginTop:8,padding:'13px 28px',borderRadius:10,border:`1px solid ${C.bd2}`,background:C.bg2,color:C.t2,fontSize:14,fontWeight:600,cursor:'pointer',fontFamily:"'DM Sans',sans-serif"}}>← Back to Quote</button>
+                  </div>
+                ) : !iulQuoteResults || iulQuoteResults.length === 0 ? (
+                  <div style={{display:'flex',flexDirection:'column',alignItems:'center',justifyContent:'center',paddingTop:80,gap:16,textAlign:'center'}}>
+                    <div style={{fontSize:52,opacity:0.4}}>🔍</div>
+                    <div style={{fontFamily:"'Barlow Condensed',sans-serif",fontSize:20,fontWeight:700,color:C.t4}}>No IUL quotes for this profile</div>
+                    <div style={{fontSize:12,color:C.t4,maxWidth:260,lineHeight:1.6}}>Try a different age, premium, or face amount.</div>
+                  </div>
+                ) : (
+                  <>
+                    <div style={{display:'flex',justifyContent:'space-between',alignItems:'center',padding:'8px 4px 12px',gap:8,fontSize:11,color:C.t3,borderBottom:`1px solid ${C.bd}`,marginBottom:14}}>
+                      <div style={{display:'flex',gap:6,alignItems:'center',flexWrap:'wrap'}}>
+                        <span style={{fontFamily:"'DM Mono',monospace",fontWeight:600,color:C.t0}}>
+                          {iulMode==='face' ? `$${iulPremium}/mo` : `$${(iulFace/1000).toFixed(0)}k face`}
+                        </span>
+                        <span style={{color:C.t4}}>·</span>
+                        <span>Age {age}</span>
+                        <span style={{color:C.t4}}>·</span>
+                        <span>{gender==='male'?'M':'F'} · {smoker?'Smoker':'NS'}</span>
+                      </div>
+                    </div>
+                    <div style={{fontSize:10,fontWeight:700,letterSpacing:1.8,color:'#C5A059',textTransform:'uppercase',marginBottom:8}}>
+                      {iulMode==='face' ? 'Face Amounts' : 'Required Premiums'}
+                    </div>
+                    <div style={{display:'flex',flexDirection:'column',gap:10}}>
+                      {iulQuoteResults.map(r => (
+                        <div key={r.id} style={{background:isDark?'#1E293B':'#FFFFFF',border:`1px solid ${C.bd2}`,borderLeft:`4px solid ${r.brand}`,borderRadius:10,padding:'12px 14px',display:'flex',alignItems:'center',gap:12}}>
+                          <div style={{flexShrink:0}}><CarrierLogo carrierId={r.id} name={r.name} small={true}/></div>
+                          <div style={{flex:1,minWidth:0}}>
+                            <div style={{fontSize:14,fontWeight:700,color:C.t0,whiteSpace:'nowrap',overflow:'hidden',textOverflow:'ellipsis'}}>{r.name}</div>
+                            <div style={{fontSize:10,color:C.t4,marginTop:2,whiteSpace:'nowrap',overflow:'hidden',textOverflow:'ellipsis'}}>{r.sub}</div>
+                          </div>
+                          <div style={{textAlign:'right',flexShrink:0}}>
+                            {iulMode==='face' ? (
+                              <>
+                                <div style={{fontFamily:"'DM Mono',monospace",fontSize:20,fontWeight:800,color:C.t0,lineHeight:1}}>${(r.face/1000).toFixed(0)}k</div>
+                                <div style={{fontSize:9,color:C.t4,marginTop:2}}>face · ${iulPremium}/mo</div>
+                              </>
+                            ) : (
+                              <>
+                                <div style={{fontFamily:"'DM Mono',monospace",fontSize:20,fontWeight:800,color:C.t0,lineHeight:1}}>${r.premium.toFixed(0)}<span style={{fontSize:11,color:C.t3,fontWeight:600}}>/mo</span></div>
+                                <div style={{fontSize:9,color:C.t4,marginTop:2}}>for ${(r.face/1000).toFixed(0)}k face</div>
+                              </>
+                            )}
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                    <div style={{height:80}}/>
+                  </>
+                )
+              ) : quoteMode==='term' ? (
                 /* ── MOBILE TERM RESULTS ── */
                 !ageOK ? (
                   <div style={{display:'flex',flexDirection:'column',alignItems:'center',justifyContent:'center',paddingTop:80,gap:16,textAlign:'center'}}>
