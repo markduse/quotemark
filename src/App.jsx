@@ -2401,6 +2401,16 @@ export default function QuoteMark() {
       .qm-btn:active { transform: scale(0.98) !important; box-shadow: none !important; }
       .qm-gsb-toggle:hover { opacity: 0.9; transform: translateY(-1px); }
       .qm-gsb-toggle { transition: all 0.2s ease-in-out; }
+      /* CTA — the big "Get Quotes" button. Tactile press feel. */
+      .qm-cta { transition: transform 0.12s ease-out, box-shadow 0.18s ease-out, filter 0.15s ease-out !important; will-change: transform; }
+      .qm-cta:hover:not(:disabled) { transform: translateY(-1px) !important; box-shadow: 0 6px 18px rgba(197,160,89,0.35) !important; filter: brightness(1.05) !important; }
+      .qm-cta:active:not(:disabled) { transform: translateY(1px) scale(0.985) !important; box-shadow: 0 1px 3px rgba(0,0,0,0.25) inset, 0 0 0 1px rgba(0,0,0,0.06) !important; filter: brightness(0.96) !important; transition-duration: 0.04s !important; }
+      .qm-cta.qm-cta-pulse { animation: qmPulse 0.42s ease-out; }
+      @keyframes qmPulse {
+        0%   { box-shadow: 0 0 0 0 rgba(197,160,89,0.55); }
+        60%  { box-shadow: 0 0 0 14px rgba(197,160,89,0); }
+        100% { box-shadow: 0 0 0 0 rgba(197,160,89,0); }
+      }
       @keyframes spin { to { transform: rotate(360deg); } }
     `;
     if(!document.getElementById('qm-btn-styles')) document.head.appendChild(s);
@@ -2433,6 +2443,19 @@ export default function QuoteMark() {
   const [selected,setSelected] = useState(['none']);
   const [search,setSearch]     = useState('');
   const [hasQuoted,setHasQuoted]   = useState(false);
+  // ── CTA click feedback — pulse animation + haptic on mobile.
+  // Wrap your onClick handler in fireCta(e, () => { ...real handler }).
+  const fireCta = (e, fn) => {
+    const el = e.currentTarget;
+    if (el) {
+      el.classList.remove('qm-cta-pulse');
+      void el.offsetWidth; // restart CSS animation
+      el.classList.add('qm-cta-pulse');
+      setTimeout(()=>el && el.classList.remove('qm-cta-pulse'), 460);
+    }
+    if (typeof navigator !== 'undefined' && navigator.vibrate) navigator.vibrate(12);
+    fn && fn();
+  };
   const [openCat,setOpenCat]   = useState(null);
   const [tierOvr,setTierOvr]   = useState(null);
   const [uwOpen,setUwOpen]     = useState(false);
@@ -2839,7 +2862,7 @@ export default function QuoteMark() {
   //   'face'    = input is iulPremium, output is face per carrier
   //   'premium' = input is iulFace, output is required premium per carrier
   const iulQuoteResults = useMemo(()=>{
-    if (quoteMode !== 'iul' || !ageOK) return null;
+    if (quoteMode !== 'iul' || !ageOK || !hasQuoted) return null;
     const male = gender === 'male';
     const a = ageNum;
     const results = IUL_QUOTE_CARRIERS.map(c => {
@@ -2858,7 +2881,7 @@ export default function QuoteMark() {
     return iulMode === 'face'
       ? results.sort((a, b) => b.face - a.face)
       : results.sort((a, b) => a.premium - b.premium);
-  }, [quoteMode, ageOK, ageNum, gender, smoker, iulPremium, iulFace, iulMode]);
+  }, [quoteMode, ageOK, ageNum, gender, smoker, iulPremium, iulFace, iulMode, hasQuoted]);
 
   // ── INPUT STYLES ──
   const inp = {background:C.bg2,border:`1px solid ${C.bd}`,color:C.t1,borderRadius:8,padding:'9px 12px',fontSize:13,width:'100%',boxSizing:'border-box',outline:'none',fontFamily:"'DM Sans',sans-serif"};
@@ -3277,7 +3300,7 @@ export default function QuoteMark() {
               )}
 
               {/* GET QUOTES button */}
-              <button onClick={()=>{if(ageOK){track('Quote Requested',{tier:uwTier,mode,gsb:gsbOn,face:faceBand(faceAmt)});setHasQuoted(true);if(isMobile){setMobileTab('results');setTimeout(()=>window.scrollTo({top:0,behavior:'instant'}),0);}}}} style={{
+              <button className="qm-cta" onClick={e=>fireCta(e,()=>{if(ageOK){track('Quote Requested',{tier:uwTier,mode,gsb:gsbOn,face:faceBand(faceAmt)});setHasQuoted(true);if(isMobile){setMobileTab('results');setTimeout(()=>window.scrollTo({top:0,behavior:'instant'}),0);}}})} style={{
                 width:'100%',padding:'18px 0',borderRadius:12,border:'none',
                 cursor:ageOK?'pointer':'not-allowed',
                 background:ageOK?C.gold:'#2A3547',
@@ -3461,7 +3484,7 @@ export default function QuoteMark() {
                       </div>
                     )}
                   </div>
-                  <button onClick={()=>{if(ageOK){track('Quote Requested',{tier:'term',mode:'term',gsb:false,face:faceBand(termFace)});setHasQuoted(true);setMobileTab('results');setTimeout(()=>window.scrollTo({top:0,behavior:'instant'}),0);}}}
+                  <button className="qm-cta" onClick={e=>fireCta(e,()=>{if(ageOK){track('Quote Requested',{tier:'term',mode:'term',gsb:false,face:faceBand(termFace)});setHasQuoted(true);setMobileTab('results');setTimeout(()=>window.scrollTo({top:0,behavior:'instant'}),0);}})}
                     style={{width:'100%',padding:'18px 0',borderRadius:12,border:'none',cursor:ageOK?'pointer':'not-allowed',background:ageOK?C.gold:'#2A3547',color:ageOK?C.bg0:C.t4,fontSize:17,fontWeight:700,letterSpacing:0.5,opacity:ageOK?1:0.4,fontFamily:"'DM Sans',sans-serif",marginTop:8}}>
                     ⚡ Get Term Quotes
                   </button>
@@ -3523,7 +3546,7 @@ export default function QuoteMark() {
                   </div>
 
                   {/* Get IUL Quotes — match FE/Term pattern */}
-                  <button onClick={()=>{if(ageOK){track('Quote Requested',{tier:'iul',mode:iulMode,gsb:false});setHasQuoted(true);setMobileTab('results');setTimeout(()=>window.scrollTo({top:0,behavior:'instant'}),0);}}}
+                  <button className="qm-cta" onClick={e=>fireCta(e,()=>{if(ageOK){track('Quote Requested',{tier:'iul',mode:iulMode,gsb:false});setHasQuoted(true);setMobileTab('results');setTimeout(()=>window.scrollTo({top:0,behavior:'instant'}),0);}})}
                     style={{width:'100%',padding:'18px 0',borderRadius:12,border:'none',cursor:ageOK?'pointer':'not-allowed',background:ageOK?C.gold:'#2A3547',color:ageOK?C.bg0:C.t4,fontSize:17,fontWeight:700,letterSpacing:0.5,opacity:ageOK?1:0.4,fontFamily:"'DM Sans',sans-serif",marginTop:4}}>
                     ⚡ Get IUL Quotes
                   </button>
@@ -4508,13 +4531,13 @@ export default function QuoteMark() {
           </div>
           )}
 
-          <button onClick={()=>{if(ageOK){track('Quote Requested',{tier:uwTier,mode,gsb:gsbOn,face:faceBand(faceAmt)});setHasQuoted(true);if(isMobile){setMobileTab('results');setTimeout(()=>window.scrollTo({top:0,behavior:'instant'}),0);}}}} style={{
+          <button className="qm-cta" onClick={e=>fireCta(e,()=>{if(ageOK){track('Quote Requested',{tier:uwTier,mode,gsb:gsbOn,face:faceBand(faceAmt)});setHasQuoted(true);if(isMobile){setMobileTab('results');setTimeout(()=>window.scrollTo({top:0,behavior:'instant'}),0);}}})} style={{
             width:'100%',padding:'13px 0',borderRadius:10,border:'none',
             cursor:ageOK?'pointer':'not-allowed',
             background:ageOK?C.gold:'#2A3547',
             color:ageOK?C.bg0:C.t4,
             fontSize:14,fontWeight:700,letterSpacing:0.5,
-            transition:'all 0.15s',opacity:ageOK?1:0.4,
+            opacity:ageOK?1:0.4,
             fontFamily:"'DM Sans',sans-serif"
           }}>
             ⚡ Get Quotes
@@ -4681,7 +4704,7 @@ export default function QuoteMark() {
                   </div>
                 )}
               </div>
-              <button onClick={()=>{if(ageOK){track('Quote Requested',{tier:'term',mode:'term',gsb:false,face:faceBand(termFace)});setHasQuoted(true);}}}
+              <button className="qm-cta" onClick={e=>fireCta(e,()=>{if(ageOK){track('Quote Requested',{tier:'term',mode:'term',gsb:false,face:faceBand(termFace)});setHasQuoted(true);}})}
                 style={{width:'100%',padding:'14px 0',borderRadius:10,border:'none',cursor:ageOK?'pointer':'not-allowed',background:ageOK?C.gold:'#2A3547',color:ageOK?C.bg0:C.t4,fontSize:14,fontWeight:700,letterSpacing:0.5,opacity:ageOK?1:0.4,fontFamily:"'DM Sans',sans-serif",marginTop:8}}>
                 ⚡ Get Term Quotes
               </button>
@@ -4744,8 +4767,8 @@ export default function QuoteMark() {
                   ? 'Face shown is what each carrier issues for this premium. Use it to pick the carrier, then pull the carrier\'s official illustration for the client.'
                   : 'Premium shown is what each carrier needs to issue this face. Lower = better. Pull the carrier\'s official illustration before promising rates.'}
               </div>
-              <button onClick={()=>{if(ageOK){track('Quote Requested',{tier:'iul',mode:iulMode,gsb:false});setHasQuoted(true);}}}
-                style={{width:'100%',padding:'13px 0',borderRadius:10,border:'none',cursor:ageOK?'pointer':'not-allowed',background:ageOK?C.gold:'#2A3547',color:ageOK?C.bg0:C.t4,fontSize:14,fontWeight:700,letterSpacing:0.5,transition:'all 0.15s',opacity:ageOK?1:0.4,fontFamily:"'DM Sans',sans-serif"}}>
+              <button className="qm-cta" onClick={e=>fireCta(e,()=>{if(ageOK){track('Quote Requested',{tier:'iul',mode:iulMode,gsb:false});setHasQuoted(true);}})}
+                style={{width:'100%',padding:'13px 0',borderRadius:10,border:'none',cursor:ageOK?'pointer':'not-allowed',background:ageOK?C.gold:'#2A3547',color:ageOK?C.bg0:C.t4,fontSize:14,fontWeight:700,letterSpacing:0.5,opacity:ageOK?1:0.4,fontFamily:"'DM Sans',sans-serif"}}>
                 ⚡ Get IUL Quotes
               </button>
             </div>
@@ -4800,8 +4823,8 @@ export default function QuoteMark() {
               })()}
 
               {/* Estimate trigger — CV is reactive so this is a visual anchor that matches FE/Term/IUL */}
-              <button onClick={()=>{if(ageOK&&Number(cvMonthly)>0&&Number(cvPolicyYrs)>0){track('CV Estimate Viewed');setHasQuoted(true);}}}
-                style={{width:'100%',padding:'13px 0',borderRadius:10,border:'none',cursor:(ageOK&&Number(cvMonthly)>0&&Number(cvPolicyYrs)>0)?'pointer':'not-allowed',background:(ageOK&&Number(cvMonthly)>0&&Number(cvPolicyYrs)>0)?C.gold:'#2A3547',color:(ageOK&&Number(cvMonthly)>0&&Number(cvPolicyYrs)>0)?C.bg0:C.t4,fontSize:14,fontWeight:700,letterSpacing:0.5,transition:'all 0.15s',opacity:(ageOK&&Number(cvMonthly)>0&&Number(cvPolicyYrs)>0)?1:0.4,fontFamily:"'DM Sans',sans-serif"}}>
+              <button className="qm-cta" onClick={e=>fireCta(e,()=>{if(ageOK&&Number(cvMonthly)>0&&Number(cvPolicyYrs)>0){track('CV Estimate Viewed');setHasQuoted(true);}})}
+                style={{width:'100%',padding:'13px 0',borderRadius:10,border:'none',cursor:(ageOK&&Number(cvMonthly)>0&&Number(cvPolicyYrs)>0)?'pointer':'not-allowed',background:(ageOK&&Number(cvMonthly)>0&&Number(cvPolicyYrs)>0)?C.gold:'#2A3547',color:(ageOK&&Number(cvMonthly)>0&&Number(cvPolicyYrs)>0)?C.bg0:C.t4,fontSize:14,fontWeight:700,letterSpacing:0.5,opacity:(ageOK&&Number(cvMonthly)>0&&Number(cvPolicyYrs)>0)?1:0.4,fontFamily:"'DM Sans',sans-serif"}}>
                 💰 View Cash Value Estimate
               </button>
             </div>
@@ -4950,12 +4973,17 @@ export default function QuoteMark() {
           ):quoteMode==='cv'?(
             <div style={{display:'flex',justifyContent:'center',width:'100%',overflowY:'auto'}}>
               {(()=>{
-                if (!ageOK || !cvMonthly || !cvPolicyYrs || !Number(cvMonthly) || !Number(cvPolicyYrs)) {
+                const inputsReady = ageOK && cvMonthly && cvPolicyYrs && Number(cvMonthly)>0 && Number(cvPolicyYrs)>0;
+                if (!inputsReady || !hasQuoted) {
                   return (
                     <div style={{display:'flex',flexDirection:'column',alignItems:'center',justifyContent:'center',height:'60vh',gap:16}}>
                       <span style={{fontSize:52}}>💰</span>
                       <div style={{fontSize:18,fontWeight:700,color:C.t2}}>Cash Value Estimator</div>
-                      <div style={{fontSize:13,textAlign:'center',maxWidth:280,lineHeight:1.6,color:C.t4}}>Enter age, monthly premium, and years in-force in the sidebar to estimate surrender value.</div>
+                      <div style={{fontSize:13,textAlign:'center',maxWidth:280,lineHeight:1.6,color:C.t4}}>
+                        {!inputsReady
+                          ? 'Enter age, monthly premium, and years in-force in the sidebar to estimate surrender value.'
+                          : 'Click View Cash Value Estimate to run the calculation.'}
+                      </div>
                     </div>
                   );
                 }
