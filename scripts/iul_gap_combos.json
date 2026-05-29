@@ -1,0 +1,2795 @@
+[
+  {
+    "company": "Americo (Instant Decision IUL)",
+    "age": 18,
+    "sex": "Male",
+    "tobacco": "None",
+    "premium": 150
+  },
+  {
+    "company": "Americo (Instant Decision IUL)",
+    "age": 18,
+    "sex": "Male",
+    "tobacco": "None",
+    "premium": 200
+  },
+  {
+    "company": "Americo (Instant Decision IUL)",
+    "age": 18,
+    "sex": "Male",
+    "tobacco": "None",
+    "premium": 300
+  },
+  {
+    "company": "Americo (Instant Decision IUL)",
+    "age": 18,
+    "sex": "Male",
+    "tobacco": "None",
+    "premium": 500
+  },
+  {
+    "company": "Americo (Instant Decision IUL)",
+    "age": 18,
+    "sex": "Male",
+    "tobacco": "Cigarettes",
+    "premium": 50
+  },
+  {
+    "company": "Americo (Instant Decision IUL)",
+    "age": 18,
+    "sex": "Male",
+    "tobacco": "Cigarettes",
+    "premium": 100
+  },
+  {
+    "company": "Americo (Instant Decision IUL)",
+    "age": 18,
+    "sex": "Male",
+    "tobacco": "Cigarettes",
+    "premium": 150
+  },
+  {
+    "company": "Americo (Instant Decision IUL)",
+    "age": 18,
+    "sex": "Male",
+    "tobacco": "Cigarettes",
+    "premium": 200
+  },
+  {
+    "company": "Americo (Instant Decision IUL)",
+    "age": 18,
+    "sex": "Male",
+    "tobacco": "Cigarettes",
+    "premium": 300
+  },
+  {
+    "company": "Americo (Instant Decision IUL)",
+    "age": 18,
+    "sex": "Male",
+    "tobacco": "Cigarettes",
+    "premium": 500
+  },
+  {
+    "company": "Americo (Instant Decision IUL)",
+    "age": 18,
+    "sex": "Female",
+    "tobacco": "None",
+    "premium": 100
+  },
+  {
+    "company": "Americo (Instant Decision IUL)",
+    "age": 18,
+    "sex": "Female",
+    "tobacco": "None",
+    "premium": 150
+  },
+  {
+    "company": "Americo (Instant Decision IUL)",
+    "age": 18,
+    "sex": "Female",
+    "tobacco": "None",
+    "premium": 200
+  },
+  {
+    "company": "Americo (Instant Decision IUL)",
+    "age": 18,
+    "sex": "Female",
+    "tobacco": "None",
+    "premium": 300
+  },
+  {
+    "company": "Americo (Instant Decision IUL)",
+    "age": 18,
+    "sex": "Female",
+    "tobacco": "None",
+    "premium": 500
+  },
+  {
+    "company": "Americo (Instant Decision IUL)",
+    "age": 18,
+    "sex": "Female",
+    "tobacco": "Cigarettes",
+    "premium": 50
+  },
+  {
+    "company": "Americo (Instant Decision IUL)",
+    "age": 18,
+    "sex": "Female",
+    "tobacco": "Cigarettes",
+    "premium": 100
+  },
+  {
+    "company": "Americo (Instant Decision IUL)",
+    "age": 18,
+    "sex": "Female",
+    "tobacco": "Cigarettes",
+    "premium": 150
+  },
+  {
+    "company": "Americo (Instant Decision IUL)",
+    "age": 18,
+    "sex": "Female",
+    "tobacco": "Cigarettes",
+    "premium": 200
+  },
+  {
+    "company": "Americo (Instant Decision IUL)",
+    "age": 18,
+    "sex": "Female",
+    "tobacco": "Cigarettes",
+    "premium": 300
+  },
+  {
+    "company": "Americo (Instant Decision IUL)",
+    "age": 18,
+    "sex": "Female",
+    "tobacco": "Cigarettes",
+    "premium": 500
+  },
+  {
+    "company": "Americo (Instant Decision IUL)",
+    "age": 25,
+    "sex": "Male",
+    "tobacco": "None",
+    "premium": 150
+  },
+  {
+    "company": "Americo (Instant Decision IUL)",
+    "age": 25,
+    "sex": "Male",
+    "tobacco": "None",
+    "premium": 200
+  },
+  {
+    "company": "Americo (Instant Decision IUL)",
+    "age": 25,
+    "sex": "Male",
+    "tobacco": "None",
+    "premium": 300
+  },
+  {
+    "company": "Americo (Instant Decision IUL)",
+    "age": 25,
+    "sex": "Male",
+    "tobacco": "None",
+    "premium": 500
+  },
+  {
+    "company": "Americo (Instant Decision IUL)",
+    "age": 25,
+    "sex": "Male",
+    "tobacco": "Cigarettes",
+    "premium": 50
+  },
+  {
+    "company": "Americo (Instant Decision IUL)",
+    "age": 25,
+    "sex": "Male",
+    "tobacco": "Cigarettes",
+    "premium": 100
+  },
+  {
+    "company": "Americo (Instant Decision IUL)",
+    "age": 25,
+    "sex": "Male",
+    "tobacco": "Cigarettes",
+    "premium": 150
+  },
+  {
+    "company": "Americo (Instant Decision IUL)",
+    "age": 25,
+    "sex": "Male",
+    "tobacco": "Cigarettes",
+    "premium": 200
+  },
+  {
+    "company": "Americo (Instant Decision IUL)",
+    "age": 25,
+    "sex": "Male",
+    "tobacco": "Cigarettes",
+    "premium": 300
+  },
+  {
+    "company": "Americo (Instant Decision IUL)",
+    "age": 25,
+    "sex": "Male",
+    "tobacco": "Cigarettes",
+    "premium": 500
+  },
+  {
+    "company": "Americo (Instant Decision IUL)",
+    "age": 25,
+    "sex": "Female",
+    "tobacco": "None",
+    "premium": 150
+  },
+  {
+    "company": "Americo (Instant Decision IUL)",
+    "age": 25,
+    "sex": "Female",
+    "tobacco": "None",
+    "premium": 200
+  },
+  {
+    "company": "Americo (Instant Decision IUL)",
+    "age": 25,
+    "sex": "Female",
+    "tobacco": "None",
+    "premium": 300
+  },
+  {
+    "company": "Americo (Instant Decision IUL)",
+    "age": 25,
+    "sex": "Female",
+    "tobacco": "None",
+    "premium": 500
+  },
+  {
+    "company": "Americo (Instant Decision IUL)",
+    "age": 25,
+    "sex": "Female",
+    "tobacco": "Cigarettes",
+    "premium": 200
+  },
+  {
+    "company": "Americo (Instant Decision IUL)",
+    "age": 25,
+    "sex": "Female",
+    "tobacco": "Cigarettes",
+    "premium": 300
+  },
+  {
+    "company": "Americo (Instant Decision IUL)",
+    "age": 25,
+    "sex": "Female",
+    "tobacco": "Cigarettes",
+    "premium": 500
+  },
+  {
+    "company": "Americo (Instant Decision IUL)",
+    "age": 30,
+    "sex": "Male",
+    "tobacco": "None",
+    "premium": 200
+  },
+  {
+    "company": "Americo (Instant Decision IUL)",
+    "age": 30,
+    "sex": "Male",
+    "tobacco": "None",
+    "premium": 300
+  },
+  {
+    "company": "Americo (Instant Decision IUL)",
+    "age": 30,
+    "sex": "Male",
+    "tobacco": "None",
+    "premium": 500
+  },
+  {
+    "company": "Americo (Instant Decision IUL)",
+    "age": 30,
+    "sex": "Male",
+    "tobacco": "Cigarettes",
+    "premium": 50
+  },
+  {
+    "company": "Americo (Instant Decision IUL)",
+    "age": 30,
+    "sex": "Male",
+    "tobacco": "Cigarettes",
+    "premium": 100
+  },
+  {
+    "company": "Americo (Instant Decision IUL)",
+    "age": 30,
+    "sex": "Male",
+    "tobacco": "Cigarettes",
+    "premium": 150
+  },
+  {
+    "company": "Americo (Instant Decision IUL)",
+    "age": 30,
+    "sex": "Male",
+    "tobacco": "Cigarettes",
+    "premium": 300
+  },
+  {
+    "company": "Americo (Instant Decision IUL)",
+    "age": 30,
+    "sex": "Male",
+    "tobacco": "Cigarettes",
+    "premium": 500
+  },
+  {
+    "company": "Americo (Instant Decision IUL)",
+    "age": 30,
+    "sex": "Female",
+    "tobacco": "None",
+    "premium": 50
+  },
+  {
+    "company": "Americo (Instant Decision IUL)",
+    "age": 30,
+    "sex": "Female",
+    "tobacco": "None",
+    "premium": 100
+  },
+  {
+    "company": "Americo (Instant Decision IUL)",
+    "age": 30,
+    "sex": "Female",
+    "tobacco": "None",
+    "premium": 150
+  },
+  {
+    "company": "Americo (Instant Decision IUL)",
+    "age": 30,
+    "sex": "Female",
+    "tobacco": "None",
+    "premium": 200
+  },
+  {
+    "company": "Americo (Instant Decision IUL)",
+    "age": 30,
+    "sex": "Female",
+    "tobacco": "None",
+    "premium": 300
+  },
+  {
+    "company": "Americo (Instant Decision IUL)",
+    "age": 30,
+    "sex": "Female",
+    "tobacco": "None",
+    "premium": 500
+  },
+  {
+    "company": "Americo (Instant Decision IUL)",
+    "age": 30,
+    "sex": "Female",
+    "tobacco": "Cigarettes",
+    "premium": 200
+  },
+  {
+    "company": "Americo (Instant Decision IUL)",
+    "age": 30,
+    "sex": "Female",
+    "tobacco": "Cigarettes",
+    "premium": 300
+  },
+  {
+    "company": "Americo (Instant Decision IUL)",
+    "age": 30,
+    "sex": "Female",
+    "tobacco": "Cigarettes",
+    "premium": 500
+  },
+  {
+    "company": "Americo (Instant Decision IUL)",
+    "age": 35,
+    "sex": "Male",
+    "tobacco": "None",
+    "premium": 200
+  },
+  {
+    "company": "Americo (Instant Decision IUL)",
+    "age": 35,
+    "sex": "Male",
+    "tobacco": "None",
+    "premium": 300
+  },
+  {
+    "company": "Americo (Instant Decision IUL)",
+    "age": 35,
+    "sex": "Male",
+    "tobacco": "None",
+    "premium": 500
+  },
+  {
+    "company": "Americo (Instant Decision IUL)",
+    "age": 35,
+    "sex": "Male",
+    "tobacco": "Cigarettes",
+    "premium": 500
+  },
+  {
+    "company": "Americo (Instant Decision IUL)",
+    "age": 35,
+    "sex": "Female",
+    "tobacco": "None",
+    "premium": 50
+  },
+  {
+    "company": "Americo (Instant Decision IUL)",
+    "age": 35,
+    "sex": "Female",
+    "tobacco": "None",
+    "premium": 100
+  },
+  {
+    "company": "Americo (Instant Decision IUL)",
+    "age": 35,
+    "sex": "Female",
+    "tobacco": "None",
+    "premium": 150
+  },
+  {
+    "company": "Americo (Instant Decision IUL)",
+    "age": 35,
+    "sex": "Female",
+    "tobacco": "None",
+    "premium": 200
+  },
+  {
+    "company": "Americo (Instant Decision IUL)",
+    "age": 35,
+    "sex": "Female",
+    "tobacco": "None",
+    "premium": 300
+  },
+  {
+    "company": "Americo (Instant Decision IUL)",
+    "age": 35,
+    "sex": "Female",
+    "tobacco": "None",
+    "premium": 500
+  },
+  {
+    "company": "Americo (Instant Decision IUL)",
+    "age": 35,
+    "sex": "Female",
+    "tobacco": "Cigarettes",
+    "premium": 300
+  },
+  {
+    "company": "Americo (Instant Decision IUL)",
+    "age": 35,
+    "sex": "Female",
+    "tobacco": "Cigarettes",
+    "premium": 500
+  },
+  {
+    "company": "Americo (Instant Decision IUL)",
+    "age": 40,
+    "sex": "Male",
+    "tobacco": "None",
+    "premium": 50
+  },
+  {
+    "company": "Americo (Instant Decision IUL)",
+    "age": 40,
+    "sex": "Male",
+    "tobacco": "None",
+    "premium": 100
+  },
+  {
+    "company": "Americo (Instant Decision IUL)",
+    "age": 40,
+    "sex": "Male",
+    "tobacco": "None",
+    "premium": 150
+  },
+  {
+    "company": "Americo (Instant Decision IUL)",
+    "age": 40,
+    "sex": "Male",
+    "tobacco": "None",
+    "premium": 200
+  },
+  {
+    "company": "Americo (Instant Decision IUL)",
+    "age": 40,
+    "sex": "Male",
+    "tobacco": "None",
+    "premium": 300
+  },
+  {
+    "company": "Americo (Instant Decision IUL)",
+    "age": 40,
+    "sex": "Male",
+    "tobacco": "None",
+    "premium": 500
+  },
+  {
+    "company": "Americo (Instant Decision IUL)",
+    "age": 40,
+    "sex": "Male",
+    "tobacco": "Cigarettes",
+    "premium": 50
+  },
+  {
+    "company": "Americo (Instant Decision IUL)",
+    "age": 40,
+    "sex": "Male",
+    "tobacco": "Cigarettes",
+    "premium": 500
+  },
+  {
+    "company": "Americo (Instant Decision IUL)",
+    "age": 40,
+    "sex": "Female",
+    "tobacco": "None",
+    "premium": 50
+  },
+  {
+    "company": "Americo (Instant Decision IUL)",
+    "age": 40,
+    "sex": "Female",
+    "tobacco": "None",
+    "premium": 100
+  },
+  {
+    "company": "Americo (Instant Decision IUL)",
+    "age": 40,
+    "sex": "Female",
+    "tobacco": "None",
+    "premium": 150
+  },
+  {
+    "company": "Americo (Instant Decision IUL)",
+    "age": 40,
+    "sex": "Female",
+    "tobacco": "None",
+    "premium": 200
+  },
+  {
+    "company": "Americo (Instant Decision IUL)",
+    "age": 40,
+    "sex": "Female",
+    "tobacco": "None",
+    "premium": 300
+  },
+  {
+    "company": "Americo (Instant Decision IUL)",
+    "age": 40,
+    "sex": "Female",
+    "tobacco": "None",
+    "premium": 500
+  },
+  {
+    "company": "Americo (Instant Decision IUL)",
+    "age": 40,
+    "sex": "Female",
+    "tobacco": "Cigarettes",
+    "premium": 500
+  },
+  {
+    "company": "Americo (Instant Decision IUL)",
+    "age": 45,
+    "sex": "Male",
+    "tobacco": "None",
+    "premium": 50
+  },
+  {
+    "company": "Americo (Instant Decision IUL)",
+    "age": 45,
+    "sex": "Male",
+    "tobacco": "None",
+    "premium": 100
+  },
+  {
+    "company": "Americo (Instant Decision IUL)",
+    "age": 45,
+    "sex": "Male",
+    "tobacco": "None",
+    "premium": 150
+  },
+  {
+    "company": "Americo (Instant Decision IUL)",
+    "age": 45,
+    "sex": "Male",
+    "tobacco": "None",
+    "premium": 200
+  },
+  {
+    "company": "Americo (Instant Decision IUL)",
+    "age": 45,
+    "sex": "Male",
+    "tobacco": "None",
+    "premium": 300
+  },
+  {
+    "company": "Americo (Instant Decision IUL)",
+    "age": 45,
+    "sex": "Male",
+    "tobacco": "None",
+    "premium": 500
+  },
+  {
+    "company": "Americo (Instant Decision IUL)",
+    "age": 45,
+    "sex": "Male",
+    "tobacco": "Cigarettes",
+    "premium": 50
+  },
+  {
+    "company": "Americo (Instant Decision IUL)",
+    "age": 45,
+    "sex": "Female",
+    "tobacco": "None",
+    "premium": 50
+  },
+  {
+    "company": "Americo (Instant Decision IUL)",
+    "age": 45,
+    "sex": "Female",
+    "tobacco": "None",
+    "premium": 100
+  },
+  {
+    "company": "Americo (Instant Decision IUL)",
+    "age": 45,
+    "sex": "Female",
+    "tobacco": "None",
+    "premium": 150
+  },
+  {
+    "company": "Americo (Instant Decision IUL)",
+    "age": 45,
+    "sex": "Female",
+    "tobacco": "None",
+    "premium": 300
+  },
+  {
+    "company": "Americo (Instant Decision IUL)",
+    "age": 45,
+    "sex": "Female",
+    "tobacco": "None",
+    "premium": 500
+  },
+  {
+    "company": "Americo (Instant Decision IUL)",
+    "age": 45,
+    "sex": "Female",
+    "tobacco": "Cigarettes",
+    "premium": 50
+  },
+  {
+    "company": "Americo (Instant Decision IUL)",
+    "age": 45,
+    "sex": "Female",
+    "tobacco": "Cigarettes",
+    "premium": 100
+  },
+  {
+    "company": "Americo (Instant Decision IUL)",
+    "age": 45,
+    "sex": "Female",
+    "tobacco": "Cigarettes",
+    "premium": 150
+  },
+  {
+    "company": "Americo (Instant Decision IUL)",
+    "age": 45,
+    "sex": "Female",
+    "tobacco": "Cigarettes",
+    "premium": 200
+  },
+  {
+    "company": "Americo (Instant Decision IUL)",
+    "age": 45,
+    "sex": "Female",
+    "tobacco": "Cigarettes",
+    "premium": 300
+  },
+  {
+    "company": "Americo (Instant Decision IUL)",
+    "age": 45,
+    "sex": "Female",
+    "tobacco": "Cigarettes",
+    "premium": 500
+  },
+  {
+    "company": "Americo (Instant Decision IUL)",
+    "age": 50,
+    "sex": "Male",
+    "tobacco": "None",
+    "premium": 50
+  },
+  {
+    "company": "Americo (Instant Decision IUL)",
+    "age": 50,
+    "sex": "Male",
+    "tobacco": "None",
+    "premium": 100
+  },
+  {
+    "company": "Americo (Instant Decision IUL)",
+    "age": 50,
+    "sex": "Male",
+    "tobacco": "None",
+    "premium": 150
+  },
+  {
+    "company": "Americo (Instant Decision IUL)",
+    "age": 50,
+    "sex": "Male",
+    "tobacco": "None",
+    "premium": 200
+  },
+  {
+    "company": "Americo (Instant Decision IUL)",
+    "age": 50,
+    "sex": "Male",
+    "tobacco": "None",
+    "premium": 300
+  },
+  {
+    "company": "Americo (Instant Decision IUL)",
+    "age": 50,
+    "sex": "Male",
+    "tobacco": "None",
+    "premium": 500
+  },
+  {
+    "company": "Americo (Instant Decision IUL)",
+    "age": 50,
+    "sex": "Male",
+    "tobacco": "Cigarettes",
+    "premium": 50
+  },
+  {
+    "company": "Americo (Instant Decision IUL)",
+    "age": 50,
+    "sex": "Male",
+    "tobacco": "Cigarettes",
+    "premium": 150
+  },
+  {
+    "company": "Americo (Instant Decision IUL)",
+    "age": 50,
+    "sex": "Male",
+    "tobacco": "Cigarettes",
+    "premium": 200
+  },
+  {
+    "company": "Americo (Instant Decision IUL)",
+    "age": 50,
+    "sex": "Male",
+    "tobacco": "Cigarettes",
+    "premium": 300
+  },
+  {
+    "company": "Americo (Instant Decision IUL)",
+    "age": 50,
+    "sex": "Male",
+    "tobacco": "Cigarettes",
+    "premium": 500
+  },
+  {
+    "company": "Americo (Instant Decision IUL)",
+    "age": 50,
+    "sex": "Female",
+    "tobacco": "None",
+    "premium": 500
+  },
+  {
+    "company": "Americo (Instant Decision IUL)",
+    "age": 50,
+    "sex": "Female",
+    "tobacco": "Cigarettes",
+    "premium": 50
+  },
+  {
+    "company": "Americo (Instant Decision IUL)",
+    "age": 50,
+    "sex": "Female",
+    "tobacco": "Cigarettes",
+    "premium": 100
+  },
+  {
+    "company": "Americo (Instant Decision IUL)",
+    "age": 50,
+    "sex": "Female",
+    "tobacco": "Cigarettes",
+    "premium": 150
+  },
+  {
+    "company": "Americo (Instant Decision IUL)",
+    "age": 50,
+    "sex": "Female",
+    "tobacco": "Cigarettes",
+    "premium": 200
+  },
+  {
+    "company": "Americo (Instant Decision IUL)",
+    "age": 50,
+    "sex": "Female",
+    "tobacco": "Cigarettes",
+    "premium": 300
+  },
+  {
+    "company": "Americo (Instant Decision IUL)",
+    "age": 50,
+    "sex": "Female",
+    "tobacco": "Cigarettes",
+    "premium": 500
+  },
+  {
+    "company": "Americo (Instant Decision IUL)",
+    "age": 55,
+    "sex": "Male",
+    "tobacco": "None",
+    "premium": 50
+  },
+  {
+    "company": "Americo (Instant Decision IUL)",
+    "age": 55,
+    "sex": "Male",
+    "tobacco": "Cigarettes",
+    "premium": 50
+  },
+  {
+    "company": "Americo (Instant Decision IUL)",
+    "age": 55,
+    "sex": "Male",
+    "tobacco": "Cigarettes",
+    "premium": 100
+  },
+  {
+    "company": "Americo (Instant Decision IUL)",
+    "age": 55,
+    "sex": "Male",
+    "tobacco": "Cigarettes",
+    "premium": 150
+  },
+  {
+    "company": "Americo (Instant Decision IUL)",
+    "age": 55,
+    "sex": "Male",
+    "tobacco": "Cigarettes",
+    "premium": 200
+  },
+  {
+    "company": "Americo (Instant Decision IUL)",
+    "age": 55,
+    "sex": "Male",
+    "tobacco": "Cigarettes",
+    "premium": 300
+  },
+  {
+    "company": "Americo (Instant Decision IUL)",
+    "age": 55,
+    "sex": "Male",
+    "tobacco": "Cigarettes",
+    "premium": 500
+  },
+  {
+    "company": "Americo (Instant Decision IUL)",
+    "age": 55,
+    "sex": "Female",
+    "tobacco": "None",
+    "premium": 50
+  },
+  {
+    "company": "Americo (Instant Decision IUL)",
+    "age": 55,
+    "sex": "Female",
+    "tobacco": "Cigarettes",
+    "premium": 50
+  },
+  {
+    "company": "Americo (Instant Decision IUL)",
+    "age": 55,
+    "sex": "Female",
+    "tobacco": "Cigarettes",
+    "premium": 100
+  },
+  {
+    "company": "Americo (Instant Decision IUL)",
+    "age": 55,
+    "sex": "Female",
+    "tobacco": "Cigarettes",
+    "premium": 150
+  },
+  {
+    "company": "Americo (Instant Decision IUL)",
+    "age": 55,
+    "sex": "Female",
+    "tobacco": "Cigarettes",
+    "premium": 200
+  },
+  {
+    "company": "Americo (Instant Decision IUL)",
+    "age": 55,
+    "sex": "Female",
+    "tobacco": "Cigarettes",
+    "premium": 300
+  },
+  {
+    "company": "Americo (Instant Decision IUL)",
+    "age": 55,
+    "sex": "Female",
+    "tobacco": "Cigarettes",
+    "premium": 500
+  },
+  {
+    "company": "Americo (Instant Decision IUL)",
+    "age": 60,
+    "sex": "Male",
+    "tobacco": "None",
+    "premium": 50
+  },
+  {
+    "company": "Americo (Instant Decision IUL)",
+    "age": 60,
+    "sex": "Male",
+    "tobacco": "None",
+    "premium": 100
+  },
+  {
+    "company": "Americo (Instant Decision IUL)",
+    "age": 60,
+    "sex": "Male",
+    "tobacco": "Cigarettes",
+    "premium": 50
+  },
+  {
+    "company": "Americo (Instant Decision IUL)",
+    "age": 60,
+    "sex": "Male",
+    "tobacco": "Cigarettes",
+    "premium": 100
+  },
+  {
+    "company": "Americo (Instant Decision IUL)",
+    "age": 60,
+    "sex": "Male",
+    "tobacco": "Cigarettes",
+    "premium": 150
+  },
+  {
+    "company": "Americo (Instant Decision IUL)",
+    "age": 60,
+    "sex": "Male",
+    "tobacco": "Cigarettes",
+    "premium": 200
+  },
+  {
+    "company": "Americo (Instant Decision IUL)",
+    "age": 60,
+    "sex": "Male",
+    "tobacco": "Cigarettes",
+    "premium": 300
+  },
+  {
+    "company": "Americo (Instant Decision IUL)",
+    "age": 60,
+    "sex": "Male",
+    "tobacco": "Cigarettes",
+    "premium": 500
+  },
+  {
+    "company": "Americo (Instant Decision IUL)",
+    "age": 60,
+    "sex": "Female",
+    "tobacco": "None",
+    "premium": 50
+  },
+  {
+    "company": "Americo (Instant Decision IUL)",
+    "age": 60,
+    "sex": "Female",
+    "tobacco": "Cigarettes",
+    "premium": 50
+  },
+  {
+    "company": "Americo (Instant Decision IUL)",
+    "age": 60,
+    "sex": "Female",
+    "tobacco": "Cigarettes",
+    "premium": 100
+  },
+  {
+    "company": "Americo (Instant Decision IUL)",
+    "age": 60,
+    "sex": "Female",
+    "tobacco": "Cigarettes",
+    "premium": 150
+  },
+  {
+    "company": "Americo (Instant Decision IUL)",
+    "age": 65,
+    "sex": "Male",
+    "tobacco": "None",
+    "premium": 50
+  },
+  {
+    "company": "Americo (Instant Decision IUL)",
+    "age": 65,
+    "sex": "Male",
+    "tobacco": "None",
+    "premium": 100
+  },
+  {
+    "company": "Americo (Instant Decision IUL)",
+    "age": 65,
+    "sex": "Male",
+    "tobacco": "None",
+    "premium": 150
+  },
+  {
+    "company": "Americo (Instant Decision IUL)",
+    "age": 65,
+    "sex": "Male",
+    "tobacco": "Cigarettes",
+    "premium": 50
+  },
+  {
+    "company": "Americo (Instant Decision IUL)",
+    "age": 65,
+    "sex": "Male",
+    "tobacco": "Cigarettes",
+    "premium": 100
+  },
+  {
+    "company": "Americo (Instant Decision IUL)",
+    "age": 65,
+    "sex": "Male",
+    "tobacco": "Cigarettes",
+    "premium": 150
+  },
+  {
+    "company": "Americo (Instant Decision IUL)",
+    "age": 65,
+    "sex": "Male",
+    "tobacco": "Cigarettes",
+    "premium": 200
+  },
+  {
+    "company": "Americo (Instant Decision IUL)",
+    "age": 65,
+    "sex": "Male",
+    "tobacco": "Cigarettes",
+    "premium": 300
+  },
+  {
+    "company": "Americo (Instant Decision IUL)",
+    "age": 65,
+    "sex": "Male",
+    "tobacco": "Cigarettes",
+    "premium": 500
+  },
+  {
+    "company": "Americo (Instant Decision IUL)",
+    "age": 65,
+    "sex": "Female",
+    "tobacco": "None",
+    "premium": 50
+  },
+  {
+    "company": "Americo (Instant Decision IUL)",
+    "age": 65,
+    "sex": "Female",
+    "tobacco": "None",
+    "premium": 100
+  },
+  {
+    "company": "Americo (Instant Decision IUL)",
+    "age": 65,
+    "sex": "Female",
+    "tobacco": "None",
+    "premium": 150
+  },
+  {
+    "company": "Americo (Instant Decision IUL)",
+    "age": 65,
+    "sex": "Female",
+    "tobacco": "None",
+    "premium": 200
+  },
+  {
+    "company": "Americo (Instant Decision IUL)",
+    "age": 65,
+    "sex": "Female",
+    "tobacco": "None",
+    "premium": 300
+  },
+  {
+    "company": "Americo (Instant Decision IUL)",
+    "age": 65,
+    "sex": "Female",
+    "tobacco": "None",
+    "premium": 500
+  },
+  {
+    "company": "Americo (Instant Decision IUL)",
+    "age": 65,
+    "sex": "Female",
+    "tobacco": "Cigarettes",
+    "premium": 50
+  },
+  {
+    "company": "Americo (Instant Decision IUL)",
+    "age": 65,
+    "sex": "Female",
+    "tobacco": "Cigarettes",
+    "premium": 100
+  },
+  {
+    "company": "Americo (Instant Decision IUL)",
+    "age": 65,
+    "sex": "Female",
+    "tobacco": "Cigarettes",
+    "premium": 150
+  },
+  {
+    "company": "Americo (Instant Decision IUL)",
+    "age": 70,
+    "sex": "Male",
+    "tobacco": "None",
+    "premium": 50
+  },
+  {
+    "company": "Americo (Instant Decision IUL)",
+    "age": 70,
+    "sex": "Male",
+    "tobacco": "None",
+    "premium": 100
+  },
+  {
+    "company": "Americo (Instant Decision IUL)",
+    "age": 70,
+    "sex": "Male",
+    "tobacco": "None",
+    "premium": 150
+  },
+  {
+    "company": "Americo (Instant Decision IUL)",
+    "age": 70,
+    "sex": "Male",
+    "tobacco": "None",
+    "premium": 200
+  },
+  {
+    "company": "Americo (Instant Decision IUL)",
+    "age": 70,
+    "sex": "Male",
+    "tobacco": "Cigarettes",
+    "premium": 50
+  },
+  {
+    "company": "Americo (Instant Decision IUL)",
+    "age": 70,
+    "sex": "Male",
+    "tobacco": "Cigarettes",
+    "premium": 100
+  },
+  {
+    "company": "Americo (Instant Decision IUL)",
+    "age": 70,
+    "sex": "Male",
+    "tobacco": "Cigarettes",
+    "premium": 150
+  },
+  {
+    "company": "Americo (Instant Decision IUL)",
+    "age": 70,
+    "sex": "Male",
+    "tobacco": "Cigarettes",
+    "premium": 200
+  },
+  {
+    "company": "Americo (Instant Decision IUL)",
+    "age": 70,
+    "sex": "Male",
+    "tobacco": "Cigarettes",
+    "premium": 300
+  },
+  {
+    "company": "Americo (Instant Decision IUL)",
+    "age": 70,
+    "sex": "Female",
+    "tobacco": "None",
+    "premium": 50
+  },
+  {
+    "company": "Americo (Instant Decision IUL)",
+    "age": 70,
+    "sex": "Female",
+    "tobacco": "None",
+    "premium": 100
+  },
+  {
+    "company": "Americo (Instant Decision IUL)",
+    "age": 70,
+    "sex": "Female",
+    "tobacco": "None",
+    "premium": 150
+  },
+  {
+    "company": "Americo (Instant Decision IUL)",
+    "age": 70,
+    "sex": "Female",
+    "tobacco": "None",
+    "premium": 200
+  },
+  {
+    "company": "Americo (Instant Decision IUL)",
+    "age": 70,
+    "sex": "Female",
+    "tobacco": "None",
+    "premium": 300
+  },
+  {
+    "company": "Americo (Instant Decision IUL)",
+    "age": 70,
+    "sex": "Female",
+    "tobacco": "None",
+    "premium": 500
+  },
+  {
+    "company": "Americo (Instant Decision IUL)",
+    "age": 70,
+    "sex": "Female",
+    "tobacco": "Cigarettes",
+    "premium": 50
+  },
+  {
+    "company": "Americo (Instant Decision IUL)",
+    "age": 70,
+    "sex": "Female",
+    "tobacco": "Cigarettes",
+    "premium": 100
+  },
+  {
+    "company": "Americo (Instant Decision IUL)",
+    "age": 70,
+    "sex": "Female",
+    "tobacco": "Cigarettes",
+    "premium": 150
+  },
+  {
+    "company": "Americo (Instant Decision IUL)",
+    "age": 70,
+    "sex": "Female",
+    "tobacco": "Cigarettes",
+    "premium": 200
+  },
+  {
+    "company": "Americo (Instant Decision IUL)",
+    "age": 75,
+    "sex": "Male",
+    "tobacco": "None",
+    "premium": 50
+  },
+  {
+    "company": "Americo (Instant Decision IUL)",
+    "age": 75,
+    "sex": "Male",
+    "tobacco": "None",
+    "premium": 100
+  },
+  {
+    "company": "Americo (Instant Decision IUL)",
+    "age": 75,
+    "sex": "Male",
+    "tobacco": "None",
+    "premium": 150
+  },
+  {
+    "company": "Americo (Instant Decision IUL)",
+    "age": 75,
+    "sex": "Male",
+    "tobacco": "None",
+    "premium": 200
+  },
+  {
+    "company": "Americo (Instant Decision IUL)",
+    "age": 75,
+    "sex": "Male",
+    "tobacco": "None",
+    "premium": 300
+  },
+  {
+    "company": "Americo (Instant Decision IUL)",
+    "age": 75,
+    "sex": "Male",
+    "tobacco": "None",
+    "premium": 500
+  },
+  {
+    "company": "Americo (Instant Decision IUL)",
+    "age": 75,
+    "sex": "Male",
+    "tobacco": "Cigarettes",
+    "premium": 50
+  },
+  {
+    "company": "Americo (Instant Decision IUL)",
+    "age": 75,
+    "sex": "Male",
+    "tobacco": "Cigarettes",
+    "premium": 100
+  },
+  {
+    "company": "Americo (Instant Decision IUL)",
+    "age": 75,
+    "sex": "Male",
+    "tobacco": "Cigarettes",
+    "premium": 150
+  },
+  {
+    "company": "Americo (Instant Decision IUL)",
+    "age": 75,
+    "sex": "Male",
+    "tobacco": "Cigarettes",
+    "premium": 200
+  },
+  {
+    "company": "Americo (Instant Decision IUL)",
+    "age": 75,
+    "sex": "Male",
+    "tobacco": "Cigarettes",
+    "premium": 300
+  },
+  {
+    "company": "Americo (Instant Decision IUL)",
+    "age": 75,
+    "sex": "Male",
+    "tobacco": "Cigarettes",
+    "premium": 500
+  },
+  {
+    "company": "Americo (Instant Decision IUL)",
+    "age": 75,
+    "sex": "Female",
+    "tobacco": "None",
+    "premium": 50
+  },
+  {
+    "company": "Americo (Instant Decision IUL)",
+    "age": 75,
+    "sex": "Female",
+    "tobacco": "None",
+    "premium": 100
+  },
+  {
+    "company": "Americo (Instant Decision IUL)",
+    "age": 75,
+    "sex": "Female",
+    "tobacco": "None",
+    "premium": 150
+  },
+  {
+    "company": "Americo (Instant Decision IUL)",
+    "age": 75,
+    "sex": "Female",
+    "tobacco": "None",
+    "premium": 200
+  },
+  {
+    "company": "Americo (Instant Decision IUL)",
+    "age": 75,
+    "sex": "Female",
+    "tobacco": "None",
+    "premium": 300
+  },
+  {
+    "company": "Americo (Instant Decision IUL)",
+    "age": 75,
+    "sex": "Female",
+    "tobacco": "None",
+    "premium": 500
+  },
+  {
+    "company": "Americo (Instant Decision IUL)",
+    "age": 75,
+    "sex": "Female",
+    "tobacco": "Cigarettes",
+    "premium": 50
+  },
+  {
+    "company": "Americo (Instant Decision IUL)",
+    "age": 75,
+    "sex": "Female",
+    "tobacco": "Cigarettes",
+    "premium": 100
+  },
+  {
+    "company": "Americo (Instant Decision IUL)",
+    "age": 75,
+    "sex": "Female",
+    "tobacco": "Cigarettes",
+    "premium": 150
+  },
+  {
+    "company": "Americo (Instant Decision IUL)",
+    "age": 75,
+    "sex": "Female",
+    "tobacco": "Cigarettes",
+    "premium": 200
+  },
+  {
+    "company": "Americo (Instant Decision IUL)",
+    "age": 75,
+    "sex": "Female",
+    "tobacco": "Cigarettes",
+    "premium": 300
+  },
+  {
+    "company": "Americo (Instant Decision IUL)",
+    "age": 75,
+    "sex": "Female",
+    "tobacco": "Cigarettes",
+    "premium": 500
+  },
+  {
+    "company": "Americo (Instant Decision IUL)",
+    "age": 80,
+    "sex": "Male",
+    "tobacco": "None",
+    "premium": 50
+  },
+  {
+    "company": "Americo (Instant Decision IUL)",
+    "age": 80,
+    "sex": "Male",
+    "tobacco": "None",
+    "premium": 100
+  },
+  {
+    "company": "Americo (Instant Decision IUL)",
+    "age": 80,
+    "sex": "Male",
+    "tobacco": "None",
+    "premium": 150
+  },
+  {
+    "company": "Americo (Instant Decision IUL)",
+    "age": 80,
+    "sex": "Male",
+    "tobacco": "None",
+    "premium": 200
+  },
+  {
+    "company": "Americo (Instant Decision IUL)",
+    "age": 80,
+    "sex": "Male",
+    "tobacco": "None",
+    "premium": 300
+  },
+  {
+    "company": "Americo (Instant Decision IUL)",
+    "age": 80,
+    "sex": "Male",
+    "tobacco": "None",
+    "premium": 500
+  },
+  {
+    "company": "Americo (Instant Decision IUL)",
+    "age": 80,
+    "sex": "Male",
+    "tobacco": "Cigarettes",
+    "premium": 50
+  },
+  {
+    "company": "Americo (Instant Decision IUL)",
+    "age": 80,
+    "sex": "Male",
+    "tobacco": "Cigarettes",
+    "premium": 100
+  },
+  {
+    "company": "Americo (Instant Decision IUL)",
+    "age": 80,
+    "sex": "Male",
+    "tobacco": "Cigarettes",
+    "premium": 150
+  },
+  {
+    "company": "Americo (Instant Decision IUL)",
+    "age": 80,
+    "sex": "Male",
+    "tobacco": "Cigarettes",
+    "premium": 200
+  },
+  {
+    "company": "Americo (Instant Decision IUL)",
+    "age": 80,
+    "sex": "Male",
+    "tobacco": "Cigarettes",
+    "premium": 300
+  },
+  {
+    "company": "Americo (Instant Decision IUL)",
+    "age": 80,
+    "sex": "Male",
+    "tobacco": "Cigarettes",
+    "premium": 500
+  },
+  {
+    "company": "Americo (Instant Decision IUL)",
+    "age": 80,
+    "sex": "Female",
+    "tobacco": "None",
+    "premium": 50
+  },
+  {
+    "company": "Americo (Instant Decision IUL)",
+    "age": 80,
+    "sex": "Female",
+    "tobacco": "None",
+    "premium": 100
+  },
+  {
+    "company": "Americo (Instant Decision IUL)",
+    "age": 80,
+    "sex": "Female",
+    "tobacco": "None",
+    "premium": 150
+  },
+  {
+    "company": "Americo (Instant Decision IUL)",
+    "age": 80,
+    "sex": "Female",
+    "tobacco": "None",
+    "premium": 200
+  },
+  {
+    "company": "Americo (Instant Decision IUL)",
+    "age": 80,
+    "sex": "Female",
+    "tobacco": "None",
+    "premium": 300
+  },
+  {
+    "company": "Americo (Instant Decision IUL)",
+    "age": 80,
+    "sex": "Female",
+    "tobacco": "None",
+    "premium": 500
+  },
+  {
+    "company": "Americo (Instant Decision IUL)",
+    "age": 80,
+    "sex": "Female",
+    "tobacco": "Cigarettes",
+    "premium": 50
+  },
+  {
+    "company": "Americo (Instant Decision IUL)",
+    "age": 80,
+    "sex": "Female",
+    "tobacco": "Cigarettes",
+    "premium": 100
+  },
+  {
+    "company": "Americo (Instant Decision IUL)",
+    "age": 80,
+    "sex": "Female",
+    "tobacco": "Cigarettes",
+    "premium": 150
+  },
+  {
+    "company": "Americo (Instant Decision IUL)",
+    "age": 80,
+    "sex": "Female",
+    "tobacco": "Cigarettes",
+    "premium": 200
+  },
+  {
+    "company": "Americo (Instant Decision IUL)",
+    "age": 80,
+    "sex": "Female",
+    "tobacco": "Cigarettes",
+    "premium": 300
+  },
+  {
+    "company": "Americo (Instant Decision IUL)",
+    "age": 80,
+    "sex": "Female",
+    "tobacco": "Cigarettes",
+    "premium": 500
+  },
+  {
+    "company": "Mutual of Omaha (Indexed Universal Life Express)",
+    "age": 18,
+    "sex": "Male",
+    "tobacco": "None",
+    "premium": 200
+  },
+  {
+    "company": "Mutual of Omaha (Indexed Universal Life Express)",
+    "age": 18,
+    "sex": "Male",
+    "tobacco": "None",
+    "premium": 300
+  },
+  {
+    "company": "Mutual of Omaha (Indexed Universal Life Express)",
+    "age": 18,
+    "sex": "Male",
+    "tobacco": "None",
+    "premium": 500
+  },
+  {
+    "company": "Mutual of Omaha (Indexed Universal Life Express)",
+    "age": 18,
+    "sex": "Male",
+    "tobacco": "Cigarettes",
+    "premium": 50
+  },
+  {
+    "company": "Mutual of Omaha (Indexed Universal Life Express)",
+    "age": 18,
+    "sex": "Male",
+    "tobacco": "Cigarettes",
+    "premium": 100
+  },
+  {
+    "company": "Mutual of Omaha (Indexed Universal Life Express)",
+    "age": 18,
+    "sex": "Male",
+    "tobacco": "Cigarettes",
+    "premium": 150
+  },
+  {
+    "company": "Mutual of Omaha (Indexed Universal Life Express)",
+    "age": 18,
+    "sex": "Male",
+    "tobacco": "Cigarettes",
+    "premium": 200
+  },
+  {
+    "company": "Mutual of Omaha (Indexed Universal Life Express)",
+    "age": 18,
+    "sex": "Male",
+    "tobacco": "Cigarettes",
+    "premium": 300
+  },
+  {
+    "company": "Mutual of Omaha (Indexed Universal Life Express)",
+    "age": 18,
+    "sex": "Male",
+    "tobacco": "Cigarettes",
+    "premium": 500
+  },
+  {
+    "company": "Mutual of Omaha (Indexed Universal Life Express)",
+    "age": 18,
+    "sex": "Female",
+    "tobacco": "None",
+    "premium": 150
+  },
+  {
+    "company": "Mutual of Omaha (Indexed Universal Life Express)",
+    "age": 18,
+    "sex": "Female",
+    "tobacco": "None",
+    "premium": 200
+  },
+  {
+    "company": "Mutual of Omaha (Indexed Universal Life Express)",
+    "age": 18,
+    "sex": "Female",
+    "tobacco": "None",
+    "premium": 300
+  },
+  {
+    "company": "Mutual of Omaha (Indexed Universal Life Express)",
+    "age": 18,
+    "sex": "Female",
+    "tobacco": "None",
+    "premium": 500
+  },
+  {
+    "company": "Mutual of Omaha (Indexed Universal Life Express)",
+    "age": 18,
+    "sex": "Female",
+    "tobacco": "Cigarettes",
+    "premium": 50
+  },
+  {
+    "company": "Mutual of Omaha (Indexed Universal Life Express)",
+    "age": 18,
+    "sex": "Female",
+    "tobacco": "Cigarettes",
+    "premium": 100
+  },
+  {
+    "company": "Mutual of Omaha (Indexed Universal Life Express)",
+    "age": 18,
+    "sex": "Female",
+    "tobacco": "Cigarettes",
+    "premium": 150
+  },
+  {
+    "company": "Mutual of Omaha (Indexed Universal Life Express)",
+    "age": 18,
+    "sex": "Female",
+    "tobacco": "Cigarettes",
+    "premium": 200
+  },
+  {
+    "company": "Mutual of Omaha (Indexed Universal Life Express)",
+    "age": 18,
+    "sex": "Female",
+    "tobacco": "Cigarettes",
+    "premium": 300
+  },
+  {
+    "company": "Mutual of Omaha (Indexed Universal Life Express)",
+    "age": 18,
+    "sex": "Female",
+    "tobacco": "Cigarettes",
+    "premium": 500
+  },
+  {
+    "company": "Mutual of Omaha (Indexed Universal Life Express)",
+    "age": 25,
+    "sex": "Male",
+    "tobacco": "None",
+    "premium": 200
+  },
+  {
+    "company": "Mutual of Omaha (Indexed Universal Life Express)",
+    "age": 25,
+    "sex": "Male",
+    "tobacco": "None",
+    "premium": 300
+  },
+  {
+    "company": "Mutual of Omaha (Indexed Universal Life Express)",
+    "age": 25,
+    "sex": "Male",
+    "tobacco": "None",
+    "premium": 500
+  },
+  {
+    "company": "Mutual of Omaha (Indexed Universal Life Express)",
+    "age": 25,
+    "sex": "Male",
+    "tobacco": "Cigarettes",
+    "premium": 50
+  },
+  {
+    "company": "Mutual of Omaha (Indexed Universal Life Express)",
+    "age": 25,
+    "sex": "Male",
+    "tobacco": "Cigarettes",
+    "premium": 100
+  },
+  {
+    "company": "Mutual of Omaha (Indexed Universal Life Express)",
+    "age": 25,
+    "sex": "Male",
+    "tobacco": "Cigarettes",
+    "premium": 150
+  },
+  {
+    "company": "Mutual of Omaha (Indexed Universal Life Express)",
+    "age": 25,
+    "sex": "Male",
+    "tobacco": "Cigarettes",
+    "premium": 200
+  },
+  {
+    "company": "Mutual of Omaha (Indexed Universal Life Express)",
+    "age": 25,
+    "sex": "Male",
+    "tobacco": "Cigarettes",
+    "premium": 300
+  },
+  {
+    "company": "Mutual of Omaha (Indexed Universal Life Express)",
+    "age": 25,
+    "sex": "Male",
+    "tobacco": "Cigarettes",
+    "premium": 500
+  },
+  {
+    "company": "Mutual of Omaha (Indexed Universal Life Express)",
+    "age": 25,
+    "sex": "Female",
+    "tobacco": "None",
+    "premium": 150
+  },
+  {
+    "company": "Mutual of Omaha (Indexed Universal Life Express)",
+    "age": 25,
+    "sex": "Female",
+    "tobacco": "None",
+    "premium": 200
+  },
+  {
+    "company": "Mutual of Omaha (Indexed Universal Life Express)",
+    "age": 25,
+    "sex": "Female",
+    "tobacco": "None",
+    "premium": 300
+  },
+  {
+    "company": "Mutual of Omaha (Indexed Universal Life Express)",
+    "age": 25,
+    "sex": "Female",
+    "tobacco": "None",
+    "premium": 500
+  },
+  {
+    "company": "Mutual of Omaha (Indexed Universal Life Express)",
+    "age": 25,
+    "sex": "Female",
+    "tobacco": "Cigarettes",
+    "premium": 300
+  },
+  {
+    "company": "Mutual of Omaha (Indexed Universal Life Express)",
+    "age": 25,
+    "sex": "Female",
+    "tobacco": "Cigarettes",
+    "premium": 500
+  },
+  {
+    "company": "Mutual of Omaha (Indexed Universal Life Express)",
+    "age": 30,
+    "sex": "Male",
+    "tobacco": "None",
+    "premium": 300
+  },
+  {
+    "company": "Mutual of Omaha (Indexed Universal Life Express)",
+    "age": 30,
+    "sex": "Male",
+    "tobacco": "None",
+    "premium": 500
+  },
+  {
+    "company": "Mutual of Omaha (Indexed Universal Life Express)",
+    "age": 30,
+    "sex": "Male",
+    "tobacco": "Cigarettes",
+    "premium": 50
+  },
+  {
+    "company": "Mutual of Omaha (Indexed Universal Life Express)",
+    "age": 30,
+    "sex": "Male",
+    "tobacco": "Cigarettes",
+    "premium": 100
+  },
+  {
+    "company": "Mutual of Omaha (Indexed Universal Life Express)",
+    "age": 30,
+    "sex": "Male",
+    "tobacco": "Cigarettes",
+    "premium": 150
+  },
+  {
+    "company": "Mutual of Omaha (Indexed Universal Life Express)",
+    "age": 30,
+    "sex": "Male",
+    "tobacco": "Cigarettes",
+    "premium": 500
+  },
+  {
+    "company": "Mutual of Omaha (Indexed Universal Life Express)",
+    "age": 30,
+    "sex": "Female",
+    "tobacco": "None",
+    "premium": 50
+  },
+  {
+    "company": "Mutual of Omaha (Indexed Universal Life Express)",
+    "age": 30,
+    "sex": "Female",
+    "tobacco": "None",
+    "premium": 100
+  },
+  {
+    "company": "Mutual of Omaha (Indexed Universal Life Express)",
+    "age": 30,
+    "sex": "Female",
+    "tobacco": "None",
+    "premium": 150
+  },
+  {
+    "company": "Mutual of Omaha (Indexed Universal Life Express)",
+    "age": 30,
+    "sex": "Female",
+    "tobacco": "None",
+    "premium": 200
+  },
+  {
+    "company": "Mutual of Omaha (Indexed Universal Life Express)",
+    "age": 30,
+    "sex": "Female",
+    "tobacco": "None",
+    "premium": 300
+  },
+  {
+    "company": "Mutual of Omaha (Indexed Universal Life Express)",
+    "age": 30,
+    "sex": "Female",
+    "tobacco": "None",
+    "premium": 500
+  },
+  {
+    "company": "Mutual of Omaha (Indexed Universal Life Express)",
+    "age": 30,
+    "sex": "Female",
+    "tobacco": "Cigarettes",
+    "premium": 300
+  },
+  {
+    "company": "Mutual of Omaha (Indexed Universal Life Express)",
+    "age": 30,
+    "sex": "Female",
+    "tobacco": "Cigarettes",
+    "premium": 500
+  },
+  {
+    "company": "Mutual of Omaha (Indexed Universal Life Express)",
+    "age": 35,
+    "sex": "Male",
+    "tobacco": "None",
+    "premium": 300
+  },
+  {
+    "company": "Mutual of Omaha (Indexed Universal Life Express)",
+    "age": 35,
+    "sex": "Male",
+    "tobacco": "None",
+    "premium": 500
+  },
+  {
+    "company": "Mutual of Omaha (Indexed Universal Life Express)",
+    "age": 35,
+    "sex": "Male",
+    "tobacco": "Cigarettes",
+    "premium": 500
+  },
+  {
+    "company": "Mutual of Omaha (Indexed Universal Life Express)",
+    "age": 35,
+    "sex": "Female",
+    "tobacco": "None",
+    "premium": 50
+  },
+  {
+    "company": "Mutual of Omaha (Indexed Universal Life Express)",
+    "age": 35,
+    "sex": "Female",
+    "tobacco": "None",
+    "premium": 100
+  },
+  {
+    "company": "Mutual of Omaha (Indexed Universal Life Express)",
+    "age": 35,
+    "sex": "Female",
+    "tobacco": "None",
+    "premium": 150
+  },
+  {
+    "company": "Mutual of Omaha (Indexed Universal Life Express)",
+    "age": 35,
+    "sex": "Female",
+    "tobacco": "None",
+    "premium": 200
+  },
+  {
+    "company": "Mutual of Omaha (Indexed Universal Life Express)",
+    "age": 35,
+    "sex": "Female",
+    "tobacco": "None",
+    "premium": 300
+  },
+  {
+    "company": "Mutual of Omaha (Indexed Universal Life Express)",
+    "age": 35,
+    "sex": "Female",
+    "tobacco": "None",
+    "premium": 500
+  },
+  {
+    "company": "Mutual of Omaha (Indexed Universal Life Express)",
+    "age": 35,
+    "sex": "Female",
+    "tobacco": "Cigarettes",
+    "premium": 500
+  },
+  {
+    "company": "Mutual of Omaha (Indexed Universal Life Express)",
+    "age": 40,
+    "sex": "Male",
+    "tobacco": "None",
+    "premium": 50
+  },
+  {
+    "company": "Mutual of Omaha (Indexed Universal Life Express)",
+    "age": 40,
+    "sex": "Male",
+    "tobacco": "None",
+    "premium": 100
+  },
+  {
+    "company": "Mutual of Omaha (Indexed Universal Life Express)",
+    "age": 40,
+    "sex": "Male",
+    "tobacco": "None",
+    "premium": 150
+  },
+  {
+    "company": "Mutual of Omaha (Indexed Universal Life Express)",
+    "age": 40,
+    "sex": "Male",
+    "tobacco": "None",
+    "premium": 200
+  },
+  {
+    "company": "Mutual of Omaha (Indexed Universal Life Express)",
+    "age": 40,
+    "sex": "Male",
+    "tobacco": "None",
+    "premium": 300
+  },
+  {
+    "company": "Mutual of Omaha (Indexed Universal Life Express)",
+    "age": 40,
+    "sex": "Male",
+    "tobacco": "None",
+    "premium": 500
+  },
+  {
+    "company": "Mutual of Omaha (Indexed Universal Life Express)",
+    "age": 40,
+    "sex": "Female",
+    "tobacco": "None",
+    "premium": 50
+  },
+  {
+    "company": "Mutual of Omaha (Indexed Universal Life Express)",
+    "age": 40,
+    "sex": "Female",
+    "tobacco": "None",
+    "premium": 100
+  },
+  {
+    "company": "Mutual of Omaha (Indexed Universal Life Express)",
+    "age": 40,
+    "sex": "Female",
+    "tobacco": "None",
+    "premium": 150
+  },
+  {
+    "company": "Mutual of Omaha (Indexed Universal Life Express)",
+    "age": 40,
+    "sex": "Female",
+    "tobacco": "None",
+    "premium": 200
+  },
+  {
+    "company": "Mutual of Omaha (Indexed Universal Life Express)",
+    "age": 40,
+    "sex": "Female",
+    "tobacco": "None",
+    "premium": 300
+  },
+  {
+    "company": "Mutual of Omaha (Indexed Universal Life Express)",
+    "age": 40,
+    "sex": "Female",
+    "tobacco": "None",
+    "premium": 500
+  },
+  {
+    "company": "Mutual of Omaha (Indexed Universal Life Express)",
+    "age": 40,
+    "sex": "Female",
+    "tobacco": "Cigarettes",
+    "premium": 500
+  },
+  {
+    "company": "Mutual of Omaha (Indexed Universal Life Express)",
+    "age": 45,
+    "sex": "Male",
+    "tobacco": "None",
+    "premium": 50
+  },
+  {
+    "company": "Mutual of Omaha (Indexed Universal Life Express)",
+    "age": 45,
+    "sex": "Male",
+    "tobacco": "None",
+    "premium": 100
+  },
+  {
+    "company": "Mutual of Omaha (Indexed Universal Life Express)",
+    "age": 45,
+    "sex": "Male",
+    "tobacco": "None",
+    "premium": 150
+  },
+  {
+    "company": "Mutual of Omaha (Indexed Universal Life Express)",
+    "age": 45,
+    "sex": "Male",
+    "tobacco": "None",
+    "premium": 200
+  },
+  {
+    "company": "Mutual of Omaha (Indexed Universal Life Express)",
+    "age": 45,
+    "sex": "Male",
+    "tobacco": "None",
+    "premium": 300
+  },
+  {
+    "company": "Mutual of Omaha (Indexed Universal Life Express)",
+    "age": 45,
+    "sex": "Male",
+    "tobacco": "None",
+    "premium": 500
+  },
+  {
+    "company": "Mutual of Omaha (Indexed Universal Life Express)",
+    "age": 45,
+    "sex": "Female",
+    "tobacco": "None",
+    "premium": 50
+  },
+  {
+    "company": "Mutual of Omaha (Indexed Universal Life Express)",
+    "age": 45,
+    "sex": "Female",
+    "tobacco": "None",
+    "premium": 100
+  },
+  {
+    "company": "Mutual of Omaha (Indexed Universal Life Express)",
+    "age": 45,
+    "sex": "Female",
+    "tobacco": "None",
+    "premium": 150
+  },
+  {
+    "company": "Mutual of Omaha (Indexed Universal Life Express)",
+    "age": 45,
+    "sex": "Female",
+    "tobacco": "None",
+    "premium": 500
+  },
+  {
+    "company": "Mutual of Omaha (Indexed Universal Life Express)",
+    "age": 45,
+    "sex": "Female",
+    "tobacco": "Cigarettes",
+    "premium": 50
+  },
+  {
+    "company": "Mutual of Omaha (Indexed Universal Life Express)",
+    "age": 45,
+    "sex": "Female",
+    "tobacco": "Cigarettes",
+    "premium": 100
+  },
+  {
+    "company": "Mutual of Omaha (Indexed Universal Life Express)",
+    "age": 45,
+    "sex": "Female",
+    "tobacco": "Cigarettes",
+    "premium": 150
+  },
+  {
+    "company": "Mutual of Omaha (Indexed Universal Life Express)",
+    "age": 45,
+    "sex": "Female",
+    "tobacco": "Cigarettes",
+    "premium": 200
+  },
+  {
+    "company": "Mutual of Omaha (Indexed Universal Life Express)",
+    "age": 45,
+    "sex": "Female",
+    "tobacco": "Cigarettes",
+    "premium": 300
+  },
+  {
+    "company": "Mutual of Omaha (Indexed Universal Life Express)",
+    "age": 45,
+    "sex": "Female",
+    "tobacco": "Cigarettes",
+    "premium": 500
+  },
+  {
+    "company": "Mutual of Omaha (Indexed Universal Life Express)",
+    "age": 50,
+    "sex": "Male",
+    "tobacco": "None",
+    "premium": 50
+  },
+  {
+    "company": "Mutual of Omaha (Indexed Universal Life Express)",
+    "age": 50,
+    "sex": "Male",
+    "tobacco": "None",
+    "premium": 100
+  },
+  {
+    "company": "Mutual of Omaha (Indexed Universal Life Express)",
+    "age": 50,
+    "sex": "Male",
+    "tobacco": "None",
+    "premium": 150
+  },
+  {
+    "company": "Mutual of Omaha (Indexed Universal Life Express)",
+    "age": 50,
+    "sex": "Male",
+    "tobacco": "None",
+    "premium": 200
+  },
+  {
+    "company": "Mutual of Omaha (Indexed Universal Life Express)",
+    "age": 50,
+    "sex": "Male",
+    "tobacco": "None",
+    "premium": 300
+  },
+  {
+    "company": "Mutual of Omaha (Indexed Universal Life Express)",
+    "age": 50,
+    "sex": "Male",
+    "tobacco": "None",
+    "premium": 500
+  },
+  {
+    "company": "Mutual of Omaha (Indexed Universal Life Express)",
+    "age": 50,
+    "sex": "Male",
+    "tobacco": "Cigarettes",
+    "premium": 50
+  },
+  {
+    "company": "Mutual of Omaha (Indexed Universal Life Express)",
+    "age": 50,
+    "sex": "Male",
+    "tobacco": "Cigarettes",
+    "premium": 150
+  },
+  {
+    "company": "Mutual of Omaha (Indexed Universal Life Express)",
+    "age": 50,
+    "sex": "Male",
+    "tobacco": "Cigarettes",
+    "premium": 200
+  },
+  {
+    "company": "Mutual of Omaha (Indexed Universal Life Express)",
+    "age": 50,
+    "sex": "Male",
+    "tobacco": "Cigarettes",
+    "premium": 300
+  },
+  {
+    "company": "Mutual of Omaha (Indexed Universal Life Express)",
+    "age": 50,
+    "sex": "Male",
+    "tobacco": "Cigarettes",
+    "premium": 500
+  },
+  {
+    "company": "Mutual of Omaha (Indexed Universal Life Express)",
+    "age": 50,
+    "sex": "Female",
+    "tobacco": "Cigarettes",
+    "premium": 50
+  },
+  {
+    "company": "Mutual of Omaha (Indexed Universal Life Express)",
+    "age": 50,
+    "sex": "Female",
+    "tobacco": "Cigarettes",
+    "premium": 100
+  },
+  {
+    "company": "Mutual of Omaha (Indexed Universal Life Express)",
+    "age": 50,
+    "sex": "Female",
+    "tobacco": "Cigarettes",
+    "premium": 150
+  },
+  {
+    "company": "Mutual of Omaha (Indexed Universal Life Express)",
+    "age": 50,
+    "sex": "Female",
+    "tobacco": "Cigarettes",
+    "premium": 200
+  },
+  {
+    "company": "Mutual of Omaha (Indexed Universal Life Express)",
+    "age": 50,
+    "sex": "Female",
+    "tobacco": "Cigarettes",
+    "premium": 300
+  },
+  {
+    "company": "Mutual of Omaha (Indexed Universal Life Express)",
+    "age": 50,
+    "sex": "Female",
+    "tobacco": "Cigarettes",
+    "premium": 500
+  },
+  {
+    "company": "Mutual of Omaha (Indexed Universal Life Express)",
+    "age": 55,
+    "sex": "Male",
+    "tobacco": "Cigarettes",
+    "premium": 50
+  },
+  {
+    "company": "Mutual of Omaha (Indexed Universal Life Express)",
+    "age": 55,
+    "sex": "Male",
+    "tobacco": "Cigarettes",
+    "premium": 100
+  },
+  {
+    "company": "Mutual of Omaha (Indexed Universal Life Express)",
+    "age": 55,
+    "sex": "Male",
+    "tobacco": "Cigarettes",
+    "premium": 150
+  },
+  {
+    "company": "Mutual of Omaha (Indexed Universal Life Express)",
+    "age": 55,
+    "sex": "Male",
+    "tobacco": "Cigarettes",
+    "premium": 200
+  },
+  {
+    "company": "Mutual of Omaha (Indexed Universal Life Express)",
+    "age": 55,
+    "sex": "Male",
+    "tobacco": "Cigarettes",
+    "premium": 300
+  },
+  {
+    "company": "Mutual of Omaha (Indexed Universal Life Express)",
+    "age": 55,
+    "sex": "Male",
+    "tobacco": "Cigarettes",
+    "premium": 500
+  },
+  {
+    "company": "Mutual of Omaha (Indexed Universal Life Express)",
+    "age": 55,
+    "sex": "Female",
+    "tobacco": "Cigarettes",
+    "premium": 50
+  },
+  {
+    "company": "Mutual of Omaha (Indexed Universal Life Express)",
+    "age": 55,
+    "sex": "Female",
+    "tobacco": "Cigarettes",
+    "premium": 100
+  },
+  {
+    "company": "Mutual of Omaha (Indexed Universal Life Express)",
+    "age": 55,
+    "sex": "Female",
+    "tobacco": "Cigarettes",
+    "premium": 150
+  },
+  {
+    "company": "Mutual of Omaha (Indexed Universal Life Express)",
+    "age": 55,
+    "sex": "Female",
+    "tobacco": "Cigarettes",
+    "premium": 200
+  },
+  {
+    "company": "Mutual of Omaha (Indexed Universal Life Express)",
+    "age": 55,
+    "sex": "Female",
+    "tobacco": "Cigarettes",
+    "premium": 300
+  },
+  {
+    "company": "Mutual of Omaha (Indexed Universal Life Express)",
+    "age": 55,
+    "sex": "Female",
+    "tobacco": "Cigarettes",
+    "premium": 500
+  },
+  {
+    "company": "Mutual of Omaha (Indexed Universal Life Express)",
+    "age": 60,
+    "sex": "Male",
+    "tobacco": "None",
+    "premium": 50
+  },
+  {
+    "company": "Mutual of Omaha (Indexed Universal Life Express)",
+    "age": 60,
+    "sex": "Male",
+    "tobacco": "Cigarettes",
+    "premium": 50
+  },
+  {
+    "company": "Mutual of Omaha (Indexed Universal Life Express)",
+    "age": 60,
+    "sex": "Male",
+    "tobacco": "Cigarettes",
+    "premium": 100
+  },
+  {
+    "company": "Mutual of Omaha (Indexed Universal Life Express)",
+    "age": 60,
+    "sex": "Male",
+    "tobacco": "Cigarettes",
+    "premium": 150
+  },
+  {
+    "company": "Mutual of Omaha (Indexed Universal Life Express)",
+    "age": 60,
+    "sex": "Male",
+    "tobacco": "Cigarettes",
+    "premium": 200
+  },
+  {
+    "company": "Mutual of Omaha (Indexed Universal Life Express)",
+    "age": 60,
+    "sex": "Male",
+    "tobacco": "Cigarettes",
+    "premium": 300
+  },
+  {
+    "company": "Mutual of Omaha (Indexed Universal Life Express)",
+    "age": 60,
+    "sex": "Male",
+    "tobacco": "Cigarettes",
+    "premium": 500
+  },
+  {
+    "company": "Mutual of Omaha (Indexed Universal Life Express)",
+    "age": 60,
+    "sex": "Female",
+    "tobacco": "Cigarettes",
+    "premium": 50
+  },
+  {
+    "company": "Mutual of Omaha (Indexed Universal Life Express)",
+    "age": 60,
+    "sex": "Female",
+    "tobacco": "Cigarettes",
+    "premium": 100
+  },
+  {
+    "company": "Mutual of Omaha (Indexed Universal Life Express)",
+    "age": 60,
+    "sex": "Female",
+    "tobacco": "Cigarettes",
+    "premium": 150
+  },
+  {
+    "company": "Mutual of Omaha (Indexed Universal Life Express)",
+    "age": 65,
+    "sex": "Male",
+    "tobacco": "None",
+    "premium": 50
+  },
+  {
+    "company": "Mutual of Omaha (Indexed Universal Life Express)",
+    "age": 65,
+    "sex": "Male",
+    "tobacco": "Cigarettes",
+    "premium": 50
+  },
+  {
+    "company": "Mutual of Omaha (Indexed Universal Life Express)",
+    "age": 65,
+    "sex": "Male",
+    "tobacco": "Cigarettes",
+    "premium": 100
+  },
+  {
+    "company": "Mutual of Omaha (Indexed Universal Life Express)",
+    "age": 65,
+    "sex": "Male",
+    "tobacco": "Cigarettes",
+    "premium": 150
+  },
+  {
+    "company": "Mutual of Omaha (Indexed Universal Life Express)",
+    "age": 65,
+    "sex": "Male",
+    "tobacco": "Cigarettes",
+    "premium": 200
+  },
+  {
+    "company": "Mutual of Omaha (Indexed Universal Life Express)",
+    "age": 65,
+    "sex": "Male",
+    "tobacco": "Cigarettes",
+    "premium": 300
+  },
+  {
+    "company": "Mutual of Omaha (Indexed Universal Life Express)",
+    "age": 65,
+    "sex": "Male",
+    "tobacco": "Cigarettes",
+    "premium": 500
+  },
+  {
+    "company": "Mutual of Omaha (Indexed Universal Life Express)",
+    "age": 65,
+    "sex": "Female",
+    "tobacco": "None",
+    "premium": 50
+  },
+  {
+    "company": "Mutual of Omaha (Indexed Universal Life Express)",
+    "age": 65,
+    "sex": "Female",
+    "tobacco": "None",
+    "premium": 150
+  },
+  {
+    "company": "Mutual of Omaha (Indexed Universal Life Express)",
+    "age": 65,
+    "sex": "Female",
+    "tobacco": "None",
+    "premium": 200
+  },
+  {
+    "company": "Mutual of Omaha (Indexed Universal Life Express)",
+    "age": 65,
+    "sex": "Female",
+    "tobacco": "None",
+    "premium": 300
+  },
+  {
+    "company": "Mutual of Omaha (Indexed Universal Life Express)",
+    "age": 65,
+    "sex": "Female",
+    "tobacco": "None",
+    "premium": 500
+  },
+  {
+    "company": "Mutual of Omaha (Indexed Universal Life Express)",
+    "age": 65,
+    "sex": "Female",
+    "tobacco": "Cigarettes",
+    "premium": 50
+  },
+  {
+    "company": "Mutual of Omaha (Indexed Universal Life Express)",
+    "age": 70,
+    "sex": "Male",
+    "tobacco": "None",
+    "premium": 50
+  },
+  {
+    "company": "Mutual of Omaha (Indexed Universal Life Express)",
+    "age": 70,
+    "sex": "Male",
+    "tobacco": "None",
+    "premium": 100
+  },
+  {
+    "company": "Mutual of Omaha (Indexed Universal Life Express)",
+    "age": 70,
+    "sex": "Male",
+    "tobacco": "Cigarettes",
+    "premium": 50
+  },
+  {
+    "company": "Mutual of Omaha (Indexed Universal Life Express)",
+    "age": 70,
+    "sex": "Male",
+    "tobacco": "Cigarettes",
+    "premium": 100
+  },
+  {
+    "company": "Mutual of Omaha (Indexed Universal Life Express)",
+    "age": 70,
+    "sex": "Female",
+    "tobacco": "None",
+    "premium": 50
+  },
+  {
+    "company": "Mutual of Omaha (Indexed Universal Life Express)",
+    "age": 70,
+    "sex": "Female",
+    "tobacco": "None",
+    "premium": 100
+  },
+  {
+    "company": "Mutual of Omaha (Indexed Universal Life Express)",
+    "age": 70,
+    "sex": "Female",
+    "tobacco": "None",
+    "premium": 150
+  },
+  {
+    "company": "Mutual of Omaha (Indexed Universal Life Express)",
+    "age": 70,
+    "sex": "Female",
+    "tobacco": "None",
+    "premium": 200
+  },
+  {
+    "company": "Mutual of Omaha (Indexed Universal Life Express)",
+    "age": 70,
+    "sex": "Female",
+    "tobacco": "None",
+    "premium": 300
+  },
+  {
+    "company": "Mutual of Omaha (Indexed Universal Life Express)",
+    "age": 70,
+    "sex": "Female",
+    "tobacco": "None",
+    "premium": 500
+  },
+  {
+    "company": "Mutual of Omaha (Indexed Universal Life Express)",
+    "age": 70,
+    "sex": "Female",
+    "tobacco": "Cigarettes",
+    "premium": 50
+  },
+  {
+    "company": "Mutual of Omaha (Indexed Universal Life Express)",
+    "age": 70,
+    "sex": "Female",
+    "tobacco": "Cigarettes",
+    "premium": 100
+  },
+  {
+    "company": "Mutual of Omaha (Indexed Universal Life Express)",
+    "age": 75,
+    "sex": "Male",
+    "tobacco": "None",
+    "premium": 50
+  },
+  {
+    "company": "Mutual of Omaha (Indexed Universal Life Express)",
+    "age": 75,
+    "sex": "Male",
+    "tobacco": "None",
+    "premium": 100
+  },
+  {
+    "company": "Mutual of Omaha (Indexed Universal Life Express)",
+    "age": 75,
+    "sex": "Male",
+    "tobacco": "None",
+    "premium": 150
+  },
+  {
+    "company": "Mutual of Omaha (Indexed Universal Life Express)",
+    "age": 75,
+    "sex": "Male",
+    "tobacco": "None",
+    "premium": 200
+  },
+  {
+    "company": "Mutual of Omaha (Indexed Universal Life Express)",
+    "age": 75,
+    "sex": "Male",
+    "tobacco": "None",
+    "premium": 300
+  },
+  {
+    "company": "Mutual of Omaha (Indexed Universal Life Express)",
+    "age": 75,
+    "sex": "Male",
+    "tobacco": "None",
+    "premium": 500
+  },
+  {
+    "company": "Mutual of Omaha (Indexed Universal Life Express)",
+    "age": 75,
+    "sex": "Male",
+    "tobacco": "Cigarettes",
+    "premium": 50
+  },
+  {
+    "company": "Mutual of Omaha (Indexed Universal Life Express)",
+    "age": 75,
+    "sex": "Male",
+    "tobacco": "Cigarettes",
+    "premium": 100
+  },
+  {
+    "company": "Mutual of Omaha (Indexed Universal Life Express)",
+    "age": 75,
+    "sex": "Male",
+    "tobacco": "Cigarettes",
+    "premium": 150
+  },
+  {
+    "company": "Mutual of Omaha (Indexed Universal Life Express)",
+    "age": 75,
+    "sex": "Male",
+    "tobacco": "Cigarettes",
+    "premium": 200
+  },
+  {
+    "company": "Mutual of Omaha (Indexed Universal Life Express)",
+    "age": 75,
+    "sex": "Female",
+    "tobacco": "None",
+    "premium": 50
+  },
+  {
+    "company": "Mutual of Omaha (Indexed Universal Life Express)",
+    "age": 75,
+    "sex": "Female",
+    "tobacco": "None",
+    "premium": 100
+  },
+  {
+    "company": "Mutual of Omaha (Indexed Universal Life Express)",
+    "age": 75,
+    "sex": "Female",
+    "tobacco": "None",
+    "premium": 150
+  },
+  {
+    "company": "Mutual of Omaha (Indexed Universal Life Express)",
+    "age": 75,
+    "sex": "Female",
+    "tobacco": "None",
+    "premium": 200
+  },
+  {
+    "company": "Mutual of Omaha (Indexed Universal Life Express)",
+    "age": 75,
+    "sex": "Female",
+    "tobacco": "None",
+    "premium": 300
+  },
+  {
+    "company": "Mutual of Omaha (Indexed Universal Life Express)",
+    "age": 75,
+    "sex": "Female",
+    "tobacco": "None",
+    "premium": 500
+  },
+  {
+    "company": "Mutual of Omaha (Indexed Universal Life Express)",
+    "age": 75,
+    "sex": "Female",
+    "tobacco": "Cigarettes",
+    "premium": 50
+  },
+  {
+    "company": "Mutual of Omaha (Indexed Universal Life Express)",
+    "age": 75,
+    "sex": "Female",
+    "tobacco": "Cigarettes",
+    "premium": 100
+  },
+  {
+    "company": "Mutual of Omaha (Indexed Universal Life Express)",
+    "age": 75,
+    "sex": "Female",
+    "tobacco": "Cigarettes",
+    "premium": 150
+  }
+]
