@@ -26,12 +26,48 @@ const rates = JSON.parse(fs.readFileSync(RATES_PATH, 'utf8'));
 
 function num(s) { return parseFloat(String(s).replace(/,/g, '')); }
 
-let added = 0, skipped = 0, dupes = 0, invalid = 0;
+// ITK PLACEHOLDER DETECTION
+// When ITK can't really quote a (product × age × sex × tobacco × premium)
+// combo, it returns the carrier's minimum face ($50,000 for Americo, etc.)
+// across EVERY premium anchor instead of a real differentiated rate. This
+// is junk data — at $500/mo a 30yo non-smoker should get $500k+ face, not
+// $50k. Two-stage filter:
+//
+// 1. Group-level: if 3+ anchors at the same (product, age, sex, tobacco)
+//    combo all return the IDENTICAL face, the whole group is fake.
+// 2. Row-level: any single row where face is at or below the carrier's
+//    declared minimum face AND premium is >= $200 is suspect because real
+//    quotes scale up with premium.
+const CARRIER_MIN_FACE = {
+  'Americo (Instant Decision IUL)': 50000,
+  'Mutual of Omaha (Indexed Universal Life Express)': 25000,
+};
+const groupKey = r => r.company + '|' + r.sex + '|' + r.tobacco + '|' + r.age;
+const groups = new Map();
+for (const r of gap) {
+  const k = groupKey(r);
+  if (!groups.has(k)) groups.set(k, []);
+  groups.get(k).push(r);
+}
+const badGroups = new Set();
+for (const [k, rows] of groups) {
+  if (rows.length < 3) continue;
+  const faces = rows.map(r => num(r.face_amount));
+  if (faces.every(f => f === faces[0])) badGroups.add(k);
+}
+console.log(`Detected ${badGroups.size} placeholder groups (3+ anchors identical face)`);
+
+let added = 0, skipped = 0, dupes = 0, invalid = 0, junk = 0, suspect = 0;
 for (const r of gap) {
   const product = r.company;
   if (!product) { invalid++; continue; }
+  if (badGroups.has(groupKey(r))) { junk++; continue; }
   const face = num(r.face_amount);
   if (!isFinite(face) || face <= 0) { invalid++; continue; }
+  // Row-level: at premium >= $200, face hitting the carrier minimum is
+  // almost certainly a placeholder return, not a real quote.
+  const minFace = CARRIER_MIN_FACE[product];
+  if (minFace && face <= minFace && Number(r.premium) >= 200) { suspect++; continue; }
   const cls = (r.sex === 'Male' ? 'M' : 'F') + (r.tobacco === 'Cigarettes' ? 'S' : 'NS');
   const age = String(r.age);
   const premium = String(r.premium);
@@ -41,13 +77,14 @@ for (const r of gap) {
   if (!rates[product][cls][age]) rates[product][cls][age] = {};
 
   if (rates[product][cls][age][premium] != null) {
-    // Already have this cell — keep the original
     dupes++;
     continue;
   }
   rates[product][cls][age][premium] = Math.round(face);
   added++;
 }
+console.log(`  Group-level junk filtered: ${junk}`);
+console.log(`  Row-level suspect filtered: ${suspect} (face <= carrier min at premium >= $200)`);
 
 console.log(`Merge complete:`);
 console.log(`  Added:    ${added}`);
