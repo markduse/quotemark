@@ -978,12 +978,21 @@ function iulPremiumForFace(product, classKey, age, targetFace) {
     if (fLo == null || fHi == null) continue;
     if (targetFace >= fLo && targetFace <= fHi) {
       const pLo = premAnchors[i], pHi = premAnchors[i+1];
-      if (fLo === fHi) return pLo;
-      return Math.round((pLo + (targetFace - fLo) / (fHi - fLo) * (pHi - pLo)) * 100) / 100;
+      if (fLo === fHi) return { premium: pLo };
+      return { premium: Math.round((pLo + (targetFace - fLo) / (fHi - fLo) * (pHi - pLo)) * 100) / 100 };
     }
   }
-  // Below min anchor face → return min premium; above max → return null (can't fund)
-  if (faces[0] != null && targetFace < faces[0]) return premAnchors[0];
+  // Below min anchor face → return min premium
+  if (faces[0] != null && targetFace < faces[0]) return { premium: premAnchors[0] };
+  // Above max achievable face → return MAX premium with cap info so the UI
+  // can tell the agent "carrier maxes at $X face for $500/mo at this age."
+  // Otherwise the carrier silently drops out of results which Mark hated.
+  const lastValid = [...faces].reverse().findIndex(f => f != null);
+  if (lastValid >= 0) {
+    const idx = faces.length - 1 - lastValid;
+    const maxFace = faces[idx], maxPrem = premAnchors[idx];
+    return { premium: maxPrem, capped: true, maxFace };
+  }
   return null;
 }
 
@@ -2933,9 +2942,12 @@ export default function QuoteMark() {
         if (face == null) return null;
         return { ...c, face, premium: iulPremium };
       } else {
-        const premium = c.fnPremium(a, male, smoker, iulFace);
-        if (premium == null) return null;
-        return { ...c, face: iulFace, premium };
+        const res = c.fnPremium(a, male, smoker, iulFace);
+        if (res == null) return null;
+        // res is {premium, capped?, maxFace?} — when capped, the carrier
+        // can't issue the requested face at this age and we're showing
+        // the max they will write at their highest premium tier.
+        return { ...c, face: res.capped ? res.maxFace : iulFace, premium: res.premium, capped: res.capped, targetFace: iulFace };
       }
     }).filter(r => r != null);
     // Solve-face: sort by face desc (most coverage first)
@@ -5002,7 +5014,9 @@ export default function QuoteMark() {
                           <div style={{fontSize:10,color:C.t4,marginTop:5,fontStyle:'italic'}}>
                             {iulMode==='face'
                               ? `Premium $${iulPremium}/mo buys this face amount`
-                              : `Premium needed for $${(iulFace/1000).toFixed(0)}k face`}
+                              : r.capped
+                                ? `Carrier maxes at $${(r.face/1000).toFixed(0)}k face at age ${age} — can't fund $${(r.targetFace/1000).toFixed(0)}k`
+                                : `Premium needed for $${(iulFace/1000).toFixed(0)}k face`}
                           </div>
                         </div>
                         <div style={{textAlign:'right',flexShrink:0}}>
@@ -5014,7 +5028,7 @@ export default function QuoteMark() {
                           ) : (
                             <>
                               <div style={{fontFamily:"'DM Mono',monospace",fontSize:32,fontWeight:800,color:C.t0,lineHeight:1}}>${r.premium.toFixed(2)}<span style={{fontSize:18,color:C.t3,fontWeight:600}}>/mo</span></div>
-                              <div style={{fontSize:10,color:C.t4,marginTop:4,fontWeight:600,letterSpacing:1,textTransform:'uppercase'}}>Required Premium</div>
+                              <div style={{fontSize:10,color:C.t4,marginTop:4,fontWeight:600,letterSpacing:1,textTransform:'uppercase'}}>{r.capped ? `MAX FACE $${(r.face/1000).toFixed(0)}K` : 'Required Premium'}</div>
                             </>
                           )}
                         </div>
