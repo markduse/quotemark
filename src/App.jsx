@@ -2236,7 +2236,7 @@ const CoverageEstimate = ({ monthlyPremium, policyYears, currentAge, gender, set
 
       {/* Disclaimer */}
       <div style={{fontSize:10,color:C.t4,lineHeight:1.8,background:C.bg3,borderRadius:8,padding:'10px 14px',border:`1px solid ${C.bd}`}}>
-        ⚠️ <strong style={{color:C.t3}}>Educational estimate.</strong> Conservative range based on typical Standard / Modified WL rate pricing. Lowballed to reflect that policies issued years ago were priced less competitively than today's rate book. For conversational guidance only — verify actual coverage with policy documents.
+        ⚠️ <strong style={{color:C.t3}}>Educational estimate.</strong> For conversational guidance only — verify actual coverage with policy documents.
       </div>
     </div>
   );
@@ -3919,7 +3919,7 @@ export default function QuoteMark() {
                           (If this is a ROP or Guaranteed Issue policy, actual coverage is likely much less.)
                         </div>
                         <div style={{fontSize:9,color:C.t4,marginTop:8,lineHeight:1.6,borderTop:`1px solid ${C.bd}`,paddingTop:8}}>
-                          Conservative estimate · Lowballed vs current rate book. Verify actual coverage with policy documents.
+                          ⚠️ Educational estimate. For conversational guidance only — verify actual coverage with policy documents.
                         </div>
                       </div>
                       </>
