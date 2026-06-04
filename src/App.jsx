@@ -2029,23 +2029,24 @@ function calculateCVCorridor(monthlyPremium, policyYears, issueAge) {
 }
 
 // ── COVERAGE ESTIMATOR (FEX/WL reverse-lookup) ──
-// Given current age + policy years + monthly premium + gender, reverses
-// the FEX/WL rate table to estimate the policy's face amount. Anchored
-// to two reference products that bound the real-world Std/Modified band:
+// Given current age + policy years + monthly premium + gender, estimates
+// the face amount of an existing WL/FE policy.
 //
-//   HIGH anchor: Foresters PlanRight Standard (one of the more aggressive
-//                Std-tier prices — more face per premium dollar)
-//   LOW  anchor: CVS (Aetna Accendo) Accendo Modified (Modified-tier
-//                pricing — less face per premium dollar)
+// Method:
+//   1. Look up today's most aggressive (Preferred-tier) face at this
+//      (issue_age, gender NS, premium) — call this "book"
+//   2. Lowball by a gender-specific discount band because:
+//      a. Real policies typically aren't Preferred-tier (most are Std/Mod)
+//      b. Policies issued 5-15 years ago were priced less competitively
+//         than today's rate book — face per dollar has improved
+//   3. Apply [low_factor, high_factor]:
+//        Male:   [0.50, 0.75]  → "down 25–50%"
+//        Female: [0.60, 0.85]  → "down 15–40%"
 //
-// Most real WL/FE policies (Std or Modified tier) land between these.
-// ROP and GI policies will land lower than this range — covered by the
-// disclaimer in the UI.
+// Hardcoded to Non-Smoker class — where ~80% of FE buyers land.
+// ROP and GI policies land lower than this range (caveat in the UI).
 //
-// Tobacco is hardcoded to Non-Smoker — that's where ~80% of FE buyers
-// land, and the Std/Mod buyers we're estimating for are nearly always NS.
-//
-// Returns: { high, low, foundHigh, foundLow, issueAge } or { error }
+// Returns: { low, high, issueAge } or { error }
 function estimateCoverage({ currentAge, policyYears, monthlyPremium, gender }) {
   if (!currentAge || !policyYears || !monthlyPremium) return { error: 'missing inputs' };
   const issueAge = currentAge - policyYears;
@@ -2053,36 +2054,25 @@ function estimateCoverage({ currentAge, policyYears, monthlyPremium, gender }) {
 
   const cls = gender === 'male' ? 'MNS' : 'FNS';
 
-  function faceFromProduct(productKey) {
-    const ageMap = FEX_RATES?.[productKey]?.[cls]?.[String(issueAge)];
-    if (!ageMap) return null;
-    const candidates = Object.entries(ageMap).map(([face, prem]) => ({
-      face: Number(face), prem: Number(prem),
-    }));
-    if (!candidates.length) return null;
-    candidates.sort((a, b) =>
-      Math.abs(a.prem - monthlyPremium) - Math.abs(b.prem - monthlyPremium)
-    );
-    return candidates[0].face;
-  }
+  // Today's aggressive book — Foresters PlanRight Preferred. Covers ages 50-85.
+  const ageMap = FEX_RATES?.['Foresters (PlanRight)||PlanRight Preferred']?.[cls]?.[String(issueAge)];
+  if (!ageMap) return { error: 'insufficient products matched' };
+  const candidates = Object.entries(ageMap).map(([face, prem]) => ({
+    face: Number(face), prem: Number(prem),
+  }));
+  if (!candidates.length) return { error: 'insufficient products matched' };
+  candidates.sort((a, b) =>
+    Math.abs(a.prem - monthlyPremium) - Math.abs(b.prem - monthlyPremium)
+  );
+  const book = candidates[0].face;
 
-  const foresters = faceFromProduct('Foresters (PlanRight)||PlanRight Standard');
-  const aetna     = faceFromProduct('CVS (Aetna Accendo)||Accendo Modified');
-
-  if (foresters == null && aetna == null) return { error: 'insufficient products matched' };
-
-  // Sort by face value so the label always matches the larger/smaller number,
-  // even when premium-anchor granularity causes the "high" carrier to land
-  // below the "low" carrier on a particular cell.
-  const both = [foresters, aetna].filter(v => v != null);
-  const high = both.length ? Math.max(...both) : null;
-  const low  = both.length ? Math.min(...both) : null;
-
+  // Lowball discount band
+  const [loFactor, hiFactor] = gender === 'male' ? [0.50, 0.75] : [0.60, 0.85];
+  const round = n => Math.round(n / 250) * 250; // snap to $250 anchor for clean display
   return {
     issueAge,
-    high, low, foresters, aetna,
-    foundHigh: high != null,
-    foundLow:  low  != null && low !== high,
+    low:  round(book * loFactor),
+    high: round(book * hiFactor),
   };
 }
 
@@ -2198,7 +2188,7 @@ const CoverageEstimate = ({ monthlyPremium, policyYears, currentAge, gender, set
         <span style={{fontSize:28}}>🛡️</span>
         <div>
           <div style={{fontSize:18,fontWeight:800,color:C.t0,fontFamily:"'DM Sans',sans-serif"}}>Coverage Estimate</div>
-          <div style={{fontSize:11,color:C.t4,marginTop:2}}>Reverse-lookup from premium · Foresters Std → Aetna Modified band</div>
+          <div style={{fontSize:11,color:C.t4,marginTop:2}}>Conservative estimate from premium · Standard / Modified WL rate book</div>
         </div>
       </div>
 
@@ -2215,7 +2205,7 @@ const CoverageEstimate = ({ monthlyPremium, policyYears, currentAge, gender, set
       {r.error ? (
         <div style={{background:C.bg3,border:`1px solid ${C.bd}`,borderRadius:10,padding:16,fontSize:13,color:C.t3,textAlign:'center'}}>
           {r.error === 'insufficient products matched'
-            ? 'No reference data at this issue age. Foresters PlanRight Std covers ages 50–85; Aetna Modified covers 40–75.'
+            ? 'No reference data at this issue age. Estimator covers issue ages 50–85 (WL/FE buyer range).'
             : r.error === 'policy years exceed current age'
             ? 'Policy years cannot exceed current age.'
             : 'Enter current age, monthly premium, and years in-force.'}
@@ -2225,38 +2215,26 @@ const CoverageEstimate = ({ monthlyPremium, policyYears, currentAge, gender, set
           <div style={{fontSize:10,fontWeight:700,letterSpacing:1.8,color:amber,textTransform:'uppercase',marginBottom:14}}>
             Estimated Death Benefit · Issued at age {r.issueAge}
           </div>
-          {r.foundLow ? (
-            <>
-              <div style={{display:'flex',alignItems:'baseline',gap:10,flexWrap:'wrap',marginBottom:14}}>
-                <span style={{fontSize:30,fontWeight:800,color:C.t2,fontFamily:"'DM Mono',monospace"}}>{fmt(r.low)}</span>
-                <span style={{fontSize:18,color:C.t4}}>–</span>
-                <span style={{fontSize:30,fontWeight:800,color:amber,fontFamily:"'DM Mono',monospace"}}>{fmt(r.high)}</span>
-              </div>
-              <div style={{display:'grid',gridTemplateColumns:'1fr 1fr',gap:10,fontSize:11}}>
-                <div style={{padding:'8px 10px',background:C.bg3,border:`1px solid ${C.bd}`,borderRadius:8}}>
-                  <div style={{color:C.t4,fontSize:9,letterSpacing:1,textTransform:'uppercase',marginBottom:2}}>Foresters PlanRight Std</div>
-                  <div style={{color:C.t2,fontFamily:"'DM Mono',monospace",fontWeight:700}}>{r.foresters != null ? fmt(r.foresters) : '—'}</div>
-                </div>
-                <div style={{padding:'8px 10px',background:C.bg3,border:`1px solid ${C.bd}`,borderRadius:8}}>
-                  <div style={{color:C.t4,fontSize:9,letterSpacing:1,textTransform:'uppercase',marginBottom:2}}>Aetna Accendo Modified</div>
-                  <div style={{color:C.t2,fontFamily:"'DM Mono',monospace",fontWeight:700}}>{r.aetna != null ? fmt(r.aetna) : '—'}</div>
-                </div>
-              </div>
-            </>
+          {r.low !== r.high ? (
+            <div style={{display:'flex',alignItems:'baseline',gap:10,flexWrap:'wrap',marginBottom:10}}>
+              <span style={{fontSize:30,fontWeight:800,color:C.t2,fontFamily:"'DM Mono',monospace"}}>{fmt(r.low)}</span>
+              <span style={{fontSize:18,color:C.t4}}>–</span>
+              <span style={{fontSize:30,fontWeight:800,color:amber,fontFamily:"'DM Mono',monospace"}}>{fmt(r.high)}</span>
+            </div>
           ) : (
-            <div style={{fontSize:32,fontWeight:800,color:amber,fontFamily:"'DM Mono',monospace",lineHeight:1}}>
-              {fmt(r.high ?? r.low)}
+            <div style={{fontSize:32,fontWeight:800,color:amber,fontFamily:"'DM Mono',monospace",lineHeight:1,marginBottom:10}}>
+              {fmt(r.low)}
             </div>
           )}
-          <div style={{fontSize:11,color:C.t4,marginTop:14,paddingTop:10,borderTop:`1px solid ${C.bd}`,lineHeight:1.6}}>
-            <em>(If the policy is ROP or Guaranteed Issue, the actual coverage is likely much less than this range.)</em>
+          <div style={{fontSize:11,color:C.t4,marginTop:10,paddingTop:10,borderTop:`1px solid ${C.bd}`,lineHeight:1.6,fontStyle:'italic'}}>
+            (If the policy is ROP or Guaranteed Issue, the actual coverage is likely much less than this range.)
           </div>
         </div>
       )}
 
       {/* Disclaimer */}
       <div style={{fontSize:10,color:C.t4,lineHeight:1.8,background:C.bg3,borderRadius:8,padding:'10px 14px',border:`1px solid ${C.bd}`}}>
-        ⚠️ <strong style={{color:C.t3}}>Educational estimate.</strong> Range anchored to Foresters PlanRight Standard (high) and Aetna Accendo Modified (low). For conversational guidance only — verify actual coverage with policy documents or the issuing carrier.
+        ⚠️ <strong style={{color:C.t3}}>Educational estimate.</strong> Conservative range based on typical Standard / Modified WL rate pricing. Lowballed to reflect that policies issued years ago were priced less competitively than today's rate book. For conversational guidance only — verify actual coverage with policy documents.
       </div>
     </div>
   );
@@ -3920,36 +3898,32 @@ export default function QuoteMark() {
                         {cov.error ? (
                           <div style={{fontSize:11,color:C.t3,padding:'8px 0'}}>
                             {cov.error === 'insufficient products matched'
-                              ? 'No reference data at this issue age. Foresters Std covers 50–85; Aetna Modified 40–75.'
+                              ? 'No reference data at this issue age. Estimator covers issue ages 50–85.'
                               : cov.error === 'policy years exceed current age'
                               ? 'Policy years exceed current age.'
                               : 'Awaiting inputs.'}
                           </div>
-                        ) : cov.foundHigh && cov.foundLow && cov.high !== cov.low ? (
-                          <>
-                            <div style={{fontSize:9,color:C.t4,fontWeight:700,letterSpacing:1.2,textTransform:'uppercase',marginBottom:6}}>Estimated Coverage · Issued at {cov.issueAge}</div>
-                            <div style={{display:'flex',alignItems:'baseline',gap:8,marginBottom:10,flexWrap:'wrap'}}>
-                              <span style={{fontSize:22,fontWeight:800,color:C.t2,fontFamily:"'DM Mono',monospace"}}>${cov.low.toLocaleString()}</span>
-                              <span style={{fontSize:14,color:C.t4}}>–</span>
-                              <span style={{fontSize:22,fontWeight:800,color:amber,fontFamily:"'DM Mono',monospace"}}>${cov.high.toLocaleString()}</span>
-                            </div>
-                            <div style={{fontSize:10,color:C.t4,paddingTop:8,borderTop:`1px solid ${C.bd}`,lineHeight:1.6}}>
-                              Low = Aetna Modified · High = Foresters PlanRight Standard
-                            </div>
-                          </>
                         ) : (
                           <>
                             <div style={{fontSize:9,color:C.t4,fontWeight:700,letterSpacing:1.2,textTransform:'uppercase',marginBottom:6}}>Estimated Coverage · Issued at {cov.issueAge}</div>
-                            <div style={{fontSize:26,fontWeight:800,color:amber,fontFamily:"'DM Mono',monospace",lineHeight:1}}>
-                              ${(cov.high ?? cov.low).toLocaleString()}
-                            </div>
+                            {cov.low !== cov.high ? (
+                              <div style={{display:'flex',alignItems:'baseline',gap:8,marginBottom:8,flexWrap:'wrap'}}>
+                                <span style={{fontSize:22,fontWeight:800,color:C.t2,fontFamily:"'DM Mono',monospace"}}>${cov.low.toLocaleString()}</span>
+                                <span style={{fontSize:14,color:C.t4}}>–</span>
+                                <span style={{fontSize:22,fontWeight:800,color:amber,fontFamily:"'DM Mono',monospace"}}>${cov.high.toLocaleString()}</span>
+                              </div>
+                            ) : (
+                              <div style={{fontSize:26,fontWeight:800,color:amber,fontFamily:"'DM Mono',monospace",lineHeight:1}}>
+                                ${cov.low.toLocaleString()}
+                              </div>
+                            )}
                           </>
                         )}
                         <div style={{fontSize:10,color:C.t4,marginTop:10,fontStyle:'italic',lineHeight:1.5}}>
                           (If this is a ROP or Guaranteed Issue policy, actual coverage is likely much less.)
                         </div>
                         <div style={{fontSize:9,color:C.t4,marginTop:8,lineHeight:1.6,borderTop:`1px solid ${C.bd}`,paddingTop:8}}>
-                          Educational estimate · Range anchored to Foresters Std (high) and Aetna Modified (low). Verify actual coverage with policy documents.
+                          Conservative estimate · Lowballed vs current rate book. Verify actual coverage with policy documents.
                         </div>
                       </div>
                       </>
