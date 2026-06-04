@@ -2069,11 +2069,12 @@ function estimateCoverage({ currentAge, policyYears, monthlyPremium, gender }) {
   // Lowball discount band
   const [loFactor, hiFactor] = gender === 'male' ? [0.50, 0.75] : [0.60, 0.85];
   const round = n => Math.round(n / 250) * 250; // snap to $250 anchor for clean display
-  return {
-    issueAge,
-    low:  round(book * loFactor),
-    high: round(book * hiFactor),
-  };
+  let low  = round(book * loFactor);
+  let high = round(book * hiFactor);
+  // Always keep a visible range — if rounding collapses them onto the same
+  // $250 step (rare, only at very low book values), bump high by one step.
+  if (high <= low) high = low + 250;
+  return { issueAge, low, high };
 }
 
 // ── CASH VALUE PROJECTION COMPONENT ──
@@ -2215,17 +2216,11 @@ const CoverageEstimate = ({ monthlyPremium, policyYears, currentAge, gender, set
           <div style={{fontSize:10,fontWeight:700,letterSpacing:1.8,color:amber,textTransform:'uppercase',marginBottom:14}}>
             Estimated Death Benefit · Issued at age {r.issueAge}
           </div>
-          {r.low !== r.high ? (
-            <div style={{display:'flex',alignItems:'baseline',gap:10,flexWrap:'wrap',marginBottom:10}}>
-              <span style={{fontSize:30,fontWeight:800,color:C.t2,fontFamily:"'DM Mono',monospace"}}>{fmt(r.low)}</span>
-              <span style={{fontSize:18,color:C.t4}}>–</span>
-              <span style={{fontSize:30,fontWeight:800,color:amber,fontFamily:"'DM Mono',monospace"}}>{fmt(r.high)}</span>
-            </div>
-          ) : (
-            <div style={{fontSize:32,fontWeight:800,color:amber,fontFamily:"'DM Mono',monospace",lineHeight:1,marginBottom:10}}>
-              {fmt(r.low)}
-            </div>
-          )}
+          <div style={{display:'flex',alignItems:'baseline',gap:10,flexWrap:'wrap',marginBottom:10}}>
+            <span style={{fontSize:30,fontWeight:800,color:C.t2,fontFamily:"'DM Mono',monospace"}}>{fmt(r.low)}</span>
+            <span style={{fontSize:18,color:C.t4}}>–</span>
+            <span style={{fontSize:30,fontWeight:800,color:amber,fontFamily:"'DM Mono',monospace"}}>{fmt(r.high)}</span>
+          </div>
           <div style={{fontSize:11,color:C.t4,marginTop:10,paddingTop:10,borderTop:`1px solid ${C.bd}`,lineHeight:1.6,fontStyle:'italic'}}>
             (If the policy is ROP or Guaranteed Issue, the actual coverage is likely much less than this range.)
           </div>
@@ -3906,17 +3901,11 @@ export default function QuoteMark() {
                         ) : (
                           <>
                             <div style={{fontSize:9,color:C.t4,fontWeight:700,letterSpacing:1.2,textTransform:'uppercase',marginBottom:6}}>Estimated Coverage · Issued at {cov.issueAge}</div>
-                            {cov.low !== cov.high ? (
-                              <div style={{display:'flex',alignItems:'baseline',gap:8,marginBottom:8,flexWrap:'wrap'}}>
-                                <span style={{fontSize:22,fontWeight:800,color:C.t2,fontFamily:"'DM Mono',monospace"}}>${cov.low.toLocaleString()}</span>
-                                <span style={{fontSize:14,color:C.t4}}>–</span>
-                                <span style={{fontSize:22,fontWeight:800,color:amber,fontFamily:"'DM Mono',monospace"}}>${cov.high.toLocaleString()}</span>
-                              </div>
-                            ) : (
-                              <div style={{fontSize:26,fontWeight:800,color:amber,fontFamily:"'DM Mono',monospace",lineHeight:1}}>
-                                ${cov.low.toLocaleString()}
-                              </div>
-                            )}
+                            <div style={{display:'flex',alignItems:'baseline',gap:8,marginBottom:8,flexWrap:'wrap'}}>
+                              <span style={{fontSize:22,fontWeight:800,color:C.t2,fontFamily:"'DM Mono',monospace"}}>${cov.low.toLocaleString()}</span>
+                              <span style={{fontSize:14,color:C.t4}}>–</span>
+                              <span style={{fontSize:22,fontWeight:800,color:amber,fontFamily:"'DM Mono',monospace"}}>${cov.high.toLocaleString()}</span>
+                            </div>
                           </>
                         )}
                         <div style={{fontSize:10,color:C.t4,marginTop:10,fontStyle:'italic',lineHeight:1.5}}>
