@@ -2029,74 +2029,60 @@ function calculateCVCorridor(monthlyPremium, policyYears, issueAge) {
 }
 
 // ── COVERAGE ESTIMATOR (FEX/WL reverse-lookup) ──
-// Given current age + policy years + monthly premium + gender (+ optional
-// tobacco), reverses our FEX/WL rate table to estimate the policy's face
-// amount. Uses the "Standard-tier" reference universe — what 80% of FE
-// buyers actually land in. Excludes Preferred (top ~10%), GI catch-all,
-// ROP, juvenile, MOO Living Promise, and Baltimore (per Mark — both price
-// as outliers that skew the band).
+// Given current age + policy years + monthly premium + gender, reverses
+// the FEX/WL rate table to estimate the policy's face amount. Anchored
+// to two reference products that bound the real-world Std/Modified band:
 //
-// Returns: { median, p25, p75, p10, p90, productsMatched } or { error }
-function estimateCoverage({ currentAge, policyYears, monthlyPremium, gender, tobacco }) {
+//   HIGH anchor: Foresters PlanRight Standard (one of the more aggressive
+//                Std-tier prices — more face per premium dollar)
+//   LOW  anchor: CVS (Aetna Accendo) Accendo Modified (Modified-tier
+//                pricing — less face per premium dollar)
+//
+// Most real WL/FE policies (Std or Modified tier) land between these.
+// ROP and GI policies will land lower than this range — covered by the
+// disclaimer in the UI.
+//
+// Tobacco is hardcoded to Non-Smoker — that's where ~80% of FE buyers
+// land, and the Std/Mod buyers we're estimating for are nearly always NS.
+//
+// Returns: { high, low, foundHigh, foundLow, issueAge } or { error }
+function estimateCoverage({ currentAge, policyYears, monthlyPremium, gender }) {
   if (!currentAge || !policyYears || !monthlyPremium) return { error: 'missing inputs' };
   const issueAge = currentAge - policyYears;
   if (issueAge < 1) return { error: 'policy years exceed current age' };
 
-  const classes =
-    tobacco === 'unknown' ? (gender === 'male' ? ['MNS','MS'] : ['FNS','FS']) :
-    tobacco === 'smoker'  ? (gender === 'male' ? ['MS']      : ['FS']) :
-                            (gender === 'male' ? ['MNS']     : ['FNS']);
+  const cls = gender === 'male' ? 'MNS' : 'FNS';
 
-  // Tier filter — see top comment.
-  function isStandardTier(productKey) {
-    const carrier = productKey.split('||')[0] || '';
-    const plan = productKey.split('||')[1] || '';
-    if (/Preferred/i.test(plan)) return false;
-    if (/Guaranteed Issue|^GI\b/i.test(plan)) return false;
-    if (/\bROP\b/i.test(plan)) return false;
-    if (/BrightFuture|Children/i.test(plan)) return false;
-    if (/Plan 1$/.test(plan)) return false;
-    if (/Mutual of Omaha/i.test(carrier)) return false;
-    if (/Baltimore/i.test(carrier)) return false;
-    return true;
+  function faceFromProduct(productKey) {
+    const ageMap = FEX_RATES?.[productKey]?.[cls]?.[String(issueAge)];
+    if (!ageMap) return null;
+    const candidates = Object.entries(ageMap).map(([face, prem]) => ({
+      face: Number(face), prem: Number(prem),
+    }));
+    if (!candidates.length) return null;
+    candidates.sort((a, b) =>
+      Math.abs(a.prem - monthlyPremium) - Math.abs(b.prem - monthlyPremium)
+    );
+    return candidates[0].face;
   }
 
-  const productFaces = [];
-  for (const productKey of Object.keys(FEX_RATES)) {
-    if (!isStandardTier(productKey)) continue;
-    const tbl = FEX_RATES[productKey];
-    const perClassFaces = [];
-    for (const cls of classes) {
-      const ageMap = tbl?.[cls]?.[String(issueAge)];
-      if (!ageMap) continue;
-      // Find face anchor whose premium is closest to entered premium
-      const candidates = Object.entries(ageMap).map(([face, prem]) => ({
-        face: Number(face), prem: Number(prem),
-      }));
-      if (!candidates.length) continue;
-      candidates.sort((a, b) =>
-        Math.abs(a.prem - monthlyPremium) - Math.abs(b.prem - monthlyPremium)
-      );
-      perClassFaces.push(candidates[0].face);
-    }
-    if (perClassFaces.length) {
-      // Blend smoker + non-smoker in "unknown" mode
-      const avg = perClassFaces.reduce((s, f) => s + f, 0) / perClassFaces.length;
-      productFaces.push(avg);
-    }
-  }
-  if (productFaces.length < 5) return { error: 'insufficient products matched' };
+  const foresters = faceFromProduct('Foresters (PlanRight)||PlanRight Standard');
+  const aetna     = faceFromProduct('CVS (Aetna Accendo)||Accendo Modified');
 
-  productFaces.sort((a, b) => a - b);
-  const pct = p => Math.round(productFaces[Math.floor(p * (productFaces.length - 1))]);
+  if (foresters == null && aetna == null) return { error: 'insufficient products matched' };
+
+  // Sort by face value so the label always matches the larger/smaller number,
+  // even when premium-anchor granularity causes the "high" carrier to land
+  // below the "low" carrier on a particular cell.
+  const both = [foresters, aetna].filter(v => v != null);
+  const high = both.length ? Math.max(...both) : null;
+  const low  = both.length ? Math.min(...both) : null;
+
   return {
     issueAge,
-    productsMatched: productFaces.length,
-    p10:    pct(0.10),
-    p25:    pct(0.25),
-    median: pct(0.50),
-    p75:    pct(0.75),
-    p90:    pct(0.90),
+    high, low, foresters, aetna,
+    foundHigh: high != null,
+    foundLow:  low  != null && low !== high,
   };
 }
 
@@ -2188,24 +2174,22 @@ const CashValueProjection = ({ monthlyPremium, policyYears, issueAge, C, isDark 
 };
 
 // ── COVERAGE ESTIMATE COMPONENT ──
-// Sits below the Cash Value card on the CV tab. Reverses our FEX/WL rate
-// tables to estimate the face amount of an existing WL/FE policy.
-// Tobacco toggle local to this card — gender is shared from ClientInfo.
-const CoverageEstimate = ({ monthlyPremium, policyYears, currentAge, gender, tobacco, setTobacco, C, isDark }) => {
+// Sits below the Cash Value card on the CV tab. Anchors face estimate to
+// two reference products (Foresters PlanRight Standard high, Aetna
+// Accendo Modified low). Gender picker is inline since gender is
+// otherwise hidden on the CV tab.
+const CoverageEstimate = ({ monthlyPremium, policyYears, currentAge, gender, setGender, C, isDark }) => {
   const fmt = n => '$' + Math.round(n).toLocaleString();
   const amber = '#C5A059';
-  const r = estimateCoverage({ currentAge, policyYears, monthlyPremium, gender, tobacco });
+  const r = estimateCoverage({ currentAge, policyYears, monthlyPremium, gender });
   const pillStyle = (active) => ({
-    flex:1, padding:'8px 10px', borderRadius:8,
+    flex:1, padding:'9px 12px', borderRadius:8,
     border: `1px solid ${active ? amber : C.bd2}`,
     background: active ? (isDark?'rgba(197,160,89,0.18)':'rgba(197,160,89,0.12)') : C.bg2,
     color: active ? amber : C.t3,
-    fontWeight: active ? 700 : 500, fontSize:12, cursor:'pointer',
+    fontWeight: active ? 700 : 500, fontSize:13, cursor:'pointer',
     fontFamily:"'DM Sans',sans-serif",
   });
-
-  const confidence = tobacco === 'unknown' ? 'Wide' : 'Narrow';
-  const confColor  = tobacco === 'unknown' ? amber : '#22C55E';
 
   return (
     <div style={{display:'flex',flexDirection:'column',gap:14,padding:'24px',maxWidth:680,margin:'0 auto',width:'100%',borderTop:`1px solid ${C.bd}`,marginTop:8}}>
@@ -2214,22 +2198,16 @@ const CoverageEstimate = ({ monthlyPremium, policyYears, currentAge, gender, tob
         <span style={{fontSize:28}}>🛡️</span>
         <div>
           <div style={{fontSize:18,fontWeight:800,color:C.t0,fontFamily:"'DM Sans',sans-serif"}}>Coverage Estimate</div>
-          <div style={{fontSize:11,color:C.t4,marginTop:2}}>Reverse-lookup from premium · WL / FE rate book</div>
-        </div>
-        <div style={{marginLeft:'auto'}}>
-          <span style={{background:confColor+'1F',border:`1px solid ${confColor}55`,borderRadius:6,padding:'3px 9px',fontSize:10,color:confColor,fontWeight:700,letterSpacing:1.2,textTransform:'uppercase'}}>
-            Confidence: {confidence}
-          </span>
+          <div style={{fontSize:11,color:C.t4,marginTop:2}}>Reverse-lookup from premium · Foresters Std → Aetna Modified band</div>
         </div>
       </div>
 
-      {/* Tobacco picker */}
+      {/* Gender picker — gender is hidden on the CV intake, so we ask here */}
       <div>
-        <div style={{fontSize:10,color:C.t4,fontWeight:700,letterSpacing:1.4,textTransform:'uppercase',marginBottom:8}}>Tobacco Status</div>
+        <div style={{fontSize:10,color:C.t4,fontWeight:700,letterSpacing:1.4,textTransform:'uppercase',marginBottom:8}}>Gender</div>
         <div style={{display:'flex',gap:8}}>
-          <button onClick={()=>setTobacco('unknown')} style={pillStyle(tobacco==='unknown')}>Unknown</button>
-          <button onClick={()=>setTobacco('nonsmoker')} style={pillStyle(tobacco==='nonsmoker')}>Non-smoker</button>
-          <button onClick={()=>setTobacco('smoker')} style={pillStyle(tobacco==='smoker')}>Smoker</button>
+          <button onClick={()=>setGender('male')} style={pillStyle(gender==='male')}>👨 Male</button>
+          <button onClick={()=>setGender('female')} style={pillStyle(gender==='female')}>👩 Female</button>
         </div>
       </div>
 
@@ -2237,7 +2215,7 @@ const CoverageEstimate = ({ monthlyPremium, policyYears, currentAge, gender, tob
       {r.error ? (
         <div style={{background:C.bg3,border:`1px solid ${C.bd}`,borderRadius:10,padding:16,fontSize:13,color:C.t3,textAlign:'center'}}>
           {r.error === 'insufficient products matched'
-            ? 'Not enough comparable WL/FE products at this issue age + premium to give an honest range.'
+            ? 'No reference data at this issue age. Foresters PlanRight Std covers ages 50–85; Aetna Modified covers 40–75.'
             : r.error === 'policy years exceed current age'
             ? 'Policy years cannot exceed current age.'
             : 'Enter current age, monthly premium, and years in-force.'}
@@ -2247,31 +2225,38 @@ const CoverageEstimate = ({ monthlyPremium, policyYears, currentAge, gender, tob
           <div style={{fontSize:10,fontWeight:700,letterSpacing:1.8,color:amber,textTransform:'uppercase',marginBottom:14}}>
             Estimated Death Benefit · Issued at age {r.issueAge}
           </div>
-          {/* Most likely (median) */}
-          <div style={{marginBottom:14}}>
-            <div style={{fontSize:10,color:C.t4,marginBottom:6,fontWeight:600,letterSpacing:0.5}}>MOST LIKELY</div>
+          {r.foundLow ? (
+            <>
+              <div style={{display:'flex',alignItems:'baseline',gap:10,flexWrap:'wrap',marginBottom:14}}>
+                <span style={{fontSize:30,fontWeight:800,color:C.t2,fontFamily:"'DM Mono',monospace"}}>{fmt(r.low)}</span>
+                <span style={{fontSize:18,color:C.t4}}>–</span>
+                <span style={{fontSize:30,fontWeight:800,color:amber,fontFamily:"'DM Mono',monospace"}}>{fmt(r.high)}</span>
+              </div>
+              <div style={{display:'grid',gridTemplateColumns:'1fr 1fr',gap:10,fontSize:11}}>
+                <div style={{padding:'8px 10px',background:C.bg3,border:`1px solid ${C.bd}`,borderRadius:8}}>
+                  <div style={{color:C.t4,fontSize:9,letterSpacing:1,textTransform:'uppercase',marginBottom:2}}>Foresters PlanRight Std</div>
+                  <div style={{color:C.t2,fontFamily:"'DM Mono',monospace",fontWeight:700}}>{r.foresters != null ? fmt(r.foresters) : '—'}</div>
+                </div>
+                <div style={{padding:'8px 10px',background:C.bg3,border:`1px solid ${C.bd}`,borderRadius:8}}>
+                  <div style={{color:C.t4,fontSize:9,letterSpacing:1,textTransform:'uppercase',marginBottom:2}}>Aetna Accendo Modified</div>
+                  <div style={{color:C.t2,fontFamily:"'DM Mono',monospace",fontWeight:700}}>{r.aetna != null ? fmt(r.aetna) : '—'}</div>
+                </div>
+              </div>
+            </>
+          ) : (
             <div style={{fontSize:32,fontWeight:800,color:amber,fontFamily:"'DM Mono',monospace",lineHeight:1}}>
-              {fmt(r.median)}
+              {fmt(r.high ?? r.low)}
             </div>
-          </div>
-          {/* Range */}
-          <div style={{marginBottom:6}}>
-            <div style={{fontSize:10,color:C.t4,marginBottom:6,fontWeight:600,letterSpacing:0.5}}>LIKELY RANGE</div>
-            <div style={{display:'flex',alignItems:'baseline',gap:10,flexWrap:'wrap'}}>
-              <span style={{fontSize:22,fontWeight:700,color:C.t2,fontFamily:"'DM Mono',monospace"}}>{fmt(r.p25)}</span>
-              <span style={{fontSize:14,color:C.t4}}>–</span>
-              <span style={{fontSize:22,fontWeight:700,color:C.t2,fontFamily:"'DM Mono',monospace"}}>{fmt(r.p75)}</span>
-            </div>
-          </div>
-          <div style={{fontSize:11,color:C.t4,marginTop:10,paddingTop:10,borderTop:`1px solid ${C.bd}`}}>
-            Based on {r.productsMatched} Standard-tier WL/FE products at ${monthlyPremium}/mo, issue age {r.issueAge}.
+          )}
+          <div style={{fontSize:11,color:C.t4,marginTop:14,paddingTop:10,borderTop:`1px solid ${C.bd}`,lineHeight:1.6}}>
+            <em>(If the policy is ROP or Guaranteed Issue, the actual coverage is likely much less than this range.)</em>
           </div>
         </div>
       )}
 
       {/* Disclaimer */}
       <div style={{fontSize:10,color:C.t4,lineHeight:1.8,background:C.bg3,borderRadius:8,padding:'10px 14px',border:`1px solid ${C.bd}`}}>
-        ⚠️ <strong style={{color:C.t3}}>Educational estimate.</strong> Reverse-lookup from typical Standard / Modified / Graded WL & FE pricing. For conversational guidance only — verify actual coverage with policy documents or the issuing carrier. Excludes Preferred-tier, Guaranteed Issue, MOO Living Promise, and Baltimore Life (price as outliers).
+        ⚠️ <strong style={{color:C.t3}}>Educational estimate.</strong> Range anchored to Foresters PlanRight Standard (high) and Aetna Accendo Modified (low). For conversational guidance only — verify actual coverage with policy documents or the issuing carrier.
       </div>
     </div>
   );
@@ -2682,7 +2667,6 @@ export default function QuoteMark() {
   const [quoteMode,setQuoteMode] = useState('fe'); // 'fe' | 'term' | 'iul' | 'cv'
   const [cvMonthly,setCvMonthly]     = useState('');
   const [cvPolicyYrs,setCvPolicyYrs] = useState('');
-  const [cvTobacco,setCvTobacco]     = useState('unknown'); // 'unknown' | 'nonsmoker' | 'smoker' — for Coverage Estimate
   const [cvDob,setCvDob]             = useState({mm:'',dd:'',yyyy:''});
   const [cvAgeMode,setCvAgeMode]     = useState('dob'); // 'dob' | 'age'
   const [cvAgeInput,setCvAgeInput]   = useState('');
@@ -3896,15 +3880,14 @@ export default function QuoteMark() {
                     const currentAge = ageNum;
                     const issueAge = Math.max(0, currentAge - Number(cvPolicyYrs));
                     const d=calculateCVCorridor(Number(cvMonthly),Number(cvPolicyYrs),issueAge);
-                    const cov = estimateCoverage({ currentAge, policyYears: Number(cvPolicyYrs), monthlyPremium: Number(cvMonthly), gender, tobacco: cvTobacco });
+                    const cov = estimateCoverage({ currentAge, policyYears: Number(cvPolicyYrs), monthlyPremium: Number(cvMonthly), gender });
                     const amber = '#C5A059';
-                    const confColor = cvTobacco === 'unknown' ? amber : '#22C55E';
                     const pillStyle = (active) => ({
-                      flex:1, padding:'8px 6px', borderRadius:8,
+                      flex:1, padding:'9px 6px', borderRadius:8,
                       border:`1px solid ${active?amber:C.bd2}`,
                       background: active ? (isDark?'rgba(197,160,89,0.18)':'rgba(197,160,89,0.12)') : C.bg2,
                       color: active ? amber : C.t3,
-                      fontWeight: active?700:500, fontSize:11, cursor:'pointer', fontFamily:"'DM Sans',sans-serif",
+                      fontWeight: active?700:500, fontSize:12, cursor:'pointer', fontFamily:"'DM Sans',sans-serif",
                     });
                     return (
                       <>
@@ -3927,43 +3910,46 @@ export default function QuoteMark() {
                         <div style={{display:'flex',alignItems:'center',gap:8,marginBottom:10}}>
                           <span style={{fontSize:18}}>🛡️</span>
                           <div style={{fontSize:13,fontWeight:700,color:C.t0,letterSpacing:0.3}}>Coverage Estimate</div>
-                          <span style={{marginLeft:'auto',background:confColor+'1F',border:`1px solid ${confColor}55`,borderRadius:5,padding:'2px 7px',fontSize:9,color:confColor,fontWeight:700,letterSpacing:1,textTransform:'uppercase'}}>
-                            {cvTobacco==='unknown'?'Wide':'Narrow'}
-                          </span>
                         </div>
-                        {/* Tobacco picker */}
+                        {/* Gender picker — gender is hidden on CV intake, so we ask here */}
+                        <div style={{fontSize:9,color:C.t4,fontWeight:700,letterSpacing:1.2,textTransform:'uppercase',marginBottom:6}}>Gender</div>
                         <div style={{display:'flex',gap:6,marginBottom:12}}>
-                          <button onClick={()=>setCvTobacco('unknown')} style={pillStyle(cvTobacco==='unknown')}>Unknown</button>
-                          <button onClick={()=>setCvTobacco('nonsmoker')} style={pillStyle(cvTobacco==='nonsmoker')}>NS</button>
-                          <button onClick={()=>setCvTobacco('smoker')} style={pillStyle(cvTobacco==='smoker')}>Smoker</button>
+                          <button onClick={()=>setGender('male')} style={pillStyle(gender==='male')}>👨 Male</button>
+                          <button onClick={()=>setGender('female')} style={pillStyle(gender==='female')}>👩 Female</button>
                         </div>
                         {cov.error ? (
                           <div style={{fontSize:11,color:C.t3,padding:'8px 0'}}>
                             {cov.error === 'insufficient products matched'
-                              ? 'Not enough comparable products at this issue age + premium.'
+                              ? 'No reference data at this issue age. Foresters Std covers 50–85; Aetna Modified 40–75.'
                               : cov.error === 'policy years exceed current age'
                               ? 'Policy years exceed current age.'
                               : 'Awaiting inputs.'}
                           </div>
+                        ) : cov.foundHigh && cov.foundLow && cov.high !== cov.low ? (
+                          <>
+                            <div style={{fontSize:9,color:C.t4,fontWeight:700,letterSpacing:1.2,textTransform:'uppercase',marginBottom:6}}>Estimated Coverage · Issued at {cov.issueAge}</div>
+                            <div style={{display:'flex',alignItems:'baseline',gap:8,marginBottom:10,flexWrap:'wrap'}}>
+                              <span style={{fontSize:22,fontWeight:800,color:C.t2,fontFamily:"'DM Mono',monospace"}}>${cov.low.toLocaleString()}</span>
+                              <span style={{fontSize:14,color:C.t4}}>–</span>
+                              <span style={{fontSize:22,fontWeight:800,color:amber,fontFamily:"'DM Mono',monospace"}}>${cov.high.toLocaleString()}</span>
+                            </div>
+                            <div style={{fontSize:10,color:C.t4,paddingTop:8,borderTop:`1px solid ${C.bd}`,lineHeight:1.6}}>
+                              Low = Aetna Modified · High = Foresters PlanRight Standard
+                            </div>
+                          </>
                         ) : (
                           <>
-                            <div style={{fontSize:9,color:C.t4,fontWeight:700,letterSpacing:1.2,textTransform:'uppercase',marginBottom:4}}>Most Likely</div>
-                            <div style={{fontSize:26,fontWeight:800,color:amber,fontFamily:"'DM Mono',monospace",lineHeight:1,marginBottom:10}}>
-                              ${cov.median.toLocaleString()}
-                            </div>
-                            <div style={{fontSize:9,color:C.t4,fontWeight:700,letterSpacing:1.2,textTransform:'uppercase',marginBottom:4}}>Likely Range</div>
-                            <div style={{display:'flex',alignItems:'baseline',gap:8,marginBottom:8,flexWrap:'wrap'}}>
-                              <span style={{fontSize:17,fontWeight:700,color:C.t2,fontFamily:"'DM Mono',monospace"}}>${cov.p25.toLocaleString()}</span>
-                              <span style={{fontSize:13,color:C.t4}}>–</span>
-                              <span style={{fontSize:17,fontWeight:700,color:C.t2,fontFamily:"'DM Mono',monospace"}}>${cov.p75.toLocaleString()}</span>
-                            </div>
-                            <div style={{fontSize:10,color:C.t4,paddingTop:8,borderTop:`1px solid ${C.bd}`,lineHeight:1.5}}>
-                              {cov.productsMatched} Standard-tier WL/FE products · issue age {cov.issueAge}
+                            <div style={{fontSize:9,color:C.t4,fontWeight:700,letterSpacing:1.2,textTransform:'uppercase',marginBottom:6}}>Estimated Coverage · Issued at {cov.issueAge}</div>
+                            <div style={{fontSize:26,fontWeight:800,color:amber,fontFamily:"'DM Mono',monospace",lineHeight:1}}>
+                              ${(cov.high ?? cov.low).toLocaleString()}
                             </div>
                           </>
                         )}
-                        <div style={{fontSize:9,color:C.t4,marginTop:10,lineHeight:1.6}}>
-                          Educational estimate — verify with policy documents. Excludes Preferred, GI, MOO, Baltimore (outliers).
+                        <div style={{fontSize:10,color:C.t4,marginTop:10,fontStyle:'italic',lineHeight:1.5}}>
+                          (If this is a ROP or Guaranteed Issue policy, actual coverage is likely much less.)
+                        </div>
+                        <div style={{fontSize:9,color:C.t4,marginTop:8,lineHeight:1.6,borderTop:`1px solid ${C.bd}`,paddingTop:8}}>
+                          Educational estimate · Range anchored to Foresters Std (high) and Aetna Modified (low). Verify actual coverage with policy documents.
                         </div>
                       </div>
                       </>
@@ -5365,8 +5351,7 @@ export default function QuoteMark() {
                       policyYears={Number(cvPolicyYrs)}
                       currentAge={ageNum}
                       gender={gender}
-                      tobacco={cvTobacco}
-                      setTobacco={setCvTobacco}
+                      setGender={setGender}
                       C={C} isDark={isDark}
                     />
                   </div>
