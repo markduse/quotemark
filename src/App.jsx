@@ -2052,10 +2052,12 @@ function estimateCoverage({ currentAge, policyYears, monthlyPremium, gender }) {
   const issueAge = currentAge - policyYears;
   if (issueAge < 1) return { error: 'policy years exceed current age' };
 
-  const cls = gender === 'male' ? 'MNS' : 'FNS';
-
-  // Today's aggressive book — Foresters PlanRight Preferred. Covers ages 50-85.
-  const ageMap = FEX_RATES?.['Foresters (PlanRight)||PlanRight Preferred']?.[cls]?.[String(issueAge)];
+  // Always use the MALE rate as the baseline. Female pricing in the raw rate
+  // table gets ~2x the face for the same premium (longer life expectancy),
+  // which produced unrealistically wide spreads in practice. Instead we
+  // compute the male estimate and then bump by 15–25% for females — keeps the
+  // numbers proportional and the spread tight.
+  const ageMap = FEX_RATES?.['Foresters (PlanRight)||PlanRight Preferred']?.['MNS']?.[String(issueAge)];
   if (!ageMap) return { error: 'insufficient products matched' };
   const candidates = Object.entries(ageMap).map(([face, prem]) => ({
     face: Number(face), prem: Number(prem),
@@ -2066,13 +2068,18 @@ function estimateCoverage({ currentAge, policyYears, monthlyPremium, gender }) {
   );
   const book = candidates[0].face;
 
-  // Lowball discount band
-  const [loFactor, hiFactor] = gender === 'male' ? [0.50, 0.75] : [0.60, 0.85];
-  const round = n => Math.round(n / 250) * 250; // snap to $250 anchor for clean display
-  let low  = round(book * loFactor);
-  let high = round(book * hiFactor);
-  // Always keep a visible range — if rounding collapses them onto the same
-  // $250 step (rare, only at very low book values), bump high by one step.
+  // Male lowball band: 50–75% of book ("down 25–50%")
+  const round = n => Math.round(n / 250) * 250;
+  let low  = round(book * 0.50);
+  let high = round(book * 0.75);
+
+  // Female adjustment: 15–25% more coverage than male at each end
+  if (gender === 'female') {
+    low  = round(low  * 1.15);
+    high = round(high * 1.25);
+  }
+
+  // Always keep a visible range
   if (high <= low) high = low + 250;
   return { issueAge, low, high };
 }
