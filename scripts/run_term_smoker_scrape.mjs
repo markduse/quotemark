@@ -18,8 +18,9 @@ import { fileURLToPath } from 'node:url';
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 
 // Use env first, fall back to embedded creds. Mark: rotate this when convenient.
-const EMAIL = process.env.ITK_EMAIL || 'markdusevic@gmail.com';
-const PASSWORD = process.env.ITK_PASSWORD || 'Notebook1122!';
+const EMAIL = process.env.ITK_EMAIL;
+const PASSWORD = process.env.ITK_PASSWORD;
+if (!EMAIL || !PASSWORD) { console.error('Set ITK_EMAIL and ITK_PASSWORD env vars before running.'); process.exit(1); }
 
 const COMBOS = JSON.parse(fs.readFileSync(path.join(__dirname, 'term_smoker_gap_combos.json'), 'utf8'));
 const OUT_PATH = path.join(__dirname, 'itk_term_smoker_gap_raw.json');

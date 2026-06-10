@@ -8,3 +8,8 @@ dist/
 .env.local
 scripts/itk_term_raw.json
 .claude/
+
+# Scraped raw data dumps (diagnostic only — rates are baked into src/data/)
+scripts/*_raw.json
+scripts/*_combos.json
+scripts/*_errors.json

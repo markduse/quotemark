@@ -6,7 +6,7 @@ const { chromium } = require('playwright');
 const fs = require('fs');
 const path = require('path');
 
-const CREDS = { email: 'markdusevic@gmail.com', password: 'Notebook1122!' };
+const CREDS = { email: process.env.ITK_EMAIL, password: process.env.ITK_PASSWORD };
 const FACE = 100000;
 const STATE = 'Texas';
 

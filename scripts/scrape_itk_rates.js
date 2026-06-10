@@ -13,8 +13,8 @@ const fs = require('fs');
 const path = require('path');
 
 const CREDENTIALS = {
-  email: 'markdusevic@gmail.com',
-  password: 'Notebook1122!'
+  email: process.env.ITK_EMAIL,
+  password: process.env.ITK_PASSWORD
 };
 
 const TARGET_CARRIERS = [

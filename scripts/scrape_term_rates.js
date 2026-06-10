@@ -7,7 +7,7 @@ const { chromium } = require('playwright');
 const fs = require('fs');
 const path = require('path');
 
-const CREDENTIALS = { email: 'markdusevic@gmail.com', password: 'Notebook1122!' };
+const CREDENTIALS = { email: process.env.ITK_EMAIL, password: process.env.ITK_PASSWORD };
 const FACE = 100000;
 const STATE = 'Texas';
 const AGES = [18, 25, 30, 35, 40, 45, 50, 55, 60, 65, 70, 75];

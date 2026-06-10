@@ -20,8 +20,9 @@ const __dirname = path.dirname(fileURLToPath(import.meta.url));
 
 // Use env first, fall back to the embedded creds in scripts/scrape_itk_rates.js
 // (Mark: rotate this password and move to .env when convenient.)
-const EMAIL = process.env.ITK_EMAIL || 'markdusevic@gmail.com';
-const PASSWORD = process.env.ITK_PASSWORD || 'Notebook1122!';
+const EMAIL = process.env.ITK_EMAIL;
+const PASSWORD = process.env.ITK_PASSWORD;
+if (!EMAIL || !PASSWORD) { console.error('Set ITK_EMAIL and ITK_PASSWORD env vars before running.'); process.exit(1); }
 
 const COMBOS = JSON.parse(fs.readFileSync(path.join(__dirname, 'iul_gap_combos.json'), 'utf8'));
 const OUT_PATH = path.join(__dirname, 'itk_iul_gap_raw.json');
