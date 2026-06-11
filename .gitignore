@@ -13,3 +13,4 @@ scripts/itk_term_raw.json
 scripts/*_raw.json
 scripts/*_combos.json
 scripts/*_errors.json
+scripts/itk_spotcheck.json
