@@ -70,7 +70,7 @@ const FACE_CAPS = {
   sl_pp:25000, sl:30000, ail:30000,
 };
 // Carriers disabled in code — incomplete data, not ready for agents
-const FORCE_DISABLED = new Set(['sl_pp','amam_gs','cbg','amr','ahl_gs','rna_gi','afl','sl','ail','balt_sg','ra']);
+const FORCE_DISABLED = new Set(['sl_pp','amam_gs','cbg','amr','ahl_gs','rna_gi','sl','ail','balt_sg']);
 
 // AGE_MAX entries can be a number (applies to all tiers) OR an object
 // {B,C,D,E} for tier-specific caps. Aetna/AHL/CVS go up to 89 for
@@ -1398,8 +1398,12 @@ const CARRIERS = [
      return null;
    }},
   {id:'afl',  name:'Aflac',              sub:'Final Expense WL', abbr:'AF', enabled:false,
-   product:{B:'Level',C:'Level',D:null,E:null},
-   fn:(age,male,smoker,tier,face)=>{if(tier==='B')return csvLookup(AFLP,AFLP_M,age,male,smoker,face);if(tier==='C')return csvLookup(AFLS,AFLS_M,age,male,smoker,face);return null;}},
+   product:{B:'Preferred',C:'Standard',D:null,E:null},
+   fn:(age,male,smoker,tier,face)=>{
+     if(tier==='B') return fexPrem('Aflac (Final Expense)','Preferred',age,male,smoker,face);
+     if(tier==='C') return fexPrem('Aflac (Final Expense)','Standard',age,male,smoker,face);
+     return null;
+   }},
   {id:'amr',  name:'Americo',            sub:'Eagle Select', abbr:'AM', enabled:false,
    product:{B:'Plan 1',C:'Plan 2',D:'Plan 3',E:null},
    stateCheck:(s)=>(fexStateOK('Americo',s)),
@@ -1452,9 +1456,13 @@ const CARRIERS = [
      if(tier==='D') return fexPrem('American Amicable (Senior Choice)','Senior Choice Graded',age,male,smoker,face);
      return null;
    }},
-  {id:'ra',   name:'Royal Arcanum',      sub:'Whole Life Level', abbr:'RA', enabled:false,
-   product:{B:'Level',C:'Level',D:null,E:null},
-   fn:(age,male,smoker,tier,face)=>{if(tier!=='B'&&tier!=='C')return null;return csvLookup(RA,RA_M,age,male,smoker,face);}},
+  {id:'ra',   name:'Royal Arcanum',      sub:'Whole Life / SIWL', abbr:'RA', enabled:false,
+   product:{B:'Level',C:'Level',D:null,E:'Simplified Issue'},
+   fn:(age,male,smoker,tier,face)=>{
+     if(tier==='B'||tier==='C') return fexPrem('Royal Arcanum (Whole Life)','Whole Life Level',age,male,smoker,face);
+     if(tier==='E') return fexPrem('Royal Arcanum (SIWL)','Simplified Issue Level',age,male,smoker,face);
+     return null;
+   }},
   {id:'bl_sg', name:'Baltimore Life',    sub:'iProvide FE', abbr:'BL', enabled:true,
    product:{B:'Preferred',C:'Standard',D:'Modified',E:null},
    stateCheck:(s)=>(fexStateOK('Baltimore Life (iProvide 45-69)',s)),
@@ -1477,9 +1485,23 @@ const CARRIERS = [
      if(tier==='D') return fexPrem('Lifeshield','Survivor Graded',age,male,smoker,face);
      return null;
    }},
-  {id:'pf',   name:'Polish Falcons',     sub:'of America', abbr:'PF', enabled:false,
+  {id:'pf',   name:'Polish Falcons',     sub:'Whole Life Level', abbr:'PF', enabled:false,
    product:{B:'Level',C:'Level',D:null,E:null},
-   fn:(age,male,smoker,tier,face)=>{if(tier!=='B'&&tier!=='C')return null;return csvLookup(PF2,PF_M,age,male,smoker,face);}},
+   fn:(age,male,smoker,tier,face)=>{if(tier!=='B'&&tier!=='C')return null;return fexPrem('Polish Falcons (Whole Life)','Whole Life Level',age,male,smoker,face);}},
+  {id:'occ_gs', name:'Occidental Life',  sub:'Golden Solution', abbr:'OC', enabled:false,
+   product:{B:'Immediate',C:'Immediate',D:null,E:null},
+   fn:(age,male,smoker,tier,face)=>{if(tier!=='B'&&tier!=='C')return null;return fexPrem('Occidental Life (Golden Solution)','Golden Solution Immediate',age,male,smoker,face);}},
+  {id:'comb', name:'Combined Insurance', sub:'Final Expense Life', abbr:'CO', enabled:false,
+   product:{B:'Preferred',C:'Standard',D:'Substandard',E:null},
+   fn:(age,male,smoker,tier,face)=>{
+     if(tier==='B') return fexPrem('Combined (Final Expense Life)','Preferred',age,male,smoker,face);
+     if(tier==='C') return fexPrem('Combined (Final Expense Life)','Standard',age,male,smoker,face);
+     if(tier==='D') return fexPrem('Combined (Final Expense Life)','Substandard',age,male,smoker,face);
+     return null;
+   }},
+  {id:'eth',  name:'Ethos',              sub:'Advantage WL + Estate', abbr:'ET', enabled:false,
+   product:{B:'Advantage',C:'Advantage',D:null,E:null},
+   fn:(age,male,smoker,tier,face)=>{if(tier!=='B'&&tier!=='C')return null;return fexPrem('Ethos (Advantage Whole Life + Estate Plan)','Advantage Whole Life + Estate Plan',age,male,smoker,face);}},
   {id:'bl',   name:'Better Life',          sub:'Better Final Expense', abbr:'BL', enabled:false,
    product:{B:'Level',C:'Level',D:'Graded',E:null},
    fn:(age,male,smoker,tier,face)=>{
