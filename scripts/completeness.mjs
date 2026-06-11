@@ -17,7 +17,7 @@ const CLASSES = ['MNS','MS','FNS','FS'];
 
 // ── IUL — official issue ranges per carrier ──
 const IUL_RANGES = {
-  'Americo (Instant Decision IUL)':                    { min: 18, max: 80 },
+  'Americo (Instant Decision IUL)':                    { min: 18, max: 70 }, // ITK-confirmed cap
   'Mutual of Omaha (Indexed Universal Life Express)':  { min: 18, max: 75 },
 };
 
