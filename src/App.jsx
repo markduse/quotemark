@@ -713,6 +713,15 @@ function termPrem(product, termLen, age, classKey, face, tierOverride=null) {
 // ═══════════════════════════════════════════════════════════
 // Data shape: IUL_RATES[product][class][age][premium] = face_amount
 // Mirrors ITK's IUL quoter: input premium → output face amount per carrier.
+
+// Documented product minimum face per carrier (NOT the lowest scraped anchor —
+// the scrape only captured down to a coverage floor, e.g. ~$67k at Americo 70,
+// but Americo actually issues to $50k). Used to extrapolate sub-anchor faces.
+const IUL_MIN_FACE = {
+  'Americo (Instant Decision IUL)': 50000,
+  'Mutual of Omaha (Indexed Universal Life Express)': 25000,
+};
+
 function iulFaceFor(product, classKey, age, premium) {
   const tbl = IUL_RATES?.[product]?.[classKey];
   if (!tbl) return null;
@@ -782,9 +791,23 @@ function iulPremiumForFace(product, classKey, age, targetFace) {
     .filter(pt => pt.face != null);
   if (!pts.length) return null;
   const minPt = pts[0], maxPt = pts[pts.length - 1];
-  // Below the carrier's minimum face → quote the true minimum premium, flagged
-  // so the UI can say "carrier minimum is $X face at this premium."
-  if (targetFace <= minPt.face) return { premium: minPt.prem, floored: targetFace < minPt.face, minFace: minPt.face };
+  // At/below our lowest scraped anchor. NOTE: that lowest anchor reflects scrape
+  // COVERAGE, not the carrier's true minimum face — e.g. Americo age 70 was only
+  // captured down to ~$67k, but Americo actually issues to $50k. IUL premium is
+  // ~linear in face, so extrapolate down the curve to the carrier's documented
+  // minimum instead of falsely claiming "won't issue $65k".
+  if (targetFace <= minPt.face) {
+    if (targetFace === minPt.face) return { premium: minPt.prem };
+    const trueMin = IUL_MIN_FACE[product] || 25000;
+    if (pts.length >= 2) {
+      const p0 = pts[0], p1 = pts[1];
+      const slope = (p1.prem - p0.prem) / (p1.face - p0.face);
+      const at = (f) => Math.max(0, Math.round((p0.prem + (f - p0.face) * slope) * 100) / 100);
+      if (targetFace >= trueMin) return { premium: at(targetFace) };
+      return { premium: at(trueMin), floored: true, minFace: trueMin };
+    }
+    return { premium: minPt.prem, floored: targetFace < minPt.face, minFace: minPt.face };
+  }
   // Above the carrier's max achievable face → cap (UI shows "maxes at $X").
   if (targetFace >= maxPt.face) return { premium: maxPt.prem, capped: true, maxFace: maxPt.face };
   // Interpolate the premium within the real anchor pair that spans the target.
@@ -1995,20 +2018,11 @@ const CashValueProjection = ({ monthlyPremium, policyYears, issueAge, C, isDark 
 // ── COVERAGE ESTIMATE COMPONENT ──
 // Sits below the Cash Value card on the CV tab. Anchors face estimate to
 // two reference products (Foresters PlanRight Standard high, Aetna
-// Accendo Modified low). Gender picker is inline since gender is
-// otherwise hidden on the CV tab.
-const CoverageEstimate = ({ monthlyPremium, policyYears, currentAge, gender, setGender, C, isDark }) => {
+// Accendo Modified low). Gender comes from the shared Client Info intake.
+const CoverageEstimate = ({ monthlyPremium, policyYears, currentAge, gender, C, isDark }) => {
   const fmt = n => '$' + Math.round(n).toLocaleString();
   const amber = '#C5A059';
   const r = estimateCoverage({ currentAge, policyYears, monthlyPremium, gender });
-  const pillStyle = (active) => ({
-    flex:1, padding:'9px 12px', borderRadius:8,
-    border: `1px solid ${active ? amber : C.bd2}`,
-    background: active ? (isDark?'rgba(197,160,89,0.18)':'rgba(197,160,89,0.12)') : C.bg2,
-    color: active ? amber : C.t3,
-    fontWeight: active ? 700 : 500, fontSize:13, cursor:'pointer',
-    fontFamily:"'DM Sans','Helvetica Neue',Arial,sans-serif",
-  });
 
   return (
     <div style={{display:'flex',flexDirection:'column',gap:14,padding:'24px',maxWidth:680,margin:'0 auto',width:'100%',borderTop:`1px solid ${C.bd}`,marginTop:8}}>
@@ -2018,15 +2032,6 @@ const CoverageEstimate = ({ monthlyPremium, policyYears, currentAge, gender, set
         <div>
           <div style={{fontSize:18,fontWeight:800,color:C.t0,fontFamily:"'DM Sans','Helvetica Neue',Arial,sans-serif"}}>Coverage Estimate</div>
           <div style={{fontSize:11,color:C.t4,marginTop:2}}>Conservative estimate from premium · Standard / Modified WL rate book</div>
-        </div>
-      </div>
-
-      {/* Gender picker — gender is hidden on the CV intake, so we ask here */}
-      <div>
-        <div style={{fontSize:10,color:C.t4,fontWeight:700,letterSpacing:1.4,textTransform:'uppercase',marginBottom:8}}>Gender</div>
-        <div style={{display:'flex',gap:8}}>
-          <button onClick={()=>setGender('male')} style={pillStyle(gender==='male')}>👨 Male</button>
-          <button onClick={()=>setGender('female')} style={pillStyle(gender==='female')}>👩 Female</button>
         </div>
       </div>
 
@@ -3120,7 +3125,7 @@ export default function QuoteMark() {
               color:quoteMode==='cv'?'#0B1120':C.t3,
               fontSize:12,fontWeight:700,cursor:'pointer',fontFamily:"'DM Sans','Helvetica Neue',Arial,sans-serif",
               transition:'all 0.18s'
-            }}>💰 Cash</button>
+            }}>💰 CV</button>
           </div>
         </div>
 
@@ -3373,40 +3378,19 @@ export default function QuoteMark() {
                       ))}
                     </div>
                   </div>
-                  {/* Mode toggle — Face amount / Monthly budget (matches FE + IUL) */}
+                  {/* Face amount — Term quoter pulls face only (no budget mode) */}
                   <div>
-                    <div style={lbl}>Quote Target</div>
-                    <div style={{display:'grid',gridTemplateColumns:'1fr 1fr',gap:6}}>
-                      <button className='qm-btn' onClick={()=>setTermMode('face')} style={{...mTogBtn(termMode==='face'),border:`2px solid ${termMode==='face'?C.gold:isDark?'#374151':'#D0CDBE'}`,background:termMode==='face'?C.goldBg:C.bg2,color:termMode==='face'?C.gold:C.t3}}>Face Amount</button>
-                      <button className='qm-btn' onClick={()=>setTermMode('budget')} style={{...mTogBtn(termMode==='budget'),border:`2px solid ${termMode==='budget'?C.gold:isDark?'#374151':'#D0CDBE'}`,background:termMode==='budget'?C.goldBg:C.bg2,color:termMode==='budget'?C.gold:C.t3}}>Monthly Budget</button>
+                    <div style={{fontSize:11,color:C.t3,marginBottom:6,display:'flex',justifyContent:'space-between'}}>
+                      <span>Coverage amount</span>
+                      <span style={{color:C.t2,fontWeight:500,fontFamily:"'DM Mono',ui-monospace,'SF Mono',Menlo,monospace"}}>{fmtF(termFace)}</span>
+                    </div>
+                    <input type="range" min="25000" max="1000000" step="5000" value={termFace}
+                      onChange={e=>setTermFace(+e.target.value)}
+                      style={{width:'100%',accentColor:C.gold}}/>
+                    <div style={{display:'flex',justifyContent:'space-between',fontSize:10,color:C.t4}}>
+                      <span>$25,000</span><span>$1,000,000</span>
                     </div>
                   </div>
-                  {/* Face / Budget slider */}
-                  {termMode === 'face' ? (
-                    <div>
-                      <div style={{fontSize:11,color:C.t3,marginBottom:6,display:'flex',justifyContent:'space-between'}}>
-                        <span>Coverage amount</span>
-                        <span style={{color:C.t2,fontWeight:500,fontFamily:"'DM Mono',ui-monospace,'SF Mono',Menlo,monospace"}}>{fmtF(termFace)}</span>
-                      </div>
-                      <input type="range" min="25000" max="1000000" step="5000" value={termFace}
-                        onChange={e=>setTermFace(+e.target.value)}
-                        style={{width:'100%',accentColor:C.gold}}/>
-                      <div style={{display:'flex',justifyContent:'space-between',fontSize:10,color:C.t4}}>
-                        <span>$25,000</span><span>$1,000,000</span>
-                      </div>
-                    </div>
-                  ) : (
-                    <div>
-                      <div style={{fontSize:12,color:C.t3,marginBottom:8}}>Max monthly premium</div>
-                      <div style={{position:'relative'}}>
-                        <span style={{position:'absolute',left:14,top:'50%',transform:'translateY(-50%)',color:C.t3,fontSize:16,pointerEvents:'none'}}>$</span>
-                        <input type="text" inputMode="decimal" placeholder="100" value={termBudget||''}
-                          onChange={e=>{const v=e.target.value.replace(/[^0-9.]/g,'').replace(/^0+(?=\d)/,'');const n=Number(v);setTermBudget(v===''||isNaN(n)?0:n);}}
-                          style={{...mInp,paddingLeft:30,fontFamily:"'DM Mono',ui-monospace,'SF Mono',Menlo,monospace",fontSize:17}}/>
-                      </div>
-                      <div style={{fontSize:11,color:C.t4,marginTop:6}}>Finds max face within this budget</div>
-                    </div>
-                  )}
                   {/* Height / Weight → BMI */}
                   <div>
                     <div style={{fontSize:11,color:C.t3,marginBottom:6,fontWeight:600,display:'flex',justifyContent:'space-between'}}>
@@ -3646,7 +3630,7 @@ export default function QuoteMark() {
               {quoteMode==='cv' && (
                 <div style={{display:'flex',flexDirection:'column',gap:12}}>
                   {/* Unified Client Info — same as FE/Term/IUL (no state needed for CV) */}
-                  {renderClientInfo({variant:'mobile', showState:false, hideTobacco:true, hideGender:true})}
+                  {renderClientInfo({variant:'mobile', showState:false, hideTobacco:true})}
 
                   <div style={{fontSize:10,fontWeight:700,letterSpacing:1.8,color:'#C5A059',textTransform:'uppercase',marginTop:4}}>Existing Policy</div>
                   <div style={{background:C.bg3,border:`1px solid ${C.bd}`,borderRadius:12,padding:14,display:'flex',flexDirection:'column',gap:14}}>
@@ -3673,13 +3657,6 @@ export default function QuoteMark() {
                     const d=calculateCVCorridor(Number(cvMonthly),Number(cvPolicyYrs),issueAge);
                     const cov = estimateCoverage({ currentAge, policyYears: Number(cvPolicyYrs), monthlyPremium: Number(cvMonthly), gender });
                     const amber = '#C5A059';
-                    const pillStyle = (active) => ({
-                      flex:1, padding:'9px 6px', borderRadius:8,
-                      border:`1px solid ${active?amber:C.bd2}`,
-                      background: active ? (isDark?'rgba(197,160,89,0.18)':'rgba(197,160,89,0.12)') : C.bg2,
-                      color: active ? amber : C.t3,
-                      fontWeight: active?700:500, fontSize:12, cursor:'pointer', fontFamily:"'DM Sans','Helvetica Neue',Arial,sans-serif",
-                    });
                     return (
                       <>
                       <div style={{background:'rgba(197,160,89,0.06)',border:'1px solid rgba(197,160,89,0.22)',borderRadius:10,padding:'14px 16px'}}>
@@ -3701,12 +3678,6 @@ export default function QuoteMark() {
                         <div style={{display:'flex',alignItems:'center',gap:8,marginBottom:10}}>
                           <span style={{fontSize:18}}>🛡️</span>
                           <div style={{fontSize:13,fontWeight:700,color:C.t0,letterSpacing:0.3}}>Coverage Estimate</div>
-                        </div>
-                        {/* Gender picker — gender is hidden on CV intake, so we ask here */}
-                        <div style={{fontSize:9,color:C.t4,fontWeight:700,letterSpacing:1.2,textTransform:'uppercase',marginBottom:6}}>Gender</div>
-                        <div style={{display:'flex',gap:6,marginBottom:12}}>
-                          <button onClick={()=>setGender('male')} style={pillStyle(gender==='male')}>👨 Male</button>
-                          <button onClick={()=>setGender('female')} style={pillStyle(gender==='female')}>👩 Female</button>
                         </div>
                         {cov.error ? (
                           <div style={{fontSize:11,color:C.t3,padding:'8px 0'}}>
@@ -4376,7 +4347,7 @@ export default function QuoteMark() {
             color:quoteMode==='cv'?'#0B1120':C.t3,
             fontSize:12,fontWeight:700,cursor:'pointer',fontFamily:"'DM Sans','Helvetica Neue',Arial,sans-serif",
             transition:'all 0.18s',letterSpacing:0.3,whiteSpace:'nowrap'
-          }}>💰 Cash Value</button>
+          }}>💰 CV / Coverage</button>
         </div>
         <div style={{display:'flex',alignItems:'center',gap:10}}>
 
@@ -4663,45 +4634,19 @@ export default function QuoteMark() {
                   ))}
                 </div>
               </div>
-              <div style={{marginBottom:12}}>
-                <div style={{display:'grid',gridTemplateColumns:'1fr 1fr',gap:6}}>
-                  <button onClick={()=>setTermMode('face')} style={{
-                    padding:'9px 0',borderRadius:7,border:`2px solid ${termMode==='face'?'#C5A059':isDark?'#374151':'#D0CDBE'}`,
-                    background:termMode==='face'?'#C5A059':C.bg2,color:termMode==='face'?'#0A192F':C.t3,
-                    fontSize:13,fontWeight:700,cursor:'pointer',fontFamily:"'DM Sans','Helvetica Neue',Arial,sans-serif"
-                  }}>Face amount</button>
-                  <button onClick={()=>setTermMode('budget')} style={{
-                    padding:'9px 0',borderRadius:7,border:`2px solid ${termMode==='budget'?'#C5A059':isDark?'#374151':'#D0CDBE'}`,
-                    background:termMode==='budget'?'#C5A059':C.bg2,color:termMode==='budget'?'#0A192F':C.t3,
-                    fontSize:13,fontWeight:700,cursor:'pointer',fontFamily:"'DM Sans','Helvetica Neue',Arial,sans-serif"
-                  }}>Monthly budget</button>
+              {/* Face amount — Term quoter pulls face only (no budget mode) */}
+              <div>
+                <div style={{fontSize:11,color:C.t3,marginBottom:6,display:'flex',justifyContent:'space-between'}}>
+                  <span>Coverage amount</span>
+                  <span style={{color:C.t2,fontWeight:500,fontFamily:"'DM Mono',ui-monospace,'SF Mono',Menlo,monospace"}}>{fmtF(termFace)}</span>
+                </div>
+                <input type="range" min="25000" max="1000000" step="5000" value={termFace}
+                  onChange={e=>setTermFace(+e.target.value)}
+                  style={{width:'100%',accentColor:C.gold}}/>
+                <div style={{display:'flex',justifyContent:'space-between',fontSize:10,color:C.t4}}>
+                  <span>$25,000</span><span>$1,000,000</span>
                 </div>
               </div>
-              {termMode === 'face' ? (
-                <div>
-                  <div style={{fontSize:11,color:C.t3,marginBottom:6,display:'flex',justifyContent:'space-between'}}>
-                    <span>Coverage amount</span>
-                    <span style={{color:C.t2,fontWeight:500,fontFamily:"'DM Mono',ui-monospace,'SF Mono',Menlo,monospace"}}>{fmtF(termFace)}</span>
-                  </div>
-                  <input type="range" min="25000" max="1000000" step="5000" value={termFace}
-                    onChange={e=>setTermFace(+e.target.value)}
-                    style={{width:'100%',accentColor:C.gold}}/>
-                  <div style={{display:'flex',justifyContent:'space-between',fontSize:10,color:C.t4}}>
-                    <span>$25,000</span><span>$1,000,000</span>
-                  </div>
-                </div>
-              ) : (
-                <div>
-                  <div style={{fontSize:11,color:C.t3,marginBottom:5}}>Max monthly premium</div>
-                  <div style={{position:'relative'}}>
-                    <span style={{position:'absolute',left:12,top:'50%',transform:'translateY(-50%)',color:C.t3,fontSize:14,pointerEvents:'none'}}>$</span>
-                    <input type="text" inputMode="decimal" placeholder="100" value={termBudget||''}
-                      onChange={e=>{const v=e.target.value.replace(/[^0-9.]/g,'').replace(/^0+(?=\d)/,'');const n=Number(v);setTermBudget(v===''||isNaN(n)?0:n);}}
-                      style={{...inp,paddingLeft:26,fontFamily:"'DM Mono',ui-monospace,'SF Mono',Menlo,monospace",fontSize:16}}/>
-                  </div>
-                  <div style={{fontSize:11,color:C.t4,marginTop:6}}>Finds max face within this budget</div>
-                </div>
-              )}
             </div>
 
             {/* 3 — UW ASSESSMENT (health class) */}
@@ -4889,7 +4834,7 @@ export default function QuoteMark() {
           {quoteMode==='cv' && (
             <>
               {/* 1 — CLIENT INFO (no state, no tobacco needed for CV) */}
-              {renderClientInfo({variant:'desktop', showState:false, hideTobacco:true, hideGender:true})}
+              {renderClientInfo({variant:'desktop', showState:false, hideTobacco:true})}
 
               {/* 2 — EXISTING POLICY */}
               <div style={sec}>
@@ -5127,7 +5072,6 @@ export default function QuoteMark() {
                       policyYears={Number(cvPolicyYrs)}
                       currentAge={ageNum}
                       gender={gender}
-                      setGender={setGender}
                       C={C} isDark={isDark}
                     />
                   </div>
