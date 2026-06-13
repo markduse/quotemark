@@ -589,7 +589,7 @@ const TIER_INFO = {
 };
 
 const GSB = [
-  {key:'gold',   label:'Gold',   medal:'🥇', color:'#FFD700', default:15000},
+  {key:'gold',   label:'Gold',   medal:'🥇', color:'#C5A059', default:15000},
   {key:'silver', label:'Silver', medal:'🥈', color:'#94A3B8', default:10000},
   {key:'bronze', label:'Bronze', medal:'🥉', color:'#B45309', default:5000},
 ];
@@ -1921,13 +1921,13 @@ const CashValueProjection = ({ monthlyPremium, policyYears, issueAge, C, isDark 
       <div style={{display:'flex',alignItems:'center',gap:12,paddingBottom:14,borderBottom:`1px solid ${C.bd}`}}>
         <span style={{fontSize:30}}>💰</span>
         <div>
-          <div style={{fontSize:18,fontWeight:800,color:C.t0,fontFamily:"'DM Sans',sans-serif"}}>Cash Value Estimator</div>
+          <div style={{fontSize:18,fontWeight:800,color:C.t0,fontFamily:"'DM Sans','Helvetica Neue',Arial,sans-serif"}}>Cash Value Estimator</div>
           <div style={{fontSize:12,color:C.t4,marginTop:2}}>
             Whole life · ${monthlyPremium.toLocaleString()}/mo · {policyYears} yr{policyYears===1?'':'s'} in-force · Issued age {issueAge||65}
           </div>
         </div>
         <div style={{marginLeft:'auto',display:'flex',flexDirection:'column',alignItems:'flex-end',gap:4}}>
-          <span style={{background:'rgba(245,158,11,0.1)',border:'1px solid rgba(245,158,11,0.25)',borderRadius:6,padding:'3px 9px',fontSize:11,color:amber,fontWeight:700}}>
+          <span style={{background:'rgba(197,160,89,0.1)',border:'1px solid rgba(197,160,89,0.25)',borderRadius:6,padding:'3px 9px',fontSize:11,color:amber,fontWeight:700}}>
             {(issueAge||65) < 60 ? 'Under 60' : (issueAge||65) <= 70 ? 'Age 60–70' : 'Age 71+'} tier
           </span>
         </div>
@@ -1937,25 +1937,25 @@ const CashValueProjection = ({ monthlyPremium, policyYears, issueAge, C, isDark 
       <div style={{display:'grid',gridTemplateColumns:'1fr 1fr',gap:10}}>
         <div style={{background:C.bg3,border:`1px solid ${C.bd}`,borderRadius:12,padding:'14px 16px'}}>
           <div style={{fontSize:10,color:C.t4,fontWeight:700,letterSpacing:1.4,textTransform:'uppercase',marginBottom:6}}>Annual Premium</div>
-          <div style={{fontSize:20,fontWeight:800,color:C.t1,fontFamily:"'DM Mono',monospace"}}>{fmt(d.annualPremium)}</div>
+          <div style={{fontSize:20,fontWeight:800,color:C.t1,fontFamily:"'DM Mono',ui-monospace,'SF Mono',Menlo,monospace"}}>{fmt(d.annualPremium)}</div>
         </div>
         <div style={{background:C.bg3,border:`1px solid ${C.bd}`,borderRadius:12,padding:'14px 16px'}}>
           <div style={{fontSize:10,color:C.t4,fontWeight:700,letterSpacing:1.4,textTransform:'uppercase',marginBottom:6}}>Total Premiums Paid</div>
-          <div style={{fontSize:20,fontWeight:800,color:C.t1,fontFamily:"'DM Mono',monospace"}}>{fmt(d.totalPaid)}</div>
+          <div style={{fontSize:20,fontWeight:800,color:C.t1,fontFamily:"'DM Mono',ui-monospace,'SF Mono',Menlo,monospace"}}>{fmt(d.totalPaid)}</div>
         </div>
       </div>
 
       {/* Big corridor card */}
-      <div style={{background:isDark?'rgba(245,158,11,0.06)':'rgba(245,158,11,0.04)',border:'1px solid rgba(245,158,11,0.3)',borderRadius:14,padding:20}}>
+      <div style={{background:isDark?'rgba(197,160,89,0.06)':'rgba(197,160,89,0.04)',border:'1px solid rgba(197,160,89,0.3)',borderRadius:14,padding:20}}>
         <div style={{fontSize:10,fontWeight:700,letterSpacing:1.8,color:amber,textTransform:'uppercase',marginBottom:16}}>
           Estimated Surrender Value · After {policyYears} Year{policyYears===1?'':'s'}
         </div>
         <div style={{marginBottom:14}}>
           <div style={{fontSize:10,color:C.t4,marginBottom:8,fontWeight:600,letterSpacing:0.5}}>ESTIMATED CASH VALUE</div>
           <div style={{display:'flex',alignItems:'baseline',gap:10,flexWrap:'wrap'}}>
-            <span style={{fontSize:28,fontWeight:800,color:C.t2,fontFamily:"'DM Mono',monospace"}}>{fmt(d.low)}</span>
+            <span style={{fontSize:28,fontWeight:800,color:C.t2,fontFamily:"'DM Mono',ui-monospace,'SF Mono',Menlo,monospace"}}>{fmt(d.low)}</span>
             <span style={{fontSize:18,color:C.t4,fontWeight:400}}>–</span>
-            <span style={{fontSize:28,fontWeight:800,color:amber,fontFamily:"'DM Mono',monospace"}}>{fmt(d.high)}</span>
+            <span style={{fontSize:28,fontWeight:800,color:amber,fontFamily:"'DM Mono',ui-monospace,'SF Mono',Menlo,monospace"}}>{fmt(d.high)}</span>
           </div>
           <div style={{fontSize:11,color:C.t4,marginTop:6}}>Conservative estimate · Target estimate · Agent reference only</div>
         </div>
@@ -1967,7 +1967,7 @@ const CashValueProjection = ({ monthlyPremium, policyYears, issueAge, C, isDark 
           </div>
           <div style={{height:8,borderRadius:4,background:C.bg2,overflow:'hidden',position:'relative'}}>
             <div style={{position:'absolute',left:0,top:0,height:'100%',width:'100%',
-              background:'linear-gradient(90deg,rgba(148,163,184,0.4),#F59E0B)',borderRadius:4}}/>
+              background:'linear-gradient(90deg,rgba(148,163,184,0.4),#C5A059)',borderRadius:4}}/>
           </div>
           <div style={{fontSize:10,color:C.t4,marginTop:4,textAlign:'center'}}>Estimated corridor based on real carrier policy illustrations</div>
         </div>
@@ -2007,7 +2007,7 @@ const CoverageEstimate = ({ monthlyPremium, policyYears, currentAge, gender, set
     background: active ? (isDark?'rgba(197,160,89,0.18)':'rgba(197,160,89,0.12)') : C.bg2,
     color: active ? amber : C.t3,
     fontWeight: active ? 700 : 500, fontSize:13, cursor:'pointer',
-    fontFamily:"'DM Sans',sans-serif",
+    fontFamily:"'DM Sans','Helvetica Neue',Arial,sans-serif",
   });
 
   return (
@@ -2016,7 +2016,7 @@ const CoverageEstimate = ({ monthlyPremium, policyYears, currentAge, gender, set
       <div style={{display:'flex',alignItems:'center',gap:12,paddingBottom:10}}>
         <span style={{fontSize:28}}>🛡️</span>
         <div>
-          <div style={{fontSize:18,fontWeight:800,color:C.t0,fontFamily:"'DM Sans',sans-serif"}}>Coverage Estimate</div>
+          <div style={{fontSize:18,fontWeight:800,color:C.t0,fontFamily:"'DM Sans','Helvetica Neue',Arial,sans-serif"}}>Coverage Estimate</div>
           <div style={{fontSize:11,color:C.t4,marginTop:2}}>Conservative estimate from premium · Standard / Modified WL rate book</div>
         </div>
       </div>
@@ -2045,9 +2045,9 @@ const CoverageEstimate = ({ monthlyPremium, policyYears, currentAge, gender, set
             Estimated Death Benefit · Issued at age {r.issueAge}
           </div>
           <div style={{display:'flex',alignItems:'baseline',gap:10,flexWrap:'wrap',marginBottom:10}}>
-            <span style={{fontSize:30,fontWeight:800,color:C.t2,fontFamily:"'DM Mono',monospace"}}>{fmt(r.low)}</span>
+            <span style={{fontSize:30,fontWeight:800,color:C.t2,fontFamily:"'DM Mono',ui-monospace,'SF Mono',Menlo,monospace"}}>{fmt(r.low)}</span>
             <span style={{fontSize:18,color:C.t4}}>–</span>
-            <span style={{fontSize:30,fontWeight:800,color:amber,fontFamily:"'DM Mono',monospace"}}>{fmt(r.high)}</span>
+            <span style={{fontSize:30,fontWeight:800,color:amber,fontFamily:"'DM Mono',ui-monospace,'SF Mono',Menlo,monospace"}}>{fmt(r.high)}</span>
           </div>
           <div style={{fontSize:11,color:C.t4,marginTop:10,paddingTop:10,borderTop:`1px solid ${C.bd}`,lineHeight:1.6,fontStyle:'italic'}}>
             (If the policy is ROP or Guaranteed Issue, the actual coverage is likely much less than this range.)
@@ -2072,23 +2072,28 @@ const fmtF = n => (n!=null&&typeof n==='number') ? `$${n.toLocaleString()}` : '�
 const C_DARK = {
   bg0:'#020617', bg1:'#0B1120', bg2:'#0F172A', bg3:'#1E293B', bg4:'#263347',
   bd:'#1E293B', bd2:'#334155',
-  t0:'#FAF9F6', t1:'#E2E8F0', t2:'#CBD5E1', t3:'#94A3B8', t4:'#64748B',
+  t0:'#FAF9F6', t1:'#E2E8F0', t2:'#CBD5E1', t3:'#94A3B8', t4:'#74819A',
   blue:'#38BDF8', blueBg:'rgba(56,189,248,0.1)', blueBd:'rgba(56,189,248,0.25)',
-  gold:'#C5A059', goldBg:'rgba(197,160,89,0.12)', goldBd:'rgba(197,160,89,0.3)',
+  gold:'#C5A059', goldBg:'rgba(197,160,89,0.12)', goldBd:'rgba(197,160,89,0.3)', goldText:'#C5A059',
   green:'#22C55E',
+  cardShadow:'0 1px 3px rgba(0,0,0,0.5),0 0 0 1px rgba(255,255,255,0.03)',
+  ctaDisabled:'#2A3547',
   selActive:'#38BDF8', selActiveTxt:'#0B1120',
+  pageBg:'#020617',
 };
 
 const C_LIGHT = {
   // Executive warm palette — bone/cream backgrounds, deep navy text, champagne gold accents
   bg0:'#FAF9F6', bg1:'#FAF9F6', bg2:'#FFFFFF', bg3:'#F2F1EC', bg4:'#E8E6DF',
   bd:'#E5E3DB', bd2:'#D0CDBE',
-  t0:'#0A192F', t1:'#1A2B42', t2:'#3E4A59', t3:'#6B7280', t4:'#9CA3AF',
+  t0:'#0A192F', t1:'#1A2B42', t2:'#3E4A59', t3:'#6B7280', t4:'#868D99',
   blue:'#0A192F', blueBg:'rgba(10,25,47,0.06)', blueBd:'rgba(10,25,47,0.18)',
-  gold:'#C5A059', goldBg:'rgba(197,160,89,0.1)', goldBd:'rgba(197,160,89,0.3)',
+  gold:'#C5A059', goldBg:'rgba(197,160,89,0.1)', goldBd:'rgba(197,160,89,0.3)', goldText:'#9A7B38',
   green:'#16A34A',
   cardBg:'#FFFFFF', cardShadow:'0 4px 12px -2px rgba(10,25,47,0.08),0 2px 4px -2px rgba(10,25,47,0.04)',
+  ctaDisabled:'#D0CDBE',
   selActive:'#0A192F', selActiveTxt:'#FFFFFF', selInactive:'#F2F1EC', selInactiveTxt:'#6B7280',
+  pageBg:'#FAF9F6',
 };
 
 
@@ -2263,7 +2268,7 @@ const UWBadge = ({uwType, productName, tier, small=false}) => {
         background:'rgba(16,185,129,0.14)',border:'1px solid rgba(16,185,129,0.4)',
         color:'#10B981',borderRadius:5,padding: small?'1px 5px':'2px 6px',
         fontSize: small?9:10,fontWeight:800,letterSpacing:0.4,whiteSpace:'nowrap',
-        fontFamily:"'DM Sans',sans-serif",lineHeight:1.2,
+        fontFamily:"'DM Sans','Helvetica Neue',Arial,sans-serif",lineHeight:1.2,
       }}>⚡ INSTANT</span>
     );
   }
@@ -2277,7 +2282,7 @@ const UWBadge = ({uwType, productName, tier, small=false}) => {
         background:'rgba(245,158,11,0.14)',border:'1px solid rgba(245,158,11,0.4)',
         color:'#F59E0B',borderRadius:5,padding: small?'1px 5px':'2px 6px',
         fontSize: small?9:10,fontWeight:800,letterSpacing:0.4,whiteSpace:'nowrap',
-        fontFamily:"'DM Sans',sans-serif",lineHeight:1.2,
+        fontFamily:"'DM Sans','Helvetica Neue',Arial,sans-serif",lineHeight:1.2,
       }}>🩺 EXAM</span>
     );
   }
@@ -2376,9 +2381,9 @@ export default function QuoteMark() {
     }
   }
   useEffect(()=>{
-    const l=document.createElement('link');l.href=FONT_LINK;l.rel='stylesheet';document.head.appendChild(l);
-    document.documentElement.style.cssText='margin:0;padding:0;background:#05101E;overflow-x:hidden';
-    document.body.style.cssText='margin:0;padding:0;background:#05101E;overflow-x:hidden';
+    // Fonts now load from index.html <head> (branded on first frame). Just clear margins.
+    document.documentElement.style.cssText='margin:0;padding:0;overflow-x:hidden';
+    document.body.style.cssText='margin:0;padding:0;overflow-x:hidden';
     // Inject hover/active lift CSS for toggle buttons
     const s=document.createElement('style');
     s.id='qm-btn-styles';
@@ -2399,6 +2404,13 @@ export default function QuoteMark() {
         100% { box-shadow: 0 0 0 0 rgba(197,160,89,0); }
       }
       @keyframes spin { to { transform: rotate(360deg); } }
+      /* Keyboard focus — one branded gold ring everywhere (mouse users never see it) */
+      *:focus-visible { outline: 2px solid #C5A059 !important; outline-offset: 2px !important; border-radius: 4px; }
+      /* Results mount — a quiet "they just landed" beat. ≤160ms, no spring.
+         'backwards' fill applies the start frame before the run, then releases
+         back to the element's inline styles — so hover transforms stay intact. */
+      @keyframes qmRise { from { opacity: 0; transform: translateY(6px); } to { opacity: 1; transform: translateY(0); } }
+      .qm-rise { animation: qmRise 0.16s ease-out backwards; }
     `;
     if(!document.getElementById('qm-btn-styles')) document.head.appendChild(s);
   },[]);
@@ -2500,6 +2512,11 @@ export default function QuoteMark() {
   const [carriersSaved, setCarriersSaved] = useState(false);
   const [isDark, setIsDark] = useState(true);
   const C = isDark ? C_DARK : C_LIGHT;
+  // Page background follows the active theme (was a hardcoded #05101E seam on overscroll).
+  useEffect(()=>{
+    document.documentElement.style.background = C.pageBg;
+    document.body.style.background = C.pageBg;
+  },[isDark]);
 
   // ── CONTACT MODAL STATE ──
   const [showContact, setShowContact] = useState(false);
@@ -2914,13 +2931,13 @@ export default function QuoteMark() {
   }, [quoteMode, ageOK, ageNum, gender, smoker, dIulPremium, dIulFace, iulMode, hasQuoted]);
 
   // ── INPUT STYLES ──
-  const inp = {background:C.bg2,border:`1px solid ${C.bd}`,color:C.t1,borderRadius:8,padding:'9px 12px',fontSize:13,width:'100%',boxSizing:'border-box',outline:'none',fontFamily:"'DM Sans',sans-serif"};
-  const togBtn = (active) => isDark ? {flex:1,padding:'9px 0',minHeight:40,borderRadius:7,border:`2px solid ${active?'#C5A059':'#374151'}`,cursor:'pointer',fontSize:12,fontWeight:600,background:active?'#C5A059':'#0F172A',color:active?'#0A192F':'#94A3B8',fontFamily:"'DM Sans',sans-serif"} : {flex:1,padding:'9px 0',minHeight:40,borderRadius:7,border:`2px solid ${active?'#0A192F':'#D0CDBE'}`,cursor:'pointer',fontSize:12,fontWeight:600,background:active?'#0A192F':C.selInactive,color:active?'#FFFFFF':'#6B7280',fontFamily:"'DM Sans',sans-serif"};
+  const inp = {background:C.bg2,border:`1px solid ${C.bd}`,color:C.t1,borderRadius:8,padding:'9px 12px',fontSize:13,width:'100%',boxSizing:'border-box',outline:'none',fontFamily:"'DM Sans','Helvetica Neue',Arial,sans-serif"};
+  const togBtn = (active) => isDark ? {flex:1,padding:'9px 0',minHeight:40,borderRadius:7,border:`2px solid ${active?'#C5A059':'#374151'}`,cursor:'pointer',fontSize:12,fontWeight:600,background:active?'#C5A059':'#0F172A',color:active?'#0A192F':'#94A3B8',fontFamily:"'DM Sans','Helvetica Neue',Arial,sans-serif"} : {flex:1,padding:'9px 0',minHeight:40,borderRadius:7,border:`2px solid ${active?'#0A192F':'#D0CDBE'}`,cursor:'pointer',fontSize:12,fontWeight:600,background:active?'#0A192F':C.selInactive,color:active?'#FFFFFF':'#6B7280',fontFamily:"'DM Sans','Helvetica Neue',Arial,sans-serif"};
   const sec = {background:C.bg3,border:`1px solid ${C.bd}`,borderRadius:12,padding:16};
   const lbl = {fontSize:10,fontWeight:700,letterSpacing:1.8,color:C.t4,textTransform:'uppercase',marginBottom:10};
   // Mobile-tier styles (also used by ClientInfoBlock in desktop calls when sized for variant)
-  const mInp = {background:C.bg2,border:`1px solid ${C.bd}`,color:C.t1,borderRadius:10,padding:'12px 14px',fontSize:15,width:'100%',boxSizing:'border-box',outline:'none',fontFamily:"'DM Sans',sans-serif",WebkitAppearance:'none'};
-  const mTogBtn = (active,color) => isDark ? {flex:1,padding:'14px 0',minHeight:48,borderRadius:10,border:`2px solid ${active?'#C5A059':'#374151'}`,cursor:'pointer',fontSize:14,fontWeight:600,background:active?'#C5A059':'#0F172A',color:active?'#0A192F':'#94A3B8',fontFamily:"'DM Sans',sans-serif"} : {flex:1,padding:'14px 0',minHeight:48,borderRadius:10,border:`2px solid ${active?'#0A192F':'#D0CDBE'}`,cursor:'pointer',fontSize:14,fontWeight:600,background:active?'#0A192F':'#F2F1EC',color:active?'#FFFFFF':'#6B7280',fontFamily:"'DM Sans',sans-serif"};
+  const mInp = {background:C.bg2,border:`1px solid ${C.bd}`,color:C.t1,borderRadius:10,padding:'12px 14px',fontSize:15,width:'100%',boxSizing:'border-box',outline:'none',fontFamily:"'DM Sans','Helvetica Neue',Arial,sans-serif",WebkitAppearance:'none'};
+  const mTogBtn = (active,color) => isDark ? {flex:1,padding:'14px 0',minHeight:48,borderRadius:10,border:`2px solid ${active?'#C5A059':'#374151'}`,cursor:'pointer',fontSize:14,fontWeight:600,background:active?'#C5A059':'#0F172A',color:active?'#0A192F':'#94A3B8',fontFamily:"'DM Sans','Helvetica Neue',Arial,sans-serif"} : {flex:1,padding:'14px 0',minHeight:48,borderRadius:10,border:`2px solid ${active?'#0A192F':'#D0CDBE'}`,cursor:'pointer',fontSize:14,fontWeight:600,background:active?'#0A192F':'#F2F1EC',color:active?'#FFFFFF':'#6B7280',fontFamily:"'DM Sans','Helvetica Neue',Arial,sans-serif"};
 
   // ── DOB → age auto-sync (when all 3 fields valid, compute age and set it) ──
   // ── REUSABLE CLIENT INFO BLOCK ──
@@ -2961,9 +2978,9 @@ export default function QuoteMark() {
             {/* +/- steppers */}
             <div style={{display:'flex',flexDirection:'column',gap:2,flexShrink:0}}>
               <button onClick={()=>{const n=Math.min(89,(parseInt(age)||0)+1);setAge(String(n));setDob({mm:'',dd:'',yyyy:''});}}
-                aria-label="Age up" style={{background:C.bg3,border:`1px solid ${C.bd}`,borderRadius:5,color:C.t2,width:isM?28:24,height:isM?22:18,padding:0,cursor:'pointer',fontSize:isM?12:10,lineHeight:1,fontFamily:"'DM Sans',sans-serif"}}>▲</button>
+                aria-label="Age up" style={{background:C.bg3,border:`1px solid ${C.bd}`,borderRadius:5,color:C.t2,width:isM?28:24,height:isM?22:18,padding:0,cursor:'pointer',fontSize:isM?12:10,lineHeight:1,fontFamily:"'DM Sans','Helvetica Neue',Arial,sans-serif"}}>▲</button>
               <button onClick={()=>{const n=Math.max(1,(parseInt(age)||1)-1);setAge(String(n));setDob({mm:'',dd:'',yyyy:''});}}
-                aria-label="Age down" style={{background:C.bg3,border:`1px solid ${C.bd}`,borderRadius:5,color:C.t2,width:isM?28:24,height:isM?22:18,padding:0,cursor:'pointer',fontSize:isM?12:10,lineHeight:1,fontFamily:"'DM Sans',sans-serif"}}>▼</button>
+                aria-label="Age down" style={{background:C.bg3,border:`1px solid ${C.bd}`,borderRadius:5,color:C.t2,width:isM?28:24,height:isM?22:18,padding:0,cursor:'pointer',fontSize:isM?12:10,lineHeight:1,fontFamily:"'DM Sans','Helvetica Neue',Arial,sans-serif"}}>▼</button>
             </div>
           </div>
           {age&&ageOK&&<div style={{fontSize:isM?11:10,color:C.green,marginTop:isM?6:4}}>✓ Age {age}</div>}
@@ -3053,21 +3070,21 @@ export default function QuoteMark() {
   // ─────────────────────────────────────────────────
   if (isMobile) {
     return (
-      <div style={{fontFamily:"'DM Sans',sans-serif",background:C.bg0,minHeight:'100vh',color:C.t1,position:'relative',paddingBottom:100,backgroundImage:isDark?'radial-gradient(circle,#1E293B 1px,transparent 1px)':'radial-gradient(circle,#D8D5CC 1px,transparent 1px)',backgroundSize:'24px 24px'}}>
+      <div style={{fontFamily:"'DM Sans','Helvetica Neue',Arial,sans-serif",background:C.bg0,minHeight:'100vh',color:C.t1,position:'relative',paddingBottom:100,backgroundImage:isDark?'radial-gradient(circle,#1E293B 1px,transparent 1px)':'radial-gradient(circle,#D8D5CC 1px,transparent 1px)',backgroundSize:'24px 24px'}}>
 
         {/* ── MOBILE HEADER ── */}
         <div style={{background:C.bg1,borderBottom:`1px solid ${C.bd}`,padding:'12px 18px',display:'flex',alignItems:'center',justifyContent:'space-between',position:'sticky',top:0,zIndex:50}}>
-          <div style={{fontFamily:"'Barlow Condensed',sans-serif",fontSize:26,fontWeight:800,color:C.t0,letterSpacing:'-0.5px'}}>
-            <span style={{color:isDark?'#E2E8F0':'#0A192F',fontFamily:"'Barlow Condensed',sans-serif"}}>Quote</span><span style={{color:'#C5A059',fontFamily:"'Barlow Condensed',sans-serif"}}>Mark</span>
+          <div style={{fontFamily:"'Barlow Condensed','Arial Narrow',sans-serif",fontSize:26,fontWeight:800,color:C.t0,letterSpacing:'-0.5px'}}>
+            <span style={{color:isDark?'#E2E8F0':'#0A192F',fontFamily:"'Barlow Condensed','Arial Narrow',sans-serif"}}>Quote</span><span style={{color:'#C5A059',fontFamily:"'Barlow Condensed','Arial Narrow',sans-serif"}}>Mark</span>
           </div>
           <div style={{display:'flex',alignItems:'center',gap:6}}>
             <button onClick={toggleDarkMode} title={isDark?'Switch to Light Mode':'Switch to Dark Mode'} style={{padding:'8px 10px',borderRadius:8,border:`1px solid ${C.bd2}`,background:C.bg3,color:C.t2,fontSize:16,cursor:'pointer',lineHeight:1,display:'flex',alignItems:'center'}}>
               {isDark?'☀️':'🌙'}
             </button>
-            <button onClick={()=>setShowContact(true)} style={{padding:'8px 11px',borderRadius:8,border:`1px solid ${C.bd2}`,background:C.bg3,color:C.t2,fontSize:12,fontWeight:500,cursor:'pointer',fontFamily:"'DM Sans',sans-serif",display:'flex',alignItems:'center',gap:5}}>
+            <button onClick={()=>setShowContact(true)} style={{padding:'8px 11px',borderRadius:8,border:`1px solid ${C.bd2}`,background:C.bg3,color:C.t2,fontSize:12,fontWeight:500,cursor:'pointer',fontFamily:"'DM Sans','Helvetica Neue',Arial,sans-serif",display:'flex',alignItems:'center',gap:5}}>
               <span style={{fontSize:14}}>📬</span><span style={{fontSize:11}}>Contact</span>
             </button>
-            <button onClick={()=>setMobileTab2('profile')} style={{padding:'8px 11px',borderRadius:8,border:`1px solid ${C.bd2}`,background:C.bg3,color:C.t2,fontSize:12,fontWeight:500,cursor:'pointer',fontFamily:"'DM Sans',sans-serif",display:'flex',alignItems:'center',gap:5}}>
+            <button onClick={()=>setMobileTab2('profile')} style={{padding:'8px 11px',borderRadius:8,border:`1px solid ${C.bd2}`,background:C.bg3,color:C.t2,fontSize:12,fontWeight:500,cursor:'pointer',fontFamily:"'DM Sans','Helvetica Neue',Arial,sans-serif",display:'flex',alignItems:'center',gap:5}}>
               <span style={{fontSize:14}}>👤</span><span style={{fontSize:11}}>Profile</span>
             </button>
           </div>
@@ -3080,28 +3097,28 @@ export default function QuoteMark() {
               flex:1,padding:'10px 0',borderRadius:18,border:'none',
               background:quoteMode==='fe'?(isDark?'#C5A059':'#0A192F'):'transparent',
               color:quoteMode==='fe'?(isDark?'#0A192F':'#FFFFFF'):C.t3,
-              fontSize:13,fontWeight:700,cursor:'pointer',fontFamily:"'DM Sans',sans-serif",
+              fontSize:13,fontWeight:700,cursor:'pointer',fontFamily:"'DM Sans','Helvetica Neue',Arial,sans-serif",
               transition:'all 0.18s'
             }}>🏛️ FEX / WL</button>
             <button onClick={()=>{track('Tab Switch',{to:'term'});setQuoteMode('term');}} style={{
               flex:1,padding:'10px 0',borderRadius:18,border:'none',
               background:quoteMode==='term'?'#C5A059':'transparent',
               color:quoteMode==='term'?'#0A192F':C.t3,
-              fontSize:12,fontWeight:700,cursor:'pointer',fontFamily:"'DM Sans',sans-serif",
+              fontSize:12,fontWeight:700,cursor:'pointer',fontFamily:"'DM Sans','Helvetica Neue',Arial,sans-serif",
               transition:'all 0.18s'
             }}>⏱️ Term</button>
             <button onClick={()=>{track('Tab Switch',{to:'iul'});setQuoteMode('iul');}} style={{
               flex:1,padding:'10px 0',borderRadius:18,border:'none',
               background:quoteMode==='iul'?'#C5A059':'transparent',
               color:quoteMode==='iul'?'#0A192F':C.t3,
-              fontSize:12,fontWeight:700,cursor:'pointer',fontFamily:"'DM Sans',sans-serif",
+              fontSize:12,fontWeight:700,cursor:'pointer',fontFamily:"'DM Sans','Helvetica Neue',Arial,sans-serif",
               transition:'all 0.18s'
             }}>📈 IUL</button>
             <button onClick={()=>{track('Tab Switch',{to:'cv'});setQuoteMode('cv');}} style={{
               flex:1,padding:'10px 0',borderRadius:18,border:'none',
               background:quoteMode==='cv'?'#C5A059':'transparent',
               color:quoteMode==='cv'?'#0B1120':C.t3,
-              fontSize:12,fontWeight:700,cursor:'pointer',fontFamily:"'DM Sans',sans-serif",
+              fontSize:12,fontWeight:700,cursor:'pointer',fontFamily:"'DM Sans','Helvetica Neue',Arial,sans-serif",
               transition:'all 0.18s'
             }}>💰 Cash</button>
           </div>
@@ -3140,22 +3157,15 @@ export default function QuoteMark() {
                   <button className="qm-gsb-toggle" onClick={()=>{setGsbOn(p=>{const n=!p;track('GSB Toggle',{on:n});return n;});setMode('face');}} style={{
                     display:'flex',alignItems:'center',gap:6,
                     padding:'6px 12px 6px 8px',borderRadius:20,
-                    border:`2px solid ${gsbOn
-                      ? isDark?'rgba(245,158,11,0.7)':'#D97706'
-                      : isDark?'#374151':'#D0CDBE'}`,
-                    background:gsbOn
-                      ? (isDark?'linear-gradient(135deg,rgba(245,158,11,0.18) 0%,rgba(148,115,52,0.12) 50%,rgba(180,100,30,0.12) 100%)':'linear-gradient(135deg,rgba(245,158,11,0.12) 0%,rgba(180,130,60,0.08) 100%)')
-                      : (isDark?'#0F172A':'#FAF9F6'),
+                    border:`2px solid ${gsbOn ? C.goldBd : isDark?'#374151':'#D0CDBE'}`,
+                    background:gsbOn ? C.goldBg : (isDark?'#0F172A':'#FAF9F6'),
                     color:gsbOn?C.gold:C.t3,
-                    fontSize:11,fontWeight:700,cursor:'pointer',fontFamily:"'DM Sans',sans-serif",
-                    boxShadow:gsbOn?(isDark?'0 0 12px rgba(245,158,11,0.2),0 2px 8px rgba(0,0,0,0.3)':'0 2px 8px rgba(217,119,6,0.15)'):'none'
+                    fontSize:11,fontWeight:700,cursor:'pointer',fontFamily:"'DM Sans','Helvetica Neue',Arial,sans-serif",
+                    boxShadow:gsbOn?(isDark?'0 2px 8px rgba(0,0,0,0.3)':'0 1px 4px rgba(197,160,89,0.15)'):'none'
                   }}>
                     <span style={{position:'relative',display:'inline-block',width:28,height:16,borderRadius:8,
-                      background:gsbOn
-                        ? (isDark?'linear-gradient(90deg,#B45309,#D97706,#92400E)':'linear-gradient(90deg,#B45309,#D97706)')
-                        : (isDark?'#1E293B':'#E2E8F0'),
-                      border:`1px solid ${gsbOn?'rgba(245,158,11,0.5)':isDark?'#374151':'#D0CDBE'}`,
-                      boxShadow:gsbOn?'0 0 6px rgba(245,158,11,0.4)':'none',
+                      background:gsbOn ? C.gold : (isDark?'#1E293B':'#E2E8F0'),
+                      border:`1px solid ${gsbOn?C.goldBd:isDark?'#374151':'#D0CDBE'}`,
                       transition:'all 0.2s',flexShrink:0}}>
                       <span style={{position:'absolute',top:2,left:gsbOn?13:2,width:10,height:10,borderRadius:'50%',background:'white',transition:'left 0.2s',boxShadow:'0 1px 3px rgba(0,0,0,0.3)'}}/>
                     </span>
@@ -3173,7 +3183,7 @@ export default function QuoteMark() {
                       <>
                         <div style={{display:'flex',justifyContent:'space-between',fontSize:12,color:C.t3,marginBottom:8}}>
                           <span>Coverage amount</span>
-                          <span style={{color:C.t0,fontWeight:700,fontSize:16,fontFamily:"'DM Mono',monospace"}}>{fmtF(faceAmt)}</span>
+                          <span style={{color:C.t0,fontWeight:700,fontSize:16,fontFamily:"'DM Mono',ui-monospace,'SF Mono',Menlo,monospace"}}>{fmtF(faceAmt)}</span>
                         </div>
                         <input type="range" min="1000" max="100000" step="1000" value={faceAmt}
                           onChange={e=>{
@@ -3192,7 +3202,7 @@ export default function QuoteMark() {
                           <span style={{position:'absolute',left:14,top:'50%',transform:'translateY(-50%)',color:C.t3,fontSize:16,pointerEvents:'none'}}>$</span>
                           <input type="text" inputMode="decimal" placeholder="100" value={budget||''}
                             onChange={e=>{const v=e.target.value.replace(/[^0-9.]/g,'').replace(/^0+(?=\d)/,'');const n=Number(v);setBudget(v===''||isNaN(n)?0:n);}}
-                            style={{...mInp,paddingLeft:30,fontFamily:"'DM Mono',monospace",fontSize:17}}/>
+                            style={{...mInp,paddingLeft:30,fontFamily:"'DM Mono',ui-monospace,'SF Mono',Menlo,monospace",fontSize:17}}/>
                         </div>
                       </>
                     )}
@@ -3210,7 +3220,7 @@ export default function QuoteMark() {
                             onChange={e=>handleGsbChange(g.key,e.target.value)}
                             onBlur={()=>handleGsbBlur(g.key)}
                             onFocus={e=>e.target.select()}
-                            style={{...mInp,paddingLeft:24,fontFamily:"'DM Mono',monospace"}}/>
+                            style={{...mInp,paddingLeft:24,fontFamily:"'DM Mono',ui-monospace,'SF Mono',Menlo,monospace"}}/>
                         </div>
                       </div>
                     ))}
@@ -3291,7 +3301,7 @@ export default function QuoteMark() {
                     <span style={{fontSize:11,color:C.t4,fontWeight:600,letterSpacing:0.5}}>UW TIER</span>
                     <div style={{display:'flex',alignItems:'center',gap:6}}>
                       {tierOvr?(
-                        <button onClick={()=>setTierOvr(null)} style={{background:'transparent',border:'none',color:C.gold,fontSize:11,fontWeight:700,cursor:'pointer',padding:0,fontFamily:"'DM Sans',sans-serif"}}>
+                        <button onClick={()=>setTierOvr(null)} style={{background:'transparent',border:'none',color:C.gold,fontSize:11,fontWeight:700,cursor:'pointer',padding:0,fontFamily:"'DM Sans','Helvetica Neue',Arial,sans-serif"}}>
                           ↺ Auto
                         </button>
                       ):(
@@ -3311,7 +3321,7 @@ export default function QuoteMark() {
                           color:active?ti.dot:C.t4,
                           cursor:'pointer',textAlign:'center',
                           display:'flex',flexDirection:'column',alignItems:'center',gap:4,
-                          fontFamily:"'DM Sans',sans-serif",
+                          fontFamily:"'DM Sans','Helvetica Neue',Arial,sans-serif",
                           boxShadow:isOvr?`0 0 0 2px ${ti.dot}44`:'none'
                         }}>
                           <span style={{width:7,height:7,borderRadius:'50%',background:active?ti.dot:'#334155'}}/>
@@ -3337,7 +3347,7 @@ export default function QuoteMark() {
                 color:ageOK?C.bg0:C.t4,
                 fontSize:17,fontWeight:700,letterSpacing:0.5,
                 opacity:ageOK?1:0.4,
-                fontFamily:"'DM Sans',sans-serif"
+                fontFamily:"'DM Sans','Helvetica Neue',Arial,sans-serif"
               }}>
                 ⚡ Get Quotes
               </button>
@@ -3358,25 +3368,17 @@ export default function QuoteMark() {
                         <button key={t} onClick={()=>setTermLength(t)} style={{
                           padding:'9px 0',borderRadius:7,border:`2px solid ${termLength===t?'#C5A059':isDark?'#374151':'#D0CDBE'}`,
                           background:termLength===t?'#C5A059':C.bg2,color:termLength===t?'#0A192F':C.t3,
-                          fontSize:12,fontWeight:700,cursor:'pointer',fontFamily:"'DM Sans',sans-serif"
+                          fontSize:12,fontWeight:700,cursor:'pointer',fontFamily:"'DM Sans','Helvetica Neue',Arial,sans-serif"
                         }}>{t}</button>
                       ))}
                     </div>
                   </div>
                   {/* Mode toggle — Face amount / Monthly budget (matches FE + IUL) */}
                   <div>
-                    <div style={{fontSize:11,color:C.t3,marginBottom:6,fontWeight:600}}>Quote Target</div>
+                    <div style={lbl}>Quote Target</div>
                     <div style={{display:'grid',gridTemplateColumns:'1fr 1fr',gap:6}}>
-                      <button onClick={()=>setTermMode('face')} style={{
-                        padding:'10px 0',borderRadius:7,border:`2px solid ${termMode==='face'?'#C5A059':isDark?'#374151':'#D0CDBE'}`,
-                        background:termMode==='face'?'#C5A059':C.bg2,color:termMode==='face'?'#0A192F':C.t3,
-                        fontSize:13,fontWeight:700,cursor:'pointer',fontFamily:"'DM Sans',sans-serif"
-                      }}>Face amount</button>
-                      <button onClick={()=>setTermMode('budget')} style={{
-                        padding:'10px 0',borderRadius:7,border:`2px solid ${termMode==='budget'?'#C5A059':isDark?'#374151':'#D0CDBE'}`,
-                        background:termMode==='budget'?'#C5A059':C.bg2,color:termMode==='budget'?'#0A192F':C.t3,
-                        fontSize:13,fontWeight:700,cursor:'pointer',fontFamily:"'DM Sans',sans-serif"
-                      }}>Monthly budget</button>
+                      <button className='qm-btn' onClick={()=>setTermMode('face')} style={{...mTogBtn(termMode==='face'),border:`2px solid ${termMode==='face'?C.gold:isDark?'#374151':'#D0CDBE'}`,background:termMode==='face'?C.goldBg:C.bg2,color:termMode==='face'?C.gold:C.t3}}>Face Amount</button>
+                      <button className='qm-btn' onClick={()=>setTermMode('budget')} style={{...mTogBtn(termMode==='budget'),border:`2px solid ${termMode==='budget'?C.gold:isDark?'#374151':'#D0CDBE'}`,background:termMode==='budget'?C.goldBg:C.bg2,color:termMode==='budget'?C.gold:C.t3}}>Monthly Budget</button>
                     </div>
                   </div>
                   {/* Face / Budget slider */}
@@ -3384,7 +3386,7 @@ export default function QuoteMark() {
                     <div>
                       <div style={{fontSize:11,color:C.t3,marginBottom:6,display:'flex',justifyContent:'space-between'}}>
                         <span>Coverage amount</span>
-                        <span style={{color:C.t2,fontWeight:500,fontFamily:"'DM Mono',monospace"}}>{fmtF(termFace)}</span>
+                        <span style={{color:C.t2,fontWeight:500,fontFamily:"'DM Mono',ui-monospace,'SF Mono',Menlo,monospace"}}>{fmtF(termFace)}</span>
                       </div>
                       <input type="range" min="25000" max="1000000" step="5000" value={termFace}
                         onChange={e=>setTermFace(+e.target.value)}
@@ -3400,7 +3402,7 @@ export default function QuoteMark() {
                         <span style={{position:'absolute',left:14,top:'50%',transform:'translateY(-50%)',color:C.t3,fontSize:16,pointerEvents:'none'}}>$</span>
                         <input type="text" inputMode="decimal" placeholder="100" value={termBudget||''}
                           onChange={e=>{const v=e.target.value.replace(/[^0-9.]/g,'').replace(/^0+(?=\d)/,'');const n=Number(v);setTermBudget(v===''||isNaN(n)?0:n);}}
-                          style={{...mInp,paddingLeft:30,fontFamily:"'DM Mono',monospace",fontSize:17}}/>
+                          style={{...mInp,paddingLeft:30,fontFamily:"'DM Mono',ui-monospace,'SF Mono',Menlo,monospace",fontSize:17}}/>
                       </div>
                       <div style={{fontSize:11,color:C.t4,marginTop:6}}>Finds max face within this budget</div>
                     </div>
@@ -3409,25 +3411,25 @@ export default function QuoteMark() {
                   <div>
                     <div style={{fontSize:11,color:C.t3,marginBottom:6,fontWeight:600,display:'flex',justifyContent:'space-between'}}>
                       <span>Height & Weight</span>
-                      {termBMI!=null && <span style={{color:C.t4,fontWeight:500,fontSize:10,fontFamily:"'DM Mono',monospace"}}>BMI {termBMI.toFixed(1)}</span>}
+                      {termBMI!=null && <span style={{color:C.t4,fontWeight:500,fontSize:10,fontFamily:"'DM Mono',ui-monospace,'SF Mono',Menlo,monospace"}}>BMI {termBMI.toFixed(1)}</span>}
                     </div>
                     <div style={{display:'grid',gridTemplateColumns:'1fr 1fr 1.2fr',gap:6}}>
                       <input inputMode="numeric" placeholder="ft" value={termHtFt}
                         onChange={e=>setTermHtFt(e.target.value.replace(/\D/g,'').slice(0,1))}
-                        style={{...mInp,textAlign:'center',fontFamily:"'DM Mono',monospace"}}/>
+                        style={{...mInp,textAlign:'center',fontFamily:"'DM Mono',ui-monospace,'SF Mono',Menlo,monospace"}}/>
                       <input inputMode="numeric" placeholder="in" value={termHtIn}
                         onChange={e=>setTermHtIn(e.target.value.replace(/\D/g,'').slice(0,2))}
-                        style={{...mInp,textAlign:'center',fontFamily:"'DM Mono',monospace"}}/>
+                        style={{...mInp,textAlign:'center',fontFamily:"'DM Mono',ui-monospace,'SF Mono',Menlo,monospace"}}/>
                       <input inputMode="numeric" placeholder="weight (lb)" value={termWtLb}
                         onChange={e=>setTermWtLb(e.target.value.replace(/\D/g,'').slice(0,3))}
-                        style={{...mInp,textAlign:'center',fontFamily:"'DM Mono',monospace"}}/>
+                        style={{...mInp,textAlign:'center',fontFamily:"'DM Mono',ui-monospace,'SF Mono',Menlo,monospace"}}/>
                     </div>
                   </div>
                   {/* Family history toggle */}
                   <button onClick={()=>setTermFamHx(v=>!v)} style={{
                     padding:'10px 12px',borderRadius:8,border:`1px solid ${termFamHx?'#C5A059':C.bd}`,
                     background:termFamHx?'rgba(197,160,89,0.12)':C.bg2,color:C.t2,textAlign:'left',cursor:'pointer',
-                    fontSize:12,fontFamily:"'DM Sans',sans-serif",display:'flex',alignItems:'center',gap:8
+                    fontSize:12,fontFamily:"'DM Sans','Helvetica Neue',Arial,sans-serif",display:'flex',alignItems:'center',gap:8
                   }}>
                     <span style={{width:16,height:16,borderRadius:4,border:`2px solid ${termFamHx?'#C5A059':C.bd2}`,background:termFamHx?'#C5A059':'transparent',display:'flex',alignItems:'center',justifyContent:'center',fontSize:11,color:C.bg0,fontWeight:900,flexShrink:0}}>{termFamHx?'✓':''}</span>
                     <span>Family history of cancer or heart disease before age 60</span>
@@ -3504,7 +3506,7 @@ export default function QuoteMark() {
                         <button key={k} title={tip} onClick={()=>{setTermHealth(k);setTermHealthManual(true);}} style={{
                           padding:'10px 0',borderRadius:7,border:`2px solid ${termHealth===k?'#C5A059':isDark?'#374151':'#D0CDBE'}`,
                           background:termHealth===k?'#C5A059':C.bg2,color:termHealth===k?'#0A192F':C.t3,
-                          fontSize:12,fontWeight:700,cursor:'pointer',fontFamily:"'DM Sans',sans-serif"
+                          fontSize:12,fontWeight:700,cursor:'pointer',fontFamily:"'DM Sans','Helvetica Neue',Arial,sans-serif"
                         }}>{label}</button>
                       ))}
                     </div>
@@ -3515,7 +3517,7 @@ export default function QuoteMark() {
                     )}
                   </div>
                   <button className="qm-cta" onClick={e=>fireCta(e,()=>{if(ageOK){track('Quote Requested',{tier:'term',mode:'term',gsb:false,face:faceBand(termFace)});setHasQuoted(true);setMobileTab('results');setTimeout(()=>window.scrollTo({top:0,behavior:'instant'}),0);}})}
-                    style={{width:'100%',padding:'18px 0',borderRadius:12,border:'none',cursor:ageOK?'pointer':'not-allowed',background:ageOK?C.gold:'#2A3547',color:ageOK?C.bg0:C.t4,fontSize:17,fontWeight:700,letterSpacing:0.5,opacity:ageOK?1:0.4,fontFamily:"'DM Sans',sans-serif",marginTop:8}}>
+                    style={{width:'100%',padding:'18px 0',borderRadius:12,border:'none',cursor:ageOK?'pointer':'not-allowed',background:ageOK?C.gold:'#2A3547',color:ageOK?C.bg0:C.t4,fontSize:17,fontWeight:700,letterSpacing:0.5,opacity:ageOK?1:0.4,fontFamily:"'DM Sans','Helvetica Neue',Arial,sans-serif",marginTop:8}}>
                     ⚡ Get Term Quotes
                   </button>
                 </div>
@@ -3529,18 +3531,10 @@ export default function QuoteMark() {
                   {renderClientInfo({variant:'mobile'})}
                   {/* Mode toggle — same FE labels: Face amount / Monthly budget */}
                   <div>
-                    <div style={{fontSize:11,color:C.t3,marginBottom:6,fontWeight:600}}>Quote Target</div>
+                    <div style={lbl}>Quote Target</div>
                     <div style={{display:'grid',gridTemplateColumns:'1fr 1fr',gap:6}}>
-                      <button onClick={()=>setIulMode('premium')} title="Input target face amount, see required premium per carrier" style={{
-                        padding:'10px 0',borderRadius:7,border:`2px solid ${iulMode==='premium'?'#C5A059':isDark?'#374151':'#D0CDBE'}`,
-                        background:iulMode==='premium'?'#C5A059':C.bg2,color:iulMode==='premium'?'#0A192F':C.t3,
-                        fontSize:13,fontWeight:700,cursor:'pointer',fontFamily:"'DM Sans',sans-serif"
-                      }}>Face amount</button>
-                      <button onClick={()=>setIulMode('face')} title="Input monthly budget, see face amount each carrier will issue" style={{
-                        padding:'10px 0',borderRadius:7,border:`2px solid ${iulMode==='face'?'#C5A059':isDark?'#374151':'#D0CDBE'}`,
-                        background:iulMode==='face'?'#C5A059':C.bg2,color:iulMode==='face'?'#0A192F':C.t3,
-                        fontSize:13,fontWeight:700,cursor:'pointer',fontFamily:"'DM Sans',sans-serif"
-                      }}>Monthly budget</button>
+                      <button className='qm-btn' onClick={()=>setIulMode('premium')} title="Input target face amount, see required premium per carrier" style={{...mTogBtn(iulMode==='premium'),border:`2px solid ${iulMode==='premium'?C.gold:isDark?'#374151':'#D0CDBE'}`,background:iulMode==='premium'?C.goldBg:C.bg2,color:iulMode==='premium'?C.gold:C.t3}}>Face Amount</button>
+                      <button className='qm-btn' onClick={()=>setIulMode('face')} title="Input monthly budget, see face amount each carrier will issue" style={{...mTogBtn(iulMode==='face'),border:`2px solid ${iulMode==='face'?C.gold:isDark?'#374151':'#D0CDBE'}`,background:iulMode==='face'?C.goldBg:C.bg2,color:iulMode==='face'?C.gold:C.t3}}>Monthly Budget</button>
                     </div>
                   </div>
 
@@ -3552,7 +3546,7 @@ export default function QuoteMark() {
                         <span style={{position:'absolute',left:14,top:'50%',transform:'translateY(-50%)',color:C.t3,fontSize:16,pointerEvents:'none'}}>$</span>
                         <input type="text" inputMode="decimal" placeholder="200" value={iulPremium||''}
                           onChange={e=>{const v=e.target.value.replace(/[^0-9.]/g,'').replace(/^0+(?=\d)/,'');const n=Number(v);setIulPremium(v===''||isNaN(n)?0:n);}}
-                          style={{...mInp,paddingLeft:30,fontFamily:"'DM Mono',monospace",fontSize:17}}/>
+                          style={{...mInp,paddingLeft:30,fontFamily:"'DM Mono',ui-monospace,'SF Mono',Menlo,monospace",fontSize:17}}/>
                       </div>
                       <div style={{fontSize:11,color:C.t4,marginTop:6}}>Each carrier returns the face they'd issue for this premium</div>
                     </div>
@@ -3560,7 +3554,7 @@ export default function QuoteMark() {
                     <div>
                       <div style={{fontSize:11,color:C.t3,marginBottom:6,display:'flex',justifyContent:'space-between'}}>
                         <span>Target Face Amount</span>
-                        <span style={{color:'#C5A059',fontWeight:700,fontFamily:"'DM Mono',monospace"}}>${(iulFace/1000).toFixed(0)}k</span>
+                        <span style={{color:'#C5A059',fontWeight:700,fontFamily:"'DM Mono',ui-monospace,'SF Mono',Menlo,monospace"}}>${(iulFace/1000).toFixed(0)}k</span>
                       </div>
                       <input type="range" min="25000" max="500000" step="5000" value={iulFace}
                         onChange={e=>setIulFace(+e.target.value)}
@@ -3577,7 +3571,7 @@ export default function QuoteMark() {
 
                   {/* Get IUL Quotes — match FE/Term pattern */}
                   <button className="qm-cta" onClick={e=>fireCta(e,()=>{if(ageOK){track('Quote Requested',{tier:'iul',mode:iulMode,gsb:false});setHasQuoted(true);setMobileTab('results');setTimeout(()=>window.scrollTo({top:0,behavior:'instant'}),0);}})}
-                    style={{width:'100%',padding:'18px 0',borderRadius:12,border:'none',cursor:ageOK?'pointer':'not-allowed',background:ageOK?C.gold:'#2A3547',color:ageOK?C.bg0:C.t4,fontSize:17,fontWeight:700,letterSpacing:0.5,opacity:ageOK?1:0.4,fontFamily:"'DM Sans',sans-serif",marginTop:4}}>
+                    style={{width:'100%',padding:'18px 0',borderRadius:12,border:'none',cursor:ageOK?'pointer':'not-allowed',background:ageOK?C.gold:'#2A3547',color:ageOK?C.bg0:C.t4,fontSize:17,fontWeight:700,letterSpacing:0.5,opacity:ageOK?1:0.4,fontFamily:"'DM Sans','Helvetica Neue',Arial,sans-serif",marginTop:4}}>
                     ⚡ Get IUL Quotes
                   </button>
 
@@ -3605,8 +3599,8 @@ export default function QuoteMark() {
                         </div>
                         {/* Quick specs */}
                         <div style={{display:'flex',flexDirection:'column',gap:5,fontSize:11,color:C.t2}}>
-                          <div style={{display:'flex',justifyContent:'space-between'}}><span style={{color:C.t4}}>Issue ages</span><span style={{fontFamily:"'DM Mono',monospace"}}>{c.issueAges.min}–{c.issueAges.max}</span></div>
-                          <div style={{display:'flex',justifyContent:'space-between'}}><span style={{color:C.t4}}>Face range</span><span style={{fontFamily:"'DM Mono',monospace"}}>{fmtFace(c.faceRange.min)}–{fmtFace(c.faceRange.max)}</span></div>
+                          <div style={{display:'flex',justifyContent:'space-between'}}><span style={{color:C.t4}}>Issue ages</span><span style={{fontFamily:"'DM Mono',ui-monospace,'SF Mono',Menlo,monospace"}}>{c.issueAges.min}–{c.issueAges.max}</span></div>
+                          <div style={{display:'flex',justifyContent:'space-between'}}><span style={{color:C.t4}}>Face range</span><span style={{fontFamily:"'DM Mono',ui-monospace,'SF Mono',Menlo,monospace"}}>{fmtFace(c.faceRange.min)}–{fmtFace(c.faceRange.max)}</span></div>
                           <div style={{display:'flex',justifyContent:'space-between'}}><span style={{color:C.t4}}>Index</span><span style={{fontSize:10}}>{c.indexStrategy}</span></div>
                           <div style={{display:'flex',justifyContent:'space-between'}}><span style={{color:C.t4}}>UW</span><span style={{fontSize:10}}>{c.underwriting}</span></div>
                           <div style={{display:'flex',justifyContent:'space-between'}}><span style={{color:C.t4}}>DB options</span><span style={{fontSize:10}}>{c.dbOptions.join(', ')}</span></div>
@@ -3617,7 +3611,7 @@ export default function QuoteMark() {
                             <div style={{fontWeight:700,marginBottom:4,color:C.t4,letterSpacing:0.5}}>FACE BY AGE BAND</div>
                             {c.faceRange.ageBands.map(b => (
                               <div key={b.ages} style={{display:'flex',justifyContent:'space-between'}}>
-                                <span>{b.ages}</span><span style={{fontFamily:"'DM Mono',monospace"}}>{fmtFace(b.min)}–{fmtFace(b.max)}</span>
+                                <span>{b.ages}</span><span style={{fontFamily:"'DM Mono',ui-monospace,'SF Mono',Menlo,monospace"}}>{fmtFace(b.min)}–{fmtFace(b.max)}</span>
                               </div>
                             ))}
                           </div>
@@ -3660,13 +3654,13 @@ export default function QuoteMark() {
                       <div style={{fontSize:12,color:C.t3,marginBottom:6,fontWeight:600}}>Monthly Premium ($)</div>
                       <input inputMode="decimal" placeholder="e.g. 52.00" value={cvMonthly}
                         onChange={e=>setCvMonthly(e.target.value)}
-                        style={{...mInp,fontFamily:"'DM Mono',monospace",fontSize:18}}/>
+                        style={{...mInp,fontFamily:"'DM Mono',ui-monospace,'SF Mono',Menlo,monospace",fontSize:18}}/>
                     </div>
                     <div>
                       <div style={{fontSize:12,color:C.t3,marginBottom:6,fontWeight:600}}>Years In-Force</div>
                       <input inputMode="numeric" placeholder="e.g. 7" value={cvPolicyYrs}
                         onChange={e=>setCvPolicyYrs(e.target.value.replace(/[^0-9]/g,''))}
-                        style={{...mInp,fontFamily:"'DM Mono',monospace",fontSize:18}}/>
+                        style={{...mInp,fontFamily:"'DM Mono',ui-monospace,'SF Mono',Menlo,monospace",fontSize:18}}/>
                       <div style={{fontSize:10,color:C.t4,marginTop:4}}>How long has the client had this policy?</div>
                     </div>
                   </div>
@@ -3684,20 +3678,20 @@ export default function QuoteMark() {
                       border:`1px solid ${active?amber:C.bd2}`,
                       background: active ? (isDark?'rgba(197,160,89,0.18)':'rgba(197,160,89,0.12)') : C.bg2,
                       color: active ? amber : C.t3,
-                      fontWeight: active?700:500, fontSize:12, cursor:'pointer', fontFamily:"'DM Sans',sans-serif",
+                      fontWeight: active?700:500, fontSize:12, cursor:'pointer', fontFamily:"'DM Sans','Helvetica Neue',Arial,sans-serif",
                     });
                     return (
                       <>
-                      <div style={{background:'rgba(245,158,11,0.06)',border:'1px solid rgba(245,158,11,0.22)',borderRadius:10,padding:'14px 16px'}}>
+                      <div style={{background:'rgba(197,160,89,0.06)',border:'1px solid rgba(197,160,89,0.22)',borderRadius:10,padding:'14px 16px'}}>
                         <div style={{fontSize:9,color:'#C5A059',fontWeight:700,marginBottom:10,letterSpacing:1.2,textTransform:'uppercase'}}>Estimated Cash Value · Age {currentAge} · Issued at {issueAge}</div>
                         <div style={{display:'flex',alignItems:'baseline',gap:8,marginBottom:10,flexWrap:'wrap'}}>
-                          <span style={{fontSize:22,fontWeight:800,color:C.t1,fontFamily:"'DM Mono',monospace"}}>${Math.round(d.low).toLocaleString()}</span>
+                          <span style={{fontSize:22,fontWeight:800,color:C.t1,fontFamily:"'DM Mono',ui-monospace,'SF Mono',Menlo,monospace"}}>${Math.round(d.low).toLocaleString()}</span>
                           <span style={{fontSize:16,color:C.t4}}>–</span>
-                          <span style={{fontSize:22,fontWeight:800,color:'#C5A059',fontFamily:"'DM Mono',monospace"}}>${Math.round(d.high).toLocaleString()}</span>
+                          <span style={{fontSize:22,fontWeight:800,color:'#C5A059',fontFamily:"'DM Mono',ui-monospace,'SF Mono',Menlo,monospace"}}>${Math.round(d.high).toLocaleString()}</span>
                         </div>
                         <div style={{display:'flex',justifyContent:'space-between',fontSize:12,paddingTop:8,borderTop:`1px solid ${C.bd}`}}>
                           <span style={{color:C.t3}}>Total Premiums Paid</span>
-                          <strong style={{color:C.t2,fontFamily:"'DM Mono',monospace"}}>${Math.round(d.totalPaid).toLocaleString()}</strong>
+                          <strong style={{color:C.t2,fontFamily:"'DM Mono',ui-monospace,'SF Mono',Menlo,monospace"}}>${Math.round(d.totalPaid).toLocaleString()}</strong>
                         </div>
                         {Number(cvPolicyYrs)<=2&&<div style={{fontSize:11,color:'#F87171',marginTop:8,lineHeight:1.5}}>⏳ Most policies accumulate little or no CV in years 1–2. Significant growth typically starts year 3+.</div>}
                       </div>
@@ -3726,9 +3720,9 @@ export default function QuoteMark() {
                           <>
                             <div style={{fontSize:9,color:C.t4,fontWeight:700,letterSpacing:1.2,textTransform:'uppercase',marginBottom:6}}>Estimated Coverage · Issued at {cov.issueAge}</div>
                             <div style={{display:'flex',alignItems:'baseline',gap:8,marginBottom:8,flexWrap:'wrap'}}>
-                              <span style={{fontSize:22,fontWeight:800,color:C.t2,fontFamily:"'DM Mono',monospace"}}>${cov.low.toLocaleString()}</span>
+                              <span style={{fontSize:22,fontWeight:800,color:C.t2,fontFamily:"'DM Mono',ui-monospace,'SF Mono',Menlo,monospace"}}>${cov.low.toLocaleString()}</span>
                               <span style={{fontSize:14,color:C.t4}}>–</span>
-                              <span style={{fontSize:22,fontWeight:800,color:amber,fontFamily:"'DM Mono',monospace"}}>${cov.high.toLocaleString()}</span>
+                              <span style={{fontSize:22,fontWeight:800,color:amber,fontFamily:"'DM Mono',ui-monospace,'SF Mono',Menlo,monospace"}}>${cov.high.toLocaleString()}</span>
                             </div>
                           </>
                         )}
@@ -3759,20 +3753,20 @@ export default function QuoteMark() {
                 !ageOK ? (
                   <div style={{display:'flex',flexDirection:'column',alignItems:'center',justifyContent:'center',paddingTop:80,gap:16,textAlign:'center'}}>
                     <div style={{fontSize:52,opacity:0.4}}>📋</div>
-                    <div style={{fontFamily:"'Barlow Condensed',sans-serif",fontSize:22,fontWeight:700,color:C.t4}}>Enter client info first</div>
-                    <button onClick={()=>setMobileTab('quote')} style={{marginTop:8,padding:'13px 28px',borderRadius:10,border:`1px solid ${C.bd2}`,background:C.bg2,color:C.t2,fontSize:14,fontWeight:600,cursor:'pointer',fontFamily:"'DM Sans',sans-serif"}}>← Back to Quote</button>
+                    <div style={{fontFamily:"'Barlow Condensed','Arial Narrow',sans-serif",fontSize:22,fontWeight:700,color:C.t4}}>Enter client info first</div>
+                    <button onClick={()=>setMobileTab('quote')} style={{marginTop:8,padding:'13px 28px',borderRadius:10,border:`1px solid ${C.bd2}`,background:C.bg2,color:C.t2,fontSize:14,fontWeight:600,cursor:'pointer',fontFamily:"'DM Sans','Helvetica Neue',Arial,sans-serif"}}>← Back to Quote</button>
                   </div>
                 ) : !iulQuoteResults || iulQuoteResults.length === 0 ? (
                   <div style={{display:'flex',flexDirection:'column',alignItems:'center',justifyContent:'center',paddingTop:80,gap:16,textAlign:'center'}}>
                     <div style={{fontSize:52,opacity:0.4}}>🔍</div>
-                    <div style={{fontFamily:"'Barlow Condensed',sans-serif",fontSize:20,fontWeight:700,color:C.t4}}>No IUL quotes for this profile</div>
+                    <div style={{fontFamily:"'Barlow Condensed','Arial Narrow',sans-serif",fontSize:20,fontWeight:700,color:C.t4}}>No IUL quotes for this profile</div>
                     <div style={{fontSize:12,color:C.t4,maxWidth:260,lineHeight:1.6}}>Try a different age, premium, or face amount.</div>
                   </div>
                 ) : (
                   <>
                     <div style={{display:'flex',justifyContent:'space-between',alignItems:'center',padding:'8px 4px 12px',gap:8,fontSize:11,color:C.t3,borderBottom:`1px solid ${C.bd}`,marginBottom:14}}>
                       <div style={{display:'flex',gap:6,alignItems:'center',flexWrap:'wrap'}}>
-                        <span style={{fontFamily:"'DM Mono',monospace",fontWeight:600,color:C.t0}}>
+                        <span style={{fontFamily:"'DM Mono',ui-monospace,'SF Mono',Menlo,monospace",fontWeight:600,color:C.t0}}>
                           {iulMode==='face' ? `$${iulPremium}/mo` : `$${(iulFace/1000).toFixed(0)}k face`}
                         </span>
                         <span style={{color:C.t4}}>·</span>
@@ -3786,7 +3780,7 @@ export default function QuoteMark() {
                     </div>
                     <div style={{display:'flex',flexDirection:'column',gap:10}}>
                       {iulQuoteResults.map(r => (
-                        <div key={r.id} style={{background:isDark?'#1E293B':'#FFFFFF',border:`1px solid ${C.bd2}`,borderLeft:`4px solid ${r.brand}`,borderRadius:10,padding:'12px 14px',display:'flex',alignItems:'center',gap:12}}>
+                        <div key={r.id} className="qm-rise" style={{background:isDark?'#1E293B':'#FFFFFF',border:`1px solid ${C.bd2}`,borderLeft:`4px solid ${r.brand}`,borderRadius:10,padding:'12px 14px',display:'flex',alignItems:'center',gap:12,boxShadow:C.cardShadow}}>
                           <div style={{flexShrink:0}}><CarrierLogo carrierId={r.id} name={r.name} small={true}/></div>
                           <div style={{flex:1,minWidth:0}}>
                             <div style={{fontSize:14,fontWeight:700,color:C.t0,whiteSpace:'nowrap',overflow:'hidden',textOverflow:'ellipsis'}}>{r.name}</div>
@@ -3795,12 +3789,12 @@ export default function QuoteMark() {
                           <div style={{textAlign:'right',flexShrink:0}}>
                             {iulMode==='face' ? (
                               <>
-                                <div style={{fontFamily:"'DM Mono',monospace",fontSize:20,fontWeight:800,color:C.t0,lineHeight:1}}>${(r.face/1000).toFixed(0)}k</div>
+                                <div style={{fontFamily:"'DM Mono',ui-monospace,'SF Mono',Menlo,monospace",fontSize:20,fontWeight:800,color:C.t0,lineHeight:1}}>${(r.face/1000).toFixed(0)}k</div>
                                 <div style={{fontSize:9,color:C.t4,marginTop:2}}>face · ${iulPremium}/mo</div>
                               </>
                             ) : (
                               <>
-                                <div style={{fontFamily:"'DM Mono',monospace",fontSize:20,fontWeight:800,color:C.t0,lineHeight:1}}>${r.premium.toFixed(0)}<span style={{fontSize:11,color:C.t3,fontWeight:600}}>/mo</span></div>
+                                <div style={{fontFamily:"'DM Mono',ui-monospace,'SF Mono',Menlo,monospace",fontSize:20,fontWeight:800,color:C.t0,lineHeight:1}}>${r.premium.toFixed(0)}<span style={{fontSize:11,color:C.t3,fontWeight:600}}>/mo</span></div>
                                 <div style={{fontSize:9,color:C.t4,marginTop:2}}>{r.capped?`max $${(r.face/1000).toFixed(0)}k face`:r.floored?`min $${(r.face/1000).toFixed(0)}k face`:`for $${(r.face/1000).toFixed(0)}k face`}</div>
                               </>
                             )}
@@ -3816,13 +3810,13 @@ export default function QuoteMark() {
                 !ageOK ? (
                   <div style={{display:'flex',flexDirection:'column',alignItems:'center',justifyContent:'center',paddingTop:80,gap:16,textAlign:'center'}}>
                     <div style={{fontSize:52,opacity:0.4}}>📋</div>
-                    <div style={{fontFamily:"'Barlow Condensed',sans-serif",fontSize:22,fontWeight:700,color:C.t4}}>Enter client info first</div>
-                    <button onClick={()=>setMobileTab('quote')} style={{marginTop:8,padding:'13px 28px',borderRadius:10,border:`1px solid ${C.bd2}`,background:C.bg2,color:C.t2,fontSize:14,fontWeight:600,cursor:'pointer',fontFamily:"'DM Sans',sans-serif"}}>← Back to Quote</button>
+                    <div style={{fontFamily:"'Barlow Condensed','Arial Narrow',sans-serif",fontSize:22,fontWeight:700,color:C.t4}}>Enter client info first</div>
+                    <button onClick={()=>setMobileTab('quote')} style={{marginTop:8,padding:'13px 28px',borderRadius:10,border:`1px solid ${C.bd2}`,background:C.bg2,color:C.t2,fontSize:14,fontWeight:600,cursor:'pointer',fontFamily:"'DM Sans','Helvetica Neue',Arial,sans-serif"}}>← Back to Quote</button>
                   </div>
                 ) : !termResults || termResults.length === 0 ? (
                   <div style={{display:'flex',flexDirection:'column',alignItems:'center',justifyContent:'center',paddingTop:80,gap:16,textAlign:'center'}}>
                     <div style={{fontSize:52,opacity:0.4}}>🔍</div>
-                    <div style={{fontFamily:"'Barlow Condensed',sans-serif",fontSize:20,fontWeight:700,color:C.t4}}>No quotes for this profile</div>
+                    <div style={{fontFamily:"'Barlow Condensed','Arial Narrow',sans-serif",fontSize:20,fontWeight:700,color:C.t4}}>No quotes for this profile</div>
                     <div style={{fontSize:12,color:C.t4,maxWidth:260,lineHeight:1.6}}>Try a different age, face amount, or term length. Some carriers don't offer 25/35/40-year term or above age 65.</div>
                   </div>
                 ) : (
@@ -3845,7 +3839,7 @@ export default function QuoteMark() {
                         <button onClick={()=>setTermCompatOpen(v=>!v)} style={{
                           width:'100%',background:'transparent',border:'none',cursor:'pointer',
                           padding:'10px 12px',display:'flex',alignItems:'center',justifyContent:'space-between',gap:8,
-                          fontFamily:"'DM Sans',sans-serif",textAlign:'left'
+                          fontFamily:"'DM Sans','Helvetica Neue',Arial,sans-serif",textAlign:'left'
                         }}>
                           <div style={{display:'flex',alignItems:'center',gap:8,minWidth:0}}>
                             <span style={{fontSize:12,color:'#60A5FA',transition:'transform 0.18s',transform:termCompatOpen?'rotate(90deg)':'rotate(0deg)',flexShrink:0}}>▸</span>
@@ -3860,7 +3854,7 @@ export default function QuoteMark() {
                             {termCompat.excluded.map(e => (
                               <div key={e.name+'·'+e.sub} style={{display:'flex',justifyContent:'space-between',gap:8,fontSize:10,padding:'5px 8px',background:C.bg2,borderRadius:5,border:`1px solid ${C.bd}`}}>
                                 <span style={{color:C.t2,minWidth:0,overflow:'hidden',textOverflow:'ellipsis',whiteSpace:'nowrap'}}><strong style={{color:C.t1}}>{e.name}</strong> · <span style={{color:C.t4}}>{e.sub}</span></span>
-                                <span style={{color:C.t4,fontFamily:"'DM Mono',monospace",flexShrink:0}}>{e.reason}</span>
+                                <span style={{color:C.t4,fontFamily:"'DM Mono',ui-monospace,'SF Mono',Menlo,monospace",flexShrink:0}}>{e.reason}</span>
                               </div>
                             ))}
                           </div>
@@ -3871,7 +3865,7 @@ export default function QuoteMark() {
                       {termResults.map(r => {
                         const brandColor = CARRIER_META[r.id]?.brand || r.brand || '#C5A059';
                         return (
-                          <div key={r.id} style={{background:isDark?'#1E293B':'#FFFFFF',border:`1px solid ${C.bd2}`,borderLeft:`4px solid ${brandColor}`,borderRadius:10,padding:'10px 12px',display:'flex',alignItems:'center',gap:10}}>
+                          <div key={r.id} className="qm-rise" style={{background:isDark?'#1E293B':'#FFFFFF',border:`1px solid ${C.bd2}`,borderLeft:`4px solid ${brandColor}`,borderRadius:10,padding:'10px 12px',display:'flex',alignItems:'center',gap:10,boxShadow:C.cardShadow}}>
                             <div style={{flexShrink:0}}><CarrierLogo carrierId={r.id} name={r.name} small={true}/></div>
                             <div style={{flex:1,minWidth:0}}>
                               <div style={{display:'flex',alignItems:'center',gap:6}}>
@@ -3883,12 +3877,12 @@ export default function QuoteMark() {
                             <div style={{textAlign:'right',flexShrink:0}}>
                               {termMode==='budget' ? (
                                 <>
-                                  <div style={{fontFamily:"'DM Mono',monospace",fontSize:20,fontWeight:800,color:C.t0,lineHeight:1}}>{fmtF(r.face)}</div>
+                                  <div style={{fontFamily:"'DM Mono',ui-monospace,'SF Mono',Menlo,monospace",fontSize:20,fontWeight:800,color:C.t0,lineHeight:1}}>{fmtF(r.face)}</div>
                                   <div style={{fontSize:9,color:C.t4,marginTop:2}}>${r.prem.toFixed(0)}/mo · {r.termLen}y</div>
                                 </>
                               ) : (
                                 <>
-                                  <div style={{fontFamily:"'DM Mono',monospace",fontSize:22,fontWeight:800,color:C.t0,lineHeight:1}}>${r.prem.toFixed(2)}</div>
+                                  <div style={{fontFamily:"'DM Mono',ui-monospace,'SF Mono',Menlo,monospace",fontSize:22,fontWeight:800,color:C.t0,lineHeight:1}}>${r.prem.toFixed(2)}</div>
                                   <div style={{fontSize:9,color:C.t4,marginTop:2}}>/mo · {r.termLen}y</div>
                                 </>
                               )}
@@ -3902,8 +3896,8 @@ export default function QuoteMark() {
               ) : !hasQuoted ? (
                 <div style={{display:'flex',flexDirection:'column',alignItems:'center',justifyContent:'center',paddingTop:80,gap:16,textAlign:'center'}}>
                   <div style={{fontSize:52,opacity:0.4}}>📋</div>
-                  <div style={{fontFamily:"'Barlow Condensed',sans-serif",fontSize:22,fontWeight:700,color:C.t4}}>Fill in client info first</div>
-                  <button onClick={()=>setMobileTab('quote')} style={{marginTop:8,padding:'13px 28px',borderRadius:10,border:`1px solid ${C.bd2}`,background:C.bg2,color:C.t2,fontSize:14,fontWeight:600,cursor:'pointer',fontFamily:"'DM Sans',sans-serif"}}>
+                  <div style={{fontFamily:"'Barlow Condensed','Arial Narrow',sans-serif",fontSize:22,fontWeight:700,color:C.t4}}>Fill in client info first</div>
+                  <button onClick={()=>setMobileTab('quote')} style={{marginTop:8,padding:'13px 28px',borderRadius:10,border:`1px solid ${C.bd2}`,background:C.bg2,color:C.t2,fontSize:14,fontWeight:600,cursor:'pointer',fontFamily:"'DM Sans','Helvetica Neue',Arial,sans-serif"}}>
                     ← Back to Quote
                   </button>
                 </div>
@@ -3912,7 +3906,7 @@ export default function QuoteMark() {
                   {/* Scenario bar */}
                   <div style={{background:C.bg3,border:`1px solid ${C.bd}`,borderRadius:10,padding:'10px 14px',marginBottom:14,display:'flex',alignItems:'center',justifyContent:'space-between',flexWrap:'wrap',gap:6}}>
                     <div style={{fontSize:13,color:C.t2,display:'flex',gap:8,flexWrap:'wrap',alignItems:'center'}}>
-                      <span style={{fontFamily:"'DM Mono',monospace",fontWeight:600,color:C.t0}}>
+                      <span style={{fontFamily:"'DM Mono',ui-monospace,'SF Mono',Menlo,monospace",fontWeight:600,color:C.t0}}>
                         {gsbOn?`GSB Mode`:(mode==='face'?fmtF(faceAmt):`$${budget}/mo`)}
                       </span>
                       <span style={{color:C.t4}}>·</span>
@@ -3949,7 +3943,7 @@ export default function QuoteMark() {
                               {GSB.map(g=>{
                                 const tier=r.tiers?.[g.key];
                                 const hasPrem=tier?.prem!=null;
-                                const darkMetal=g.key==='gold'?'#FFD700':g.key==='silver'?'#94A3B8':'#CD7F32';
+                                const darkMetal=g.key==='gold'?'#C5A059':g.key==='silver'?'#94A3B8':'#CD7F32';
                                 const lightLabel=g.key==='gold'?'#855D10':g.key==='silver'?'#475569':'#92400E';
                                 const isGoldKey=g.key==='gold';
                                 return(
@@ -3961,10 +3955,10 @@ export default function QuoteMark() {
                                     border:`1px solid ${isDark?(hasPrem?darkMetal+'55':C.bd):'#E2E8F0'}`,
                                     borderTop: isDark
                                       ? `2px solid ${hasPrem?darkMetal:C.bd}`
-                                      : (isGoldKey?`4px solid #D97706`:`2px solid ${hasPrem?(g.key==='silver'?'#94A3B8':'#C2700A'):C.bd}`),
+                                      : (isGoldKey?`4px solid #C5A059`:`2px solid ${hasPrem?(g.key==='silver'?'#94A3B8':'#C2700A'):C.bd}`),
                                     borderRadius:9,padding:'10px 8px',textAlign:'center',
                                     opacity:hasPrem?1:0.35,
-                                    boxShadow:!isDark&&hasPrem&&isGoldKey?'0 2px 8px rgba(217,119,6,0.12)':'none'
+                                    boxShadow:!isDark&&hasPrem&&isGoldKey?'0 2px 8px rgba(197,160,89,0.18)':'none'
                                   }}>
                                     <div style={{
                                       fontSize:9,fontWeight:700,marginBottom:3,letterSpacing:1,textTransform:'uppercase',
@@ -3975,8 +3969,8 @@ export default function QuoteMark() {
                                       <div style={{
                                         fontSize:16,fontWeight:800,
                                         color:isDark?darkMetal:'#0F172A',
-                                        fontFamily:"'DM Mono',monospace"
-                                      }}>${tier.prem}<span style={{fontSize:10,fontWeight:400,color:C.t4}}>/mo</span></div>
+                                        fontFamily:"'DM Mono',ui-monospace,'SF Mono',Menlo,monospace"
+                                      }}>{fmt$(tier.prem)}<span style={{fontSize:10,fontWeight:400,color:C.t4}}>/mo</span></div>
                                     ):(
                                       <div style={{fontSize:16,color:C.t4}}>—</div>
                                     )}
@@ -3996,7 +3990,7 @@ export default function QuoteMark() {
                         );
                       }
                       return(
-                        <div key={r.id}
+                        <div key={r.id} className="qm-rise"
                           onMouseEnter={()=>setHovCard(r.id)}
                           onMouseLeave={()=>setHovCard(null)}
                           style={{
@@ -4027,7 +4021,7 @@ export default function QuoteMark() {
                           {!isGhost ? (
                             <>
                               <div style={{display:'flex',alignItems:'baseline',gap:6,marginBottom:8}}>
-                                <span style={{fontSize:38,fontWeight:800,color:C.t0,letterSpacing:'-1.2px',fontFamily:"'DM Mono',monospace"}}>${r.prem}</span>
+                                <span style={{fontSize:38,fontWeight:800,color:C.t0,letterSpacing:'-0.2px',fontFamily:"'DM Mono',ui-monospace,'SF Mono',Menlo,monospace"}}>{fmt$(r.prem)}</span>
                                 <span style={{fontSize:10,color:C.t4,fontWeight:400,letterSpacing:0.3}}>/mo EFT</span>
                               </div>
                               <div style={{display:'flex',gap:6,marginBottom:10,flexWrap:'wrap',alignItems:'center'}}>
@@ -4075,7 +4069,7 @@ export default function QuoteMark() {
             color:mobileTab==='quote'?C.gold:C.t4,
             fontSize:11,fontWeight:mobileTab==='quote'?700:500,
             display:'flex',flexDirection:'column',alignItems:'center',gap:3,
-            fontFamily:"'DM Sans',sans-serif",
+            fontFamily:"'DM Sans','Helvetica Neue',Arial,sans-serif",
             borderTop:mobileTab==='quote'?`2px solid ${C.gold}`:'2px solid transparent'
           }}>
             <span style={{fontSize:20}}>📋</span>
@@ -4087,7 +4081,7 @@ export default function QuoteMark() {
             color:mobileTab==='results'?C.gold:C.t4,
             fontSize:11,fontWeight:mobileTab==='results'?700:500,
             display:'flex',flexDirection:'column',alignItems:'center',gap:3,
-            fontFamily:"'DM Sans',sans-serif",
+            fontFamily:"'DM Sans','Helvetica Neue',Arial,sans-serif",
             borderTop:mobileTab==='results'?`2px solid ${C.gold}`:'2px solid transparent',
             position:'relative'
           }}>
@@ -4116,7 +4110,7 @@ export default function QuoteMark() {
                 <div style={{fontSize:40,marginBottom:12}}>✅</div>
                 <div style={{fontSize:16,fontWeight:700,color:C.t1,marginBottom:8}}>Message Sent!</div>
                 <div style={{fontSize:13,color:C.t3,marginBottom:24}}>We'll get back to you shortly.</div>
-                <button onClick={()=>{setShowContact(false);setContactSent(false);setContactForm({name:'',email:'',company:'',message:''}); }} style={{padding:'11px 28px',borderRadius:8,border:'none',background:C.gold,color:C.bg0,fontWeight:700,fontSize:14,cursor:'pointer',fontFamily:"'DM Sans',sans-serif"}}>Close</button>
+                <button onClick={()=>{setShowContact(false);setContactSent(false);setContactForm({name:'',email:'',company:'',message:''}); }} style={{padding:'11px 28px',borderRadius:8,border:'none',background:C.gold,color:C.bg0,fontWeight:700,fontSize:14,cursor:'pointer',fontFamily:"'DM Sans','Helvetica Neue',Arial,sans-serif"}}>Close</button>
               </div>
             ):(
               <div style={{padding:'16px 20px 24px',display:'flex',flexDirection:'column',gap:14}}>
@@ -4149,7 +4143,7 @@ export default function QuoteMark() {
                     <div style={{fontSize:12,color:C.t4,marginBottom:5}}>{f.label}{f.req&&<span style={{color:'#EF4444'}}> *</span>}</div>
                     <input value={contactForm[f.key]} onChange={e=>setContactForm(p=>({...p,[f.key]:e.target.value}))}
                       placeholder={f.ph}
-                      style={{width:'100%',boxSizing:'border-box',background:C.bg3,border:`1px solid ${C.bd2}`,borderRadius:8,color:C.t1,fontSize:14,padding:'11px 12px',fontFamily:"'DM Sans',sans-serif",outline:'none'}}/>
+                      style={{width:'100%',boxSizing:'border-box',background:C.bg3,border:`1px solid ${C.bd2}`,borderRadius:8,color:C.t1,fontSize:14,padding:'11px 12px',fontFamily:"'DM Sans','Helvetica Neue',Arial,sans-serif",outline:'none'}}/>
                   </div>
                 ))}
                 <div>
@@ -4157,11 +4151,11 @@ export default function QuoteMark() {
                   <textarea value={contactForm.message} onChange={e=>setContactForm(p=>({...p,message:e.target.value}))}
                     placeholder={contactType==='carrier'?'Carrier name, website, and any relevant product details…':(contactType==='suggestion'?'Describe your idea or feedback…':'Tell us about your agency, team size, and what you are looking for…')}
                     rows={4}
-                    style={{width:'100%',boxSizing:'border-box',background:C.bg3,border:`1px solid ${C.bd2}`,borderRadius:8,color:C.t1,fontSize:14,padding:'11px 12px',fontFamily:"'DM Sans',sans-serif",outline:'none',resize:'vertical'}}/>
+                    style={{width:'100%',boxSizing:'border-box',background:C.bg3,border:`1px solid ${C.bd2}`,borderRadius:8,color:C.t1,fontSize:14,padding:'11px 12px',fontFamily:"'DM Sans','Helvetica Neue',Arial,sans-serif",outline:'none',resize:'vertical'}}/>
                 </div>
                 {contactErr&&<div style={{fontSize:12,color:'#EF4444',padding:'8px 10px',background:'rgba(239,68,68,0.08)',borderRadius:7}}>{contactErr}</div>}
                 <button onClick={sendContact} disabled={contactSending||!contactForm.name||!contactForm.email||!contactForm.message}
-                  style={{padding:'13px',borderRadius:9,border:'none',background:C.gold,color:C.bg0,fontWeight:700,fontSize:14,cursor:'pointer',fontFamily:"'DM Sans',sans-serif",opacity:(contactSending||!contactForm.name||!contactForm.email||!contactForm.message)?0.5:1}}>
+                  style={{padding:'13px',borderRadius:9,border:'none',background:C.gold,color:C.bg0,fontWeight:700,fontSize:14,cursor:'pointer',fontFamily:"'DM Sans','Helvetica Neue',Arial,sans-serif",opacity:(contactSending||!contactForm.name||!contactForm.email||!contactForm.message)?0.5:1}}>
                   {contactSending?'Sending…':'Send Message'}
                 </button>
               </div>
@@ -4181,7 +4175,7 @@ export default function QuoteMark() {
             </div>
             {/* ══ PROFILE PANEL CONTENT ══ */}
         {(()=>{
-          const inp={width:'100%',boxSizing:'border-box',background:C.bg3,border:`1px solid ${C.bd2}`,borderRadius:8,color:C.t1,fontSize:14,padding:'11px 12px',fontFamily:"'DM Sans',sans-serif",outline:'none'};
+          const inp={width:'100%',boxSizing:'border-box',background:C.bg3,border:`1px solid ${C.bd2}`,borderRadius:8,color:C.t1,fontSize:14,padding:'11px 12px',fontFamily:"'DM Sans','Helvetica Neue',Arial,sans-serif",outline:'none'};
           return(
           <div style={{padding:'16px 16px 32px',display:'flex',flexDirection:'column',gap:20}}>
 
@@ -4192,7 +4186,7 @@ export default function QuoteMark() {
               <div style={{fontSize:14,color:C.t2,marginBottom:14,padding:'10px 12px',background:C.bg3,borderRadius:8,border:`1px solid ${C.bd}`}}>{session?.user?.email||'—'}</div>
               <div style={{fontSize:12,color:C.t4,marginBottom:6}}>Display Name</div>
               <input value={profileName} onChange={e=>setProfileName(e.target.value)} placeholder="Your name (optional)" style={inp}/>
-              <button onClick={saveProfile} disabled={profileSaving} style={{marginTop:10,width:'100%',padding:'11px',borderRadius:8,border:'none',background:profileSaved?'#16A34A':C.gold,color:profileSaved?'#fff':C.bg0,fontWeight:700,fontSize:13,cursor:'pointer',fontFamily:"'DM Sans',sans-serif",transition:'background 0.2s'}}>
+              <button onClick={saveProfile} disabled={profileSaving} style={{marginTop:10,width:'100%',padding:'11px',borderRadius:8,border:'none',background:profileSaved?'#16A34A':C.gold,color:profileSaved?'#fff':C.bg0,fontWeight:700,fontSize:13,cursor:'pointer',fontFamily:"'DM Sans','Helvetica Neue',Arial,sans-serif",transition:'background 0.2s'}}>
                 {profileSaving?'Saving…':profileSaved?'✓ Saved!':'Save Name'}
               </button>
             </div>
@@ -4208,7 +4202,7 @@ export default function QuoteMark() {
                 </div>);
               })}
               {pwMsg&&<div style={{fontSize:12,color:pwMsg.err?'#EF4444':'#22C55E',marginBottom:8,padding:'7px 10px',background:pwMsg.err?'rgba(239,68,68,0.08)':'rgba(34,197,94,0.08)',borderRadius:7}}>{pwMsg.msg}</div>}
-              <button onClick={changePassword} disabled={pwChanging||!pwForm.next} style={{width:'100%',padding:'11px',borderRadius:8,border:'none',background:C.gold,color:C.bg0,fontWeight:700,fontSize:13,cursor:'pointer',fontFamily:"'DM Sans',sans-serif",opacity:pwForm.next?1:0.5}}>
+              <button onClick={changePassword} disabled={pwChanging||!pwForm.next} style={{width:'100%',padding:'11px',borderRadius:8,border:'none',background:C.gold,color:C.bg0,fontWeight:700,fontSize:13,cursor:'pointer',fontFamily:"'DM Sans','Helvetica Neue',Arial,sans-serif",opacity:pwForm.next?1:0.5}}>
                 {pwChanging?'Updating…':'Update Password'}
               </button>
             </div>
@@ -4234,16 +4228,16 @@ export default function QuoteMark() {
                   </div>);
                 })}
               </div>
-              <button onClick={saveCarrierPrefs} style={{marginTop:14,width:'100%',padding:'12px',borderRadius:8,border:'none',background:carriersSaved?'#16A34A':C.gold,color:carriersSaved?'#fff':C.bg0,fontWeight:700,fontSize:13,cursor:'pointer',fontFamily:"'DM Sans',sans-serif",transition:'background 0.2s'}}>
+              <button onClick={saveCarrierPrefs} style={{marginTop:14,width:'100%',padding:'12px',borderRadius:8,border:'none',background:carriersSaved?'#16A34A':C.gold,color:carriersSaved?'#fff':C.bg0,fontWeight:700,fontSize:13,cursor:'pointer',fontFamily:"'DM Sans','Helvetica Neue',Arial,sans-serif",transition:'background 0.2s'}}>
                 {carriersSaved?'✓ Carriers Saved!':'Save Carrier Preferences'}
               </button>
             </div>
 
             {/* Sign Out */}
-            <button onClick={openCustomerPortal} disabled={portalLoading} style={{padding:'12px',borderRadius:10,border:`1px solid ${C.bd2}`,background:'transparent',color:C.t1,fontWeight:600,fontSize:13,cursor:portalLoading?'not-allowed':'pointer',fontFamily:"'DM Sans',sans-serif",opacity:portalLoading?0.6:1,marginBottom:8}}>
+            <button onClick={openCustomerPortal} disabled={portalLoading} style={{padding:'12px',borderRadius:10,border:`1px solid ${C.bd2}`,background:'transparent',color:C.t1,fontWeight:600,fontSize:13,cursor:portalLoading?'not-allowed':'pointer',fontFamily:"'DM Sans','Helvetica Neue',Arial,sans-serif",opacity:portalLoading?0.6:1,marginBottom:8}}>
               {portalLoading ? 'Opening…' : 'Manage Subscription'}
             </button>
-            <button onClick={signOut} style={{padding:'13px',borderRadius:10,border:`1px solid ${C.bd2}`,background:'transparent',color:'#EF4444',fontWeight:600,fontSize:14,cursor:'pointer',fontFamily:"'DM Sans',sans-serif"}}>
+            <button onClick={signOut} style={{padding:'13px',borderRadius:10,border:`1px solid ${C.bd2}`,background:'transparent',color:'#EF4444',fontWeight:600,fontSize:14,cursor:'pointer',fontFamily:"'DM Sans','Helvetica Neue',Arial,sans-serif"}}>
               Sign Out
             </button>
 
@@ -4268,7 +4262,7 @@ export default function QuoteMark() {
                     flex:1,padding:'10px 0',border:'none',background:'transparent',
                     color:carrierPanelTab===tab?C.t0:C.t4,fontSize:12,fontWeight:carrierPanelTab===tab?700:500,
                     cursor:'pointer',borderBottom:carrierPanelTab===tab?`2px solid ${C.blue}`:'2px solid transparent',
-                    fontFamily:"'DM Sans',sans-serif",transition:'all 0.15s'
+                    fontFamily:"'DM Sans','Helvetica Neue',Arial,sans-serif",transition:'all 0.15s'
                   }}>{label}</button>
                 ))}
               </div>
@@ -4305,7 +4299,7 @@ export default function QuoteMark() {
                       <div style={{fontSize:22,marginBottom:6}}>✓</div>
                       <div style={{fontSize:14,color:C.green,fontWeight:600}}>Request submitted</div>
                       <div style={{fontSize:12,color:C.t3,marginTop:3}}>We'll review and add within 48 hrs</div>
-                      <button onClick={()=>{setReqSent(false);setReqForm({name:'',state:'',notes:''}); }} style={{marginTop:10,padding:'8px 16px',borderRadius:8,border:`1px solid ${C.bd}`,background:C.bg2,color:C.t3,fontSize:12,cursor:'pointer',fontFamily:"'DM Sans',sans-serif"}}>Submit another</button>
+                      <button onClick={()=>{setReqSent(false);setReqForm({name:'',state:'',notes:''}); }} style={{marginTop:10,padding:'8px 16px',borderRadius:8,border:`1px solid ${C.bd}`,background:C.bg2,color:C.t3,fontSize:12,cursor:'pointer',fontFamily:"'DM Sans','Helvetica Neue',Arial,sans-serif"}}>Submit another</button>
                     </div>
                   ):(
                     <div style={{display:'flex',flexDirection:'column',gap:10}}>
@@ -4313,23 +4307,23 @@ export default function QuoteMark() {
                         <div style={{fontSize:12,color:C.t3,marginBottom:5}}>Carrier name *</div>
                         <input placeholder="e.g. Mutual of Omaha" value={reqForm.name}
                           onChange={e=>setReqForm(p=>({...p,name:e.target.value}))}
-                          style={{background:C.bg3,border:`1px solid ${C.bd}`,color:C.t1,borderRadius:9,padding:'11px 13px',fontSize:14,width:'100%',outline:'none',boxSizing:'border-box',fontFamily:"'DM Sans',sans-serif"}}/>
+                          style={{background:C.bg3,border:`1px solid ${C.bd}`,color:C.t1,borderRadius:9,padding:'11px 13px',fontSize:14,width:'100%',outline:'none',boxSizing:'border-box',fontFamily:"'DM Sans','Helvetica Neue',Arial,sans-serif"}}/>
                       </div>
                       <div>
                         <div style={{fontSize:12,color:C.t3,marginBottom:5}}>State(s) needed</div>
                         <input placeholder="e.g. FL, TX, GA" value={reqForm.state}
                           onChange={e=>setReqForm(p=>({...p,state:e.target.value}))}
-                          style={{background:C.bg3,border:`1px solid ${C.bd}`,color:C.t1,borderRadius:9,padding:'11px 13px',fontSize:14,width:'100%',outline:'none',boxSizing:'border-box',fontFamily:"'DM Sans',sans-serif"}}/>
+                          style={{background:C.bg3,border:`1px solid ${C.bd}`,color:C.t1,borderRadius:9,padding:'11px 13px',fontSize:14,width:'100%',outline:'none',boxSizing:'border-box',fontFamily:"'DM Sans','Helvetica Neue',Arial,sans-serif"}}/>
                       </div>
                       <div>
                         <div style={{fontSize:12,color:C.t3,marginBottom:5}}>Notes</div>
                         <textarea placeholder="Product type, tier, special requirements…" value={reqForm.notes}
                           onChange={e=>setReqForm(p=>({...p,notes:e.target.value}))}
-                          rows={3} style={{background:C.bg3,border:`1px solid ${C.bd}`,color:C.t1,borderRadius:9,padding:'11px 13px',fontSize:14,width:'100%',outline:'none',resize:'none',boxSizing:'border-box',fontFamily:"'DM Sans',sans-serif"}}/>
+                          rows={3} style={{background:C.bg3,border:`1px solid ${C.bd}`,color:C.t1,borderRadius:9,padding:'11px 13px',fontSize:14,width:'100%',outline:'none',resize:'none',boxSizing:'border-box',fontFamily:"'DM Sans','Helvetica Neue',Arial,sans-serif"}}/>
                       </div>
                       <button
                         onClick={()=>{if(reqForm.name.trim())setReqSent(true);}}
-                        style={{padding:'13px 0',borderRadius:10,border:'none',background:reqForm.name.trim()?C.blue:'#1E3A5A',color:reqForm.name.trim()?C.t0:C.t4,fontSize:14,fontWeight:600,cursor:reqForm.name.trim()?'pointer':'not-allowed',fontFamily:"'DM Sans',sans-serif"}}>
+                        style={{padding:'13px 0',borderRadius:10,border:'none',background:reqForm.name.trim()?C.blue:'#1E3A5A',color:reqForm.name.trim()?C.t0:C.t4,fontSize:14,fontWeight:600,cursor:reqForm.name.trim()?'pointer':'not-allowed',fontFamily:"'DM Sans','Helvetica Neue',Arial,sans-serif"}}>
                         Submit Request
                       </button>
                     </div>
@@ -4347,11 +4341,11 @@ export default function QuoteMark() {
   // ─────────────────────────────────────────────────
 
   return (
-    <div style={{fontFamily:"'DM Sans',sans-serif",background:C.bg0,minHeight:'100vh',color:C.t1,position:'relative',backgroundImage:isDark?'radial-gradient(circle,#1E293B 1px,transparent 1px)':'radial-gradient(circle,#D8D5CC 1px,transparent 1px)',backgroundSize:'24px 24px'}}>
+    <div style={{fontFamily:"'DM Sans','Helvetica Neue',Arial,sans-serif",background:C.bg0,minHeight:'100vh',color:C.t1,position:'relative',backgroundImage:isDark?'radial-gradient(circle,#1E293B 1px,transparent 1px)':'radial-gradient(circle,#D8D5CC 1px,transparent 1px)',backgroundSize:'24px 24px'}}>
       {/* ── HEADER ── */}
       <div style={{background:C.bg1,borderBottom:`1px solid ${C.bd}`,padding:'11px 24px',display:'flex',alignItems:'center',justifyContent:'space-between',position:'sticky',top:0,zIndex:50}}>
-        <div style={{fontFamily:"'Barlow Condensed',sans-serif",fontSize:26,fontWeight:800,color:C.t0,letterSpacing:'-0.5px'}}>
-          <span style={{color:isDark?'#E2E8F0':'#0A192F',fontFamily:"'Barlow Condensed',sans-serif"}}>Quote</span><span style={{color:'#C5A059',fontFamily:"'Barlow Condensed',sans-serif"}}>Mark</span>
+        <div style={{fontFamily:"'Barlow Condensed','Arial Narrow',sans-serif",fontSize:26,fontWeight:800,color:C.t0,letterSpacing:'-0.5px'}}>
+          <span style={{color:isDark?'#E2E8F0':'#0A192F',fontFamily:"'Barlow Condensed','Arial Narrow',sans-serif"}}>Quote</span><span style={{color:'#C5A059',fontFamily:"'Barlow Condensed','Arial Narrow',sans-serif"}}>Mark</span>
         </div>
         {/* ── FEX / TERM TOGGLE ── */}
         <div style={{display:'flex',background:isDark?'rgba(11,17,32,0.8)':'#F1F5F9',borderRadius:24,padding:3,border:`1px solid ${C.bd}`,gap:2}}>
@@ -4359,28 +4353,28 @@ export default function QuoteMark() {
             padding:'7px 20px',borderRadius:20,border:'none',
             background:quoteMode==='fe'?(isDark?'#C5A059':'#0A192F'):'transparent',
             color:quoteMode==='fe'?(isDark?'#0B1120':'#FFFFFF'):C.t3,
-            fontSize:12,fontWeight:700,cursor:'pointer',fontFamily:"'DM Sans',sans-serif",
+            fontSize:12,fontWeight:700,cursor:'pointer',fontFamily:"'DM Sans','Helvetica Neue',Arial,sans-serif",
             transition:'all 0.18s',letterSpacing:0.3,whiteSpace:'nowrap'
           }}>🏛️ FEX / WL</button>
           <button onClick={()=>{track('Tab Switch',{to:'term'});setQuoteMode('term');}} style={{
             padding:'7px 20px',borderRadius:20,border:'none',
             background:quoteMode==='term'?'#C5A059':'transparent',
             color:quoteMode==='term'?'#0A192F':C.t3,
-            fontSize:12,fontWeight:700,cursor:'pointer',fontFamily:"'DM Sans',sans-serif",
+            fontSize:12,fontWeight:700,cursor:'pointer',fontFamily:"'DM Sans','Helvetica Neue',Arial,sans-serif",
             transition:'all 0.18s',letterSpacing:0.3,whiteSpace:'nowrap'
           }}>⏱️ Term Life</button>
           <button onClick={()=>{track('Tab Switch',{to:'iul'});setQuoteMode('iul');}} style={{
             padding:'7px 20px',borderRadius:20,border:'none',
             background:quoteMode==='iul'?'#C5A059':'transparent',
             color:quoteMode==='iul'?'#0A192F':C.t3,
-            fontSize:12,fontWeight:700,cursor:'pointer',fontFamily:"'DM Sans',sans-serif",
+            fontSize:12,fontWeight:700,cursor:'pointer',fontFamily:"'DM Sans','Helvetica Neue',Arial,sans-serif",
             transition:'all 0.18s',letterSpacing:0.3,whiteSpace:'nowrap'
           }}>📈 IUL</button>
           <button onClick={()=>{track('Tab Switch',{to:'cv'});setQuoteMode('cv');}} style={{
             padding:'7px 20px',borderRadius:20,border:'none',
             background:quoteMode==='cv'?'#C5A059':'transparent',
             color:quoteMode==='cv'?'#0B1120':C.t3,
-            fontSize:12,fontWeight:700,cursor:'pointer',fontFamily:"'DM Sans',sans-serif",
+            fontSize:12,fontWeight:700,cursor:'pointer',fontFamily:"'DM Sans','Helvetica Neue',Arial,sans-serif",
             transition:'all 0.18s',letterSpacing:0.3,whiteSpace:'nowrap'
           }}>💰 Cash Value</button>
         </div>
@@ -4392,11 +4386,11 @@ export default function QuoteMark() {
             <button onClick={toggleDarkMode} title={isDark?'Switch to Light Mode':'Switch to Dark Mode'} style={{padding:'5px 9px',borderRadius:7,border:`1px solid ${C.bd2}`,background:C.bg3,color:C.t2,fontSize:14,cursor:'pointer',lineHeight:1,display:'flex',alignItems:'center'}}>
               {isDark?'☀️':'🌙'}
             </button>
-            <button onClick={()=>setShowContact(true)} style={{padding:'6px 12px',borderRadius:7,border:`1px solid ${C.bd2}`,background:C.bg3,color:C.t2,fontSize:11,fontWeight:500,cursor:'pointer',fontFamily:"'DM Sans',sans-serif",display:'flex',alignItems:'center',gap:5}}>
+            <button onClick={()=>setShowContact(true)} style={{padding:'6px 12px',borderRadius:7,border:`1px solid ${C.bd2}`,background:C.bg3,color:C.t2,fontSize:11,fontWeight:500,cursor:'pointer',fontFamily:"'DM Sans','Helvetica Neue',Arial,sans-serif",display:'flex',alignItems:'center',gap:5}}>
               <span style={{fontSize:13}}>📬</span> Contact
             </button>
             <span style={{fontSize:12,color:C.t4,maxWidth:140,overflow:'hidden',textOverflow:'ellipsis',whiteSpace:'nowrap'}}>{session?.user?.email}</span>
-            <button onClick={()=>setShowProfileModal(true)} style={{padding:'6px 12px',borderRadius:7,border:`1px solid ${C.bd2}`,background:'transparent',color:C.t3,fontSize:11,fontWeight:500,cursor:'pointer',fontFamily:"'DM Sans',sans-serif",whiteSpace:'nowrap',display:'flex',alignItems:'center',gap:5}}>
+            <button onClick={()=>setShowProfileModal(true)} style={{padding:'6px 12px',borderRadius:7,border:`1px solid ${C.bd2}`,background:'transparent',color:C.t3,fontSize:11,fontWeight:500,cursor:'pointer',fontFamily:"'DM Sans','Helvetica Neue',Arial,sans-serif",whiteSpace:'nowrap',display:'flex',alignItems:'center',gap:5}}>
               <span style={{fontSize:13}}>👤</span> Profile
             </button>
           </div>
@@ -4435,24 +4429,17 @@ export default function QuoteMark() {
               <button className="qm-gsb-toggle" onClick={()=>{setGsbOn(p=>{const n=!p;track('GSB Toggle',{on:n});return n;});setMode('face');}} style={{
                 display:'flex',alignItems:'center',gap:7,
                 padding:'6px 12px 6px 8px',borderRadius:20,
-                border:`2px solid ${gsbOn
-                  ? isDark?'rgba(245,158,11,0.7)':'#D97706'
-                  : isDark?'#374151':'#D0CDBE'}`,
-                background:gsbOn
-                  ? (isDark?'linear-gradient(135deg,rgba(245,158,11,0.18) 0%,rgba(148,115,52,0.12) 50%,rgba(180,100,30,0.12) 100%)':'linear-gradient(135deg,rgba(245,158,11,0.12) 0%,rgba(180,130,60,0.08) 100%)')
-                  : (isDark?'#0F172A':'#FAF9F6'),
+                border:`2px solid ${gsbOn ? C.goldBd : isDark?'#374151':'#D0CDBE'}`,
+                background:gsbOn ? C.goldBg : (isDark?'#0F172A':'#FAF9F6'),
                 color:gsbOn?C.gold:C.t3,
-                fontSize:11,fontWeight:700,cursor:'pointer',fontFamily:"'DM Sans',sans-serif",
-                boxShadow:gsbOn?(isDark?'0 0 14px rgba(245,158,11,0.22),0 2px 8px rgba(0,0,0,0.3)':'0 2px 10px rgba(217,119,6,0.18)'):'none'
+                fontSize:11,fontWeight:700,cursor:'pointer',fontFamily:"'DM Sans','Helvetica Neue',Arial,sans-serif",
+                boxShadow:gsbOn?(isDark?'0 2px 8px rgba(0,0,0,0.3)':'0 1px 4px rgba(197,160,89,0.15)'):'none'
               }}>
                 <span style={{
                   position:'relative',display:'inline-block',
                   width:28,height:16,borderRadius:8,
-                  background:gsbOn
-                    ? (isDark?'linear-gradient(90deg,#B45309,#D97706,#92400E)':'linear-gradient(90deg,#B45309,#D97706)')
-                    : (isDark?'#1E293B':'#E2E8F0'),
-                  border:`1px solid ${gsbOn?'rgba(245,158,11,0.5)':isDark?'#374151':'#D0CDBE'}`,
-                  boxShadow:gsbOn?'0 0 6px rgba(245,158,11,0.4)':'none',
+                  background:gsbOn ? C.gold : (isDark?'#1E293B':'#E2E8F0'),
+                  border:`1px solid ${gsbOn?C.goldBd:isDark?'#374151':'#D0CDBE'}`,
                   transition:'all 0.2s',flexShrink:0
                 }}>
                   <span style={{
@@ -4474,7 +4461,7 @@ export default function QuoteMark() {
                 </div>
                 {mode==='face'?(
                   <>
-                    <div style={{fontSize:11,color:C.t3,marginBottom:6,display:'flex',justifyContent:'space-between'}}><span>Coverage amount</span><span style={{color:C.t2,fontWeight:500,fontFamily:"'DM Mono',monospace"}}>{fmtF(faceAmt)}</span></div>
+                    <div style={{fontSize:11,color:C.t3,marginBottom:6,display:'flex',justifyContent:'space-between'}}><span>Coverage amount</span><span style={{color:C.t2,fontWeight:500,fontFamily:"'DM Mono',ui-monospace,'SF Mono',Menlo,monospace"}}>{fmtF(faceAmt)}</span></div>
                     <input type="range" min="1000" max="100000" step="1000" value={faceAmt}
                       onChange={e=>setFaceAmt(+e.target.value)}
                       style={{width:'100%',accentColor:C.gold,marginBottom:4}}/>
@@ -4489,7 +4476,7 @@ export default function QuoteMark() {
                       <span style={{position:'absolute',left:12,top:'50%',transform:'translateY(-50%)',color:C.t3,fontSize:14,pointerEvents:'none'}}>$</span>
                       <input type="text" inputMode="decimal" placeholder="100" value={budget||''}
                         onChange={e=>{const v=e.target.value.replace(/[^0-9.]/g,'').replace(/^0+(?=\d)/,'');const n=Number(v);setBudget(v===''||isNaN(n)?0:n);}}
-                        style={{...inp,paddingLeft:26,fontFamily:"'DM Mono',monospace",fontSize:16}}/>
+                        style={{...inp,paddingLeft:26,fontFamily:"'DM Mono',ui-monospace,'SF Mono',Menlo,monospace",fontSize:16}}/>
                     </div>
                     <div style={{fontSize:11,color:C.t4,marginTop:6}}>Finds max coverage within this budget</div>
                   </>
@@ -4508,7 +4495,7 @@ export default function QuoteMark() {
                         onChange={e=>handleGsbChange(g.key,e.target.value)}
                         onBlur={()=>handleGsbBlur(g.key)}
                         onFocus={e=>e.target.select()}
-                        style={{...inp,paddingLeft:22,fontSize:13,fontFamily:"'DM Mono',monospace"}}/>
+                        style={{...inp,paddingLeft:22,fontSize:13,fontFamily:"'DM Mono',ui-monospace,'SF Mono',Menlo,monospace"}}/>
                     </div>
                   </div>
                 ))}
@@ -4543,7 +4530,7 @@ export default function QuoteMark() {
                         background:isOvr?ti.pill:'transparent',
                         color:isOvr?ti.dot:isAuto?ti.dot+'CC':C.t3,
                         cursor:'pointer',fontSize:12,fontWeight:600,textAlign:'left',
-                        display:'flex',alignItems:'center',gap:7,fontFamily:"'DM Sans',sans-serif"
+                        display:'flex',alignItems:'center',gap:7,fontFamily:"'DM Sans','Helvetica Neue',Arial,sans-serif"
                       }}>
                         <span style={{width:6,height:6,borderRadius:'50%',background:isOvr||isAuto?ti.dot:'#334155',flexShrink:0}}/>
                         <span style={{flex:1}}>{ti.short}</span>
@@ -4650,7 +4637,7 @@ export default function QuoteMark() {
             color:ageOK?C.bg0:C.t4,
             fontSize:14,fontWeight:700,letterSpacing:0.5,
             opacity:ageOK?1:0.4,
-            fontFamily:"'DM Sans',sans-serif"
+            fontFamily:"'DM Sans','Helvetica Neue',Arial,sans-serif"
           }}>
             ⚡ Get Quotes
           </button>
@@ -4671,7 +4658,7 @@ export default function QuoteMark() {
                     <button key={t} onClick={()=>setTermLength(t)} style={{
                       padding:'9px 0',borderRadius:7,border:`2px solid ${termLength===t?'#C5A059':isDark?'#374151':'#D0CDBE'}`,
                       background:termLength===t?'#C5A059':C.bg2,color:termLength===t?'#0A192F':C.t3,
-                      fontSize:12,fontWeight:700,cursor:'pointer',fontFamily:"'DM Sans',sans-serif"
+                      fontSize:12,fontWeight:700,cursor:'pointer',fontFamily:"'DM Sans','Helvetica Neue',Arial,sans-serif"
                     }}>{t}</button>
                   ))}
                 </div>
@@ -4681,12 +4668,12 @@ export default function QuoteMark() {
                   <button onClick={()=>setTermMode('face')} style={{
                     padding:'9px 0',borderRadius:7,border:`2px solid ${termMode==='face'?'#C5A059':isDark?'#374151':'#D0CDBE'}`,
                     background:termMode==='face'?'#C5A059':C.bg2,color:termMode==='face'?'#0A192F':C.t3,
-                    fontSize:13,fontWeight:700,cursor:'pointer',fontFamily:"'DM Sans',sans-serif"
+                    fontSize:13,fontWeight:700,cursor:'pointer',fontFamily:"'DM Sans','Helvetica Neue',Arial,sans-serif"
                   }}>Face amount</button>
                   <button onClick={()=>setTermMode('budget')} style={{
                     padding:'9px 0',borderRadius:7,border:`2px solid ${termMode==='budget'?'#C5A059':isDark?'#374151':'#D0CDBE'}`,
                     background:termMode==='budget'?'#C5A059':C.bg2,color:termMode==='budget'?'#0A192F':C.t3,
-                    fontSize:13,fontWeight:700,cursor:'pointer',fontFamily:"'DM Sans',sans-serif"
+                    fontSize:13,fontWeight:700,cursor:'pointer',fontFamily:"'DM Sans','Helvetica Neue',Arial,sans-serif"
                   }}>Monthly budget</button>
                 </div>
               </div>
@@ -4694,7 +4681,7 @@ export default function QuoteMark() {
                 <div>
                   <div style={{fontSize:11,color:C.t3,marginBottom:6,display:'flex',justifyContent:'space-between'}}>
                     <span>Coverage amount</span>
-                    <span style={{color:C.t2,fontWeight:500,fontFamily:"'DM Mono',monospace"}}>{fmtF(termFace)}</span>
+                    <span style={{color:C.t2,fontWeight:500,fontFamily:"'DM Mono',ui-monospace,'SF Mono',Menlo,monospace"}}>{fmtF(termFace)}</span>
                   </div>
                   <input type="range" min="25000" max="1000000" step="5000" value={termFace}
                     onChange={e=>setTermFace(+e.target.value)}
@@ -4710,7 +4697,7 @@ export default function QuoteMark() {
                     <span style={{position:'absolute',left:12,top:'50%',transform:'translateY(-50%)',color:C.t3,fontSize:14,pointerEvents:'none'}}>$</span>
                     <input type="text" inputMode="decimal" placeholder="100" value={termBudget||''}
                       onChange={e=>{const v=e.target.value.replace(/[^0-9.]/g,'').replace(/^0+(?=\d)/,'');const n=Number(v);setTermBudget(v===''||isNaN(n)?0:n);}}
-                      style={{...inp,paddingLeft:26,fontFamily:"'DM Mono',monospace",fontSize:16}}/>
+                      style={{...inp,paddingLeft:26,fontFamily:"'DM Mono',ui-monospace,'SF Mono',Menlo,monospace",fontSize:16}}/>
                   </div>
                   <div style={{fontSize:11,color:C.t4,marginTop:6}}>Finds max face within this budget</div>
                 </div>
@@ -4737,7 +4724,7 @@ export default function QuoteMark() {
                   <button key={k} onClick={()=>{setTermHealth(k);setTermHealthManual(true);}} style={{
                     padding:'9px 0',borderRadius:7,border:`2px solid ${termHealth===k?'#C5A059':isDark?'#374151':'#D0CDBE'}`,
                     background:termHealth===k?'#C5A059':C.bg2,color:termHealth===k?'#0A192F':C.t3,
-                    fontSize:12,fontWeight:700,cursor:'pointer',fontFamily:"'DM Sans',sans-serif"
+                    fontSize:12,fontWeight:700,cursor:'pointer',fontFamily:"'DM Sans','Helvetica Neue',Arial,sans-serif"
                   }}>{label}</button>
                 ))}
               </div>
@@ -4754,24 +4741,24 @@ export default function QuoteMark() {
               <div style={{marginBottom:12}}>
                 <div style={{fontSize:11,color:C.t3,marginBottom:6,fontWeight:600,display:'flex',justifyContent:'space-between'}}>
                   <span>Height & Weight</span>
-                  {termBMI!=null && <span style={{color:C.t4,fontWeight:500,fontSize:10,fontFamily:"'DM Mono',monospace"}}>BMI {termBMI.toFixed(1)}</span>}
+                  {termBMI!=null && <span style={{color:C.t4,fontWeight:500,fontSize:10,fontFamily:"'DM Mono',ui-monospace,'SF Mono',Menlo,monospace"}}>BMI {termBMI.toFixed(1)}</span>}
                 </div>
                 <div style={{display:'grid',gridTemplateColumns:'1fr 1fr 1.2fr',gap:6}}>
                   <input inputMode="numeric" placeholder="ft" value={termHtFt}
                     onChange={e=>setTermHtFt(e.target.value.replace(/\D/g,'').slice(0,1))}
-                    style={{...inp,textAlign:'center',fontFamily:"'DM Mono',monospace"}}/>
+                    style={{...inp,textAlign:'center',fontFamily:"'DM Mono',ui-monospace,'SF Mono',Menlo,monospace"}}/>
                   <input inputMode="numeric" placeholder="in" value={termHtIn}
                     onChange={e=>setTermHtIn(e.target.value.replace(/\D/g,'').slice(0,2))}
-                    style={{...inp,textAlign:'center',fontFamily:"'DM Mono',monospace"}}/>
+                    style={{...inp,textAlign:'center',fontFamily:"'DM Mono',ui-monospace,'SF Mono',Menlo,monospace"}}/>
                   <input inputMode="numeric" placeholder="weight (lb)" value={termWtLb}
                     onChange={e=>setTermWtLb(e.target.value.replace(/\D/g,'').slice(0,3))}
-                    style={{...inp,textAlign:'center',fontFamily:"'DM Mono',monospace"}}/>
+                    style={{...inp,textAlign:'center',fontFamily:"'DM Mono',ui-monospace,'SF Mono',Menlo,monospace"}}/>
                 </div>
               </div>
               <button onClick={()=>setTermFamHx(v=>!v)} style={{
                 width:'100%',padding:'9px 11px',borderRadius:8,border:`1px solid ${termFamHx?'#C5A059':C.bd}`,
                 background:termFamHx?'rgba(197,160,89,0.12)':C.bg2,color:C.t2,textAlign:'left',cursor:'pointer',
-                fontSize:11,fontFamily:"'DM Sans',sans-serif",display:'flex',alignItems:'center',gap:8,marginBottom:12
+                fontSize:11,fontFamily:"'DM Sans','Helvetica Neue',Arial,sans-serif",display:'flex',alignItems:'center',gap:8,marginBottom:12
               }}>
                 <span style={{width:14,height:14,borderRadius:3,border:`2px solid ${termFamHx?'#C5A059':C.bd2}`,background:termFamHx?'#C5A059':'transparent',display:'flex',alignItems:'center',justifyContent:'center',fontSize:10,color:C.bg0,fontWeight:900,flexShrink:0}}>{termFamHx?'✓':''}</span>
                 <span>Family history of cancer / heart disease (pre-60)</span>
@@ -4823,7 +4810,7 @@ export default function QuoteMark() {
             </div>
 
             <button className="qm-cta" onClick={e=>fireCta(e,()=>{if(ageOK){track('Quote Requested',{tier:'term',mode:'term',gsb:false,face:faceBand(termFace)});setHasQuoted(true);}})}
-              style={{width:'100%',padding:'14px 0',borderRadius:10,border:'none',cursor:ageOK?'pointer':'not-allowed',background:ageOK?C.gold:'#2A3547',color:ageOK?C.bg0:C.t4,fontSize:14,fontWeight:700,letterSpacing:0.5,opacity:ageOK?1:0.4,fontFamily:"'DM Sans',sans-serif"}}>
+              style={{width:'100%',padding:'14px 0',borderRadius:10,border:'none',cursor:ageOK?'pointer':'not-allowed',background:ageOK?C.gold:'#2A3547',color:ageOK?C.bg0:C.t4,fontSize:14,fontWeight:700,letterSpacing:0.5,opacity:ageOK?1:0.4,fontFamily:"'DM Sans','Helvetica Neue',Arial,sans-serif"}}>
               ⚡ Get Term Quotes
             </button>
           </>
@@ -4842,12 +4829,12 @@ export default function QuoteMark() {
                     <button onClick={()=>setIulMode('premium')} title="Input target face amount, see required premium per carrier" style={{
                       padding:'9px 0',borderRadius:7,border:`2px solid ${iulMode==='premium'?'#C5A059':isDark?'#374151':'#D0CDBE'}`,
                       background:iulMode==='premium'?'#C5A059':C.bg2,color:iulMode==='premium'?'#0A192F':C.t3,
-                      fontSize:13,fontWeight:700,cursor:'pointer',fontFamily:"'DM Sans',sans-serif"
+                      fontSize:13,fontWeight:700,cursor:'pointer',fontFamily:"'DM Sans','Helvetica Neue',Arial,sans-serif"
                     }}>Face amount</button>
                     <button onClick={()=>setIulMode('face')} title="Input monthly budget, see face amount each carrier will issue" style={{
                       padding:'9px 0',borderRadius:7,border:`2px solid ${iulMode==='face'?'#C5A059':isDark?'#374151':'#D0CDBE'}`,
                       background:iulMode==='face'?'#C5A059':C.bg2,color:iulMode==='face'?'#0A192F':C.t3,
-                      fontSize:13,fontWeight:700,cursor:'pointer',fontFamily:"'DM Sans',sans-serif"
+                      fontSize:13,fontWeight:700,cursor:'pointer',fontFamily:"'DM Sans','Helvetica Neue',Arial,sans-serif"
                     }}>Monthly budget</button>
                   </div>
                 </div>
@@ -4858,7 +4845,7 @@ export default function QuoteMark() {
                       <span style={{position:'absolute',left:12,top:'50%',transform:'translateY(-50%)',color:C.t3,fontSize:14,pointerEvents:'none'}}>$</span>
                       <input type="text" inputMode="decimal" placeholder="200" value={iulPremium||''}
                         onChange={e=>{const v=e.target.value.replace(/[^0-9.]/g,'').replace(/^0+(?=\d)/,'');const n=Number(v);setIulPremium(v===''||isNaN(n)?0:n);}}
-                        style={{...inp,paddingLeft:26,fontFamily:"'DM Mono',monospace",fontSize:16}}/>
+                        style={{...inp,paddingLeft:26,fontFamily:"'DM Mono',ui-monospace,'SF Mono',Menlo,monospace",fontSize:16}}/>
                     </div>
                     <div style={{fontSize:11,color:C.t4,marginTop:6}}>Each carrier returns the face they'd issue for this premium</div>
                   </div>
@@ -4866,7 +4853,7 @@ export default function QuoteMark() {
                   <div>
                     <div style={{fontSize:11,color:C.t3,marginBottom:6,display:'flex',justifyContent:'space-between'}}>
                       <span>Target Face Amount</span>
-                      <span style={{color:'#C5A059',fontWeight:700,fontFamily:"'DM Mono',monospace"}}>${(iulFace/1000).toFixed(0)}k</span>
+                      <span style={{color:'#C5A059',fontWeight:700,fontFamily:"'DM Mono',ui-monospace,'SF Mono',Menlo,monospace"}}>${(iulFace/1000).toFixed(0)}k</span>
                     </div>
                     <input type="range" min="25000" max="500000" step="5000" value={iulFace}
                       onChange={e=>setIulFace(+e.target.value)}
@@ -4881,7 +4868,7 @@ export default function QuoteMark() {
               {/* 3 — CARRIER NOTES */}
               <div style={sec}>
                 <div style={lbl}>Carrier Notes</div>
-                <div style={{background:'rgba(245,158,11,0.08)',border:'1px solid rgba(245,158,11,0.3)',borderRadius:8,padding:'10px 12px',fontSize:11,color:C.t3,lineHeight:1.5,marginBottom:10}}>
+                <div style={{background:'rgba(197,160,89,0.08)',border:'1px solid rgba(197,160,89,0.3)',borderRadius:8,padding:'10px 12px',fontSize:11,color:C.t3,lineHeight:1.5,marginBottom:10}}>
                   ⚠ Cap rates reset periodically. Verify against the carrier's current brochure before quoting.
                 </div>
                 <div style={{padding:'10px 11px',background:C.bg2,border:`1px solid ${C.bd}`,borderRadius:8,fontSize:11,color:C.t3,lineHeight:1.6}}>
@@ -4893,7 +4880,7 @@ export default function QuoteMark() {
               </div>
 
               <button className="qm-cta" onClick={e=>fireCta(e,()=>{if(ageOK){track('Quote Requested',{tier:'iul',mode:iulMode,gsb:false});setHasQuoted(true);}})}
-                style={{width:'100%',padding:'13px 0',borderRadius:10,border:'none',cursor:ageOK?'pointer':'not-allowed',background:ageOK?C.gold:'#2A3547',color:ageOK?C.bg0:C.t4,fontSize:14,fontWeight:700,letterSpacing:0.5,opacity:ageOK?1:0.4,fontFamily:"'DM Sans',sans-serif"}}>
+                style={{width:'100%',padding:'13px 0',borderRadius:10,border:'none',cursor:ageOK?'pointer':'not-allowed',background:ageOK?C.gold:'#2A3547',color:ageOK?C.bg0:C.t4,fontSize:14,fontWeight:700,letterSpacing:0.5,opacity:ageOK?1:0.4,fontFamily:"'DM Sans','Helvetica Neue',Arial,sans-serif"}}>
                 ⚡ Get IUL Quotes
               </button>
             </>
@@ -4911,13 +4898,13 @@ export default function QuoteMark() {
                   <div style={{fontSize:11,color:C.t3,marginBottom:6,fontWeight:600}}>Monthly Premium ($)</div>
                   <input inputMode="decimal" placeholder="e.g. 52.00" value={cvMonthly}
                     onChange={e=>setCvMonthly(e.target.value)}
-                    style={{...inp,fontFamily:"'DM Mono',monospace",fontSize:15}}/>
+                    style={{...inp,fontFamily:"'DM Mono',ui-monospace,'SF Mono',Menlo,monospace",fontSize:15}}/>
                 </div>
                 <div>
                   <div style={{fontSize:11,color:C.t3,marginBottom:6,fontWeight:600}}>Years In-Force</div>
                   <input inputMode="numeric" placeholder="e.g. 7" value={cvPolicyYrs}
                     onChange={e=>setCvPolicyYrs(e.target.value.replace(/\D/g,''))}
-                    style={{...inp,fontFamily:"'DM Mono',monospace",fontSize:15}}/>
+                    style={{...inp,fontFamily:"'DM Mono',ui-monospace,'SF Mono',Menlo,monospace",fontSize:15}}/>
                   <div style={{fontSize:10,color:C.t4,marginTop:4}}>How long has the client had this policy?</div>
                 </div>
               </div>
@@ -4929,19 +4916,19 @@ export default function QuoteMark() {
                 const issueAge = Math.max(0, currentAge - Number(cvPolicyYrs));
                 const d=calculateCVCorridor(Number(cvMonthly),Number(cvPolicyYrs),issueAge);
                 return (
-                  <div style={{...sec,background:'rgba(245,158,11,0.06)',border:'1px solid rgba(245,158,11,0.22)'}}>
+                  <div style={{...sec,background:'rgba(197,160,89,0.06)',border:'1px solid rgba(197,160,89,0.22)'}}>
                     <div style={{...lbl,color:'#C5A059',marginBottom:10}}>Quick Look · Age {currentAge} · Issued at {issueAge}</div>
                     <div style={{display:'flex',justifyContent:'space-between',fontSize:12,marginBottom:4}}>
                       <span style={{color:C.t3}}>Conservative</span>
-                      <strong style={{color:C.t1,fontFamily:"'DM Mono',monospace"}}>${Math.round(d.low).toLocaleString()}</strong>
+                      <strong style={{color:C.t1,fontFamily:"'DM Mono',ui-monospace,'SF Mono',Menlo,monospace"}}>${Math.round(d.low).toLocaleString()}</strong>
                     </div>
                     <div style={{display:'flex',justifyContent:'space-between',fontSize:12,marginBottom:4}}>
                       <span style={{color:C.t3}}>Target</span>
-                      <strong style={{color:'#C5A059',fontFamily:"'DM Mono',monospace"}}>${Math.round(d.high).toLocaleString()}</strong>
+                      <strong style={{color:'#C5A059',fontFamily:"'DM Mono',ui-monospace,'SF Mono',Menlo,monospace"}}>${Math.round(d.high).toLocaleString()}</strong>
                     </div>
                     <div style={{display:'flex',justifyContent:'space-between',fontSize:12}}>
                       <span style={{color:C.t3}}>Total Paid</span>
-                      <strong style={{color:C.t2,fontFamily:"'DM Mono',monospace"}}>${Math.round(d.totalPaid).toLocaleString()}</strong>
+                      <strong style={{color:C.t2,fontFamily:"'DM Mono',ui-monospace,'SF Mono',Menlo,monospace"}}>${Math.round(d.totalPaid).toLocaleString()}</strong>
                     </div>
                     {Number(cvPolicyYrs)<=2&&<div style={{fontSize:10,color:'#F87171',marginTop:8,lineHeight:1.5}}>⏳ Most policies accumulate little or no CV in years 1–2. Significant growth typically starts year 3+.</div>}
                   </div>
@@ -4950,7 +4937,7 @@ export default function QuoteMark() {
 
               {/* CTA */}
               <button className="qm-cta" onClick={e=>fireCta(e,()=>{if(ageOK&&Number(cvMonthly)>0&&Number(cvPolicyYrs)>0){track('CV Estimate Viewed');setHasQuoted(true);}})}
-                style={{width:'100%',padding:'13px 0',borderRadius:10,border:'none',cursor:(ageOK&&Number(cvMonthly)>0&&Number(cvPolicyYrs)>0)?'pointer':'not-allowed',background:(ageOK&&Number(cvMonthly)>0&&Number(cvPolicyYrs)>0)?C.gold:'#2A3547',color:(ageOK&&Number(cvMonthly)>0&&Number(cvPolicyYrs)>0)?C.bg0:C.t4,fontSize:14,fontWeight:700,letterSpacing:0.5,opacity:(ageOK&&Number(cvMonthly)>0&&Number(cvPolicyYrs)>0)?1:0.4,fontFamily:"'DM Sans',sans-serif"}}>
+                style={{width:'100%',padding:'13px 0',borderRadius:10,border:'none',cursor:(ageOK&&Number(cvMonthly)>0&&Number(cvPolicyYrs)>0)?'pointer':'not-allowed',background:(ageOK&&Number(cvMonthly)>0&&Number(cvPolicyYrs)>0)?C.gold:'#2A3547',color:(ageOK&&Number(cvMonthly)>0&&Number(cvPolicyYrs)>0)?C.bg0:C.t4,fontSize:14,fontWeight:700,letterSpacing:0.5,opacity:(ageOK&&Number(cvMonthly)>0&&Number(cvPolicyYrs)>0)?1:0.4,fontFamily:"'DM Sans','Helvetica Neue',Arial,sans-serif"}}>
                 💰 View Cash Value Estimate
               </button>
             </>
@@ -4968,7 +4955,7 @@ export default function QuoteMark() {
                   <div style={{fontSize:20,fontWeight:800,color:C.t0}}>IUL Quote · {iulMode==='face' ? 'Premium → Face' : 'Face → Premium'}</div>
                   <div style={{fontSize:12,color:C.t4,marginTop:2}}>{IUL_QUOTE_CARRIERS.length} carriers · live lookup mirrors Insurance Toolkits</div>
                 </div>
-                <div style={{background:'rgba(245,158,11,0.1)',border:'1px solid rgba(245,158,11,0.3)',borderRadius:6,padding:'4px 10px',fontSize:11,color:'#F59E0B',fontWeight:700}}>
+                <div style={{background:'rgba(197,160,89,0.1)',border:'1px solid rgba(197,160,89,0.3)',borderRadius:6,padding:'4px 10px',fontSize:11,color:C.gold,fontWeight:700}}>
                   Agent reference only
                 </div>
               </div>
@@ -4990,7 +4977,7 @@ export default function QuoteMark() {
                 <div style={{marginBottom:24}}>
                   <div style={{background:C.bg3,border:`1px solid ${C.bd}`,borderRadius:10,padding:'10px 14px',marginBottom:12,display:'flex',justifyContent:'space-between',fontSize:13,color:C.t2,flexWrap:'wrap',gap:6}}>
                     <span>
-                      <span style={{fontFamily:"'DM Mono',monospace",fontWeight:600,color:C.t0}}>
+                      <span style={{fontFamily:"'DM Mono',ui-monospace,'SF Mono',Menlo,monospace",fontWeight:600,color:C.t0}}>
                         {iulMode==='face' ? `$${iulPremium}/mo` : `$${(iulFace/1000).toFixed(0)}k face`}
                       </span> · Age {age} · {gender==='male'?'M':'F'} · {smoker?'Smoker':'NS'}
                     </span>
@@ -4998,7 +4985,7 @@ export default function QuoteMark() {
                   </div>
                   <div style={{display:'flex',flexDirection:'column',gap:10}}>
                     {iulQuoteResults.map(r => (
-                      <div key={r.id} style={{background:isDark?'#1E293B':'#FFFFFF',border:`1px solid ${C.bd2}`,borderLeft:`5px solid ${r.brand}`,borderRadius:12,padding:'14px 20px',display:'flex',alignItems:'center',gap:18}}>
+                      <div key={r.id} className="qm-rise" style={{background:isDark?'#1E293B':'#FFFFFF',border:`1px solid ${C.bd2}`,borderLeft:`5px solid ${r.brand}`,borderRadius:12,padding:'14px 20px',display:'flex',alignItems:'center',gap:18,boxShadow:C.cardShadow}}>
                         <div style={{flexShrink:0,width:120,display:'flex',alignItems:'center',justifyContent:'center'}}>
                           <CarrierLogo carrierId={r.id} name={r.name} small={false}/>
                         </div>
@@ -5018,12 +5005,12 @@ export default function QuoteMark() {
                         <div style={{textAlign:'right',flexShrink:0}}>
                           {iulMode==='face' ? (
                             <>
-                              <div style={{fontFamily:"'DM Mono',monospace",fontSize:32,fontWeight:800,color:C.t0,lineHeight:1}}>${r.face.toLocaleString()}</div>
+                              <div style={{fontFamily:"'DM Mono',ui-monospace,'SF Mono',Menlo,monospace",fontSize:32,fontWeight:800,color:C.t0,lineHeight:1}}>${r.face.toLocaleString()}</div>
                               <div style={{fontSize:10,color:C.t4,marginTop:4,fontWeight:600,letterSpacing:1,textTransform:'uppercase'}}>Face Amount</div>
                             </>
                           ) : (
                             <>
-                              <div style={{fontFamily:"'DM Mono',monospace",fontSize:32,fontWeight:800,color:C.t0,lineHeight:1}}>${r.premium.toFixed(2)}<span style={{fontSize:18,color:C.t3,fontWeight:600}}>/mo</span></div>
+                              <div style={{fontFamily:"'DM Mono',ui-monospace,'SF Mono',Menlo,monospace",fontSize:32,fontWeight:800,color:C.t0,lineHeight:1}}>${r.premium.toFixed(2)}<span style={{fontSize:18,color:C.t3,fontWeight:600}}>/mo</span></div>
                               <div style={{fontSize:10,color:C.t4,marginTop:4,fontWeight:600,letterSpacing:1,textTransform:'uppercase'}}>{r.capped ? `MAX FACE $${(r.face/1000).toFixed(0)}K` : r.floored ? `MIN FACE $${(r.face/1000).toFixed(0)}K` : 'Required Premium'}</div>
                             </>
                           )}
@@ -5040,7 +5027,7 @@ export default function QuoteMark() {
                 paddingBottom:10,marginBottom:iulSpecsOpen?14:0,
                 borderTop:`1px solid ${C.bd}`,paddingTop:18,
                 background:'transparent',border:'none',borderTopColor:C.bd,cursor:'pointer',
-                fontFamily:"'DM Sans',sans-serif"
+                fontFamily:"'DM Sans','Helvetica Neue',Arial,sans-serif"
               }}>
                 <div style={{display:'flex',alignItems:'center',gap:10}}>
                   <span style={{fontSize:14,color:C.t4,transition:'transform 0.18s',transform:iulSpecsOpen?'rotate(90deg)':'rotate(0deg)'}}>▸</span>
@@ -5066,8 +5053,8 @@ export default function QuoteMark() {
                       </div>
                       {/* Specs */}
                       <div style={{display:'flex',flexDirection:'column',gap:5,fontSize:12,color:C.t2}}>
-                        <div style={{display:'flex',justifyContent:'space-between'}}><span style={{color:C.t4}}>Issue ages</span><span style={{fontFamily:"'DM Mono',monospace"}}>{c.issueAges.min}–{c.issueAges.max}</span></div>
-                        <div style={{display:'flex',justifyContent:'space-between'}}><span style={{color:C.t4}}>Face range</span><span style={{fontFamily:"'DM Mono',monospace"}}>{fmtFace(c.faceRange.min)}–{fmtFace(c.faceRange.max)}</span></div>
+                        <div style={{display:'flex',justifyContent:'space-between'}}><span style={{color:C.t4}}>Issue ages</span><span style={{fontFamily:"'DM Mono',ui-monospace,'SF Mono',Menlo,monospace"}}>{c.issueAges.min}–{c.issueAges.max}</span></div>
+                        <div style={{display:'flex',justifyContent:'space-between'}}><span style={{color:C.t4}}>Face range</span><span style={{fontFamily:"'DM Mono',ui-monospace,'SF Mono',Menlo,monospace"}}>{fmtFace(c.faceRange.min)}–{fmtFace(c.faceRange.max)}</span></div>
                         <div style={{display:'flex',justifyContent:'space-between',gap:8}}><span style={{color:C.t4,flexShrink:0}}>Index</span><span style={{fontSize:11,textAlign:'right'}}>{c.indexStrategy}</span></div>
                         <div style={{display:'flex',justifyContent:'space-between',gap:8}}><span style={{color:C.t4,flexShrink:0}}>UW</span><span style={{fontSize:11,textAlign:'right'}}>{c.underwriting}</span></div>
                         <div style={{display:'flex',justifyContent:'space-between'}}><span style={{color:C.t4}}>DB options</span><span style={{fontSize:11}}>{c.dbOptions.join(', ')}</span></div>
@@ -5078,7 +5065,7 @@ export default function QuoteMark() {
                           <div style={{fontWeight:700,marginBottom:5,color:C.t4,letterSpacing:0.5,fontSize:9}}>FACE BY AGE BAND</div>
                           {c.faceRange.ageBands.map(b => (
                             <div key={b.ages} style={{display:'flex',justifyContent:'space-between',color:C.t2,marginBottom:2}}>
-                              <span>{b.ages}</span><span style={{fontFamily:"'DM Mono',monospace"}}>{fmtFace(b.min)}–{fmtFace(b.max)}</span>
+                              <span>{b.ages}</span><span style={{fontFamily:"'DM Mono',ui-monospace,'SF Mono',Menlo,monospace"}}>{fmtFace(b.min)}–{fmtFace(b.max)}</span>
                             </div>
                           ))}
                         </div>
@@ -5151,7 +5138,7 @@ export default function QuoteMark() {
             !ageOK ? (
               <div style={{display:'flex',flexDirection:'column',alignItems:'center',justifyContent:'center',height:'100%',gap:14,padding:40}}>
                 <div style={{fontSize:48,opacity:0.5}}>📋</div>
-                <div style={{fontFamily:"'Barlow Condensed',sans-serif",fontSize:22,fontWeight:700,color:C.t4}}>Enter client info to get term quotes</div>
+                <div style={{fontFamily:"'Barlow Condensed','Arial Narrow',sans-serif",fontSize:22,fontWeight:700,color:C.t4}}>Enter client info to get term quotes</div>
                 <div style={{fontSize:13,color:C.t4,textAlign:'center',lineHeight:1.8}}>
                   {carriers.filter(c=>c.enabled&&c.termOnly).length} term carriers · {Object.keys(TERM_RATES).length} products
                 </div>
@@ -5159,7 +5146,7 @@ export default function QuoteMark() {
             ) : !termResults || termResults.length === 0 ? (
               <div style={{display:'flex',flexDirection:'column',alignItems:'center',justifyContent:'center',height:'100%',gap:14,padding:40,textAlign:'center'}}>
                 <div style={{fontSize:48,opacity:0.5}}>🔍</div>
-                <div style={{fontFamily:"'Barlow Condensed',sans-serif",fontSize:22,fontWeight:700,color:C.t4}}>No quotes for this profile</div>
+                <div style={{fontFamily:"'Barlow Condensed','Arial Narrow',sans-serif",fontSize:22,fontWeight:700,color:C.t4}}>No quotes for this profile</div>
                 <div style={{fontSize:13,color:C.t4,maxWidth:340,lineHeight:1.7}}>Try a different age, face amount, or term length. Most carriers don't quote 25/35/40-year term, or above age 65 on shorter terms.</div>
               </div>
             ) : (
@@ -5175,7 +5162,7 @@ export default function QuoteMark() {
                 )}
                 <div style={{background:C.bg3,border:`1px solid ${C.bd}`,borderRadius:10,padding:'10px 14px',marginBottom:14,display:'flex',alignItems:'center',justifyContent:'space-between',flexWrap:'wrap',gap:6}}>
                   <div style={{fontSize:13,color:C.t2,display:'flex',gap:8,flexWrap:'wrap',alignItems:'center'}}>
-                    <span style={{fontFamily:"'DM Mono',monospace",fontWeight:600,color:C.t0}}>{termMode==='budget' ? `$${termBudget}/mo budget` : fmtF(termFace)}</span>
+                    <span style={{fontFamily:"'DM Mono',ui-monospace,'SF Mono',Menlo,monospace",fontWeight:600,color:C.t0}}>{termMode==='budget' ? `$${termBudget}/mo budget` : fmtF(termFace)}</span>
                     <span style={{color:C.t4}}>·</span>
                     <span>{termLength}-year</span>
                     <span style={{color:C.t4}}>·</span>
@@ -5194,7 +5181,7 @@ export default function QuoteMark() {
                     <button onClick={()=>setTermCompatOpen(v=>!v)} style={{
                       width:'100%',background:'transparent',border:'none',cursor:'pointer',
                       padding:'10px 14px',display:'flex',alignItems:'center',justifyContent:'space-between',gap:10,
-                      fontFamily:"'DM Sans',sans-serif",textAlign:'left'
+                      fontFamily:"'DM Sans','Helvetica Neue',Arial,sans-serif",textAlign:'left'
                     }}>
                       <div style={{display:'flex',alignItems:'center',gap:10}}>
                         <span style={{fontSize:14,color:'#60A5FA',transition:'transform 0.18s',transform:termCompatOpen?'rotate(90deg)':'rotate(0deg)'}}>▸</span>
@@ -5209,7 +5196,7 @@ export default function QuoteMark() {
                         {termCompat.excluded.map(e => (
                           <div key={e.name+'·'+e.sub} style={{display:'flex',justifyContent:'space-between',gap:10,fontSize:11,padding:'6px 10px',background:C.bg2,borderRadius:6,border:`1px solid ${C.bd}`}}>
                             <span style={{color:C.t2}}><strong style={{color:C.t1}}>{e.name}</strong> · <span style={{color:C.t4}}>{e.sub}</span></span>
-                            <span style={{color:C.t4,fontFamily:"'DM Mono',monospace"}}>{e.reason}</span>
+                            <span style={{color:C.t4,fontFamily:"'DM Mono',ui-monospace,'SF Mono',Menlo,monospace"}}>{e.reason}</span>
                           </div>
                         ))}
                       </div>
@@ -5221,7 +5208,7 @@ export default function QuoteMark() {
                     const brandColor = CARRIER_META[r.id]?.brand || r.brand || '#C5A059';
                     const isHov = hovCard === r.id;
                     return (
-                      <div key={r.id}
+                      <div key={r.id} className="qm-rise"
                         onMouseEnter={()=>setHovCard(r.id)}
                         onMouseLeave={()=>setHovCard(null)}
                         style={{
@@ -5247,18 +5234,18 @@ export default function QuoteMark() {
                         </div>
                         <div style={{flexShrink:0,width:80,textAlign:'right'}}>
                           <div style={{fontSize:9,color:C.t4,fontWeight:600,letterSpacing:1,textTransform:'uppercase',marginBottom:2}}>Face</div>
-                          <div style={{fontFamily:"'DM Mono',monospace",fontSize:13,fontWeight:500,color:C.t1}}>{fmtF(r.face)}</div>
+                          <div style={{fontFamily:"'DM Mono',ui-monospace,'SF Mono',Menlo,monospace",fontSize:13,fontWeight:500,color:C.t1}}>{fmtF(r.face)}</div>
                         </div>
                         <div style={{flexShrink:0,width:60,textAlign:'right'}}>
                           <div style={{fontSize:9,color:C.t4,fontWeight:600,letterSpacing:1,textTransform:'uppercase',marginBottom:2}}>Term</div>
-                          <div style={{fontFamily:"'DM Mono',monospace",fontSize:13,fontWeight:500,color:C.t1}}>{r.termLen}y</div>
+                          <div style={{fontFamily:"'DM Mono',ui-monospace,'SF Mono',Menlo,monospace",fontSize:13,fontWeight:500,color:C.t1}}>{r.termLen}y</div>
                         </div>
                         <div style={{flexShrink:0,width:130,textAlign:'right'}}>
                           <div style={{display:'flex',alignItems:'baseline',justifyContent:'flex-end',gap:5}}>
-                            <span style={{fontFamily:"'DM Mono',monospace",fontSize:30,fontWeight:800,color:C.t0,letterSpacing:'-0.8px',lineHeight:1}}>${r.prem.toFixed(2)}</span>
+                            <span style={{fontFamily:"'DM Mono',ui-monospace,'SF Mono',Menlo,monospace",fontSize:30,fontWeight:800,color:C.t0,letterSpacing:'-0.2px',lineHeight:1}}>{fmt$(r.prem)}</span>
                             <span style={{fontSize:10,color:C.t4,fontWeight:400}}>/mo</span>
                           </div>
-                          <div style={{fontSize:10,color:C.t4,marginTop:3,fontFamily:"'DM Mono',monospace"}}>${(r.prem*12).toFixed(0)}/yr</div>
+                          <div style={{fontSize:10,color:C.t4,marginTop:3,fontFamily:"'DM Mono',ui-monospace,'SF Mono',Menlo,monospace"}}>${(r.prem*12).toFixed(0)}/yr</div>
                         </div>
                         <div style={{flexShrink:0}}>
                           <EAppBtn carrierId={r.id} compact={true} lightMode={!isDark}/>
@@ -5272,7 +5259,7 @@ export default function QuoteMark() {
           ):!hasQuoted?(
             <div style={{display:'flex',flexDirection:'column',alignItems:'center',justifyContent:'center',height:'100%',gap:14,padding:40}}>
               <div style={{fontSize:48,opacity:0.5}}>📋</div>
-              <div style={{fontFamily:"'Barlow Condensed',sans-serif",fontSize:22,fontWeight:700,color:C.t4}}>Enter client info and click Get Quotes</div>
+              <div style={{fontFamily:"'Barlow Condensed','Arial Narrow',sans-serif",fontSize:22,fontWeight:700,color:C.t4}}>Enter client info and click Get Quotes</div>
               <div style={{fontSize:13,color:C.t4,textAlign:'center',lineHeight:1.8}}>
                 {carriers.filter(c=>c.enabled&&!c.termOnly).length} carriers enabled
               </div>
@@ -5282,7 +5269,7 @@ export default function QuoteMark() {
               {/* ── SCENARIO BAR ── */}
               <div style={{background:C.bg3,borderBottom:`1px solid ${C.bd}`,padding:'11px 24px',display:'flex',alignItems:'center',justifyContent:'space-between',gap:12,flexWrap:'wrap',position:'sticky',top:0,zIndex:10}}>
                 <div style={{display:'flex',alignItems:'center',gap:10,flexWrap:'wrap'}}>
-                  <span style={{fontFamily:"'DM Mono',monospace",fontSize:15,fontWeight:500,color:C.t0}}>
+                  <span style={{fontFamily:"'DM Mono',ui-monospace,'SF Mono',Menlo,monospace",fontSize:15,fontWeight:500,color:C.t0}}>
                     {!gsbOn&&(mode==='face'?<span>{fmtF(faceAmt)}</span>:<span>${budget}/mo budget</span>)}
                     {gsbOn&&<span>Gold {fmtF(gsbFace.gold)} · Silver {fmtF(gsbFace.silver)} · Bronze {fmtF(gsbFace.bronze)}</span>}
                   </span>
@@ -5331,7 +5318,7 @@ export default function QuoteMark() {
                           <div style={{display:'grid',gridTemplateColumns:'1fr 1fr 1fr',gap:5}}>
                             {GSB.map(g=>{
                               const tr=r.tiers[g.key];
-                              const darkColor=g.color; // original #FFD700/#94A3B8/#CD7F32
+                              const darkColor=g.color; // brand champagne gold / silver / bronze
                               const lightLabel=g.key==='gold'?'#855D10':g.key==='silver'?'#475569':'#92400E';
                               const isGoldKey=g.key==='gold';
                               return(
@@ -5344,9 +5331,9 @@ export default function QuoteMark() {
                                   border:`1px solid ${isDark?(tr.prem?C.bd2:C.bd):'#E2E8F0'}`,
                                   borderTop: isDark
                                     ? `2px solid ${darkColor}`
-                                    : (isGoldKey?`4px solid #D97706`:`2px solid ${g.key==='silver'?'#94A3B8':'#C2700A'}`),
+                                    : (isGoldKey?`4px solid #C5A059`:`2px solid ${g.key==='silver'?'#94A3B8':'#C2700A'}`),
                                   textAlign:'center',
-                                  boxShadow:!isDark&&isGoldKey&&tr.prem?'0 2px 12px rgba(217,119,6,0.1)':'none',
+                                  boxShadow:!isDark&&isGoldKey&&tr.prem?'0 2px 12px rgba(197,160,89,0.16)':'none',
                                   opacity:tr.prem?1:0.4
                                 }}>
                                   <div style={{
@@ -5354,16 +5341,16 @@ export default function QuoteMark() {
                                     letterSpacing:1.2,textTransform:'uppercase',
                                     color:isDark?darkColor:lightLabel
                                   }}>{g.medal} {g.label}</div>
-                                  <div style={{fontSize:13,color:C.t3,marginBottom:8,fontFamily:"'DM Mono',monospace",fontWeight:500}}>{fmtF(gsbFace[g.key])}</div>
+                                  <div style={{fontSize:13,color:C.t3,marginBottom:8,fontFamily:"'DM Mono',ui-monospace,'SF Mono',Menlo,monospace",fontWeight:500}}>{fmtF(gsbFace[g.key])}</div>
                                   {tr.prem!=null?(
                                     <>
                                       <div style={{
-                                        fontFamily:"'DM Mono',monospace",fontSize:22,fontWeight:800,
+                                        fontFamily:"'DM Mono',ui-monospace,'SF Mono',Menlo,monospace",fontSize:22,fontWeight:800,
                                         color:isDark?darkColor:'#0F172A',
                                         letterSpacing:'-0.5px',lineHeight:1
                                       }}>{fmt$(tr.prem)}</div>
                                       <div style={{fontSize:9,color:C.t4,marginTop:4,fontWeight:400}}>/mo EFT</div>
-                                      <div style={{fontSize:9,color:C.t4,marginTop:2,fontWeight:400,fontFamily:"'DM Mono',monospace"}}>${((tr.prem??0)*12).toFixed(0)}<span style={{fontSize:8}}>/yr</span></div>
+                                      <div style={{fontSize:9,color:C.t4,marginTop:2,fontWeight:400,fontFamily:"'DM Mono',ui-monospace,'SF Mono',Menlo,monospace"}}>${((tr.prem??0)*12).toFixed(0)}<span style={{fontSize:8}}>/yr</span></div>
                                     </>
                                   ):(
                                     <div style={{fontSize:18,color:C.t4,marginTop:8,minHeight:52,display:'flex',alignItems:'center',justifyContent:'center'}}>—</div>
@@ -5421,7 +5408,7 @@ export default function QuoteMark() {
                         {/* Face amount */}
                         <div style={{flexShrink:0,width:88,textAlign:'right'}}>
                           <div style={{fontSize:9,color:C.t4,fontWeight:600,letterSpacing:1,textTransform:'uppercase',marginBottom:2}}>Face</div>
-                          <div style={{fontFamily:"'DM Mono',monospace",fontSize:13,fontWeight:500,color:C.t1}}>{fmtF(r.face)}</div>
+                          <div style={{fontFamily:"'DM Mono',ui-monospace,'SF Mono',Menlo,monospace",fontSize:13,fontWeight:500,color:C.t1}}>{fmtF(r.face)}</div>
                           {r.capped&&<div style={{fontSize:9,color:C.t4,fontStyle:'italic',marginTop:1}}>capped</div>}
                           {!r.capped&&r.roundedTo&&mode==='budget'&&(
                             <div title={`${r.name} issues face amounts in $${r.roundedTo.toLocaleString()} increments. Rate calculated at $${(r.face||0).toLocaleString()}.`}
@@ -5437,10 +5424,10 @@ export default function QuoteMark() {
                         {/* Price — the hero, right-aligned for vertical scanning */}
                         <div style={{flexShrink:0,width:130,textAlign:'right'}}>
                           <div style={{display:'flex',alignItems:'baseline',justifyContent:'flex-end',gap:5}}>
-                            <span style={{fontFamily:"'DM Mono',monospace",fontSize:30,fontWeight:800,color:C.t0,letterSpacing:'-0.8px',lineHeight:1}}>{fmt$(r.prem)}</span>
+                            <span style={{fontFamily:"'DM Mono',ui-monospace,'SF Mono',Menlo,monospace",fontSize:30,fontWeight:800,color:C.t0,letterSpacing:'-0.2px',lineHeight:1}}>{fmt$(r.prem)}</span>
                             <span style={{fontSize:10,color:C.t4,fontWeight:400}}>/mo</span>
                           </div>
-                          <div style={{fontSize:10,color:C.t4,marginTop:3,fontFamily:"'DM Mono',monospace"}}>${((r.prem??0)*12).toFixed(0)}/yr</div>
+                          <div style={{fontSize:10,color:C.t4,marginTop:3,fontFamily:"'DM Mono',ui-monospace,'SF Mono',Menlo,monospace"}}>${((r.prem??0)*12).toFixed(0)}/yr</div>
                         </div>
                         {/* e-App */}
                         <div style={{flexShrink:0}}>
@@ -5506,9 +5493,9 @@ export default function QuoteMark() {
                       <div>
                         <div style={{fontSize:10,color:C.t4,fontWeight:600,letterSpacing:1.2,textTransform:'uppercase',marginBottom:3}}>Price range</div>
                         <div style={{display:'flex',alignItems:'baseline',gap:6}}>
-                          <span style={{fontFamily:"'DM Mono',monospace",fontSize:18,fontWeight:500,color:C.green}}>{fmt$(cheapest.prem)}</span>
+                          <span style={{fontFamily:"'DM Mono',ui-monospace,'SF Mono',Menlo,monospace",fontSize:18,fontWeight:500,color:C.green}}>{fmt$(cheapest.prem)}</span>
                           <span style={{color:C.t4,fontSize:12}}>—</span>
-                          <span style={{fontFamily:"'DM Mono',monospace",fontSize:18,fontWeight:500,color:C.t2}}>{fmt$(mostExp.prem)}</span>
+                          <span style={{fontFamily:"'DM Mono',ui-monospace,'SF Mono',Menlo,monospace",fontSize:18,fontWeight:500,color:C.t2}}>{fmt$(mostExp.prem)}</span>
                           <span style={{fontSize:11,color:C.t3}}>/mo</span>
                         </div>
                         <div style={{fontSize:11,color:C.t4,marginTop:1}}>{cheapest.name} to {mostExp.name}</div>
@@ -5545,7 +5532,7 @@ export default function QuoteMark() {
                 <div style={{fontSize:40,marginBottom:12}}>✅</div>
                 <div style={{fontSize:16,fontWeight:700,color:C.t1,marginBottom:8}}>Message Sent!</div>
                 <div style={{fontSize:13,color:C.t3,marginBottom:24}}>We'll get back to you shortly.</div>
-                <button onClick={()=>{setShowContact(false);setContactSent(false);setContactForm({name:'',email:'',company:'',message:''}); }} style={{padding:'11px 28px',borderRadius:8,border:'none',background:C.gold,color:C.bg0,fontWeight:700,fontSize:14,cursor:'pointer',fontFamily:"'DM Sans',sans-serif"}}>Close</button>
+                <button onClick={()=>{setShowContact(false);setContactSent(false);setContactForm({name:'',email:'',company:'',message:''}); }} style={{padding:'11px 28px',borderRadius:8,border:'none',background:C.gold,color:C.bg0,fontWeight:700,fontSize:14,cursor:'pointer',fontFamily:"'DM Sans','Helvetica Neue',Arial,sans-serif"}}>Close</button>
               </div>
             ):(
               <div style={{padding:'16px 20px 24px',display:'flex',flexDirection:'column',gap:14}}>
@@ -5578,7 +5565,7 @@ export default function QuoteMark() {
                     <div style={{fontSize:12,color:C.t4,marginBottom:5}}>{f.label}{f.req&&<span style={{color:'#EF4444'}}> *</span>}</div>
                     <input value={contactForm[f.key]} onChange={e=>setContactForm(p=>({...p,[f.key]:e.target.value}))}
                       placeholder={f.ph}
-                      style={{width:'100%',boxSizing:'border-box',background:C.bg3,border:`1px solid ${C.bd2}`,borderRadius:8,color:C.t1,fontSize:14,padding:'11px 12px',fontFamily:"'DM Sans',sans-serif",outline:'none'}}/>
+                      style={{width:'100%',boxSizing:'border-box',background:C.bg3,border:`1px solid ${C.bd2}`,borderRadius:8,color:C.t1,fontSize:14,padding:'11px 12px',fontFamily:"'DM Sans','Helvetica Neue',Arial,sans-serif",outline:'none'}}/>
                   </div>
                 ))}
                 <div>
@@ -5586,11 +5573,11 @@ export default function QuoteMark() {
                   <textarea value={contactForm.message} onChange={e=>setContactForm(p=>({...p,message:e.target.value}))}
                     placeholder={contactType==='carrier'?'Carrier name, website, and any relevant product details…':(contactType==='suggestion'?'Describe your idea or feedback…':'Tell us about your agency, team size, and what you are looking for…')}
                     rows={4}
-                    style={{width:'100%',boxSizing:'border-box',background:C.bg3,border:`1px solid ${C.bd2}`,borderRadius:8,color:C.t1,fontSize:14,padding:'11px 12px',fontFamily:"'DM Sans',sans-serif",outline:'none',resize:'vertical'}}/>
+                    style={{width:'100%',boxSizing:'border-box',background:C.bg3,border:`1px solid ${C.bd2}`,borderRadius:8,color:C.t1,fontSize:14,padding:'11px 12px',fontFamily:"'DM Sans','Helvetica Neue',Arial,sans-serif",outline:'none',resize:'vertical'}}/>
                 </div>
                 {contactErr&&<div style={{fontSize:12,color:'#EF4444',padding:'8px 10px',background:'rgba(239,68,68,0.08)',borderRadius:7}}>{contactErr}</div>}
                 <button onClick={sendContact} disabled={contactSending||!contactForm.name||!contactForm.email||!contactForm.message}
-                  style={{padding:'13px',borderRadius:9,border:'none',background:C.gold,color:C.bg0,fontWeight:700,fontSize:14,cursor:'pointer',fontFamily:"'DM Sans',sans-serif",opacity:(contactSending||!contactForm.name||!contactForm.email||!contactForm.message)?0.5:1}}>
+                  style={{padding:'13px',borderRadius:9,border:'none',background:C.gold,color:C.bg0,fontWeight:700,fontSize:14,cursor:'pointer',fontFamily:"'DM Sans','Helvetica Neue',Arial,sans-serif",opacity:(contactSending||!contactForm.name||!contactForm.email||!contactForm.message)?0.5:1}}>
                   {contactSending?'Sending…':'Send Message'}
                 </button>
               </div>
@@ -5614,8 +5601,8 @@ export default function QuoteMark() {
                 <div style={{fontSize:12,color:C.t4,marginBottom:4}}>Email</div>
                 <div style={{fontSize:14,color:C.t2,marginBottom:14,padding:'10px 12px',background:C.bg3,borderRadius:8,border:`1px solid ${C.bd}`}}>{session?.user?.email||'—'}</div>
                 <div style={{fontSize:12,color:C.t4,marginBottom:6}}>Display Name</div>
-                <input value={profileName} onChange={e=>setProfileName(e.target.value)} placeholder="Your name (optional)" style={{width:'100%',boxSizing:'border-box',background:C.bg3,border:`1px solid ${C.bd2}`,borderRadius:8,color:C.t1,fontSize:14,padding:'11px 12px',fontFamily:"'DM Sans',sans-serif",outline:'none'}}/>
-                <button onClick={saveProfile} disabled={profileSaving} style={{marginTop:10,width:'100%',padding:'11px',borderRadius:8,border:'none',background:profileSaved?'#16A34A':C.gold,color:profileSaved?'#fff':C.bg0,fontWeight:700,fontSize:13,cursor:'pointer',fontFamily:"'DM Sans',sans-serif"}}>
+                <input value={profileName} onChange={e=>setProfileName(e.target.value)} placeholder="Your name (optional)" style={{width:'100%',boxSizing:'border-box',background:C.bg3,border:`1px solid ${C.bd2}`,borderRadius:8,color:C.t1,fontSize:14,padding:'11px 12px',fontFamily:"'DM Sans','Helvetica Neue',Arial,sans-serif",outline:'none'}}/>
+                <button onClick={saveProfile} disabled={profileSaving} style={{marginTop:10,width:'100%',padding:'11px',borderRadius:8,border:'none',background:profileSaved?'#16A34A':C.gold,color:profileSaved?'#fff':C.bg0,fontWeight:700,fontSize:13,cursor:'pointer',fontFamily:"'DM Sans','Helvetica Neue',Arial,sans-serif"}}>
                   {profileSaving?'Saving…':profileSaved?'✓ Saved!':'Save Name'}
                 </button>
               </div>
@@ -5624,11 +5611,11 @@ export default function QuoteMark() {
                 {[['New Password','next'],['Confirm Password','confirm']].map(([lbl,key])=>(
                   <div key={key} style={{marginBottom:10}}>
                     <div style={{fontSize:12,color:C.t4,marginBottom:5}}>{lbl}</div>
-                    <input type="password" value={pwForm[key]} onChange={e=>setPwForm(p=>({...p,[key]:e.target.value}))} placeholder={lbl} style={{width:'100%',boxSizing:'border-box',background:C.bg3,border:`1px solid ${C.bd2}`,borderRadius:8,color:C.t1,fontSize:14,padding:'11px 12px',fontFamily:"'DM Sans',sans-serif",outline:'none'}}/>
+                    <input type="password" value={pwForm[key]} onChange={e=>setPwForm(p=>({...p,[key]:e.target.value}))} placeholder={lbl} style={{width:'100%',boxSizing:'border-box',background:C.bg3,border:`1px solid ${C.bd2}`,borderRadius:8,color:C.t1,fontSize:14,padding:'11px 12px',fontFamily:"'DM Sans','Helvetica Neue',Arial,sans-serif",outline:'none'}}/>
                   </div>
                 ))}
                 {pwMsg&&<div style={{fontSize:12,color:pwMsg.err?'#EF4444':'#22C55E',marginBottom:8,padding:'7px 10px',background:pwMsg.err?'rgba(239,68,68,0.08)':'rgba(34,197,94,0.08)',borderRadius:7}}>{pwMsg.msg}</div>}
-                <button onClick={changePassword} disabled={pwChanging||!pwForm.next} style={{width:'100%',padding:'11px',borderRadius:8,border:'none',background:C.gold,color:C.bg0,fontWeight:700,fontSize:13,cursor:'pointer',fontFamily:"'DM Sans',sans-serif",opacity:pwForm.next?1:0.5}}>
+                <button onClick={changePassword} disabled={pwChanging||!pwForm.next} style={{width:'100%',padding:'11px',borderRadius:8,border:'none',background:C.gold,color:C.bg0,fontWeight:700,fontSize:13,cursor:'pointer',fontFamily:"'DM Sans','Helvetica Neue',Arial,sans-serif",opacity:pwForm.next?1:0.5}}>
                   {pwChanging?'Updating…':'Update Password'}
                 </button>
               </div>
@@ -5653,14 +5640,14 @@ export default function QuoteMark() {
                     );
                   })}
                 </div>
-                <button onClick={saveCarrierPrefs} style={{marginTop:14,width:'100%',padding:'12px',borderRadius:8,border:'none',background:carriersSaved?'#16A34A':C.gold,color:carriersSaved?'#fff':C.bg0,fontWeight:700,fontSize:13,cursor:'pointer',fontFamily:"'DM Sans',sans-serif"}}>
+                <button onClick={saveCarrierPrefs} style={{marginTop:14,width:'100%',padding:'12px',borderRadius:8,border:'none',background:carriersSaved?'#16A34A':C.gold,color:carriersSaved?'#fff':C.bg0,fontWeight:700,fontSize:13,cursor:'pointer',fontFamily:"'DM Sans','Helvetica Neue',Arial,sans-serif"}}>
                   {carriersSaved?'✓ Carriers Saved!':'Save Carrier Preferences'}
                 </button>
               </div>
-              <button onClick={openCustomerPortal} disabled={portalLoading} style={{padding:'12px',borderRadius:10,border:`1px solid ${C.bd2}`,background:'transparent',color:C.t1,fontWeight:600,fontSize:13,cursor:portalLoading?'not-allowed':'pointer',fontFamily:"'DM Sans',sans-serif",opacity:portalLoading?0.6:1,marginBottom:8}}>
+              <button onClick={openCustomerPortal} disabled={portalLoading} style={{padding:'12px',borderRadius:10,border:`1px solid ${C.bd2}`,background:'transparent',color:C.t1,fontWeight:600,fontSize:13,cursor:portalLoading?'not-allowed':'pointer',fontFamily:"'DM Sans','Helvetica Neue',Arial,sans-serif",opacity:portalLoading?0.6:1,marginBottom:8}}>
               {portalLoading ? 'Opening…' : 'Manage Subscription'}
             </button>
-            <button onClick={signOut} style={{padding:'13px',borderRadius:10,border:`1px solid ${C.bd2}`,background:'transparent',color:'#EF4444',fontWeight:600,fontSize:14,cursor:'pointer',fontFamily:"'DM Sans',sans-serif"}}>
+            <button onClick={signOut} style={{padding:'13px',borderRadius:10,border:`1px solid ${C.bd2}`,background:'transparent',color:'#EF4444',fontWeight:600,fontSize:14,cursor:'pointer',fontFamily:"'DM Sans','Helvetica Neue',Arial,sans-serif"}}>
                 Sign Out
               </button>
             </div>
@@ -5673,7 +5660,7 @@ export default function QuoteMark() {
           <div onClick={()=>setCarrierPanel(false)} style={{flex:1,background:'rgba(0,0,0,0.55)'}}/>
           <div style={{width:380,background:C.bg2,borderLeft:`1px solid ${C.bd}`,padding:24,overflowY:'auto',display:'flex',flexDirection:'column',gap:20}}>
             <div style={{display:'flex',alignItems:'center',justifyContent:'space-between'}}>
-              <div style={{fontFamily:"'Barlow Condensed',sans-serif",fontSize:22,fontWeight:800,color:C.t0}}>Carrier Settings</div>
+              <div style={{fontFamily:"'Barlow Condensed','Arial Narrow',sans-serif",fontSize:22,fontWeight:800,color:C.t0}}>Carrier Settings</div>
               <button onClick={()=>setCarrierPanel(false)} style={{background:'none',border:'none',color:C.t3,fontSize:20,cursor:'pointer',lineHeight:1}}>×</button>
             </div>
 
@@ -5686,7 +5673,7 @@ export default function QuoteMark() {
                     flex:1,padding:'6px 0',border:'none',borderRadius:6,fontSize:11,fontWeight:700,cursor:'pointer',
                     background:carrierPanelTab===tab?(isDark?C.blue:'#0F172A'):'transparent',
                     color:carrierPanelTab===tab?'#FFFFFF':C.t4,
-                    fontFamily:"'DM Sans',sans-serif",transition:'all 0.15s'
+                    fontFamily:"'DM Sans','Helvetica Neue',Arial,sans-serif",transition:'all 0.15s'
                   }}>{label}</button>
                 ))}
               </div>
@@ -5727,7 +5714,7 @@ export default function QuoteMark() {
                   <div style={{fontSize:20,marginBottom:6}}>✓</div>
                   <div style={{fontSize:13,color:C.green,fontWeight:600}}>Request submitted</div>
                   <div style={{fontSize:11,color:C.t3,marginTop:3}}>We'll review and add within 48 hrs</div>
-                  <button onClick={()=>{setReqSent(false);setReqForm({name:'',state:'',notes:''});}} style={{marginTop:10,padding:'6px 14px',borderRadius:7,border:`1px solid ${C.bd}`,background:C.bg2,color:C.t3,fontSize:11,cursor:'pointer',fontFamily:"'DM Sans',sans-serif"}}>Submit another</button>
+                  <button onClick={()=>{setReqSent(false);setReqForm({name:'',state:'',notes:''});}} style={{marginTop:10,padding:'6px 14px',borderRadius:7,border:`1px solid ${C.bd}`,background:C.bg2,color:C.t3,fontSize:11,cursor:'pointer',fontFamily:"'DM Sans','Helvetica Neue',Arial,sans-serif"}}>Submit another</button>
                 </div>
               ):(
                 <div style={{display:'flex',flexDirection:'column',gap:10}}>
@@ -5735,23 +5722,23 @@ export default function QuoteMark() {
                     <div style={{fontSize:11,color:C.t3,marginBottom:4}}>Carrier name *</div>
                     <input placeholder="e.g. Mutual of Omaha" value={reqForm.name}
                       onChange={e=>setReqForm(p=>({...p,name:e.target.value}))}
-                      style={{background:C.bg3,border:`1px solid ${C.bd}`,color:C.t1,borderRadius:8,padding:'9px 12px',fontSize:13,width:'100%',outline:'none',fontFamily:"'DM Sans',sans-serif"}}/>
+                      style={{background:C.bg3,border:`1px solid ${C.bd}`,color:C.t1,borderRadius:8,padding:'9px 12px',fontSize:13,width:'100%',outline:'none',fontFamily:"'DM Sans','Helvetica Neue',Arial,sans-serif"}}/>
                   </div>
                   <div>
                     <div style={{fontSize:11,color:C.t3,marginBottom:4}}>State(s) needed</div>
                     <input placeholder="e.g. FL, TX, GA" value={reqForm.state}
                       onChange={e=>setReqForm(p=>({...p,state:e.target.value}))}
-                      style={{background:C.bg3,border:`1px solid ${C.bd}`,color:C.t1,borderRadius:8,padding:'9px 12px',fontSize:13,width:'100%',outline:'none',fontFamily:"'DM Sans',sans-serif"}}/>
+                      style={{background:C.bg3,border:`1px solid ${C.bd}`,color:C.t1,borderRadius:8,padding:'9px 12px',fontSize:13,width:'100%',outline:'none',fontFamily:"'DM Sans','Helvetica Neue',Arial,sans-serif"}}/>
                   </div>
                   <div>
                     <div style={{fontSize:11,color:C.t3,marginBottom:4}}>Notes</div>
                     <textarea placeholder="Product type, tier info, special requirements…" value={reqForm.notes}
                       onChange={e=>setReqForm(p=>({...p,notes:e.target.value}))}
-                      rows={3} style={{background:C.bg3,border:`1px solid ${C.bd}`,color:C.t1,borderRadius:8,padding:'9px 12px',fontSize:13,width:'100%',outline:'none',resize:'vertical',fontFamily:"'DM Sans',sans-serif"}}/>
+                      rows={3} style={{background:C.bg3,border:`1px solid ${C.bd}`,color:C.t1,borderRadius:8,padding:'9px 12px',fontSize:13,width:'100%',outline:'none',resize:'vertical',fontFamily:"'DM Sans','Helvetica Neue',Arial,sans-serif"}}/>
                   </div>
                   <button
                     onClick={()=>{if(reqForm.name.trim())setReqSent(true);}}
-                    style={{padding:'11px 0',borderRadius:9,border:'none',background:reqForm.name.trim()?C.blue:'#1E3A5A',color:reqForm.name.trim()&&C.t0||C.t4,fontSize:13,fontWeight:600,cursor:reqForm.name.trim()?'pointer':'not-allowed',fontFamily:"'DM Sans',sans-serif"}}>
+                    style={{padding:'11px 0',borderRadius:9,border:'none',background:reqForm.name.trim()?C.blue:'#1E3A5A',color:reqForm.name.trim()&&C.t0||C.t4,fontSize:13,fontWeight:600,cursor:reqForm.name.trim()?'pointer':'not-allowed',fontFamily:"'DM Sans','Helvetica Neue',Arial,sans-serif"}}>
                     Submit request
                   </button>
                 </div>

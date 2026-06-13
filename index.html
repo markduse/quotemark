@@ -9,6 +9,11 @@
   <meta name="theme-color" content="#05101E"/>
   <title>QuoteMark</title>
   <link rel="icon" type="image/svg+xml" href="/favicon.svg"/>
+  <!-- Brand fonts in <head> so the wordmark + DM Mono premiums render branded on the first frame
+       (not system-fallback-then-snap). display=swap keeps text visible if the CDN is slow. -->
+  <link rel="preconnect" href="https://fonts.googleapis.com"/>
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=DM+Mono:wght@400;500&family=DM+Sans:wght@400;500;600;700&family=Barlow+Condensed:wght@700;800&display=swap"/>
   <!-- PostHog Analytics — free 1M events/mo, custom events, funnels, session replays.
        autocapture:false → only our explicit track() calls fire (cleaner, no PII surprise).
        person_profiles:'identified_only' → only signed-in users get profile records.
