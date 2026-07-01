@@ -1305,6 +1305,20 @@ function fexLookup(company, planName, age, male, smoker, face, isGI=false) {
   // If face < all bands (e.g. juvenile), use minimum band
   const valid = sorted.filter(b => b <= face);
   const effFace = valid.length ? valid[valid.length-1] : sorted[0];
+  // Between anchors: interpolate exactly. FE premiums are affine in face
+  // (annual rate × units + policy fee), so the straight line between two
+  // scraped anchors IS the carrier's own rate math — this quotes the same
+  // faces ITK returns between our scrape points instead of snapping down.
+  if (valid.length && face > effFace) {
+    const next = sorted[valid.length]; // first anchor above the requested face
+    if (next != null) {
+      const p0 = bands[String(effFace)], p1 = bands[String(next)];
+      if (p0 != null && p1 != null && p1 > p0) {
+        const prem = p0 + (face - effFace) * (p1 - p0) / (next - effFace);
+        return { prem: Math.round(prem * 100) / 100, face };
+      }
+    }
+  }
   const prem = bands[String(effFace)];
   if (prem == null) return null;
   return { prem: Math.round(prem * 100) / 100, face: effFace };
@@ -1802,26 +1816,38 @@ function recommendTermClass(selectedConds, bmi, age, opts = {}) {
   return { recommended: worst, reasons };
 }
 function solveForFace(budget,age,male,smoker,tier,fn){
-  // Binary search for the largest face the carrier will write at this premium.
-  // fn() returns either a plain number (legacy csvLookup carriers) or
-  // {prem, face} (fexLookup/factorCalc) — unwrap before comparing to budget.
+  // Exact inversion of the carrier's face→premium curve for premium mode.
+  // Premium is affine in face (annual rate × units + policy fee) and
+  // fexLookup interpolates between scraped anchors, so a $1-granularity
+  // binary search lands on the same face ITK's budget mode computes.
   //
-  // Step is $100 (was $1,000) — gives factorCalc carriers (AHL Patriot,
-  // Americo, Trans Express, etc., which can quote any face amount via
-  // rate × units + fee) a much closer fit to the budget. Banded carriers
-  // (MOO Living Promise, Aetna Protection, etc.) snap inside fexLookup so
-  // they still return their actual issuable bands — the smaller step just
-  // ensures the search doesn't miss a band that sits between $1k multiples
-  // (e.g., Aetna $7.5k anchor).
-  let lo=1000,hi=50000,best=0;
-  for(let i=0;i<80;i++){
-    const mid=Math.round((lo+hi)/2/100)*100;
-    if(lo>hi)break;
-    const r=fn(age,male,smoker,tier,mid);
+  // Returns the carrier's EFFECTIVE face, not the raw search midpoint —
+  // factorCalc rounds to unit size ($500/$1k) and fexLookup caps at the top
+  // anchor, and quoting the effective face downstream means buildResult
+  // re-derives the identical quote (no phantom "capped" flag / gray cards).
+  const quote=(f)=>{
+    const r=fn(age,male,smoker,tier,f);
     const p=(r && typeof r==='object') ? r.prem : r;
-    if(p!=null && p<=budget+0.001){best=mid;lo=mid+100;}else hi=mid-100;
+    return p==null ? null : { p, eff:(r && typeof r==='object' && r.face!=null) ? r.face : f };
+  };
+  // Probe ladder: fn() returns null below the carrier's minimum face, which
+  // would strand a naive binary search — walk up to the first quotable face.
+  let lo=null, bestEff=null;
+  for(const f of [1000,2000,3000,5000,7500,10000,15000,25000,50000]){
+    const q=quote(f);
+    if(!q) continue;                       // below min face / data gap — probe higher
+    if(q.p>budget+0.001) return null;      // cheapest quotable face already over budget
+    lo=f; bestEff=q.eff;
+    break;
   }
-  return best>0?best:null;
+  if(bestEff==null) return null;           // nothing quotable at any probe
+  let L=lo+1, H=100000;
+  while(L<=H){
+    const mid=(L+H)>>1;
+    const q=quote(mid);
+    if(q && q.p<=budget+0.001){ bestEff=q.eff; L=mid+1; } else H=mid-1;
+  }
+  return bestEff;
 }
 
 // ── CASH VALUE CORRIDOR ──
@@ -2807,9 +2833,12 @@ export default function QuoteMark() {
       list=activeCarriers.map(carr=>buildResult(carr,a,male,dFaceAmt));
     } else {
       list=activeCarriers.map(carr=>{
-        const face=solveForFace(dBudget,a,male,smoker,uwTier,carr.fn);
-        if(!face)return{...carr,face:null,prem:null,productName:carr.product[uwTier],reason:'Budget too low'};
-        return buildResult(carr,a,male,face);
+        const solved=solveForFace(dBudget,a,male,smoker,uwTier,carr.fn);
+        if(!solved)return{...carr,face:null,prem:null,productName:carr.product[uwTier],reason:'Budget too low'};
+        // Clamp to the carrier's age-aware face cap so a big budget doesn't
+        // solve past what the carrier writes and get bounced by buildResult
+        const cap=AGE_FACE_BANDS[carr.id]?getFaceCap(carr.id,a):FACE_CAPS[carr.id];
+        return buildResult(carr,a,male,cap?Math.min(solved,cap):solved);
       });
     }
     return list.sort((a,b)=>{
@@ -3182,7 +3211,7 @@ export default function QuoteMark() {
                   <>
                     <div style={{display:'flex',gap:6,marginBottom:14}}>
                       <button className='qm-btn' style={{...mTogBtn(mode==='face'),border:`2px solid ${mode==='face'?C.gold:isDark?'#374151':'#D0CDBE'}`,background:mode==='face'?C.goldBg:C.bg2,color:mode==='face'?C.gold:C.t3}} onClick={()=>setMode('face')}>Face Amount</button>
-                      <button className='qm-btn' style={{...mTogBtn(mode==='budget'),border:`2px solid ${mode==='budget'?C.gold:isDark?'#374151':'#D0CDBE'}`,background:mode==='budget'?C.goldBg:C.bg2,color:mode==='budget'?C.gold:C.t3}} onClick={()=>setMode('budget')}>Monthly Budget</button>
+                      <button className='qm-btn' style={{...mTogBtn(mode==='budget'),border:`2px solid ${mode==='budget'?C.gold:isDark?'#374151':'#D0CDBE'}`,background:mode==='budget'?C.goldBg:C.bg2,color:mode==='budget'?C.gold:C.t3}} onClick={()=>setMode('budget')}>Premium Amount</button>
                     </div>
                     {mode==='face' ? (
                       <>
@@ -3202,13 +3231,14 @@ export default function QuoteMark() {
                       </>
                     ) : (
                       <>
-                        <div style={{fontSize:12,color:C.t3,marginBottom:8}}>Max monthly premium</div>
+                        <div style={{fontSize:12,color:C.t3,marginBottom:8}}>Monthly premium</div>
                         <div style={{position:'relative'}}>
                           <span style={{position:'absolute',left:14,top:'50%',transform:'translateY(-50%)',color:C.t3,fontSize:16,pointerEvents:'none'}}>$</span>
                           <input type="text" inputMode="decimal" placeholder="100" value={budget||''}
                             onChange={e=>{const v=e.target.value.replace(/[^0-9.]/g,'').replace(/^0+(?=\d)/,'');const n=Number(v);setBudget(v===''||isNaN(n)?0:n);}}
                             style={{...mInp,paddingLeft:30,fontFamily:"'DM Mono',ui-monospace,'SF Mono',Menlo,monospace",fontSize:17}}/>
                         </div>
+                        <div style={{fontSize:11,color:C.t4,marginTop:6}}>Finds max coverage at this premium</div>
                       </>
                     )}
                   </>
@@ -3518,7 +3548,7 @@ export default function QuoteMark() {
                     <div style={lbl}>Quote Target</div>
                     <div style={{display:'grid',gridTemplateColumns:'1fr 1fr',gap:6}}>
                       <button className='qm-btn' onClick={()=>setIulMode('premium')} title="Input target face amount, see required premium per carrier" style={{...mTogBtn(iulMode==='premium'),border:`2px solid ${iulMode==='premium'?C.gold:isDark?'#374151':'#D0CDBE'}`,background:iulMode==='premium'?C.goldBg:C.bg2,color:iulMode==='premium'?C.gold:C.t3}}>Face Amount</button>
-                      <button className='qm-btn' onClick={()=>setIulMode('face')} title="Input monthly budget, see face amount each carrier will issue" style={{...mTogBtn(iulMode==='face'),border:`2px solid ${iulMode==='face'?C.gold:isDark?'#374151':'#D0CDBE'}`,background:iulMode==='face'?C.goldBg:C.bg2,color:iulMode==='face'?C.gold:C.t3}}>Monthly Budget</button>
+                      <button className='qm-btn' onClick={()=>setIulMode('face')} title="Input monthly premium, see face amount each carrier will issue" style={{...mTogBtn(iulMode==='face'),border:`2px solid ${iulMode==='face'?C.gold:isDark?'#374151':'#D0CDBE'}`,background:iulMode==='face'?C.goldBg:C.bg2,color:iulMode==='face'?C.gold:C.t3}}>Premium Amount</button>
                     </div>
                   </div>
 
@@ -3991,12 +4021,18 @@ export default function QuoteMark() {
                           </div>
                           {!isGhost ? (
                             <>
-                              <div style={{display:'flex',alignItems:'baseline',gap:6,marginBottom:8}}>
-                                <span style={{fontSize:38,fontWeight:800,color:C.t0,letterSpacing:'-0.2px',fontFamily:"'DM Mono',ui-monospace,'SF Mono',Menlo,monospace"}}>{fmt$(r.prem)}</span>
-                                <span style={{fontSize:10,color:C.t4,fontWeight:400,letterSpacing:0.3}}>/mo EFT</span>
+                              {/* Premium mode: coverage is the answer — face hero, premium secondary.
+                                  Face mode: premium hero, face secondary. */}
+                              <div style={{display:'flex',alignItems:'baseline',gap:6,marginBottom:mode==='budget'?4:8}}>
+                                <span style={{fontSize:mode==='budget'?34:38,fontWeight:800,color:mode==='budget'?C.goldText:C.t0,letterSpacing:'-0.2px',fontFamily:"'DM Mono',ui-monospace,'SF Mono',Menlo,monospace"}}>{mode==='budget'?fmtF(r.face||0):fmt$(r.prem)}</span>
+                                <span style={{fontSize:10,color:C.t4,fontWeight:400,letterSpacing:0.3}}>{mode==='budget'?'coverage':'/mo EFT'}</span>
                               </div>
                               <div style={{display:'flex',gap:6,marginBottom:10,flexWrap:'wrap',alignItems:'center'}}>
-                                <span style={{fontSize:12,color:C.t2}}>{fmtF(r.face||0)}</span>
+                                {mode==='budget' ? (
+                                  <span style={{fontSize:15,fontWeight:700,color:C.t0,fontFamily:"'DM Mono',ui-monospace,'SF Mono',Menlo,monospace"}}>{fmt$(r.prem)}<span style={{fontSize:10,color:C.t4,fontWeight:400}}> /mo EFT</span></span>
+                                ) : (
+                                  <span style={{fontSize:12,color:C.t2}}>{fmtF(r.face||0)}</span>
+                                )}
                                 {r.capped&&<span style={{fontSize:10,color:C.t4,fontStyle:'italic'}}>Max coverage</span>}
                                 {!r.capped&&r.roundedTo&&mode==='budget'&&(
                                   <span style={{fontSize:9,color:'#F59E0B',background:'rgba(245,158,11,0.10)',border:'1px solid rgba(245,158,11,0.3)',borderRadius:3,padding:'1px 5px',fontWeight:700,letterSpacing:0.4}}>
@@ -4428,7 +4464,7 @@ export default function QuoteMark() {
               <>
                 <div style={{display:'flex',gap:6,marginBottom:14}}>
                   <button className='qm-btn' style={{...togBtn(mode==='face'),border:`2px solid ${mode==='face'?C.gold:isDark?'#374151':'#D0CDBE'}`,background:mode==='face'?C.goldBg:C.bg2,color:mode==='face'?C.gold:C.t3}} onClick={()=>{setMode('face');}}>Face amount</button>
-                  <button className='qm-btn' style={{...togBtn(mode==='budget'),border:`2px solid ${mode==='budget'?C.gold:isDark?'#374151':'#D0CDBE'}`,background:mode==='budget'?C.goldBg:C.bg2,color:mode==='budget'?C.gold:C.t3}} onClick={()=>{setMode('budget');}}>Monthly budget</button>
+                  <button className='qm-btn' style={{...togBtn(mode==='budget'),border:`2px solid ${mode==='budget'?C.gold:isDark?'#374151':'#D0CDBE'}`,background:mode==='budget'?C.goldBg:C.bg2,color:mode==='budget'?C.gold:C.t3}} onClick={()=>{setMode('budget');}}>Premium amount</button>
                 </div>
                 {mode==='face'?(
                   <>
@@ -4442,14 +4478,14 @@ export default function QuoteMark() {
                   </>
                 ):(
                   <>
-                    <div style={{fontSize:11,color:C.t3,marginBottom:5}}>Max monthly premium</div>
+                    <div style={{fontSize:11,color:C.t3,marginBottom:5}}>Monthly premium</div>
                     <div style={{position:'relative'}}>
                       <span style={{position:'absolute',left:12,top:'50%',transform:'translateY(-50%)',color:C.t3,fontSize:14,pointerEvents:'none'}}>$</span>
                       <input type="text" inputMode="decimal" placeholder="100" value={budget||''}
                         onChange={e=>{const v=e.target.value.replace(/[^0-9.]/g,'').replace(/^0+(?=\d)/,'');const n=Number(v);setBudget(v===''||isNaN(n)?0:n);}}
                         style={{...inp,paddingLeft:26,fontFamily:"'DM Mono',ui-monospace,'SF Mono',Menlo,monospace",fontSize:16}}/>
                     </div>
-                    <div style={{fontSize:11,color:C.t4,marginTop:6}}>Finds max coverage within this budget</div>
+                    <div style={{fontSize:11,color:C.t4,marginTop:6}}>Finds max coverage at this premium</div>
                   </>
                 )}
               </>
@@ -4776,11 +4812,11 @@ export default function QuoteMark() {
                       background:iulMode==='premium'?'#C5A059':C.bg2,color:iulMode==='premium'?'#0A192F':C.t3,
                       fontSize:13,fontWeight:700,cursor:'pointer',fontFamily:"'DM Sans','Helvetica Neue',Arial,sans-serif"
                     }}>Face amount</button>
-                    <button onClick={()=>setIulMode('face')} title="Input monthly budget, see face amount each carrier will issue" style={{
+                    <button onClick={()=>setIulMode('face')} title="Input monthly premium, see face amount each carrier will issue" style={{
                       padding:'9px 0',borderRadius:7,border:`2px solid ${iulMode==='face'?'#C5A059':isDark?'#374151':'#D0CDBE'}`,
                       background:iulMode==='face'?'#C5A059':C.bg2,color:iulMode==='face'?'#0A192F':C.t3,
                       fontSize:13,fontWeight:700,cursor:'pointer',fontFamily:"'DM Sans','Helvetica Neue',Arial,sans-serif"
-                    }}>Monthly budget</button>
+                    }}>Premium amount</button>
                   </div>
                 </div>
                 {iulMode === 'face' ? (
@@ -5214,7 +5250,7 @@ export default function QuoteMark() {
               <div style={{background:C.bg3,borderBottom:`1px solid ${C.bd}`,padding:'11px 24px',display:'flex',alignItems:'center',justifyContent:'space-between',gap:12,flexWrap:'wrap',position:'sticky',top:0,zIndex:10}}>
                 <div style={{display:'flex',alignItems:'center',gap:10,flexWrap:'wrap'}}>
                   <span style={{fontFamily:"'DM Mono',ui-monospace,'SF Mono',Menlo,monospace",fontSize:15,fontWeight:500,color:C.t0}}>
-                    {!gsbOn&&(mode==='face'?<span>{fmtF(faceAmt)}</span>:<span>${budget}/mo budget</span>)}
+                    {!gsbOn&&(mode==='face'?<span>{fmtF(faceAmt)}</span>:<span>${budget}/mo premium</span>)}
                     {gsbOn&&<span>Gold {fmtF(gsbFace.gold)} · Silver {fmtF(gsbFace.silver)} · Bronze {fmtF(gsbFace.bronze)}</span>}
                   </span>
                   <span style={{color:C.bd2}}>·</span>
@@ -5349,10 +5385,10 @@ export default function QuoteMark() {
                           <div style={{fontSize:15,fontWeight:700,color:C.t0,letterSpacing:'-0.2px',whiteSpace:'nowrap',overflow:'hidden',textOverflow:'ellipsis'}}>{r.name}</div>
                           <div style={{fontSize:11,color:C.t4,marginTop:2,whiteSpace:'nowrap',overflow:'hidden',textOverflow:'ellipsis'}}>{r.sub}{r.productName?` · ${r.productName}`:''}</div>
                         </div>
-                        {/* Face amount */}
-                        <div style={{flexShrink:0,width:88,textAlign:'right'}}>
-                          <div style={{fontSize:9,color:C.t4,fontWeight:600,letterSpacing:1,textTransform:'uppercase',marginBottom:2}}>Face</div>
-                          <div style={{fontFamily:"'DM Mono',ui-monospace,'SF Mono',Menlo,monospace",fontSize:13,fontWeight:500,color:C.t1}}>{fmtF(r.face)}</div>
+                        {/* Face amount — in premium mode the coverage IS the answer, render it hero-size */}
+                        <div style={{flexShrink:0,width:mode==='budget'?150:88,textAlign:'right'}}>
+                          <div style={{fontSize:9,color:C.t4,fontWeight:600,letterSpacing:1,textTransform:'uppercase',marginBottom:2}}>{mode==='budget'?'Coverage':'Face'}</div>
+                          <div style={{fontFamily:"'DM Mono',ui-monospace,'SF Mono',Menlo,monospace",fontSize:mode==='budget'?26:13,fontWeight:mode==='budget'?800:500,color:mode==='budget'?C.goldText:C.t1,letterSpacing:mode==='budget'?'-0.2px':0,lineHeight:1.2}}>{fmtF(r.face)}</div>
                           {r.capped&&<div style={{fontSize:9,color:C.t4,fontStyle:'italic',marginTop:1}}>capped</div>}
                           {!r.capped&&r.roundedTo&&mode==='budget'&&(
                             <div title={`${r.name} issues face amounts in $${r.roundedTo.toLocaleString()} increments. Rate calculated at $${(r.face||0).toLocaleString()}.`}

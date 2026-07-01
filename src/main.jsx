@@ -61,6 +61,12 @@ function Gate() {
     );
   }
 
+  // Dev-only preview bypass: `localStorage.qm_dev_bypass = 1` on localhost skips
+  // the gate so the app can be checked without signing in. import.meta.env.DEV
+  // is statically false in production builds — this branch is compiled away.
+  const devBypass = import.meta.env.DEV && typeof localStorage !== 'undefined' && localStorage.getItem('qm_dev_bypass');
+  if (devBypass) return <App />;
+
   if (!session)       return <AuthScreen />;
   if (!isSubscribed)  return <PaywallScreen />;
   return <App />;
