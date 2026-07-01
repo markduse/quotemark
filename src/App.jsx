@@ -2129,9 +2129,15 @@ const C_LIGHT = {
 
 
 // Hover tooltip badge for product tier on quote cards
+// "Standard" and "Level" are the SAME underwriting tier (full immediate
+// benefit, day-1 coverage) — carriers just name it differently. They share
+// identical green styling so the list reads as one tier; the badge word
+// follows the carrier's own product naming so it matches the plan line.
+const LEVEL_TIER = { bg:'rgba(34,197,94,0.12)', bd:'rgba(34,197,94,0.35)', color:'#4ADE80' };
 const BADGE_STYLES = {
   preferred: { bg:'rgba(139,92,246,0.15)', bd:'rgba(139,92,246,0.4)', color:'#A78BFA', label:'Preferred', tip:'Full immediate benefit from day 1. Client passed simplified underwriting — best available rate class.' },
-  level:     { bg:'rgba(34,197,94,0.12)',  bd:'rgba(34,197,94,0.35)',  color:'#4ADE80', label:'Level',     tip:'Full immediate benefit from day 1. Standard underwriting class.' },
+  level:     { ...LEVEL_TIER, label:'Level',    tip:'Full immediate benefit from day 1. Same tier as "Standard" — this carrier calls it Level.' },
+  standard:  { ...LEVEL_TIER, label:'Standard', tip:'Full immediate benefit from day 1. Same tier as "Level" — this carrier calls it Standard.' },
   modified:  { bg:'rgba(245,158,11,0.13)', bd:'rgba(245,158,11,0.35)', color:'#FBBF24', label:'Modified',  tip:'Graded death benefit — 2 to 3 year waiting period before full coverage applies.' },
   gi:        { bg:'rgba(239,68,68,0.12)',  bd:'rgba(239,68,68,0.35)',  color:'#F87171', label:'GI',        tip:'Guaranteed Issue — no health questions. Graded benefit period applies. Approved regardless of health.' },
 };
@@ -2140,6 +2146,7 @@ function badgeType(tier, productName) {
   if(tier==='D') return 'modified';
   const name=(productName||'').toLowerCase();
   if(name.includes('preferred')) return 'preferred';
+  if(name.includes('standard'))  return 'standard';
   return 'level';
 }
 const TierBadge = ({tier, productName}) => {
