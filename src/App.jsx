@@ -2184,7 +2184,16 @@ const SHEET_FIELDS = [
   {k:'inUnderwriting', label:'In Underwriting'},
   {k:'approved',       label:'APPROVED 🙂'},
 ];
-const SHEET_EMPTY = Object.fromEntries([...SHEET_FIELDS.map(f=>[f.k,'']),['notes','']]);
+// Second client (husband & wife calls) — revealed by the spouse checkbox.
+// Shared things (address, phone, bank, benes) stay on the main fields.
+const SPOUSE_FIELDS = [
+  {k:'sp_fullName',     label:'Full Name'},
+  {k:'sp_dob',          label:'Date of Birth', ph:'mm/dd/yyyy'},
+  {k:'sp_heightWeight', label:'Height / Weight'},
+  {k:'sp_dl',           label:"Driver's License #"},
+  {k:'sp_ssn',          label:'Social Security #'},
+];
+const SHEET_EMPTY = {...Object.fromEntries([...SHEET_FIELDS,...SPOUSE_FIELDS].map(f=>[f.k,''])), notes:'', spouse:false};
 
 function sheetFileName(sheet){
   const slug = v => (v||'').toLowerCase().replace(/[^a-z0-9]+/g,'_').replace(/^_+|_+$/g,'');
@@ -2218,7 +2227,9 @@ async function buildClientSheetPdf(sheet, agentEmail, agentName){
   doc.text(new Date().toLocaleDateString('en-US',{month:'long',day:'numeric',year:'numeric'}), W-M, 46, {align:'right'});
   // Field rows
   let y = 92;
+  const pageGuard = () => { if (y > 726){ doc.addPage(); y = 60; } };
   const row = (label, value) => {
+    pageGuard();
     doc.setFont('helvetica','bold'); doc.setFontSize(7.5); doc.setTextColor(...GRAY);
     doc.text(label.toUpperCase(), M, y);
     doc.setFont('helvetica','normal'); doc.setFontSize(10.5); doc.setTextColor(...INK);
@@ -2228,7 +2239,7 @@ async function buildClientSheetPdf(sheet, agentEmail, agentName){
     y += 23;
   };
   const section = (name) => {
-    y += 8;
+    y += 8; pageGuard();
     doc.setFont('helvetica','bold'); doc.setFontSize(8.5); doc.setTextColor(...GOLD);
     doc.text(name.toUpperCase(), M, y);
     doc.setDrawColor(...GOLD); doc.setLineWidth(0.8);
@@ -2236,8 +2247,12 @@ async function buildClientSheetPdf(sheet, agentEmail, agentName){
     y += 16;
   };
   for (const f of SHEET_FIELDS){
+    if (f.k==='bene1' && sheet.spouse){
+      section('Client 2 (Spouse)');
+      for (const sf of SPOUSE_FIELDS) row(sf.label, sheet[sf.k]);
+    }
     if (f.sec) section(f.sec);
-    row(f.label.replace(' 🙂',''), f.k==='approved' && sheet[f.k] ? sheet[f.k] : sheet[f.k]);
+    row(f.label.replace(' 🙂',''), sheet[f.k]);
   }
   // Notes block
   section('Notes');
@@ -3175,6 +3190,32 @@ export default function QuoteMark() {
                   onChange={e=>setSheet(p=>({...p,[f.k]:e.target.value}))}
                   style={inpS}/>
               </div>
+              {f.k==='ssn' && (
+                <>
+                  {/* Husband & wife — checkbox reveals a second client */}
+                  <button onClick={()=>setSheet(p=>({...p,spouse:!p.spouse}))} style={{
+                    padding:'10px 12px',borderRadius:8,border:`1px solid ${sheet.spouse?C.gold:C.bd}`,
+                    background:sheet.spouse?C.goldBg:C.bg3,color:C.t2,textAlign:'left',cursor:'pointer',
+                    fontSize:12,fontFamily:"'DM Sans','Helvetica Neue',Arial,sans-serif",display:'flex',alignItems:'center',gap:8
+                  }}>
+                    <span style={{width:16,height:16,borderRadius:4,border:`2px solid ${sheet.spouse?C.gold:C.bd2}`,background:sheet.spouse?C.gold:'transparent',display:'flex',alignItems:'center',justifyContent:'center',fontSize:11,color:C.bg0,fontWeight:900,flexShrink:0}}>{sheet.spouse?'✓':''}</span>
+                    <span>Husband &amp; wife — add a second client</span>
+                  </button>
+                  {sheet.spouse && (
+                    <>
+                      <div style={{fontSize:9,fontWeight:700,letterSpacing:1.5,color:C.goldText,textTransform:'uppercase',marginTop:6,paddingBottom:2,borderBottom:`1px solid ${C.bd}`}}>Client 2 (Spouse)</div>
+                      {SPOUSE_FIELDS.map(sf=>(
+                        <div key={sf.k}>
+                          <div style={{fontSize:11,color:C.t3,marginBottom:5,fontWeight:600}}>{sf.label}</div>
+                          <input value={sheet[sf.k]} placeholder={sf.ph||''}
+                            onChange={e=>setSheet(p=>({...p,[sf.k]:e.target.value}))}
+                            style={inpS}/>
+                        </div>
+                      ))}
+                    </>
+                  )}
+                </>
+              )}
             </React.Fragment>
           ))}
           <div>
