@@ -2206,7 +2206,7 @@ const CompBadge = ({carrierId, tier}) => {
   // Early return AFTER all hooks
   if(!level || level!=='high') return null;
   const emoji = '💰';
-  const color = '#4ADE80';
+  const color = 'var(--qm-tier-green)'; // theme-aware — readable in light mode too
   const bg    = 'rgba(34,197,94,0.12)';
   const bd    = 'rgba(34,197,94,0.35)';
   const tip   = 'Strong commission contract. One of the better-compensated products in this tier.';
@@ -2221,8 +2221,8 @@ const CompBadge = ({carrierId, tier}) => {
     <span ref={ref} style={{position:'relative',display:'inline-flex'}}
       onMouseEnter={()=>setOpen(true)} onMouseLeave={()=>setOpen(false)}
       onClick={e=>{e.stopPropagation();handleOpen();}}>
-      <span style={{display:'inline-flex',alignItems:'center',gap:4,background:bg,border:`1px solid ${bd}`,color,borderRadius:5,padding:'3px 8px',fontSize:11,fontWeight:700,cursor:'pointer',whiteSpace:'nowrap'}}>
-        {emoji}
+      <span style={{display:'inline-flex',alignItems:'center',gap:4,background:bg,border:`1px solid ${bd}`,color,borderRadius:5,padding:'3px 8px',fontSize:9,fontWeight:700,letterSpacing:0.6,cursor:'pointer',whiteSpace:'nowrap'}}>
+        {emoji} COMP
       </span>
       {open&&(
         <span style={{
@@ -2697,6 +2697,16 @@ export default function QuoteMark() {
   },[termRec.recommended,termHealthManual]);
   const ageNum   = parseInt(age);
   const ageOK    = age && ageNum>=1 && ageNum<=89;
+  // CV results render inline as the agent types (no Get Quotes step) — scroll
+  // them into view the moment the inputs become valid so they aren't missed
+  // below the fold on mobile.
+  const cvResultRef = useRef(null);
+  const cvValid = ageOK && Number(cvMonthly) > 0 && Number(cvPolicyYrs) > 0;
+  useEffect(()=>{
+    if(quoteMode==='cv' && cvValid && cvResultRef.current){
+      cvResultRef.current.scrollIntoView({behavior:'smooth', block:'nearest'});
+    }
+  },[cvValid, quoteMode]);
   // ── Age-bracket helpers — drive intake UX (FE / WL spans 1-89 now) ──
   const isJuvenile = ageOK && ageNum < 18;        // 1-17 — no medical, juvenile WL
   const isYoungAdult = ageOK && ageNum >= 18 && ageNum < 50; // 18-49 — adult WL
@@ -3736,7 +3746,7 @@ export default function QuoteMark() {
                     const amber = '#C5A059';
                     return (
                       <>
-                      <div style={{background:'rgba(197,160,89,0.06)',border:'1px solid rgba(197,160,89,0.22)',borderRadius:10,padding:'14px 16px'}}>
+                      <div ref={cvResultRef} style={{background:'rgba(197,160,89,0.06)',border:'1px solid rgba(197,160,89,0.22)',borderRadius:10,padding:'14px 16px'}}>
                         <div style={{fontSize:9,color:'#C5A059',fontWeight:700,marginBottom:10,letterSpacing:1.2,textTransform:'uppercase'}}>Estimated Cash Value · Age {currentAge} · Issued at {issueAge}</div>
                         <div style={{display:'flex',alignItems:'baseline',gap:8,marginBottom:10,flexWrap:'wrap'}}>
                           <span style={{fontSize:22,fontWeight:800,color:C.t1,fontFamily:"'DM Mono',ui-monospace,'SF Mono',Menlo,monospace"}}>${Math.round(d.low).toLocaleString()}</span>
@@ -4061,9 +4071,8 @@ export default function QuoteMark() {
                               <div style={{fontSize:18,fontWeight:700,color:C.t0}}>{r.name}</div>
                               <div style={{fontSize:11,color:C.t4,marginTop:2}}>{r.sub}</div>
                             </div>
-                            <div style={{display:'flex',flexDirection:'column',alignItems:'flex-end',gap:6,flexShrink:0,marginLeft:10}}>
+                            <div style={{display:'flex',alignItems:'center',gap:6,flexShrink:0,marginLeft:10}}>
                               <CarrierLogo carrierId={r.id} name={r.name} small={true}/>
-                              {!isGhost&&<CompBadge carrierId={r.id} tier={r.activeTier}/>}
                             </div>
                           </div>
                           {!isGhost ? (
@@ -4087,6 +4096,7 @@ export default function QuoteMark() {
                                   </span>
                                 )}
                                 <TierBadge tier={r.activeTier} productName={r.productName}/>
+                                <CompBadge carrierId={r.id} tier={r.activeTier}/>
                               </div>
                               {CARRIER_META[r.id]?.eapp && (
                                 <a href={CARRIER_META[r.id].eapp} target="_blank" rel="noopener noreferrer" style={{
@@ -5279,10 +5289,24 @@ export default function QuoteMark() {
               </div>
             )
           ):!hasQuoted?(
-            <div style={{display:'flex',flexDirection:'column',alignItems:'center',justifyContent:'center',height:'100%',gap:14,padding:40}}>
-              <div style={{fontSize:48,opacity:0.5}}>📋</div>
-              <div style={{fontFamily:"'Barlow Condensed','Arial Narrow',sans-serif",fontSize:22,fontWeight:700,color:C.t4}}>Enter client info and click Get Quotes</div>
-              <div style={{fontSize:13,color:C.t4,textAlign:'center',lineHeight:1.8}}>
+            <div style={{display:'flex',flexDirection:'column',alignItems:'center',justifyContent:'center',height:'100%',gap:26,padding:40}}>
+              <div style={{fontFamily:"'Barlow Condensed','Arial Narrow',sans-serif",fontSize:26,fontWeight:800,color:C.t2,letterSpacing:'-0.3px'}}>Quote in three steps</div>
+              <div style={{display:'flex',flexDirection:'column',gap:14,maxWidth:340,width:'100%'}}>
+                {[
+                  ['1','Client age','DOB or age — quotes are age-driven'],
+                  ['2','Health picture','Type meds or conditions; the UW tier sets itself'],
+                  ['3','Get Quotes','Every carrier, sorted by price — pivot tabs to compare products'],
+                ].map(([n,title,sub])=>(
+                  <div key={n} style={{display:'flex',alignItems:'flex-start',gap:14}}>
+                    <span style={{width:26,height:26,borderRadius:'50%',border:`1.5px solid ${C.goldBd}`,background:C.goldBg,color:C.goldText,fontSize:13,fontWeight:800,display:'flex',alignItems:'center',justifyContent:'center',flexShrink:0,fontFamily:"'DM Mono',ui-monospace,'SF Mono',Menlo,monospace"}}>{n}</span>
+                    <div>
+                      <div style={{fontSize:14,fontWeight:700,color:C.t2}}>{title}</div>
+                      <div style={{fontSize:12,color:C.t4,marginTop:2,lineHeight:1.5}}>{sub}</div>
+                    </div>
+                  </div>
+                ))}
+              </div>
+              <div style={{fontSize:12,color:C.t4,fontFamily:"'DM Mono',ui-monospace,'SF Mono',Menlo,monospace"}}>
                 {carriers.filter(c=>c.enabled&&!c.termOnly).length} carriers enabled
               </div>
             </div>
