@@ -2155,6 +2155,21 @@ function badgeType(tier, productName) {
   if(name.includes('standard'))  return 'standard';
   return 'level';
 }
+// Product-tab glyphs — inline SVGs instead of emoji (emoji render differently
+// per OS and read informal next to the navy/gold brand). currentColor follows
+// the tab's active/inactive text color automatically.
+const TabIcon = ({name, size=13}) => {
+  const P = {stroke:'currentColor', strokeWidth:1.8, strokeLinecap:'round', strokeLinejoin:'round', fill:'none'};
+  return (
+    <svg width={size} height={size} viewBox="0 0 24 24" aria-hidden="true" style={{flexShrink:0,marginRight:5,verticalAlign:'-2px'}}>
+      {name==='fex' && <path {...P} d="M3 21h18M4 9.5h16M6.5 9.5v8.5m3.5-8.5v8.5m4-8.5v8.5m3.5-8.5v8.5M3.5 9.5 12 3l8.5 6.5"/>}
+      {name==='term' && <><circle {...P} cx="12" cy="13.5" r="7.5"/><path {...P} d="M12 9.5v4l2.8 1.8M9.5 2.5h5"/></>}
+      {name==='iul' && <path {...P} d="M3.5 3.5v17h17M7 15l3.8-4.8 2.9 2.9L18.5 7"/>}
+      {name==='cv' && <><circle {...P} cx="12" cy="12" r="8.5"/><path {...P} d="M12 7.2v9.6M14.8 9.3c0-1.2-1.25-2.1-2.8-2.1s-2.8.9-2.8 2.1c0 1.3 1.1 1.8 2.8 2.2 1.7.4 2.8 1 2.8 2.2 0 1.2-1.25 2.1-2.8 2.1s-2.8-.9-2.8-2.1"/></>}
+    </svg>
+  );
+};
+
 const TierBadge = ({tier, productName}) => {
   const [hov,setHov] = React.useState(false);
   const type = badgeType(tier, productName);
@@ -3155,28 +3170,28 @@ export default function QuoteMark() {
               color:quoteMode==='fe'?(isDark?'#0A192F':'#FFFFFF'):C.t3,
               fontSize:13,fontWeight:700,cursor:'pointer',fontFamily:"'DM Sans','Helvetica Neue',Arial,sans-serif",
               transition:'all 0.18s'
-            }}>🏛️ FEX / WL</button>
+            }}><TabIcon name="fex"/>FEX / WL</button>
             <button onClick={()=>{track('Tab Switch',{to:'term'});setQuoteMode('term');}} style={{
               flex:1,padding:'10px 0',borderRadius:18,border:'none',
               background:quoteMode==='term'?'#C5A059':'transparent',
               color:quoteMode==='term'?'#0A192F':C.t3,
               fontSize:12,fontWeight:700,cursor:'pointer',fontFamily:"'DM Sans','Helvetica Neue',Arial,sans-serif",
               transition:'all 0.18s'
-            }}>⏱️ Term</button>
+            }}><TabIcon name="term"/>Term</button>
             <button onClick={()=>{track('Tab Switch',{to:'iul'});setQuoteMode('iul');}} style={{
               flex:1,padding:'10px 0',borderRadius:18,border:'none',
               background:quoteMode==='iul'?'#C5A059':'transparent',
               color:quoteMode==='iul'?'#0A192F':C.t3,
               fontSize:12,fontWeight:700,cursor:'pointer',fontFamily:"'DM Sans','Helvetica Neue',Arial,sans-serif",
               transition:'all 0.18s'
-            }}>📈 IUL</button>
+            }}><TabIcon name="iul"/>IUL</button>
             <button onClick={()=>{track('Tab Switch',{to:'cv'});setQuoteMode('cv');}} style={{
               flex:1,padding:'10px 0',borderRadius:18,border:'none',
               background:quoteMode==='cv'?'#C5A059':'transparent',
               color:quoteMode==='cv'?'#0B1120':C.t3,
               fontSize:12,fontWeight:700,cursor:'pointer',fontFamily:"'DM Sans','Helvetica Neue',Arial,sans-serif",
               transition:'all 0.18s'
-            }}>💰 CV</button>
+            }}><TabIcon name="cv"/>CV</button>
           </div>
         </div>
 
@@ -3232,8 +3247,8 @@ export default function QuoteMark() {
                 {!gsbOn ? (
                   <>
                     <div style={{display:'flex',gap:6,marginBottom:14}}>
-                      <button className='qm-btn' style={{...mTogBtn(mode==='face'),border:`2px solid ${mode==='face'?C.gold:isDark?'#374151':'#D0CDBE'}`,background:mode==='face'?C.goldBg:C.bg2,color:mode==='face'?C.gold:C.t3}} onClick={()=>setMode('face')}>Face Amount</button>
-                      <button className='qm-btn' style={{...mTogBtn(mode==='budget'),border:`2px solid ${mode==='budget'?C.gold:isDark?'#374151':'#D0CDBE'}`,background:mode==='budget'?C.goldBg:C.bg2,color:mode==='budget'?C.gold:C.t3}} onClick={()=>setMode('budget')}>Premium Amount</button>
+                      <button className='qm-btn' style={{...mTogBtn(mode==='face')}} onClick={()=>setMode('face')}>Face Amount</button>
+                      <button className='qm-btn' style={{...mTogBtn(mode==='budget')}} onClick={()=>setMode('budget')}>Premium Amount</button>
                     </div>
                     {mode==='face' ? (
                       <>
@@ -3241,14 +3256,14 @@ export default function QuoteMark() {
                           <span>Coverage amount</span>
                           <span style={{color:C.t0,fontWeight:700,fontSize:16,fontFamily:"'DM Mono',ui-monospace,'SF Mono',Menlo,monospace"}}>{fmtF(faceAmt)}</span>
                         </div>
-                        <input type="range" min="1000" max="100000" step="1000" value={faceAmt}
+                        <input type="range" min="2000" max="100000" step="1000" value={faceAmt}
                           onChange={e=>{
                             setFaceAmt(+e.target.value);
                             if(navigator.vibrate) navigator.vibrate(4);
                           }}
                           style={{width:'100%',accentColor:C.gold,height:42,cursor:'pointer',marginBottom:6}}/>
                         <div style={{display:'flex',justifyContent:'space-between',fontSize:11,color:C.t4}}>
-                          <span>$1,000</span><span>$100,000</span>
+                          <span>$2,000</span><span>$100,000</span>
                         </div>
                       </>
                     ) : (
@@ -3408,6 +3423,7 @@ export default function QuoteMark() {
               }}>
                 ⚡ Get Quotes
               </button>
+              {!ageOK && <div style={{fontSize:11,color:C.t4,textAlign:'center',marginTop:8}}>Enter client age above to quote</div>}
               </>
               ) : quoteMode==='term' ? (
               <>
@@ -3416,15 +3432,17 @@ export default function QuoteMark() {
                   {/* Unified Client Info */}
                   {renderClientInfo({variant:'mobile'})}
 
-                  <div style={{fontSize:10,fontWeight:700,letterSpacing:1.8,color:'#C5A059',textTransform:'uppercase',marginTop:6}}>Term Settings</div>
+                  {/* Term settings — carded like the FEX Quote Target section (tabs read as one product) */}
+                  <div style={{background:C.bg2,border:`1px solid ${C.bd}`,borderRadius:12,padding:16,display:'flex',flexDirection:'column',gap:12}}>
+                  <div style={{fontSize:10,fontWeight:700,letterSpacing:1.8,color:C.t4,textTransform:'uppercase'}}>Term Settings</div>
                   {/* Term Length pills */}
                   <div>
                     <div style={{fontSize:11,color:C.t3,marginBottom:6,fontWeight:600}}>Term Length (years)</div>
                     <div style={{display:'grid',gridTemplateColumns:'repeat(7,1fr)',gap:4}}>
                       {['10','15','20','25','30','35','40'].map(t=>(
                         <button key={t} onClick={()=>setTermLength(t)} style={{
-                          padding:'9px 0',borderRadius:7,border:`2px solid ${termLength===t?'#C5A059':isDark?'#374151':'#D0CDBE'}`,
-                          background:termLength===t?'#C5A059':C.bg2,color:termLength===t?'#0A192F':C.t3,
+                          padding:'9px 0',borderRadius:7,border:`2px solid ${termLength===t?C.gold:isDark?'#374151':'#D0CDBE'}`,
+                          background:termLength===t?C.goldBg:C.bg2,color:termLength===t?C.goldText:C.t3,
                           fontSize:12,fontWeight:700,cursor:'pointer',fontFamily:"'DM Sans','Helvetica Neue',Arial,sans-serif"
                         }}>{t}</button>
                       ))}
@@ -3540,8 +3558,8 @@ export default function QuoteMark() {
                         {k:'s',  label:'Std',   tip:'STANDARD — Average health risk. Multiple controlled conditions, BMI 32-35, slight family history, older smokers often land here. The most common class. About 30-40% qualify.'},
                       ].map(({k,label,tip})=>(
                         <button key={k} title={tip} onClick={()=>{setTermHealth(k);setTermHealthManual(true);}} style={{
-                          padding:'10px 0',borderRadius:7,border:`2px solid ${termHealth===k?'#C5A059':isDark?'#374151':'#D0CDBE'}`,
-                          background:termHealth===k?'#C5A059':C.bg2,color:termHealth===k?'#0A192F':C.t3,
+                          padding:'10px 0',borderRadius:7,border:`2px solid ${termHealth===k?C.gold:isDark?'#374151':'#D0CDBE'}`,
+                          background:termHealth===k?C.goldBg:C.bg2,color:termHealth===k?C.goldText:C.t3,
                           fontSize:12,fontWeight:700,cursor:'pointer',fontFamily:"'DM Sans','Helvetica Neue',Arial,sans-serif"
                         }}>{label}</button>
                       ))}
@@ -3552,10 +3570,12 @@ export default function QuoteMark() {
                       </div>
                     )}
                   </div>
+                  </div>
                   <button className="qm-cta" onClick={e=>fireCta(e,()=>{if(ageOK){track('Quote Requested',{tier:'term',mode:'term',gsb:false,face:faceBand(termFace)});setHasQuoted(true);setMobileTab('results');setTimeout(()=>window.scrollTo({top:0,behavior:'instant'}),0);}})}
                     style={{width:'100%',padding:'18px 0',borderRadius:12,border:'none',cursor:ageOK?'pointer':'not-allowed',background:ageOK?C.gold:'#2A3547',color:ageOK?C.bg0:C.t4,fontSize:17,fontWeight:700,letterSpacing:0.5,opacity:ageOK?1:0.4,fontFamily:"'DM Sans','Helvetica Neue',Arial,sans-serif",marginTop:8}}>
                     ⚡ Get Term Quotes
                   </button>
+                  {!ageOK && <div style={{fontSize:11,color:C.t4,textAlign:'center',marginTop:8}}>Enter client age above to quote</div>}
                 </div>
               </>
               ) : null}
@@ -3565,12 +3585,13 @@ export default function QuoteMark() {
                 <div style={{display:'flex',flexDirection:'column',gap:14}}>
                   {/* Unified Client Info */}
                   {renderClientInfo({variant:'mobile'})}
-                  {/* Mode toggle — same FE labels: Face amount / Monthly budget */}
+                  {/* Quote Target — carded like the FEX section (tabs read as one product) */}
+                  <div style={{background:C.bg2,border:`1px solid ${C.bd}`,borderRadius:12,padding:16,display:'flex',flexDirection:'column',gap:12}}>
                   <div>
                     <div style={lbl}>Quote Target</div>
                     <div style={{display:'grid',gridTemplateColumns:'1fr 1fr',gap:6}}>
-                      <button className='qm-btn' onClick={()=>setIulMode('premium')} title="Input target face amount, see required premium per carrier" style={{...mTogBtn(iulMode==='premium'),border:`2px solid ${iulMode==='premium'?C.gold:isDark?'#374151':'#D0CDBE'}`,background:iulMode==='premium'?C.goldBg:C.bg2,color:iulMode==='premium'?C.gold:C.t3}}>Face Amount</button>
-                      <button className='qm-btn' onClick={()=>setIulMode('face')} title="Input monthly premium, see face amount each carrier will issue" style={{...mTogBtn(iulMode==='face'),border:`2px solid ${iulMode==='face'?C.gold:isDark?'#374151':'#D0CDBE'}`,background:iulMode==='face'?C.goldBg:C.bg2,color:iulMode==='face'?C.gold:C.t3}}>Premium Amount</button>
+                      <button className='qm-btn' onClick={()=>setIulMode('premium')} title="Input target face amount, see required premium per carrier" style={{...mTogBtn(iulMode==='premium')}}>Face Amount</button>
+                      <button className='qm-btn' onClick={()=>setIulMode('face')} title="Input monthly premium, see face amount each carrier will issue" style={{...mTogBtn(iulMode==='face')}}>Premium Amount</button>
                     </div>
                   </div>
 
@@ -3602,7 +3623,10 @@ export default function QuoteMark() {
                   )}
 
                   <div style={{padding:'10px 12px',background:C.bg3,border:`1px solid ${C.bd}`,borderRadius:8,fontSize:11,color:C.t4,lineHeight:1.6,marginTop:6}}>
-                    💡 Face amounts shown are what each carrier will issue for your client at this premium. Pull the carrier's full illustration before presenting to the client.
+                    💡 {iulMode==='face'
+                      ? 'Face amounts shown are what each carrier will issue for your client at this premium.'
+                      : 'Premiums shown are what each carrier requires for this face amount.'} Pull the carrier's full illustration before presenting to the client.
+                  </div>
                   </div>
 
                   {/* Get IUL Quotes — match FE/Term pattern */}
@@ -3610,6 +3634,7 @@ export default function QuoteMark() {
                     style={{width:'100%',padding:'18px 0',borderRadius:12,border:'none',cursor:ageOK?'pointer':'not-allowed',background:ageOK?C.gold:'#2A3547',color:ageOK?C.bg0:C.t4,fontSize:17,fontWeight:700,letterSpacing:0.5,opacity:ageOK?1:0.4,fontFamily:"'DM Sans','Helvetica Neue',Arial,sans-serif",marginTop:4}}>
                     ⚡ Get IUL Quotes
                   </button>
+                  {!ageOK && <div style={{fontSize:11,color:C.t4,textAlign:'center',marginTop:8}}>Enter client age above to quote</div>}
 
                   {/* Original spec snapshot kept below */}
                   <div style={{fontSize:10,fontWeight:700,letterSpacing:1.8,color:C.t4,textTransform:'uppercase',marginTop:14,paddingTop:14,borderTop:`1px solid ${C.bd}`}}>Carrier Specs</div>
@@ -3684,7 +3709,7 @@ export default function QuoteMark() {
                   {/* Unified Client Info — same as FE/Term/IUL (no state needed for CV) */}
                   {renderClientInfo({variant:'mobile', showState:false, hideTobacco:true})}
 
-                  <div style={{fontSize:10,fontWeight:700,letterSpacing:1.8,color:'#C5A059',textTransform:'uppercase',marginTop:4}}>Existing Policy</div>
+                  <div style={{fontSize:10,fontWeight:700,letterSpacing:1.8,color:C.t4,textTransform:'uppercase',marginTop:4}}>Existing Policy</div>
                   <div style={{background:C.bg3,border:`1px solid ${C.bd}`,borderRadius:12,padding:14,display:'flex',flexDirection:'column',gap:14}}>
                     <div>
                       <div style={{fontSize:12,color:C.t3,marginBottom:6,fontWeight:600}}>Monthly Premium ($)</div>
@@ -4384,28 +4409,28 @@ export default function QuoteMark() {
             color:quoteMode==='fe'?(isDark?'#0B1120':'#FFFFFF'):C.t3,
             fontSize:12,fontWeight:700,cursor:'pointer',fontFamily:"'DM Sans','Helvetica Neue',Arial,sans-serif",
             transition:'all 0.18s',letterSpacing:0.3,whiteSpace:'nowrap'
-          }}>🏛️ FEX / WL</button>
+          }}><TabIcon name="fex"/>FEX / WL</button>
           <button onClick={()=>{track('Tab Switch',{to:'term'});setQuoteMode('term');}} style={{
             padding:'7px 20px',borderRadius:20,border:'none',
             background:quoteMode==='term'?'#C5A059':'transparent',
             color:quoteMode==='term'?'#0A192F':C.t3,
             fontSize:12,fontWeight:700,cursor:'pointer',fontFamily:"'DM Sans','Helvetica Neue',Arial,sans-serif",
             transition:'all 0.18s',letterSpacing:0.3,whiteSpace:'nowrap'
-          }}>⏱️ Term Life</button>
+          }}><TabIcon name="term"/>Term Life</button>
           <button onClick={()=>{track('Tab Switch',{to:'iul'});setQuoteMode('iul');}} style={{
             padding:'7px 20px',borderRadius:20,border:'none',
             background:quoteMode==='iul'?'#C5A059':'transparent',
             color:quoteMode==='iul'?'#0A192F':C.t3,
             fontSize:12,fontWeight:700,cursor:'pointer',fontFamily:"'DM Sans','Helvetica Neue',Arial,sans-serif",
             transition:'all 0.18s',letterSpacing:0.3,whiteSpace:'nowrap'
-          }}>📈 IUL</button>
+          }}><TabIcon name="iul"/>IUL</button>
           <button onClick={()=>{track('Tab Switch',{to:'cv'});setQuoteMode('cv');}} style={{
             padding:'7px 20px',borderRadius:20,border:'none',
             background:quoteMode==='cv'?'#C5A059':'transparent',
             color:quoteMode==='cv'?'#0B1120':C.t3,
             fontSize:12,fontWeight:700,cursor:'pointer',fontFamily:"'DM Sans','Helvetica Neue',Arial,sans-serif",
             transition:'all 0.18s',letterSpacing:0.3,whiteSpace:'nowrap'
-          }}>💰 CV / Coverage</button>
+          }}><TabIcon name="cv"/>CV / Coverage</button>
         </div>
         <div style={{display:'flex',alignItems:'center',gap:10}}>
 
@@ -4485,13 +4510,13 @@ export default function QuoteMark() {
             {!gsbOn?(
               <>
                 <div style={{display:'flex',gap:6,marginBottom:14}}>
-                  <button className='qm-btn' style={{...togBtn(mode==='face'),border:`2px solid ${mode==='face'?C.gold:isDark?'#374151':'#D0CDBE'}`,background:mode==='face'?C.goldBg:C.bg2,color:mode==='face'?C.gold:C.t3}} onClick={()=>{setMode('face');}}>Face amount</button>
-                  <button className='qm-btn' style={{...togBtn(mode==='budget'),border:`2px solid ${mode==='budget'?C.gold:isDark?'#374151':'#D0CDBE'}`,background:mode==='budget'?C.goldBg:C.bg2,color:mode==='budget'?C.gold:C.t3}} onClick={()=>{setMode('budget');}}>Premium amount</button>
+                  <button className='qm-btn' style={{...togBtn(mode==='face')}} onClick={()=>{setMode('face');}}>Face amount</button>
+                  <button className='qm-btn' style={{...togBtn(mode==='budget')}} onClick={()=>{setMode('budget');}}>Premium amount</button>
                 </div>
                 {mode==='face'?(
                   <>
                     <div style={{fontSize:11,color:C.t3,marginBottom:6,display:'flex',justifyContent:'space-between'}}><span>Coverage amount</span><span style={{color:C.t2,fontWeight:500,fontFamily:"'DM Mono',ui-monospace,'SF Mono',Menlo,monospace"}}>{fmtF(faceAmt)}</span></div>
-                    <input type="range" min="1000" max="100000" step="1000" value={faceAmt}
+                    <input type="range" min="2000" max="100000" step="1000" value={faceAmt}
                       onChange={e=>setFaceAmt(+e.target.value)}
                       style={{width:'100%',accentColor:C.gold,marginBottom:4}}/>
                     <div style={{display:'flex',justifyContent:'space-between',fontSize:10,color:C.t4}}>
@@ -4670,6 +4695,7 @@ export default function QuoteMark() {
           }}>
             ⚡ Get Quotes
           </button>
+          {!ageOK && <div style={{fontSize:11,color:C.t4,textAlign:'center',marginTop:8}}>Enter client age above to quote</div>}
           </>
           ) : quoteMode==='term' ? (
           <>
@@ -4685,8 +4711,8 @@ export default function QuoteMark() {
                 <div style={{display:'grid',gridTemplateColumns:'repeat(7,1fr)',gap:4}}>
                   {['10','15','20','25','30','35','40'].map(t=>(
                     <button key={t} onClick={()=>setTermLength(t)} style={{
-                      padding:'9px 0',borderRadius:7,border:`2px solid ${termLength===t?'#C5A059':isDark?'#374151':'#D0CDBE'}`,
-                      background:termLength===t?'#C5A059':C.bg2,color:termLength===t?'#0A192F':C.t3,
+                      padding:'9px 0',borderRadius:7,border:`2px solid ${termLength===t?C.gold:isDark?'#374151':'#D0CDBE'}`,
+                      background:termLength===t?C.goldBg:C.bg2,color:termLength===t?C.goldText:C.t3,
                       fontSize:12,fontWeight:700,cursor:'pointer',fontFamily:"'DM Sans','Helvetica Neue',Arial,sans-serif"
                     }}>{t}</button>
                   ))}
@@ -4725,8 +4751,8 @@ export default function QuoteMark() {
               <div style={{display:'grid',gridTemplateColumns:'repeat(4,1fr)',gap:4,marginBottom:10}}>
                 {[{k:'pp',label:'Pref+'},{k:'p',label:'Pref'},{k:'sp',label:'Std+'},{k:'s',label:'Std'}].map(({k,label})=>(
                   <button key={k} onClick={()=>{setTermHealth(k);setTermHealthManual(true);}} style={{
-                    padding:'9px 0',borderRadius:7,border:`2px solid ${termHealth===k?'#C5A059':isDark?'#374151':'#D0CDBE'}`,
-                    background:termHealth===k?'#C5A059':C.bg2,color:termHealth===k?'#0A192F':C.t3,
+                    padding:'9px 0',borderRadius:7,border:`2px solid ${termHealth===k?C.gold:isDark?'#374151':'#D0CDBE'}`,
+                    background:termHealth===k?C.goldBg:C.bg2,color:termHealth===k?C.goldText:C.t3,
                     fontSize:12,fontWeight:700,cursor:'pointer',fontFamily:"'DM Sans','Helvetica Neue',Arial,sans-serif"
                   }}>{label}</button>
                 ))}
@@ -4816,6 +4842,7 @@ export default function QuoteMark() {
               style={{width:'100%',padding:'14px 0',borderRadius:10,border:'none',cursor:ageOK?'pointer':'not-allowed',background:ageOK?C.gold:'#2A3547',color:ageOK?C.bg0:C.t4,fontSize:14,fontWeight:700,letterSpacing:0.5,opacity:ageOK?1:0.4,fontFamily:"'DM Sans','Helvetica Neue',Arial,sans-serif"}}>
               ⚡ Get Term Quotes
             </button>
+            {!ageOK && <div style={{fontSize:11,color:C.t4,textAlign:'center',marginTop:8}}>Enter client age above to quote</div>}
           </>
           ) : null}
 
@@ -4829,16 +4856,8 @@ export default function QuoteMark() {
                 <div style={lbl}>Quote Target</div>
                 <div style={{marginBottom:12}}>
                   <div style={{display:'grid',gridTemplateColumns:'1fr 1fr',gap:6}}>
-                    <button onClick={()=>setIulMode('premium')} title="Input target face amount, see required premium per carrier" style={{
-                      padding:'9px 0',borderRadius:7,border:`2px solid ${iulMode==='premium'?'#C5A059':isDark?'#374151':'#D0CDBE'}`,
-                      background:iulMode==='premium'?'#C5A059':C.bg2,color:iulMode==='premium'?'#0A192F':C.t3,
-                      fontSize:13,fontWeight:700,cursor:'pointer',fontFamily:"'DM Sans','Helvetica Neue',Arial,sans-serif"
-                    }}>Face amount</button>
-                    <button onClick={()=>setIulMode('face')} title="Input monthly premium, see face amount each carrier will issue" style={{
-                      padding:'9px 0',borderRadius:7,border:`2px solid ${iulMode==='face'?'#C5A059':isDark?'#374151':'#D0CDBE'}`,
-                      background:iulMode==='face'?'#C5A059':C.bg2,color:iulMode==='face'?'#0A192F':C.t3,
-                      fontSize:13,fontWeight:700,cursor:'pointer',fontFamily:"'DM Sans','Helvetica Neue',Arial,sans-serif"
-                    }}>Premium amount</button>
+                    <button onClick={()=>setIulMode('premium')} title="Input target face amount, see required premium per carrier" style={togBtn(iulMode==='premium')}>Face amount</button>
+                    <button onClick={()=>setIulMode('face')} title="Input monthly premium, see face amount each carrier will issue" style={togBtn(iulMode==='face')}>Premium amount</button>
                   </div>
                 </div>
                 {iulMode === 'face' ? (
@@ -4886,6 +4905,7 @@ export default function QuoteMark() {
                 style={{width:'100%',padding:'13px 0',borderRadius:10,border:'none',cursor:ageOK?'pointer':'not-allowed',background:ageOK?C.gold:'#2A3547',color:ageOK?C.bg0:C.t4,fontSize:14,fontWeight:700,letterSpacing:0.5,opacity:ageOK?1:0.4,fontFamily:"'DM Sans','Helvetica Neue',Arial,sans-serif"}}>
                 ⚡ Get IUL Quotes
               </button>
+              {!ageOK && <div style={{fontSize:11,color:C.t4,textAlign:'center',marginTop:8}}>Enter client age above to quote</div>}
             </>
           )}
 

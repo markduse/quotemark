@@ -110,7 +110,7 @@ export default function AuthScreen() {
             Quote<span style={{ color: C.gold }}>Mark</span>
           </div>
           <div style={{ fontSize: 12, color: C.t4, marginTop: 4, letterSpacing: 1, textTransform: 'uppercase' }}>
-            Final Expense Quoting Platform
+            Life Insurance Quoting Platform
           </div>
         </div>
 
