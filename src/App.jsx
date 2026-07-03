@@ -581,11 +581,14 @@ const CONDITIONS = [
   {id:'terminal',      label:'Terminal illness - life expectancy under 2 years',       tier:'E', cat:'Knockout',         meds:'terminal illness prognosis palliative hospice'},
   {id:'felony',        label:'Felony - currently incarcerated, on probation/parole, or awaiting trial', tier:'E', cat:'Knockout', meds:'felony probation parole incarceration jail prison awaiting trial conviction outstanding fines restitution'},
 ]
+// `dot` stays a hex literal (it feeds string-concat alpha suffixes like dot+'CC'
+// and non-text dot backgrounds); `txt` is the theme-aware CSS var for TEXT so
+// tier-colored labels stay ≥4.5:1 in light mode too.
 const TIER_INFO = {
-  B:{label:'Level — Preferred',  short:'Preferred',    dot:'#A78BFA', pill:'rgba(167,139,250,0.12)', bd:'rgba(167,139,250,0.3)'},
-  C:{label:'Level — Standard',   short:'Standard',     dot:'#22C55E', pill:'rgba(34,197,94,0.12)',  bd:'rgba(34,197,94,0.3)'},
-  D:{label:'Modified Benefit',   short:'Modified',     dot:'#EAB308', pill:'rgba(234,179,8,0.12)',  bd:'rgba(234,179,8,0.3)'},
-  E:{label:'Guaranteed Issue',   short:'GI Only',      dot:'#EF4444', pill:'rgba(239,68,68,0.12)',  bd:'rgba(239,68,68,0.3)'},
+  B:{label:'Level — Preferred',  short:'Preferred',    dot:'#A78BFA', txt:'var(--qm-tier-purple)', pill:'rgba(167,139,250,0.12)', bd:'rgba(167,139,250,0.3)'},
+  C:{label:'Level — Standard',   short:'Standard',     dot:'#22C55E', txt:'var(--qm-tier-green)',  pill:'rgba(34,197,94,0.12)',  bd:'rgba(34,197,94,0.3)'},
+  D:{label:'Modified Benefit',   short:'Modified',     dot:'#EAB308', txt:'var(--qm-tier-amber)',  pill:'rgba(234,179,8,0.12)',  bd:'rgba(234,179,8,0.3)'},
+  E:{label:'Guaranteed Issue',   short:'GI Only',      dot:'#EF4444', txt:'var(--qm-tier-red)',    pill:'rgba(239,68,68,0.12)',  bd:'rgba(239,68,68,0.3)'},
 };
 
 const GSB = [
@@ -2103,7 +2106,7 @@ const fmtF = n => (n!=null&&typeof n==='number') ? `$${n.toLocaleString()}` : '�
 const C_DARK = {
   bg0:'#020617', bg1:'#0B1120', bg2:'#0F172A', bg3:'#1E293B', bg4:'#263347',
   bd:'#1E293B', bd2:'#334155',
-  t0:'#FAF9F6', t1:'#E2E8F0', t2:'#CBD5E1', t3:'#94A3B8', t4:'#74819A',
+  t0:'#FAF9F6', t1:'#E2E8F0', t2:'#CBD5E1', t3:'#94A3B8', t4:'#8A96AB',
   blue:'#38BDF8', blueBg:'rgba(56,189,248,0.1)', blueBd:'rgba(56,189,248,0.25)',
   gold:'#C5A059', goldBg:'rgba(197,160,89,0.12)', goldBd:'rgba(197,160,89,0.3)', goldText:'#C5A059',
   green:'#22C55E',
@@ -2117,7 +2120,7 @@ const C_LIGHT = {
   // Executive warm palette — bone/cream backgrounds, deep navy text, champagne gold accents
   bg0:'#FAF9F6', bg1:'#FAF9F6', bg2:'#FFFFFF', bg3:'#F2F1EC', bg4:'#E8E6DF',
   bd:'#E5E3DB', bd2:'#D0CDBE',
-  t0:'#0A192F', t1:'#1A2B42', t2:'#3E4A59', t3:'#6B7280', t4:'#868D99',
+  t0:'#0A192F', t1:'#1A2B42', t2:'#3E4A59', t3:'#6B7280', t4:'#6E7583',
   blue:'#0A192F', blueBg:'rgba(10,25,47,0.06)', blueBd:'rgba(10,25,47,0.18)',
   gold:'#C5A059', goldBg:'rgba(197,160,89,0.1)', goldBd:'rgba(197,160,89,0.3)', goldText:'#9A7B38',
   green:'#16A34A',
@@ -2133,13 +2136,16 @@ const C_LIGHT = {
 // benefit, day-1 coverage) — carriers just name it differently. They share
 // identical green styling so the list reads as one tier; the badge word
 // follows the carrier's own product naming so it matches the plan line.
-const LEVEL_TIER = { bg:'rgba(34,197,94,0.12)', bd:'rgba(34,197,94,0.35)', color:'#4ADE80' };
+// Text colors come from the --qm-tier-* CSS vars (set in the theme effect) so
+// badges stay readable in BOTH themes — the raw 300-weight hexes measured
+// 1.7–2.5:1 on light-mode white cards.
+const LEVEL_TIER = { bg:'rgba(34,197,94,0.12)', bd:'rgba(34,197,94,0.35)', color:'var(--qm-tier-green)' };
 const BADGE_STYLES = {
-  preferred: { bg:'rgba(139,92,246,0.15)', bd:'rgba(139,92,246,0.4)', color:'#A78BFA', label:'Preferred', tip:'Full immediate benefit from day 1. Client passed simplified underwriting — best available rate class.' },
+  preferred: { bg:'rgba(139,92,246,0.15)', bd:'rgba(139,92,246,0.4)', color:'var(--qm-tier-purple)', label:'Preferred', tip:'Full immediate benefit from day 1. Client passed simplified underwriting — best available rate class.' },
   level:     { ...LEVEL_TIER, label:'Level',    tip:'Full immediate benefit from day 1. Same tier as "Standard" — this carrier calls it Level.' },
   standard:  { ...LEVEL_TIER, label:'Standard', tip:'Full immediate benefit from day 1. Same tier as "Level" — this carrier calls it Standard.' },
-  modified:  { bg:'rgba(245,158,11,0.13)', bd:'rgba(245,158,11,0.35)', color:'#FBBF24', label:'Modified',  tip:'Graded death benefit — 2 to 3 year waiting period before full coverage applies.' },
-  gi:        { bg:'rgba(239,68,68,0.12)',  bd:'rgba(239,68,68,0.35)',  color:'#F87171', label:'GI',        tip:'Guaranteed Issue — no health questions. Graded benefit period applies. Approved regardless of health.' },
+  modified:  { bg:'rgba(245,158,11,0.13)', bd:'rgba(245,158,11,0.35)', color:'var(--qm-tier-amber)', label:'Modified',  tip:'Graded death benefit — 2 to 3 year waiting period before full coverage applies.' },
+  gi:        { bg:'rgba(239,68,68,0.12)',  bd:'rgba(239,68,68,0.35)',  color:'var(--qm-tier-red)',   label:'GI',        tip:'Guaranteed Issue — no health questions. Graded benefit period applies. Approved regardless of health.' },
 };
 function badgeType(tier, productName) {
   if(tier==='E') return 'gi';
@@ -2342,7 +2348,7 @@ const EAppBtn = ({carrierId, compact=false, lightMode=false}) => {
         onMouseEnter={()=>setHov(true)} onMouseLeave={()=>setHov(false)}
         style={{
           display:'inline-flex',alignItems:'center',gap:6,
-          padding:'7px 16px',borderRadius:8,
+          padding:'7px 16px',minHeight:40,boxSizing:'border-box',borderRadius:8,
           border:`1.5px solid ${hov?brand:(lightMode?'#CBD5E1':'#3B4B66')}`,
           background: hov
             ? brand
@@ -2369,7 +2375,7 @@ const EAppBtn = ({carrierId, compact=false, lightMode=false}) => {
         onMouseEnter={()=>setHov(true)} onMouseLeave={()=>setHov(false)}
         style={{
           display:'flex',alignItems:'center',justifyContent:'center',gap:7,
-          width:'100%',padding:'9px 0',
+          width:'100%',padding:'9px 0',minHeight:40,boxSizing:'border-box',
           borderRadius:8,
           border:`1.5px solid ${hov?brand:(lightMode?'#D0CDBE':'#374151')}`,
           background:hov?(lightMode?'rgba(197,160,89,0.06)':'rgba(255,255,255,0.04)'):'transparent',
@@ -2389,7 +2395,7 @@ const EAppBtn = ({carrierId, compact=false, lightMode=false}) => {
 const TierPill = ({tier}) => {
   const t = TIER_INFO[tier];
   return (
-    <span style={{display:'inline-flex',alignItems:'center',gap:5,background:t.pill,border:`1px solid ${t.bd}`,color:t.dot,borderRadius:20,padding:'3px 10px',fontSize:11,fontWeight:600,letterSpacing:0.3,whiteSpace:'nowrap'}}>
+    <span style={{display:'inline-flex',alignItems:'center',gap:5,background:t.pill,border:`1px solid ${t.bd}`,color:t.txt,borderRadius:20,padding:'3px 10px',fontSize:11,fontWeight:600,letterSpacing:0.3,whiteSpace:'nowrap'}}>
       <span style={{width:6,height:6,borderRadius:'50%',background:t.dot,flexShrink:0}}/>
       {t.short}
     </span>
@@ -2551,9 +2557,17 @@ export default function QuoteMark() {
   const [isDark, setIsDark] = useState(true);
   const C = isDark ? C_DARK : C_LIGHT;
   // Page background follows the active theme (was a hardcoded #05101E seam on overscroll).
+  // Also flips the tier text-color CSS vars: the 300-weight hues (#4ADE80 etc.)
+  // read at 8:1 on dark cards but ~1.7:1 on white — light mode needs the
+  // 700-weight equivalents to clear WCAG 4.5:1 at badge sizes.
   useEffect(()=>{
     document.documentElement.style.background = C.pageBg;
     document.body.style.background = C.pageBg;
+    const rs = document.documentElement.style;
+    rs.setProperty('--qm-tier-purple', isDark ? '#A78BFA' : '#6D28D9');
+    rs.setProperty('--qm-tier-green',  isDark ? '#4ADE80' : '#15803D');
+    rs.setProperty('--qm-tier-amber',  isDark ? '#FBBF24' : '#B45309');
+    rs.setProperty('--qm-tier-red',    isDark ? '#F87171' : '#B91C1C');
   },[isDark]);
 
   // ── CONTACT MODAL STATE ──
@@ -2977,7 +2991,8 @@ export default function QuoteMark() {
   const sec = {background:C.bg3,border:`1px solid ${C.bd}`,borderRadius:12,padding:16};
   const lbl = {fontSize:10,fontWeight:700,letterSpacing:1.8,color:C.t4,textTransform:'uppercase',marginBottom:10};
   // Mobile-tier styles (also used by ClientInfoBlock in desktop calls when sized for variant)
-  const mInp = {background:C.bg2,border:`1px solid ${C.bd}`,color:C.t1,borderRadius:10,padding:'12px 14px',fontSize:15,width:'100%',boxSizing:'border-box',outline:'none',fontFamily:"'DM Sans','Helvetica Neue',Arial,sans-serif",WebkitAppearance:'none'};
+  // fontSize 16 minimum — below 16px iOS Safari auto-zooms on input focus (zoom is enabled now)
+  const mInp = {background:C.bg2,border:`1px solid ${C.bd}`,color:C.t1,borderRadius:10,padding:'12px 14px',fontSize:16,width:'100%',boxSizing:'border-box',outline:'none',fontFamily:"'DM Sans','Helvetica Neue',Arial,sans-serif",WebkitAppearance:'none'};
   const mTogBtn = (active,color) => isDark ? {flex:1,padding:'14px 0',minHeight:48,borderRadius:10,border:`2px solid ${active?'#C5A059':'#374151'}`,cursor:'pointer',fontSize:14,fontWeight:600,background:active?'#C5A059':'#0F172A',color:active?'#0A192F':'#94A3B8',fontFamily:"'DM Sans','Helvetica Neue',Arial,sans-serif"} : {flex:1,padding:'14px 0',minHeight:48,borderRadius:10,border:`2px solid ${active?'#0A192F':'#D0CDBE'}`,cursor:'pointer',fontSize:14,fontWeight:600,background:active?'#0A192F':'#F2F1EC',color:active?'#FFFFFF':'#6B7280',fontFamily:"'DM Sans','Helvetica Neue',Arial,sans-serif"};
 
   // ── DOB → age auto-sync (when all 3 fields valid, compute age and set it) ──
@@ -3119,7 +3134,7 @@ export default function QuoteMark() {
             <span style={{color:isDark?'#E2E8F0':'#0A192F',fontFamily:"'Barlow Condensed','Arial Narrow',sans-serif"}}>Quote</span><span style={{color:'#C5A059',fontFamily:"'Barlow Condensed','Arial Narrow',sans-serif"}}>Mark</span>
           </div>
           <div style={{display:'flex',alignItems:'center',gap:6}}>
-            <button onClick={toggleDarkMode} title={isDark?'Switch to Light Mode':'Switch to Dark Mode'} style={{padding:'8px 10px',borderRadius:8,border:`1px solid ${C.bd2}`,background:C.bg3,color:C.t2,fontSize:16,cursor:'pointer',lineHeight:1,display:'flex',alignItems:'center'}}>
+            <button onClick={toggleDarkMode} title={isDark?'Switch to Light Mode':'Switch to Dark Mode'} aria-label={isDark?'Switch to light mode':'Switch to dark mode'} style={{padding:'8px 10px',borderRadius:8,border:`1px solid ${C.bd2}`,background:C.bg3,color:C.t2,fontSize:16,cursor:'pointer',lineHeight:1,display:'flex',alignItems:'center'}}>
               {isDark?'☀️':'🌙'}
             </button>
             <button onClick={()=>setShowContact(true)} style={{padding:'8px 11px',borderRadius:8,border:`1px solid ${C.bd2}`,background:C.bg3,color:C.t2,fontSize:12,fontWeight:500,cursor:'pointer',fontFamily:"'DM Sans','Helvetica Neue',Arial,sans-serif",display:'flex',alignItems:'center',gap:5}}>
@@ -3360,7 +3375,7 @@ export default function QuoteMark() {
                           padding:'10px 4px',borderRadius:9,
                           border:`1px solid ${active?ti.bd:C.bd}`,
                           background:isOvr?ti.pill:'transparent',
-                          color:active?ti.dot:C.t4,
+                          color:active?ti.txt:C.t4,
                           cursor:'pointer',textAlign:'center',
                           display:'flex',flexDirection:'column',alignItems:'center',gap:4,
                           fontFamily:"'DM Sans','Helvetica Neue',Arial,sans-serif",
@@ -3368,7 +3383,7 @@ export default function QuoteMark() {
                         }}>
                           <span style={{width:7,height:7,borderRadius:'50%',background:active?ti.dot:'#334155'}}/>
                           <span style={{fontSize:11,fontWeight:700,color:'inherit'}}>{ti.short.split(' ')[0]}</span>
-                          {isAuto&&!tierOvr&&<span style={{fontSize:8,color:ti.dot+'88',fontWeight:500}}>auto</span>}
+                          {isAuto&&!tierOvr&&<span style={{fontSize:8,color:ti.txt,opacity:0.65,fontWeight:500}}>auto</span>}
                           {isOvr&&<span style={{fontSize:9}}>✓</span>}
                         </button>
                       );
@@ -3988,9 +4003,9 @@ export default function QuoteMark() {
                             </div>
                             {r.anyPrem && CARRIER_META[r.id]?.eapp && (
                               <a href={CARRIER_META[r.id].eapp} target="_blank" rel="noopener noreferrer" style={{
-                                display:'block',marginTop:10,padding:'9px 0',borderRadius:8,textAlign:'center',
+                                display:'block',marginTop:10,padding:'14px 0',borderRadius:8,textAlign:'center',
                                 background:'transparent',border:`1.5px solid ${isDark?'#374151':'#D0CDBE'}`,
-                                color:isDark?'#94A3B8':'#3E4A59',fontSize:12,fontWeight:600,textDecoration:'none',
+                                color:isDark?'#94A3B8':'#3E4A59',fontSize:13,lineHeight:'20px',fontWeight:600,textDecoration:'none',
                                 boxShadow:'none'
                               }}>e-App →</a>
                             )}
@@ -4050,9 +4065,9 @@ export default function QuoteMark() {
                               </div>
                               {CARRIER_META[r.id]?.eapp && (
                                 <a href={CARRIER_META[r.id].eapp} target="_blank" rel="noopener noreferrer" style={{
-                                  display:'block',padding:'9px 0',borderRadius:8,textAlign:'center',
+                                  display:'block',padding:'14px 0',borderRadius:8,textAlign:'center',
                                   background:'transparent',border:`1.5px solid ${isDark?'#374151':'#D0CDBE'}`,
-                                  color:isDark?'#94A3B8':'#3E4A59',fontSize:12,fontWeight:600,textDecoration:'none',
+                                  color:isDark?'#94A3B8':'#3E4A59',fontSize:13,lineHeight:'20px',fontWeight:600,textDecoration:'none',
                                   boxShadow:'none'
                                 }}>e-App →</a>
                               )}
@@ -4397,7 +4412,7 @@ export default function QuoteMark() {
 
           {/* Account menu */}
           <div style={{display:'flex',alignItems:'center',gap:8,paddingLeft:10,borderLeft:`1px solid ${C.bd}`}}>
-            <button onClick={toggleDarkMode} title={isDark?'Switch to Light Mode':'Switch to Dark Mode'} style={{padding:'5px 9px',borderRadius:7,border:`1px solid ${C.bd2}`,background:C.bg3,color:C.t2,fontSize:14,cursor:'pointer',lineHeight:1,display:'flex',alignItems:'center'}}>
+            <button onClick={toggleDarkMode} title={isDark?'Switch to Light Mode':'Switch to Dark Mode'} aria-label={isDark?'Switch to light mode':'Switch to dark mode'} style={{padding:'5px 9px',borderRadius:7,border:`1px solid ${C.bd2}`,background:C.bg3,color:C.t2,fontSize:14,cursor:'pointer',lineHeight:1,display:'flex',alignItems:'center'}}>
               {isDark?'☀️':'🌙'}
             </button>
             <button onClick={()=>setShowContact(true)} style={{padding:'6px 12px',borderRadius:7,border:`1px solid ${C.bd2}`,background:C.bg3,color:C.t2,fontSize:11,fontWeight:500,cursor:'pointer',fontFamily:"'DM Sans','Helvetica Neue',Arial,sans-serif",display:'flex',alignItems:'center',gap:5}}>
@@ -4542,13 +4557,13 @@ export default function QuoteMark() {
                       <button key={t} onClick={()=>toggleOvr(t)} style={{
                         padding:'8px 10px',borderRadius:8,border:`1px solid ${isOvr||isAuto?ti.bd:C.bd}`,
                         background:isOvr?ti.pill:'transparent',
-                        color:isOvr?ti.dot:isAuto?ti.dot+'CC':C.t3,
+                        color:isOvr||isAuto?ti.txt:C.t3,
                         cursor:'pointer',fontSize:12,fontWeight:600,textAlign:'left',
                         display:'flex',alignItems:'center',gap:7,fontFamily:"'DM Sans','Helvetica Neue',Arial,sans-serif"
                       }}>
                         <span style={{width:6,height:6,borderRadius:'50%',background:isOvr||isAuto?ti.dot:'#334155',flexShrink:0}}/>
                         <span style={{flex:1}}>{ti.short}</span>
-                        {isAuto&&!tierOvr&&<span style={{fontSize:9,color:ti.dot+'99'}}>auto</span>}
+                        {isAuto&&!tierOvr&&<span style={{fontSize:9,color:ti.txt,opacity:0.7}}>auto</span>}
                         {isOvr&&<span style={{fontSize:10}}>✓</span>}
                       </button>
                     );
