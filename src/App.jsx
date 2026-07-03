@@ -2158,8 +2158,9 @@ function badgeType(tier, productName) {
 // ═══ CLIENT SHEET ═══
 // Digital replacement for the loose paper sheet agents scribble on during a
 // call. Plain fields → Save → branded one-page PDF named
-// firstname_lastname_carrier_month_year_clientsheet.pdf (carrier = APPROVED
-// if filled, else In Underwriting, else "pending"). No encryption by design.
+// firstname_lastname_carrier_month_year_clientsheet.pdf (carrier = the
+// Carrier field, else APPROVED, else In Underwriting, else "pending").
+// No encryption by design.
 const SHEET_FIELDS = [
   {k:'fullName',       label:'Full Name',           sec:'Client'},
   {k:'address',        label:'Address'},
@@ -2176,7 +2177,9 @@ const SHEET_FIELDS = [
   {k:'bankName',       label:'Bank Name',           sec:'Banking'},
   {k:'routing',        label:'Routing Number',      im:'numeric'},
   {k:'account',        label:'Account Number',      im:'numeric'},
-  {k:'effectiveDate',  label:'Effective Date',      sec:'Policy Status', ph:'mm/dd/yyyy'},
+  {k:'carrier',        label:'Carrier',             sec:'Policy Status'},
+  {k:'ap',             label:'AP',                  im:'decimal', ph:'annual premium'},
+  {k:'effectiveDate',  label:'Effective Date',      ph:'mm/dd/yyyy'},
   {k:'declinedThrough',label:'Declined Through'},
   {k:'inUnderwriting', label:'In Underwriting'},
   {k:'approved',       label:'APPROVED 🙂'},
@@ -2188,7 +2191,7 @@ function sheetFileName(sheet){
   const parts = (sheet.fullName||'').trim().split(/\s+/);
   const first = slug(parts[0]) || 'client';
   const last  = parts.length>1 ? slug(parts[parts.length-1]) : '';
-  const carrier = slug(sheet.approved || sheet.inUnderwriting || '') || 'pending';
+  const carrier = slug(sheet.carrier || sheet.approved || sheet.inUnderwriting || '') || 'pending';
   const d = new Date();
   const mm = String(d.getMonth()+1).padStart(2,'0');
   return [first,last,carrier,mm,d.getFullYear(),'clientsheet'].filter(Boolean).join('_')+'.pdf';
@@ -2217,7 +2220,7 @@ async function buildClientSheetPdf(sheet, agentEmail){
     doc.text(String(value||'').slice(0,90) || ' ', M+150, y);
     doc.setDrawColor(...LINE); doc.setLineWidth(0.6);
     doc.line(M+145, y+4, W-M, y+4);
-    y += 24;
+    y += 23;
   };
   const section = (name) => {
     y += 8;
@@ -3189,7 +3192,7 @@ export default function QuoteMark() {
         )}
         <div style={{fontSize:10,color:C.t4,textAlign:'center',lineHeight:1.6}}>
           Saves as <span style={{fontFamily:"'DM Mono',ui-monospace,'SF Mono',Menlo,monospace"}}>{sheetFileName(sheet)}</span><br/>
-          Carrier in the filename comes from APPROVED, or In Underwriting if not approved yet.
+          Carrier in the filename comes from the Carrier field (or APPROVED / In Underwriting if it's empty).
         </div>
       </div>
     );
@@ -5178,7 +5181,7 @@ export default function QuoteMark() {
               <div style={sec}>
                 <div style={lbl}>File name</div>
                 <div style={{fontSize:11,color:C.t3,lineHeight:1.7,fontFamily:"'DM Mono',ui-monospace,'SF Mono',Menlo,monospace",wordBreak:'break-all'}}>{sheetFileName(sheet)}</div>
-                <div style={{fontSize:10,color:C.t4,marginTop:8,lineHeight:1.6}}>first_last_carrier_month_year — carrier pulls from APPROVED, or In Underwriting if not approved yet.</div>
+                <div style={{fontSize:10,color:C.t4,marginTop:8,lineHeight:1.6}}>first_last_carrier_month_year — carrier pulls from the Carrier field (falls back to APPROVED / In Underwriting).</div>
               </div>
               <div style={{padding:'10px 11px',background:C.bg2,border:`1px solid ${C.bd}`,borderRadius:8,fontSize:11,color:C.t3,lineHeight:1.6}}>
                 <div style={{fontWeight:700,color:C.t2,marginBottom:4}}>💡 Tip</div>
