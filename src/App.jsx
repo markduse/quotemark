@@ -1343,18 +1343,20 @@ function factorCalc(carrier, tier, age, male, smoker, face) {
   const combo = male ? (smoker ? 'MS' : 'MNS') : (smoker ? 'FS' : 'FNS');
   const rate = cfg.tiers?.[tier]?.[combo]?.[String(age)];
   if (rate == null) return null;
-  // Carriers using factor formulas (Accendo, AHL, Trans Imm, Aetna, Royal
-  // Neighbors, Fidelity, Lifeshield, Foresters, Liberty Bankers, AmAm Senior
-  // Choice/Golden, Baltimore, Senior Life, Trans Exp) sell in fixed-size
-  // chunks: $1k for most, $500 for AHL. Round face DOWN to the nearest unit
-  // so we display what the carrier will actually issue, not the math-only
-  // figure. Matches what ITK does (with their "rounded to $X" warning).
-  const units = Math.floor(face / cfg.unitSize);
-  if (units < 1) return null;
-  const effFace = units * cfg.unitSize;
+  // Face rounding per carrier, validated against LIVE ITK (July 8, 2026):
+  //  - continuous: LB, Foresters, Trans Imm/Exp issue EXACT faces (ITK quotes
+  //    $8,300 as $8,300) — units may be fractional.
+  //  - nearest: AHL rounds to the NEAREST $500 (ITK: 8,300 → 8,500).
+  //  - floor (default): Accendo etc. round DOWN to the unit (ITK: 8,300 → 8,000).
+  const mode = cfg.faceRounding || 'floor';
+  const effFace = mode === 'continuous' ? face
+                : mode === 'nearest'    ? Math.round(face / cfg.unitSize) * cfg.unitSize
+                :                         Math.floor(face / cfg.unitSize) * cfg.unitSize;
+  if (effFace < cfg.unitSize) return null;
+  const units = effFace / cfg.unitSize;
   const fee = (cfg.policyFeeThreshold && effFace < cfg.policyFeeThreshold) ? (cfg.policyFeeLow||cfg.policyFee) : cfg.policyFee;
   const monthly = Math.round((rate * units + fee) * cfg.modalFactor * 100) / 100;
-  return { prem: monthly, face: effFace, roundedTo: cfg.unitSize };
+  return { prem: monthly, face: effFace, roundedTo: mode === 'continuous' ? null : cfg.unitSize };
 }
 
 // State check: company-only restriction keys
@@ -1549,7 +1551,7 @@ const CARRIERS = [
      if(tier==='D') return blQuote(BL_GRD,age,male,smoker,Math.min(face,25000));
      return null;
    }},
-  {id:'elco', name:'Elco Mutual',          sub:'Silver Eagle', abbr:'EM', enabled:true,
+  {id:'elco', name:'Elco Mutual',          sub:'Silver Eagle', abbr:'EM', enabled:false, // no rate data — ITK returned no Elco rows in the carrier scrape; enable after a successful scrape
    product:{B:'Premier',C:'Standard',D:'Graded',E:'Guaranteed Issue'},
    stateCheck:(s)=>(fexStateOK('Elco (Silver Eagle)',s)),
    fn:(age,male,smoker,tier,face)=>{
@@ -3489,17 +3491,14 @@ export default function QuoteMark() {
                       <>
                         <div style={{display:'flex',justifyContent:'space-between',fontSize:12,color:C.t3,marginBottom:8}}>
                           <span>Coverage amount</span>
-                          <span style={{color:C.t0,fontWeight:700,fontSize:16,fontFamily:"'DM Mono',ui-monospace,'SF Mono',Menlo,monospace"}}>{fmtF(faceAmt)}</span>
+                          <span style={{fontSize:10,color:C.t4}}>$2,000 – $100,000</span>
                         </div>
-                        <input type="range" min="2000" max="100000" step="1000" value={faceAmt}
-                          onChange={e=>{
-                            setFaceAmt(+e.target.value);
-                            if(navigator.vibrate) navigator.vibrate(4);
-                          }}
-                          style={{width:'100%',accentColor:C.gold,height:42,cursor:'pointer',marginBottom:6}}/>
-                        <div style={{display:'flex',justifyContent:'space-between',fontSize:11,color:C.t4}}>
-                          <span>$2,000</span><span>$100,000</span>
-                        </div>
+                        <div style={{position:'relative'}}>
+                      <span style={{position:'absolute',left:14,top:'50%',transform:'translateY(-50%)',color:C.t3,fontSize:16,pointerEvents:'none'}}>$</span>
+                      <input type="text" inputMode="numeric" placeholder="10,000" value={faceAmt?faceAmt.toLocaleString():''}
+                        onChange={e=>{const n=Number(e.target.value.replace(/[^0-9]/g,''));setFaceAmt(isNaN(n)?0:n);}}
+                        style={{...mInp,paddingLeft:30,fontFamily:"'DM Mono',ui-monospace,'SF Mono',Menlo,monospace",fontSize:17}}/>
+                    </div>
                       </>
                     ) : (
                       <>
@@ -3687,13 +3686,13 @@ export default function QuoteMark() {
                   <div>
                     <div style={{fontSize:11,color:C.t3,marginBottom:6,display:'flex',justifyContent:'space-between'}}>
                       <span>Coverage amount</span>
-                      <span style={{color:C.t2,fontWeight:500,fontFamily:"'DM Mono',ui-monospace,'SF Mono',Menlo,monospace"}}>{fmtF(termFace)}</span>
+                      <span style={{fontSize:10,color:C.t4}}>$25,000 – $1,000,000</span>
                     </div>
-                    <input type="range" min="25000" max="1000000" step="5000" value={termFace}
-                      onChange={e=>setTermFace(+e.target.value)}
-                      style={{width:'100%',accentColor:C.gold}}/>
-                    <div style={{display:'flex',justifyContent:'space-between',fontSize:10,color:C.t4}}>
-                      <span>$25,000</span><span>$1,000,000</span>
+                    <div style={{position:'relative'}}>
+                      <span style={{position:'absolute',left:14,top:'50%',transform:'translateY(-50%)',color:C.t3,fontSize:16,pointerEvents:'none'}}>$</span>
+                      <input type="text" inputMode="numeric" placeholder="100,000" value={termFace?termFace.toLocaleString():''}
+                        onChange={e=>{const n=Number(e.target.value.replace(/[^0-9]/g,''));setTermFace(isNaN(n)?0:n);}}
+                        style={{...mInp,paddingLeft:30,fontFamily:"'DM Mono',ui-monospace,'SF Mono',Menlo,monospace",fontSize:17}}/>
                     </div>
                   </div>
                   {/* Height / Weight → BMI */}
@@ -3846,14 +3845,14 @@ export default function QuoteMark() {
                     <div>
                       <div style={{fontSize:11,color:C.t3,marginBottom:6,display:'flex',justifyContent:'space-between'}}>
                         <span>Target Face Amount</span>
-                        <span style={{color:'#C5A059',fontWeight:700,fontFamily:"'DM Mono',ui-monospace,'SF Mono',Menlo,monospace"}}>${(iulFace/1000).toFixed(0)}k</span>
+                        <span style={{fontSize:10,color:C.t4}}>$25k – $500k</span>
                       </div>
-                      <input type="range" min="25000" max="500000" step="5000" value={iulFace}
-                        onChange={e=>setIulFace(+e.target.value)}
-                        style={{width:'100%',accentColor:C.gold}}/>
-                      <div style={{display:'flex',justifyContent:'space-between',fontSize:10,color:C.t4}}>
-                        <span>$25k</span><span>$500k</span>
-                      </div>
+                      <div style={{position:'relative'}}>
+                      <span style={{position:'absolute',left:14,top:'50%',transform:'translateY(-50%)',color:C.t3,fontSize:16,pointerEvents:'none'}}>$</span>
+                      <input type="text" inputMode="numeric" placeholder="150,000" value={iulFace?iulFace.toLocaleString():''}
+                        onChange={e=>{const n=Number(e.target.value.replace(/[^0-9]/g,''));setIulFace(isNaN(n)?0:n);}}
+                        style={{...mInp,paddingLeft:30,fontFamily:"'DM Mono',ui-monospace,'SF Mono',Menlo,monospace",fontSize:17}}/>
+                    </div>
                     </div>
                   )}
 
@@ -4765,12 +4764,12 @@ export default function QuoteMark() {
                 </div>
                 {mode==='face'?(
                   <>
-                    <div style={{fontSize:11,color:C.t3,marginBottom:6,display:'flex',justifyContent:'space-between'}}><span>Coverage amount</span><span style={{color:C.t2,fontWeight:500,fontFamily:"'DM Mono',ui-monospace,'SF Mono',Menlo,monospace"}}>{fmtF(faceAmt)}</span></div>
-                    <input type="range" min="2000" max="100000" step="1000" value={faceAmt}
-                      onChange={e=>setFaceAmt(+e.target.value)}
-                      style={{width:'100%',accentColor:C.gold,marginBottom:4}}/>
-                    <div style={{display:'flex',justifyContent:'space-between',fontSize:10,color:C.t4}}>
-                      <span>$2,000</span><span>$100,000</span>
+                    <div style={{fontSize:11,color:C.t3,marginBottom:6,display:'flex',justifyContent:'space-between'}}><span>Coverage amount</span><span style={{fontSize:10,color:C.t4}}>$2,000 – $100,000</span></div>
+                    <div style={{position:'relative'}}>
+                      <span style={{position:'absolute',left:12,top:'50%',transform:'translateY(-50%)',color:C.t3,fontSize:14,pointerEvents:'none'}}>$</span>
+                      <input type="text" inputMode="numeric" placeholder="10,000" value={faceAmt?faceAmt.toLocaleString():''}
+                        onChange={e=>{const n=Number(e.target.value.replace(/[^0-9]/g,''));setFaceAmt(isNaN(n)?0:n);}}
+                        style={{...inp,paddingLeft:26,fontFamily:"'DM Mono',ui-monospace,'SF Mono',Menlo,monospace",fontSize:16}}/>
                     </div>
                   </>
                 ):(
@@ -4972,14 +4971,14 @@ export default function QuoteMark() {
               <div>
                 <div style={{fontSize:11,color:C.t3,marginBottom:6,display:'flex',justifyContent:'space-between'}}>
                   <span>Coverage amount</span>
-                  <span style={{color:C.t2,fontWeight:500,fontFamily:"'DM Mono',ui-monospace,'SF Mono',Menlo,monospace"}}>{fmtF(termFace)}</span>
+                  <span style={{fontSize:10,color:C.t4}}>$25,000 – $1,000,000</span>
                 </div>
-                <input type="range" min="25000" max="1000000" step="5000" value={termFace}
-                  onChange={e=>setTermFace(+e.target.value)}
-                  style={{width:'100%',accentColor:C.gold}}/>
-                <div style={{display:'flex',justifyContent:'space-between',fontSize:10,color:C.t4}}>
-                  <span>$25,000</span><span>$1,000,000</span>
-                </div>
+                <div style={{position:'relative'}}>
+                      <span style={{position:'absolute',left:12,top:'50%',transform:'translateY(-50%)',color:C.t3,fontSize:14,pointerEvents:'none'}}>$</span>
+                      <input type="text" inputMode="numeric" placeholder="100,000" value={termFace?termFace.toLocaleString():''}
+                        onChange={e=>{const n=Number(e.target.value.replace(/[^0-9]/g,''));setTermFace(isNaN(n)?0:n);}}
+                        style={{...inp,paddingLeft:26,fontFamily:"'DM Mono',ui-monospace,'SF Mono',Menlo,monospace",fontSize:16}}/>
+                    </div>
               </div>
             </div>
 
@@ -5125,13 +5124,13 @@ export default function QuoteMark() {
                   <div>
                     <div style={{fontSize:11,color:C.t3,marginBottom:6,display:'flex',justifyContent:'space-between'}}>
                       <span>Target Face Amount</span>
-                      <span style={{color:'#C5A059',fontWeight:700,fontFamily:"'DM Mono',ui-monospace,'SF Mono',Menlo,monospace"}}>${(iulFace/1000).toFixed(0)}k</span>
+                      <span style={{fontSize:10,color:C.t4}}>$25k – $500k</span>
                     </div>
-                    <input type="range" min="25000" max="500000" step="5000" value={iulFace}
-                      onChange={e=>setIulFace(+e.target.value)}
-                      style={{width:'100%',accentColor:C.gold}}/>
-                    <div style={{display:'flex',justifyContent:'space-between',fontSize:10,color:C.t4}}>
-                      <span>$25k</span><span>$500k</span>
+                    <div style={{position:'relative'}}>
+                      <span style={{position:'absolute',left:12,top:'50%',transform:'translateY(-50%)',color:C.t3,fontSize:14,pointerEvents:'none'}}>$</span>
+                      <input type="text" inputMode="numeric" placeholder="150,000" value={iulFace?iulFace.toLocaleString():''}
+                        onChange={e=>{const n=Number(e.target.value.replace(/[^0-9]/g,''));setIulFace(isNaN(n)?0:n);}}
+                        style={{...inp,paddingLeft:26,fontFamily:"'DM Mono',ui-monospace,'SF Mono',Menlo,monospace",fontSize:16}}/>
                     </div>
                   </div>
                 )}
