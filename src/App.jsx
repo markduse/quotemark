@@ -727,6 +727,38 @@ const IUL_MIN_FACE = {
   'American Amicable (Intelligent Choice IUL)': 25000,
 };
 
+// Carrier issue rules enforced by the QUOTE engine — independent of the sparse
+// scrape bounds. Without this the engine would quote whatever the scraped data
+// happens to reach: MOO data runs to $536k at 18 but MOO caps at $300k (and
+// bands DOWN with age), so the tool would over-promise coverage the carrier
+// won't issue. faceBands are checked low→high age; first band whose aMax ≥ age
+// wins. Sources: MOO Express Life Reference Guide; Americo Series 336 IUL guide;
+// AmAm Intelligent Choice quoter. Verify against current carrier guides.
+const IUL_LIMITS = {
+  'Mutual of Omaha (Indexed Universal Life Express)': {
+    minAge: 18, maxAge: 75, minFace: 25000,
+    faceBands: [{ aMax: 50, max: 300000 }, { aMax: 60, max: 250000 }, { aMax: 75, max: 150000 }],
+  },
+  'Americo (Instant Decision IUL)': {
+    minAge: 18, maxAge: 80, minFace: 50000,
+    faceBands: [{ aMax: 80, max: 450000 }],
+  },
+  'American Amicable (Intelligent Choice IUL)': {
+    // Min $25k confirmed via quoter ($20k rejected, $25k = $25.92/mo). Carrier
+    // actually issues to ~$450k+ (quoter: $450k @ age 45 = $376.70/mo), but our
+    // rate grid was scraped only to $250k, so we cap there — conservative (never
+    // over-promises). Re-scrape with a $400k anchor to unlock higher faces.
+    minAge: 18, maxAge: 75, minFace: 25000,
+    faceBands: [{ aMax: 75, max: 250000 }],
+  },
+};
+const iulAgeOK   = (product, age) => { const L = IUL_LIMITS[product]; return !L || (age >= L.minAge && age <= L.maxAge); };
+const iulMaxFace = (product, age) => {
+  const L = IUL_LIMITS[product]; if (!L) return Infinity;
+  for (const b of L.faceBands) if (age <= b.aMax) return b.max;
+  return L.faceBands[L.faceBands.length - 1].max;
+};
+
 // Per-product state availability for IUL carriers (from the carrier's own
 // quoter). Loaded from data so a re-scrape updates it without code edits. A
 // product with an entry shows ONLY in its listed states; no entry ⇒ everywhere.
@@ -3150,20 +3182,31 @@ export default function QuoteMark() {
       // sold in (e.g. AmAm Intelligent Choice IUL is not available in MI).
       // When no state is selected, show it (can't filter on unknown).
       if (c.availableStates && usState && !c.availableStates.has(usState)) return null;
+      // Issue-age gate: outside the carrier's real min/max age → not offered.
+      if (!iulAgeOK(c.product, a)) return null;
+      // Carrier's real max face for this age (age-banded), independent of data.
+      const bandMax = iulMaxFace(c.product, a);
       if (iulMode === 'face') {
-        const face = c.fn(a, male, smoker, dIulPremium);
+        let face = c.fn(a, male, smoker, dIulPremium);
         if (face == null) return null;
-        return { ...c, face, premium: dIulPremium };
+        // Clamp to what the carrier will actually issue at this age.
+        let capped = false;
+        if (bandMax !== Infinity && face > bandMax) { face = bandMax; capped = true; }
+        return { ...c, face, premium: dIulPremium, capped, maxFace: capped ? bandMax : undefined };
       } else {
-        const res = c.fnPremium(a, male, smoker, dIulFace);
+        // Don't solve above the carrier's band max — cap the target first.
+        const bandCapped = bandMax !== Infinity && dIulFace > bandMax;
+        const target = bandCapped ? bandMax : dIulFace;
+        const res = c.fnPremium(a, male, smoker, target);
         if (res == null) return null;
         // res is {premium, capped?, maxFace?, floored?, minFace?}:
-        //  - capped: requested face exceeds what the carrier writes at this
-        //    age; show the max face at their top premium tier.
-        //  - floored: requested face is below the carrier's minimum; show the
-        //    minimum face they'll actually issue at their lowest premium.
-        const effFace = res.capped ? res.maxFace : res.floored ? res.minFace : dIulFace;
-        return { ...c, face: effFace, premium: res.premium, capped: res.capped, floored: res.floored, targetFace: dIulFace };
+        //  - capped: requested face exceeds what the DATA reaches at this age.
+        //  - floored: requested face is below the carrier's minimum.
+        // bandCapped (carrier issue limit) takes precedence for the shown face.
+        const effCapped = bandCapped || res.capped;
+        const effMax    = bandCapped ? bandMax : res.maxFace;
+        const effFace   = bandCapped ? bandMax : res.capped ? res.maxFace : res.floored ? res.minFace : dIulFace;
+        return { ...c, face: effFace, premium: res.premium, capped: effCapped, floored: res.floored, maxFace: effMax, targetFace: dIulFace };
       }
     }).filter(r => r != null);
     // Solve-face: sort by face desc (most coverage first)
