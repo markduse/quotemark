@@ -7,6 +7,7 @@ import RATE_FACTORS from "./data/rate_factors.json";
 import RESTRICTIONS from "./data/restrictions.json";
 import TERM_RATES from "./data/term_rates.json";
 import IUL_RATES  from "./data/iul_rates.json";
+import IUL_STATE_AVAIL from "./data/iul_state_availability.json";
 
 // ── FONTS ──
 const FONT_LINK = "https://fonts.googleapis.com/css2?family=DM+Mono:wght@400;500&family=DM+Sans:wght@400;500;600;700&family=Barlow+Condensed:wght@700;800&display=swap";
@@ -723,6 +724,17 @@ function termPrem(product, termLen, age, classKey, face, tierOverride=null) {
 const IUL_MIN_FACE = {
   'Americo (Instant Decision IUL)': 50000,
   'Mutual of Omaha (Indexed Universal Life Express)': 25000,
+  'American Amicable (Intelligent Choice IUL)': 25000,
+};
+
+// Per-product state availability for IUL carriers (from the carrier's own
+// quoter). Loaded from data so a re-scrape updates it without code edits. A
+// product with an entry shows ONLY in its listed states; no entry ⇒ everywhere.
+// American-Amicable Intelligent Choice IUL is NOT sold in Michigan (confirmed
+// against the carrier quoter), so it's gated out when the agent picks MI.
+const iulStates = (product) => {
+  const list = IUL_STATE_AVAIL[product];
+  return Array.isArray(list) && list.length ? new Set(list) : null;
 };
 
 function iulFaceFor(product, classKey, age, premium) {
@@ -833,6 +845,7 @@ const IUL_QUOTE_CARRIERS = Object.keys(IUL_RATES).map(product => {
     id: 'iul_quote_' + product.toLowerCase().replace(/[^a-z0-9]+/g,'_').replace(/^_|_$/g,''),
     product,
     name, sub,
+    availableStates: iulStates(product),   // null ⇒ available everywhere
     brand: name.startsWith('Mutual of Omaha') ? '#1D4ED8'
          : name.startsWith('Americo')         ? '#1E40AF'
          : '#C5A059',
@@ -3133,6 +3146,10 @@ export default function QuoteMark() {
     const male = gender === 'male';
     const a = ageNum;
     const results = IUL_QUOTE_CARRIERS.map(c => {
+      // State-gate: hide a carrier when the agent has picked a state it isn't
+      // sold in (e.g. AmAm Intelligent Choice IUL is not available in MI).
+      // When no state is selected, show it (can't filter on unknown).
+      if (c.availableStates && usState && !c.availableStates.has(usState)) return null;
       if (iulMode === 'face') {
         const face = c.fn(a, male, smoker, dIulPremium);
         if (face == null) return null;
@@ -3154,7 +3171,7 @@ export default function QuoteMark() {
     return iulMode === 'face'
       ? results.sort((a, b) => b.face - a.face)
       : results.sort((a, b) => a.premium - b.premium);
-  }, [quoteMode, ageOK, ageNum, gender, smoker, dIulPremium, dIulFace, iulMode, hasQuoted]);
+  }, [quoteMode, ageOK, ageNum, gender, smoker, dIulPremium, dIulFace, iulMode, hasQuoted, usState]);
 
   // ── INPUT STYLES ──
   const inp = {background:C.bg2,border:`1px solid ${C.bd}`,color:C.t1,borderRadius:8,padding:'9px 12px',fontSize:13,width:'100%',boxSizing:'border-box',outline:'none',fontFamily:"'DM Sans','Helvetica Neue',Arial,sans-serif"};
