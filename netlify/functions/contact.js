@@ -51,7 +51,7 @@ exports.handler = async (event) => {
     method: 'POST',
     headers: { 'Authorization': `Bearer ${RESEND_KEY}`, 'Content-Type': 'application/json' },
     body: JSON.stringify({
-      from: 'QuoteMark <onboarding@resend.dev>',
+      from: 'QuoteMark <noreply@quotemarko.com>',
       to: ['markdusevic@gmail.com'],
       reply_to: email || undefined,
       subject,
