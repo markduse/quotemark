@@ -861,7 +861,11 @@ function iulPremiumForFace(product, classKey, age, targetFace) {
     return { premium: minPt.prem, floored: targetFace < minPt.face, minFace: minPt.face };
   }
   // Above the carrier's max achievable face → cap (UI shows "maxes at $X").
-  if (targetFace >= maxPt.face) return { premium: maxPt.prem, capped: true, maxFace: maxPt.face };
+  // Exactly AT the max is issuable — only strictly above gets flagged.
+  if (targetFace >= maxPt.face) {
+    if (targetFace === maxPt.face) return { premium: maxPt.prem };
+    return { premium: maxPt.prem, capped: true, maxFace: maxPt.face };
+  }
   // Interpolate the premium within the real anchor pair that spans the target.
   for (let i = 0; i < pts.length - 1; i++) {
     const lo = pts[i], hi = pts[i+1];
