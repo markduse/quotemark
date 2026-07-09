@@ -736,8 +736,11 @@ const IUL_MIN_FACE = {
 // AmAm Intelligent Choice quoter. Verify against current carrier guides.
 const IUL_LIMITS = {
   'Mutual of Omaha (Indexed Universal Life Express)': {
+    // Per MOO Simplified Issue UW Guide (618352_0426): IUL Express (IULE) shares
+    // the Term Life Express band table — 18-50: $25k-$550k, 51-60: $25k-$450k,
+    // 61-75: $25k-$350k. (Prior 300/250/150 was from an outdated guide.)
     minAge: 18, maxAge: 75, minFace: 25000,
-    faceBands: [{ aMax: 50, max: 300000 }, { aMax: 60, max: 250000 }, { aMax: 75, max: 150000 }],
+    faceBands: [{ aMax: 50, max: 550000 }, { aMax: 60, max: 450000 }, { aMax: 75, max: 350000 }],
   },
   'Americo (Instant Decision IUL)': {
     // Product issues to age 80, but ITK (our data source) only quotes Americo
@@ -1055,11 +1058,11 @@ const IUL_CARRIERS = [
     brand: '#003B71',
     issueAges: { min: 18, max: 75 },
     faceRange: {
-      min: 25000, max: 300000,
+      min: 25000, max: 550000,
       ageBands: [
-        { ages: '18–50', min: 25000, max: 300000 },
-        { ages: '51–60', min: 25000, max: 250000 },
-        { ages: '61–75', min: 25000, max: 150000 },
+        { ages: '18–50', min: 25000, max: 550000 },
+        { ages: '51–60', min: 25000, max: 450000 },
+        { ages: '61–75', min: 25000, max: 350000 },
       ],
     },
     cap: 8.5, par: 100, floor: 0,
