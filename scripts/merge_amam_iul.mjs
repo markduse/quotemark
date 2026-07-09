@@ -22,7 +22,7 @@ const AVAIL  = path.join(__dirname, '..', 'src', 'data', 'iul_state_availability
 const PRODUCT = 'American Amicable (Intelligent Choice IUL)';
 const grid = JSON.parse(fs.readFileSync(GRID, 'utf8'));       // {class:{age:{face:monthly}}}
 const iul  = JSON.parse(fs.readFileSync(IUL, 'utf8'));
-const FACES = [50000, 100000, 250000];
+const FACES = [50000, 100000, 250000, 300000, 400000, 450000];
 const CLASSES = Object.keys(grid);
 
 // The engine (iulFaceFor / iulPremiumForFace) keys rows by PREMIUM and, for a

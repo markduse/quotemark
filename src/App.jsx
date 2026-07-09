@@ -740,16 +740,18 @@ const IUL_LIMITS = {
     faceBands: [{ aMax: 50, max: 300000 }, { aMax: 60, max: 250000 }, { aMax: 75, max: 150000 }],
   },
   'Americo (Instant Decision IUL)': {
-    minAge: 18, maxAge: 80, minFace: 50000,
-    faceBands: [{ aMax: 80, max: 450000 }],
+    // Product issues to age 80, but ITK (our data source) only quotes Americo
+    // IUL through age 70 — confirmed: age 71+ returns no Americo. So we cap at
+    // 70 (honest to what we can quote). Face $450k flat, all ages (scraped).
+    minAge: 18, maxAge: 70, minFace: 50000,
+    faceBands: [{ aMax: 70, max: 450000 }],
   },
   'American Amicable (Intelligent Choice IUL)': {
-    // Min $25k confirmed via quoter ($20k rejected, $25k = $25.92/mo). Carrier
-    // actually issues to ~$450k+ (quoter: $450k @ age 45 = $376.70/mo), but our
-    // rate grid was scraped only to $250k, so we cap there — conservative (never
-    // over-promises). Re-scrape with a $400k anchor to unlock higher faces.
+    // Verified against the carrier quoter: min $25k ($20k rejected), max $450k
+    // flat at every age 18-75 (no age banding; $600k+ rejected). Grid scraped
+    // to $450k.
     minAge: 18, maxAge: 75, minFace: 25000,
-    faceBands: [{ aMax: 75, max: 250000 }],
+    faceBands: [{ aMax: 75, max: 450000 }],
   },
 };
 const iulAgeOK   = (product, age) => { const L = IUL_LIMITS[product]; return !L || (age >= L.minAge && age <= L.maxAge); };
