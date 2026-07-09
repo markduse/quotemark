@@ -46,7 +46,11 @@ export default function AuthScreen() {
         if (password !== confirm) throw new Error("Passwords don't match.");
         if (password.length < 8) throw new Error('Password must be at least 8 characters.');
 
-        const { error } = await supabase.auth.signUp({ email, password });
+        const { error } = await supabase.auth.signUp({
+          email,
+          password,
+          options: { emailRedirectTo: window.location.origin },
+        });
         if (error) throw error;
         track('Sign Up');
 
@@ -68,7 +72,15 @@ export default function AuthScreen() {
         // AuthContext handles the session change
       }
     } catch (err) {
-      setMsg({ type: 'err', text: err.message });
+      const raw = err?.message || 'Something went wrong.';
+      // Supabase's built-in email sender is hard rate-limited; surface a clear
+      // message instead of the raw "429: email rate limit exceeded".
+      const text = /rate limit/i.test(raw)
+        ? 'Too many sign-ups from this app right now. Wait a few minutes and try again — or ask Mark to add you directly.'
+        : /email not confirmed/i.test(raw)
+        ? "Your email isn't confirmed yet. Check your inbox (and spam) for the confirmation link."
+        : raw;
+      setMsg({ type: 'err', text });
     } finally {
       setLoading(false);
     }
