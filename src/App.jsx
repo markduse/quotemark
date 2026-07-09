@@ -3212,9 +3212,10 @@ export default function QuoteMark() {
         return { ...c, face: effFace, premium: res.premium, capped: effCapped, floored: res.floored, maxFace: effMax, targetFace: dIulFace };
       }
     }).filter(r => r != null);
-    // Rank quotable carriers first, then below-minimum (red), then state-blocked
-    // (gray) at the bottom. Within a rank: face-mode by face desc, else premium asc.
-    const rank = r => r.unavailable ? 2 : r.floored ? 1 : 0;
+    // Rank quotable carriers first, then can't-issue-this-face (red: below min OR
+    // above the carrier's max — premium mode only), then state-blocked (gray) at
+    // the bottom. Within a rank: face-mode by face desc, else premium asc.
+    const rank = r => r.unavailable ? 2 : (iulMode === 'premium' && (r.floored || r.capped)) ? 1 : 0;
     return results.sort((a, b) => {
       if (rank(a) !== rank(b)) return rank(a) - rank(b);
       return iulMode === 'face' ? (b.face || 0) - (a.face || 0) : (a.premium ?? Infinity) - (b.premium ?? Infinity);
@@ -4136,23 +4137,25 @@ export default function QuoteMark() {
                     <div style={{display:'flex',flexDirection:'column',gap:10}}>
                       {iulQuoteResults.map(r => {
                         const RED='#EF4444';
-                        const problem = r.unavailable ? 'state' : r.floored ? 'min' : null;
+                        const limitBlocked = iulMode==='premium' && (r.floored || r.capped);
+                        const limitKind = r.floored ? 'min' : 'max';
+                        const problem = r.unavailable ? 'state' : limitBlocked ? 'limit' : null;
                         return (
-                        <div key={r.id} className="qm-rise" style={{background:isDark?'#1E293B':'#FFFFFF',border:`1px solid ${problem==='min'?RED+'55':C.bd2}`,borderLeft:`4px solid ${problem==='state'?C.bd2:problem==='min'?RED:r.brand}`,borderRadius:10,padding:'12px 14px',display:'flex',alignItems:'center',gap:12,boxShadow:C.cardShadow,opacity:problem==='state'?0.5:1,filter:problem==='state'?'grayscale(0.6)':'none'}}>
+                        <div key={r.id} className="qm-rise" style={{background:isDark?'#1E293B':'#FFFFFF',border:`1px solid ${problem==='limit'?RED+'55':C.bd2}`,borderLeft:`4px solid ${problem==='state'?C.bd2:problem==='limit'?RED:r.brand}`,borderRadius:10,padding:'12px 14px',display:'flex',alignItems:'center',gap:12,boxShadow:C.cardShadow,opacity:problem==='state'?0.5:1,filter:problem==='state'?'grayscale(0.6)':'none'}}>
                           <div style={{flexShrink:0}}><CarrierLogo carrierId={r.id} name={r.name} small={true}/></div>
                           <div style={{flex:1,minWidth:0}}>
                             <div style={{fontSize:14,fontWeight:700,color:C.t0,whiteSpace:'nowrap',overflow:'hidden',textOverflow:'ellipsis'}}>{r.name}</div>
                             <div style={{fontSize:10,color:C.t4,marginTop:2,whiteSpace:'nowrap',overflow:'hidden',textOverflow:'ellipsis'}}>{r.sub}</div>
                             {problem==='state' && <div style={{fontSize:9,color:C.t3,marginTop:3,fontWeight:600}}>⊘ {r.reason}</div>}
-                            {problem==='min' && <div style={{fontSize:9,color:RED,marginTop:3,fontWeight:700}}>Min ${(r.face/1000).toFixed(0)}k · N/A for ${(r.targetFace/1000).toFixed(0)}k</div>}
+                            {problem==='limit' && <div style={{fontSize:9,color:RED,marginTop:3,fontWeight:700}}>{limitKind==='min'?'Min':'Max'} ${(r.face/1000).toFixed(0)}k · won't issue ${(r.targetFace/1000).toFixed(0)}k</div>}
                           </div>
                           <div style={{textAlign:'right',flexShrink:0}}>
                             {problem==='state' ? (
                               <div style={{fontSize:11,color:C.t3,fontWeight:700,letterSpacing:0.5,textTransform:'uppercase'}}>Unavailable</div>
-                            ) : problem==='min' ? (
+                            ) : problem==='limit' ? (
                               <>
                                 <div style={{fontFamily:"'DM Mono',ui-monospace,'SF Mono',Menlo,monospace",fontSize:18,fontWeight:800,color:RED,lineHeight:1}}>N/A</div>
-                                <div style={{fontSize:9,color:RED,marginTop:2,fontWeight:700}}>MIN ${(r.face/1000).toFixed(0)}K</div>
+                                <div style={{fontSize:9,color:RED,marginTop:2,fontWeight:700}}>{limitKind==='min'?'MIN':'MAX'} ${(r.face/1000).toFixed(0)}K</div>
                               </>
                             ) : iulMode==='face' ? (
                               <>
@@ -4162,7 +4165,7 @@ export default function QuoteMark() {
                             ) : (
                               <>
                                 <div style={{fontFamily:"'DM Mono',ui-monospace,'SF Mono',Menlo,monospace",fontSize:20,fontWeight:800,color:C.t0,lineHeight:1}}>${r.premium.toFixed(0)}<span style={{fontSize:11,color:C.t3,fontWeight:600}}>/mo</span></div>
-                                <div style={{fontSize:9,color:C.t4,marginTop:2}}>{r.capped?`max $${(r.face/1000).toFixed(0)}k face`:`for $${(r.face/1000).toFixed(0)}k face`}</div>
+                                <div style={{fontSize:9,color:C.t4,marginTop:2}}>{`for $${(r.face/1000).toFixed(0)}k face`}</div>
                               </>
                             )}
                           </div>
@@ -5351,17 +5354,25 @@ export default function QuoteMark() {
                         {iulMode==='face' ? `$${iulPremium}/mo` : `$${(iulFace/1000).toFixed(0)}k face`}
                       </span> · Age {age} · {gender==='male'?'M':'F'} · {smoker?'Smoker':'NS'}
                     </span>
-                    <span style={{fontSize:11,color:C.t3}}>{iulQuoteResults.filter(r=>!r.unavailable&&!r.floored).length} carriers · sorted by {iulMode==='face' ? 'face desc' : 'premium asc'}</span>
+                    <span style={{fontSize:11,color:C.t3}}>{iulQuoteResults.filter(r=>!r.unavailable&&!(iulMode==='premium'&&(r.floored||r.capped))).length} carriers · sorted by {iulMode==='face' ? 'face desc' : 'premium asc'}</span>
                   </div>
                   <div style={{display:'flex',flexDirection:'column',gap:10}}>
                     {iulQuoteResults.map(r => {
                       const RED = '#EF4444';
-                      const problem = r.unavailable ? 'state' : r.floored ? 'min' : null;
-                      const accent = problem === 'state' ? C.bd2 : problem === 'min' ? RED : r.brand;
+                      // In premium mode, a carrier that can't issue the requested face —
+                      // below its minimum (floored) OR above its max (capped) — is a red
+                      // "unavailable" state, NOT a real quote. Showing the min/max-face
+                      // premium as the headline number misleads (it's not the price of
+                      // the requested face). Face mode shows the real capped face, so no
+                      // problem there.
+                      const limitBlocked = iulMode === 'premium' && (r.floored || r.capped);
+                      const limitKind = r.floored ? 'min' : 'max';
+                      const problem = r.unavailable ? 'state' : limitBlocked ? 'limit' : null;
+                      const accent = problem === 'state' ? C.bd2 : problem === 'limit' ? RED : r.brand;
                       return (
                       <div key={r.id} className="qm-rise" style={{
                         background:isDark?'#1E293B':'#FFFFFF',
-                        border:`1px solid ${problem==='min'?RED+'55':C.bd2}`,
+                        border:`1px solid ${problem==='limit'?RED+'55':C.bd2}`,
                         borderLeft:`5px solid ${accent}`,borderRadius:12,padding:'14px 20px',
                         display:'flex',alignItems:'center',gap:18,boxShadow:C.cardShadow,
                         opacity:problem==='state'?0.5:1,
@@ -5374,26 +5385,24 @@ export default function QuoteMark() {
                           <div style={{fontSize:12,color:C.t4,marginTop:2}}>{r.sub}</div>
                           {problem==='state' ? (
                             <div style={{fontSize:11,color:C.t3,marginTop:5,fontWeight:600}}>⊘ {r.reason}</div>
-                          ) : problem==='min' ? (
-                            <div style={{fontSize:11,color:RED,marginTop:5,fontWeight:700}}>Minimum face ${(r.face/1000).toFixed(0)}k · rate unavailable for ${(r.targetFace/1000).toFixed(0)}k face</div>
+                          ) : problem==='limit' ? (
+                            <div style={{fontSize:11,color:RED,marginTop:5,fontWeight:700}}>{limitKind==='min'?'Minimum':'Maximum'} face ${(r.face/1000).toFixed(0)}k at age {age} · won't issue ${(r.targetFace/1000).toFixed(0)}k</div>
                           ) : (
                             <div style={{fontSize:10,color:C.t4,marginTop:5,fontStyle:'italic'}}>
                               {iulMode==='face'
                                 ? `Premium $${iulPremium}/mo buys this face amount`
-                                : r.capped
-                                  ? `Carrier maxes at $${(r.face/1000).toFixed(0)}k face at age ${age} — can't fund $${(r.targetFace/1000).toFixed(0)}k`
-                                  : `Premium needed for $${(iulFace/1000).toFixed(0)}k face`}
+                                : `Premium needed for $${(iulFace/1000).toFixed(0)}k face`}
                             </div>
                           )}
                         </div>
                         <div style={{textAlign:'right',flexShrink:0}}>
                           {problem==='state' ? (
                             <div style={{fontSize:13,color:C.t3,fontWeight:700,letterSpacing:1,textTransform:'uppercase'}}>Unavailable</div>
-                          ) : problem==='min' ? (
+                          ) : problem==='limit' ? (
                             <>
                               <div style={{fontFamily:"'DM Mono',ui-monospace,'SF Mono',Menlo,monospace",fontSize:26,fontWeight:800,color:RED,lineHeight:1}}>N/A</div>
-                              <div style={{fontSize:10,color:RED,marginTop:4,fontWeight:700,letterSpacing:1,textTransform:'uppercase'}}>MIN FACE ${(r.face/1000).toFixed(0)}K</div>
-                              <div style={{fontSize:10,color:C.t4,marginTop:3}}>${r.premium.toFixed(2)}/mo at ${(r.face/1000).toFixed(0)}k min</div>
+                              <div style={{fontSize:10,color:RED,marginTop:4,fontWeight:700,letterSpacing:1,textTransform:'uppercase'}}>{limitKind==='min'?'MIN':'MAX'} FACE ${(r.face/1000).toFixed(0)}K</div>
+                              <div style={{fontSize:10,color:C.t4,marginTop:3}}>${r.premium.toFixed(2)}/mo at ${(r.face/1000).toFixed(0)}k {limitKind}</div>
                             </>
                           ) : iulMode==='face' ? (
                             <>
@@ -5403,7 +5412,7 @@ export default function QuoteMark() {
                           ) : (
                             <>
                               <div style={{fontFamily:"'DM Mono',ui-monospace,'SF Mono',Menlo,monospace",fontSize:32,fontWeight:800,color:C.t0,lineHeight:1}}>${r.premium.toFixed(2)}<span style={{fontSize:18,color:C.t3,fontWeight:600}}>/mo</span></div>
-                              <div style={{fontSize:10,color:C.t4,marginTop:4,fontWeight:600,letterSpacing:1,textTransform:'uppercase'}}>{r.capped ? `MAX FACE $${(r.face/1000).toFixed(0)}K` : 'Required Premium'}</div>
+                              <div style={{fontSize:10,color:C.t4,marginTop:4,fontWeight:600,letterSpacing:1,textTransform:'uppercase'}}>Required Premium</div>
                             </>
                           )}
                         </div>
