@@ -3187,6 +3187,9 @@ export default function QuoteMark() {
   const renderClientSheet = (isM=true) => {
     const inpS = isM ? mInp : {...inp, fontSize:13, padding:'8px 10px'};
     const SENSITIVE = new Set(['ssn','account','sp_ssn']);
+    // Plain render FUNCTIONS (not components) — inline component types get a new
+    // identity every render, so React remounts the inputs and focus is lost on
+    // every keystroke. Called as {F({...})}, these stay part of this render tree.
     const F = ({k, label, ph, im, span}) => (
       <div style={span===2?{gridColumn:'1 / -1'}:undefined}>
         <div style={{fontSize:12,color:'#78746e',marginBottom:5}}>{label}</div>
@@ -3209,8 +3212,8 @@ export default function QuoteMark() {
         )}
       </div>
     );
-    const Eyebrow = ({children,first}) => (
-      <div style={{gridColumn:'1 / -1',fontSize:11,fontWeight:600,letterSpacing:'0.08em',color:'#4a45d1',textTransform:'uppercase',paddingBottom:8,borderBottom:'1px solid #f0efed',marginTop:first?0:10}}>{children}</div>
+    const Eyebrow = (text, first) => (
+      <div style={{gridColumn:'1 / -1',fontSize:11,fontWeight:600,letterSpacing:'0.08em',color:'#4a45d1',textTransform:'uppercase',paddingBottom:8,borderBottom:'1px solid #f0efed',marginTop:first?0:10}}>{text}</div>
     );
     const grid = cols => ({display:'grid',gridTemplateColumns:isM?'1fr':cols,gap:12});
     return (
@@ -3222,15 +3225,15 @@ export default function QuoteMark() {
         <div style={{background:'#fff',border:'1px solid #eae9e6',borderRadius:12,padding:isM?16:22,display:'flex',flexDirection:'column',gap:14,boxShadow:'0 1px 2px rgba(25,24,23,0.04)'}}>
           {/* CLIENT */}
           <div style={grid('1fr 1fr')}>
-            <Eyebrow first>Client</Eyebrow>
-            <F k="fullName" label="Full name"/>
-            <F k="dob" label="Date of birth" ph="mm/dd/yyyy"/>
-            <F k="address" label="Address" span={2}/>
-            <F k="phone" label="Phone" im="tel"/>
-            <F k="email" label="Email" im="email"/>
-            <F k="heightWeight" label="Height / weight" ph={'5\'10" / 190 lb'}/>
-            <F k="dl" label="Driver's license #"/>
-            <F k="ssn" label="Social Security #"/>
+            {Eyebrow('Client', true)}
+            {F({k:'fullName', label:'Full name'})}
+            {F({k:'dob', label:'Date of birth', ph:'mm/dd/yyyy'})}
+            {F({k:'address', label:'Address', span:2})}
+            {F({k:'phone', label:'Phone', im:'tel'})}
+            {F({k:'email', label:'Email', im:'email'})}
+            {F({k:'heightWeight', label:'Height / weight', ph:'5\'10" / 190 lb'})}
+            {F({k:'dl', label:"Driver's license #"})}
+            {F({k:'ssn', label:'Social Security #'})}
           </div>
           {/* Husband & wife checkbox */}
           <button onClick={()=>setSheet(p=>({...p,spouse:!p.spouse}))} style={{
@@ -3243,38 +3246,38 @@ export default function QuoteMark() {
           </button>
           {sheet.spouse && (
             <div style={grid('1fr 1fr')}>
-              <Eyebrow>Client 2 (Spouse)</Eyebrow>
-              <F k="sp_fullName" label="Full name"/>
-              <F k="sp_dob" label="Date of birth" ph="mm/dd/yyyy"/>
-              <F k="sp_heightWeight" label="Height / weight"/>
-              <F k="sp_dl" label="Driver's license #"/>
-              <F k="sp_ssn" label="Social Security #"/>
+              {Eyebrow('Client 2 (Spouse)')}
+              {F({k:'sp_fullName', label:'Full name'})}
+              {F({k:'sp_dob', label:'Date of birth', ph:'mm/dd/yyyy'})}
+              {F({k:'sp_heightWeight', label:'Height / weight'})}
+              {F({k:'sp_dl', label:"Driver's license #"})}
+              {F({k:'sp_ssn', label:'Social Security #'})}
             </div>
           )}
           {/* BENEFICIARIES */}
           <div style={grid('2fr 1fr')}>
-            <Eyebrow>Beneficiaries</Eyebrow>
-            <F k="bene1" label="Primary beneficiary"/>
-            <F k="bene1Dob" label="DOB" ph="mm/dd/yyyy"/>
-            <F k="bene2" label="Contingent beneficiary"/>
-            <F k="bene2Dob" label="DOB" ph="mm/dd/yyyy"/>
+            {Eyebrow('Beneficiaries')}
+            {F({k:'bene1', label:'Primary beneficiary'})}
+            {F({k:'bene1Dob', label:'DOB', ph:'mm/dd/yyyy'})}
+            {F({k:'bene2', label:'Contingent beneficiary'})}
+            {F({k:'bene2Dob', label:'DOB', ph:'mm/dd/yyyy'})}
           </div>
           {/* BANKING */}
           <div style={grid('1fr 1fr 1fr')}>
-            <Eyebrow>Banking</Eyebrow>
-            <F k="bankName" label="Bank name"/>
-            <F k="routing" label="Routing number" im="numeric"/>
-            <F k="account" label="Account number" im="numeric"/>
+            {Eyebrow('Banking')}
+            {F({k:'bankName', label:'Bank name'})}
+            {F({k:'routing', label:'Routing number', im:'numeric'})}
+            {F({k:'account', label:'Account number', im:'numeric'})}
           </div>
           {/* POLICY STATUS */}
           <div style={grid('1fr 1fr 1fr')}>
-            <Eyebrow>Policy status</Eyebrow>
-            <F k="carrier" label="Carrier"/>
-            <F k="ap" label="Annual premium" im="decimal"/>
-            <F k="effectiveDate" label="Effective date" ph="mm/dd/yyyy"/>
-            <F k="declinedThrough" label="Declined through"/>
-            <F k="inUnderwriting" label="In underwriting"/>
-            <F k="approved" label="Approved"/>
+            {Eyebrow('Policy status')}
+            {F({k:'carrier', label:'Carrier'})}
+            {F({k:'ap', label:'Annual premium', im:'decimal'})}
+            {F({k:'effectiveDate', label:'Effective date', ph:'mm/dd/yyyy'})}
+            {F({k:'declinedThrough', label:'Declined through'})}
+            {F({k:'inUnderwriting', label:'In underwriting'})}
+            {F({k:'approved', label:'Approved'})}
           </div>
           {/* NOTES */}
           <div>
