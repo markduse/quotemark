@@ -3187,12 +3187,25 @@ export default function QuoteMark() {
   const renderClientSheet = (isM=true) => {
     const inpS = isM ? mInp : {...inp, fontSize:13, padding:'8px 10px'};
     const SENSITIVE = new Set(['ssn','account','sp_ssn']);
+    // DOB fields show the computed current age live next to the label.
+    const AGE_FIELDS = new Set(['dob','sp_dob','bene1Dob','bene2Dob']);
+    const dobAge = v => {
+      const m = String(v||'').trim().match(/^(\d{1,2})[\/\-.](\d{1,2})[\/\-.](\d{4})$/);
+      if (!m) return null;
+      const a = calcAge(m[1], m[2], m[3]);
+      return (a!=null && a>=0 && a<=120) ? a : null;
+    };
     // Plain render FUNCTIONS (not components) — inline component types get a new
     // identity every render, so React remounts the inputs and focus is lost on
     // every keystroke. Called as {F({...})}, these stay part of this render tree.
     const F = ({k, label, ph, im, span}) => (
       <div style={span===2?{gridColumn:'1 / -1'}:undefined}>
-        <div style={{fontSize:12,color:'#78746e',marginBottom:5}}>{label}</div>
+        <div style={{fontSize:12,color:'#78746e',marginBottom:5,display:'flex',justifyContent:'space-between',alignItems:'baseline',gap:8}}>
+          <span>{label}</span>
+          {AGE_FIELDS.has(k) && dobAge(sheet[k])!=null && (
+            <span style={{fontSize:11.5,fontWeight:600,color:'#4740c8',whiteSpace:'nowrap'}}>Age {dobAge(sheet[k])}</span>
+          )}
+        </div>
         {SENSITIVE.has(k) ? (
           <div style={{position:'relative'}}>
             <input value={sheet[k]} inputMode={im||'text'} placeholder={ph||''}
