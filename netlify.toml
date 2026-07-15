@@ -6,6 +6,13 @@
 [build.environment]
   NODE_VERSION = "18"
 
+# Send the netlify.app subdomain to the real domain (must precede SPA fallback)
+[[redirects]]
+  from = "https://quotemarko.netlify.app/*"
+  to = "https://quotemarko.com/:splat"
+  status = 301
+  force = true
+
 [[redirects]]
   from = "/*"
   to = "/index.html"
