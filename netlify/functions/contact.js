@@ -14,17 +14,17 @@ exports.handler = async (event) => {
   const { type, name, email, company, message } = body;
 
   const SUBJECT_MAP = {
-    carrier:     '📋 New Carrier Submission — QuoteMark',
-    suggestion:  '💡 General Suggestion — QuoteMark',
-    partnership: '🤝 Partnership / Whitelabel Inquiry — QuoteMark',
+    carrier:     '📋 New Carrier Submission — Quotemarko',
+    suggestion:  '💡 General Suggestion — Quotemarko',
+    partnership: '🤝 Partnership / Whitelabel Inquiry — Quotemarko',
   };
 
-  const subject = SUBJECT_MAP[type] || '📬 QuoteMark Contact Form';
+  const subject = SUBJECT_MAP[type] || '📬 Quotemarko Contact Form';
 
   const html = `
     <div style="font-family:Arial,sans-serif;max-width:600px;margin:0 auto;background:#f8fafc;padding:32px;border-radius:12px;">
-      <div style="background:#0F172A;padding:20px 24px;border-radius:8px;margin-bottom:24px;">
-        <span style="font-family:'Arial Black',sans-serif;font-size:22px;font-weight:900;color:#fff;">Quote</span><span style="font-family:'Arial Black',sans-serif;font-size:22px;font-weight:900;color:#F59E0B;">Mark</span>
+      <div style="background:#191817;padding:20px 24px;border-radius:8px;margin-bottom:24px;">
+        <span style="font-family:Arial,sans-serif;font-size:22px;font-weight:700;color:#fff;">Quotemarko</span><span style="font-family:Arial,sans-serif;font-size:22px;font-weight:700;color:#8b87e8;">.</span>
         <span style="display:block;font-size:12px;color:#94A3B8;margin-top:4px;">Contact Form Submission</span>
       </div>
       <table style="width:100%;border-collapse:collapse;">
@@ -51,7 +51,7 @@ exports.handler = async (event) => {
     method: 'POST',
     headers: { 'Authorization': `Bearer ${RESEND_KEY}`, 'Content-Type': 'application/json' },
     body: JSON.stringify({
-      from: 'QuoteMark <noreply@quotemarko.com>',
+      from: 'Quotemarko <noreply@quotemarko.com>',
       to: ['markdusevic@gmail.com'],
       reply_to: email || undefined,
       subject,

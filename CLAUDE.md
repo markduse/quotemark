@@ -54,12 +54,10 @@ Shared concepts across all 4 tabs:
 - **Analytics**: PostHog with `autocapture:false` (only explicit `track()` calls fire)
 - **No backend** — all rates are baked into JSON data files at build time
 - **No database** — Supabase auth only; no profile storage yet
-- **Domain owned**: `quotemarko.com` (Mark bought it). `quotemark.com` and
-  `quotemark.app` were taken. Open question: rebrand to "Quotemarko" everywhere,
-  or keep "QuoteMark" wordmark and just point `quotemarko.com` → Netlify.
+- **Domain**: `quotemarko.com` (primary, custom domain). Brand: **Quotemarko** (rebranded 7/2026).
 
 **Repo**: `github.com/markduse/quotemark` (private)
-**Live**: `https://quotemarko.netlify.app/`
+**Live**: `https://quotemarko.com/` (netlify.app URL 301s here)
 
 ---
 
@@ -165,21 +163,29 @@ Royal Arcanum) — kept for future activation.
 
 ## DESIGN RULES (don't break these)
 
-- **Mobile-first.** Max content width ~420px. Always test 375px viewport first.
-- **Brand colors**:
-  - Gold: `#C5A059` (primary accent, CTAs, active states)
-  - Navy: `#0A192F` (primary dark, buttons in light mode)
-  - Dark BG: `#0B1120` / `#0F172A` (dark-mode page bg)
-  - Light BG: `#FAF9F6` / cream tones
-  - Green: `#22C55E` (success, pass tier)
-  - Red: `#EF4444` (decline, smoker)
-- **Fonts**:
-  - **Barlow Condensed** (700/800) — QuoteMark wordmark, big headings
-  - **DM Sans** (body, UI, options)
-  - **DM Mono** (numerical premiums, dates, monospace data)
+**Redesigned 7/2026 to a light "fintech" system (Stripe/Mercury-like) — single
+light theme, dark mode removed. Source of truth: the July 2026 design handoff
+(`design_handoff_quotemarko_redesign`). Brand is now "Quotemarko" with the
+wordmark `Quotemarko.` (trailing period in accent indigo).**
+
+- **Mobile-first.** Always test 390px viewport first.
+- **Colors** (single light palette, in `C_TOKENS` in App.jsx):
+  - Page bg: `#f8f8f7` (warm off-white) · Card: `#fff`, border `#eae9e6`
+  - Ink: `#191817` · Secondary: `#78746e` · Muted: `#a09c94` · Placeholder: `#b5b1a8`
+  - Accent indigo: `#4a45d1` (hover `#403bbd`, active `#3b37ad`); tint `#eef0fe`/text `#4740c8`
+  - Status only: green `#177452`/bg `#e8f6ef` · amber `#96660f`/bg `#fdf3e0` · red `#b42318`/bg `#fdecec`
+  - Selected segmented/chips: solid `#191817` with white text (NOT indigo)
+- **Font**: **Instrument Sans** only (variable 400–700; prices at 650).
+  `font-variant-numeric: tabular-nums` on body — no monospace for prices.
+- **Shape**: cards r10–12, inputs r7 (36px tall), buttons r8–9, pills r99.
+  Quote rows are separate cards with 8px gaps (not a divided list).
+- **Interactions**: everything transitions `all .12s ease`. Row hover: bg
+  `#f7f7ff`, border `#c9c6f2`, translateX(3px). e-App button: white/indigo
+  bordered at rest → solid indigo on hover. CSS classes: `.qm-row`, `.qm-eapp`,
+  `.qm-cta`, `.qm-seg`, `.qm-navtab` (injected in App.jsx).
 - **Tone**: confident, direct. Agents use this on live calls — no jokes, no fluff,
   no fake urgency. Numbers and product names speak for themselves.
-- **Tap targets**: minimum 40px on desktop, 48px on mobile.
+- **Tap targets**: minimum 40px on desktop, 44px on mobile.
 - **Animations**: ≤200ms, no bounce, no spring physics.
 
 ---
@@ -243,10 +249,9 @@ git push origin main           # Netlify deploys in ~20s
 
 ## SHELVED / FUTURE WORK
 
-**Domain decision** (shelved):
-- Option A: Keep "QuoteMark" UI, point `quotemarko.com` → Netlify (cheapest)
-- Option B: Rebrand UI to "Quotemarko" everywhere
-- Option C: Pick a new name entirely
+**Domain decision** — RESOLVED 7/2026: Option B. Rebranded to "Quotemarko"
+everywhere (UI, title, auth, PDF, emails). quotemarko.com is primary;
+quotemarko.netlify.app 301-redirects to it (netlify.toml).
 
 **Gerber Grow-Up rates** (deferred): household-name juvenile WL but not on ITK.
 Adding requires manual rate transcription from their PDF brochure (~30 min).

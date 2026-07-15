@@ -2,20 +2,21 @@ import React, { useState } from 'react';
 import { supabase } from './supabase';
 import { track } from './analytics';
 
+// Light fintech palette — matches the app redesign (design_handoff_quotemarko_redesign)
 const C = {
-  bg0: '#060E1A', bg1: '#0B1525', bg2: '#0F1D30',
-  gold: '#C5A059', goldBg: 'rgba(197,160,89,0.12)', goldBd: 'rgba(197,160,89,0.3)',
-  t0: '#FAF9F6', t2: '#94A3B8', t4: '#475569',
-  bd: '#1A3050', bd2: '#243D5C', green: '#22C55E', red: '#EF4444',
+  bg0: '#f8f8f7', bg1: '#ffffff', bg2: '#ffffff',
+  gold: '#4a45d1', goldBg: '#eef0fe', goldBd: '#dbd9f4',
+  t0: '#191817', t2: '#78746e', t4: '#a09c94',
+  bd: '#eae9e6', bd2: '#dedcd7', green: '#177452', red: '#b42318',
 };
 
 const inp = {
-  width: '100%', padding: '12px 14px', borderRadius: 8,
-  border: `1px solid ${C.bd2}`, background: C.bg1,
+  width: '100%', padding: '11px 12px', borderRadius: 7,
+  border: `1px solid ${C.bd2}`, background: '#fff',
   color: C.t0, fontSize: 14, outline: 'none',
-  fontFamily: "'DM Sans', sans-serif",
+  fontFamily: "'Instrument Sans', sans-serif",
   boxSizing: 'border-box',
-  transition: 'border-color 0.15s',
+  transition: 'border-color 0.12s',
 };
 
 export default function AuthScreen() {
@@ -93,45 +94,28 @@ export default function AuthScreen() {
     <div style={{
       minHeight: '100vh', background: C.bg0,
       display: 'flex', alignItems: 'center', justifyContent: 'center',
-      fontFamily: "'DM Sans', sans-serif", padding: 20,
+      fontFamily: "'Instrument Sans', sans-serif", padding: 20,
     }}>
-      {/* Background grid */}
-      <div style={{
-        position: 'fixed', inset: 0, pointerEvents: 'none',
-        backgroundImage: `linear-gradient(${C.bd}22 1px, transparent 1px), linear-gradient(90deg, ${C.bd}22 1px, transparent 1px)`,
-        backgroundSize: '48px 48px',
-      }}/>
-
-      {/* Glow */}
-      <div style={{
-        position: 'fixed', top: '20%', left: '50%', transform: 'translateX(-50%)',
-        width: 500, height: 300, borderRadius: '50%',
-        background: `radial-gradient(ellipse, ${C.gold}10 0%, transparent 70%)`,
-        pointerEvents: 'none',
-      }}/>
-
       <div style={{ width: '100%', maxWidth: 400, position: 'relative', zIndex: 1 }}>
 
         {/* Logo / brand */}
         <div style={{ textAlign: 'center', marginBottom: 36 }}>
           <div style={{
-            fontFamily: "'Barlow Condensed', sans-serif",
-            fontSize: 36, fontWeight: 800, letterSpacing: '-0.5px',
+            fontSize: 28, fontWeight: 700, letterSpacing: '-0.01em',
             color: C.t0,
           }}>
-            Quote<span style={{ color: C.gold }}>Mark</span>
+            Quotemarko<span style={{ color: '#4a45d1' }}>.</span>
           </div>
-          <div style={{ fontSize: 12, color: C.t4, marginTop: 4, letterSpacing: 1, textTransform: 'uppercase' }}>
+          <div style={{ fontSize: 11, color: C.t4, marginTop: 4, letterSpacing: '0.08em', textTransform: 'uppercase', fontWeight: 600 }}>
             Life Insurance Quoting Platform
           </div>
         </div>
 
         {/* Card */}
         <div style={{
-          background: C.bg1, border: `1px solid ${C.bd2}`,
-          borderTop: `2px solid ${C.gold}`,
-          borderRadius: 14, padding: '32px 28px',
-          boxShadow: '0 24px 64px rgba(0,0,0,0.5)',
+          background: '#fff', border: '1px solid #eae9e6',
+          borderRadius: 12, padding: '32px 28px',
+          boxShadow: '0 1px 2px rgba(25,24,23,0.04)',
         }}>
           <div style={{ fontSize: 20, fontWeight: 700, color: C.t0, marginBottom: 6 }}>
             {titles[mode]}
@@ -185,8 +169,8 @@ export default function AuthScreen() {
 
             {msg && (
               <div style={{
-                background: msg.type === 'ok' ? `${C.green}15` : `${C.red}15`,
-                border: `1px solid ${msg.type === 'ok' ? C.green + '44' : C.red + '44'}`,
+                background: msg.type === 'ok' ? '#e8f6ef' : '#fdecec',
+                border: `1px solid ${msg.type === 'ok' ? '#c4e8d6' : '#f5c6c2'}`,
                 borderRadius: 7, padding: '10px 13px',
                 fontSize: 13, color: msg.type === 'ok' ? C.green : C.red,
                 lineHeight: 1.5,
@@ -198,12 +182,13 @@ export default function AuthScreen() {
             <button
               type="submit" disabled={loading}
               style={{
-                width: '100%', padding: '13px 0', borderRadius: 8, border: 'none',
-                background: loading ? C.bd2 : C.gold,
-                color: loading ? C.t4 : C.bg0,
-                fontSize: 14, fontWeight: 700, cursor: loading ? 'not-allowed' : 'pointer',
-                letterSpacing: 0.3, transition: 'all 0.15s',
-                fontFamily: "'DM Sans', sans-serif",
+                width: '100%', minHeight: 44, borderRadius: 9, border: 'none',
+                background: loading ? '#dedcd7' : '#4a45d1',
+                color: '#fff',
+                fontSize: 14, fontWeight: 600, cursor: loading ? 'not-allowed' : 'pointer',
+                transition: 'all 0.12s',
+                boxShadow: loading ? 'none' : '0 1px 2px rgba(74,69,209,.3)',
+                fontFamily: "'Instrument Sans', sans-serif",
                 marginTop: 4,
               }}
             >
@@ -239,7 +224,7 @@ export default function AuthScreen() {
 
         {/* Trust bar */}
         <div style={{ textAlign: 'center', marginTop: 20, fontSize: 11, color: C.t4, lineHeight: 1.8 }}>
-          🔒 Secured by Supabase Auth &nbsp;·&nbsp; Agent use only
+          Secured by Supabase Auth &nbsp;·&nbsp; Agent use only
           <br />
           <a href="/terms" style={{ color: C.t4, textDecoration: 'underline', textUnderlineOffset: 3 }}>Terms</a>
           {' · '}
@@ -252,6 +237,6 @@ export default function AuthScreen() {
 
 const linkBtn = {
   background: 'none', border: 'none', cursor: 'pointer',
-  color: '#64748B', fontSize: 12, fontFamily: "'DM Sans', sans-serif",
-  padding: 0, textDecoration: 'underline', textUnderlineOffset: 3,
+  color: '#4a45d1', fontSize: 12.5, fontWeight: 600, fontFamily: "'Instrument Sans', sans-serif",
+  padding: 0,
 };

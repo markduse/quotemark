@@ -19,18 +19,18 @@ class ErrorBoundary extends React.Component {
     if(this.state.crashed){
       const msg = this.state.err?.message || 'Unknown error';
       return(
-        <div style={{minHeight:'100vh',background:'#060E1A',display:'flex',flexDirection:'column',
-          alignItems:'center',justifyContent:'center',fontFamily:"'Barlow Condensed',sans-serif",
+        <div style={{minHeight:'100vh',background:'#f8f8f7',display:'flex',flexDirection:'column',
+          alignItems:'center',justifyContent:'center',fontFamily:"'Instrument Sans',sans-serif",
           color:'#F1F5F9',gap:16,padding:24,textAlign:'center'}}>
-          <div style={{fontSize:28,fontWeight:700}}>Quote<span style={{color:'#C5A059'}}>Mark</span></div>
+          <div style={{fontSize:28,fontWeight:700}}>Quotemarko<span style={{color:'#4a45d1'}}>.</span></div>
           <div style={{fontSize:15,color:'#94A3B8'}}>Something went wrong</div>
           <div style={{fontSize:11,color:'#64748B',maxWidth:480,wordBreak:'break-word',
-            background:'#0B1120',border:'1px solid #1E293B',borderRadius:8,padding:'10px 14px',
+            background:'#fff',border:'1px solid #eae9e6',borderRadius:8,padding:'10px 14px',
             fontFamily:'monospace'}}>{msg}</div>
           <button onClick={()=>window.location.reload()}
             style={{marginTop:8,padding:'10px 28px',borderRadius:8,border:'none',
-              background:'#C5A059',color:'#0A192F',fontWeight:700,fontSize:14,cursor:'pointer',
-              fontFamily:"'DM Sans',sans-serif"}}>
+              background:'#4a45d1',color:'#fff',fontWeight:600,fontSize:14,cursor:'pointer',
+              fontFamily:"'Instrument Sans',sans-serif"}}>
             Reload App
           </button>
         </div>
@@ -51,12 +51,12 @@ function Gate() {
   if (loading) {
     return (
       <div style={{
-        minHeight:'100vh',background:'#060E1A',
+        minHeight:'100vh',background:'#f8f8f7',
         display:'flex',alignItems:'center',justifyContent:'center',
-        fontFamily:"'Barlow Condensed',sans-serif",
+        fontFamily:"'Instrument Sans',sans-serif",
         fontSize:28,fontWeight:700,color:'#F1F5F9',letterSpacing:'-0.5px',
       }}>
-        Quote<span style={{color:'#F59E0B'}}>Mark</span>
+        Quotemarko<span style={{color:'#4a45d1'}}>.</span>
       </div>
     );
   }

@@ -9,9 +9,6 @@ import TERM_RATES from "./data/term_rates.json";
 import IUL_RATES  from "./data/iul_rates.json";
 import IUL_STATE_AVAIL from "./data/iul_state_availability.json";
 
-// ── FONTS ──
-const FONT_LINK = "https://fonts.googleapis.com/css2?family=DM+Mono:wght@400;500&family=DM+Sans:wght@400;500;600;700&family=Barlow+Condensed:wght@700;800&display=swap";
-
 // ── US STATES ──
 const US_STATES = ['AL','AK','AZ','AR','CA','CO','CT','DE','FL','GA','HI','ID','IL','IN','IA','KS','KY','LA','ME','MD','MA','MI','MN','MS','MO','MT','NE','NV','NH','NJ','NM','NY','NC','ND','OH','OK','OR','PA','RI','SC','SD','TN','TX','UT','VT','VA','WA','WV','WI','WY','DC'];
 const STATE_NAMES = {AL:'Alabama',AK:'Alaska',AZ:'Arizona',AR:'Arkansas',CA:'California',CO:'Colorado',CT:'Connecticut',DE:'Delaware',FL:'Florida',GA:'Georgia',HI:'Hawaii',ID:'Idaho',IL:'Illinois',IN:'Indiana',IA:'Iowa',KS:'Kansas',KY:'Kentucky',LA:'Louisiana',ME:'Maine',MD:'Maryland',MA:'Massachusetts',MI:'Michigan',MN:'Minnesota',MS:'Mississippi',MO:'Missouri',MT:'Montana',NE:'Nebraska',NV:'Nevada',NH:'New Hampshire',NJ:'New Jersey',NM:'New Mexico',NY:'New York',NC:'North Carolina',ND:'North Dakota',OH:'Ohio',OK:'Oklahoma',OR:'Oregon',PA:'Pennsylvania',RI:'Rhode Island',SC:'South Carolina',SD:'South Dakota',TN:'Tennessee',TX:'Texas',UT:'Utah',VT:'Vermont',VA:'Virginia',WA:'Washington',WV:'West Virginia',WI:'Wisconsin',WY:'Wyoming',DC:'D.C.'};
@@ -587,13 +584,13 @@ const CONDITIONS = [
 // tier-colored labels stay ≥4.5:1 in light mode too.
 const TIER_INFO = {
   B:{label:'Level — Preferred',  short:'Preferred',    dot:'#A78BFA', txt:'var(--qm-tier-purple)', pill:'rgba(167,139,250,0.12)', bd:'rgba(167,139,250,0.3)'},
-  C:{label:'Level — Standard',   short:'Standard',     dot:'#22C55E', txt:'var(--qm-tier-green)',  pill:'rgba(34,197,94,0.12)',  bd:'rgba(34,197,94,0.3)'},
+  C:{label:'Level — Standard',   short:'Standard',     dot:'#177452', txt:'var(--qm-tier-green)',  pill:'rgba(23,116,82,0.12)',  bd:'rgba(23,116,82,0.3)'},
   D:{label:'Modified Benefit',   short:'Modified',     dot:'#EAB308', txt:'var(--qm-tier-amber)',  pill:'rgba(234,179,8,0.12)',  bd:'rgba(234,179,8,0.3)'},
-  E:{label:'Guaranteed Issue',   short:'GI Only',      dot:'#EF4444', txt:'var(--qm-tier-red)',    pill:'rgba(239,68,68,0.12)',  bd:'rgba(239,68,68,0.3)'},
+  E:{label:'Guaranteed Issue',   short:'GI Only',      dot:'#b42318', txt:'var(--qm-tier-red)',    pill:'rgba(180,35,24,0.12)',  bd:'rgba(180,35,24,0.3)'},
 };
 
 const GSB = [
-  {key:'gold',   label:'Gold',   medal:'🥇', color:'#C5A059', default:15000},
+  {key:'gold',   label:'Gold',   medal:'🥇', color:'#4a45d1', default:15000},
   {key:'silver', label:'Silver', medal:'🥈', color:'#94A3B8', default:10000},
   {key:'bronze', label:'Bronze', medal:'🥉', color:'#B45309', default:5000},
 ];
@@ -889,7 +886,7 @@ const IUL_QUOTE_CARRIERS = Object.keys(IUL_RATES).map(product => {
     availableStates: iulStates(product),   // null ⇒ available everywhere
     brand: name.startsWith('Mutual of Omaha') ? '#1D4ED8'
          : name.startsWith('Americo')         ? '#1E40AF'
-         : '#C5A059',
+         : '#4a45d1',
     fn: (age, male, smoker, premium) => {
       const cls = (male?'M':'F') + (smoker?'S':'NS');
       return iulFaceFor(product, cls, age, premium);
@@ -997,7 +994,7 @@ const TERM_BRAND = {
   'Protective': '#DC2626',
   'Royal Neighbors': '#16A34A',
   'SBLI': '#1E3A8A',
-  'Transamerica': '#EF4444',
+  'Transamerica': '#b42318',
   'UHL': '#B91C1C',
 };
 
@@ -1025,7 +1022,7 @@ const TERM_CARRIERS = Object.keys(TERM_RATES).map(product => {
     name,
     sub,
     abbr: name.split(/\s+/).map(w => w[0]).join('').toUpperCase().slice(0,3),
-    brand: TERM_BRAND[name] || '#C5A059',
+    brand: TERM_BRAND[name] || '#4a45d1',
     // uwType is now computed at render time via getUwType(product, tierUsed)
     // since some products are tier-dependent (Trans Super, SBLI)
     enabled: true,
@@ -1693,8 +1690,8 @@ const CARRIER_META = {
   ahl:  { img:'/logos/ahl.png',   eapp:'https://ahlpatriotseries.com/',                       brand:'#1D4ED8' }, // AHL
   cont: { img:'/logos/cont.png', eapp:'https://www.aetnaseniorproducts.com/ssi/index.html', brand:'#7C3AED' }, // Continental/Aetna
   rn:   { img:'/logos/rn.png',    eapp:'https://agent.royalneighbors.org/login',              brand:'#16A34A' }, // Royal Neighbors
-  ta:    { img:'/logos/ta.png',       eapp:'https://www.transamerica.com/financial-professionals/', brand:'#EF4444' }, // Transamerica Immediate Solution
-  ta_exp:{ img:'/logos/ta.png',       eapp:'https://www.transamerica.com/financial-professionals/', brand:'#EF4444' }, // Transamerica Express Solution
+  ta:    { img:'/logos/ta.png',       eapp:'https://www.transamerica.com/financial-professionals/', brand:'#b42318' }, // Transamerica Immediate Solution
+  ta_exp:{ img:'/logos/ta.png',       eapp:'https://www.transamerica.com/financial-professionals/', brand:'#b42318' }, // Transamerica Express Solution
   fid:  { img:'/logos/fid.png',   eapp:'https://portal.instabrain.io/App/?redirected=true',   brand:'#1E40AF' }, // Fidelity Life
   cbg:  { img:'/logos/cbg.avif',  eapp:'https://www.connext.corebridgefinancial.com/life/connext-portal/public/login', brand:'#9333EA' }, // Corebridge
   uhl:  { img:'/logos/uhl.png',   eapp:'https://agentportal.unitedhomelife.com/home',          brand:'#B91C1C' }, // UHL
@@ -1726,7 +1723,7 @@ const CARRIER_META = {
   mutual_of_omaha: { img:'',         eapp:'https://www.mutualofomaha.com/agent-login',          brand:'#2563EB' }, // Mutual of Omaha — Royal Blue
   // sbli already defined above with /logos/sbli.svg — don't redefine
   royal_neighbors: { img:'',         eapp:'https://agent.royalneighbors.org/login',             brand:'#16A34A' }, // Royal Neighbors — Green
-  transamerica: { img:'',            eapp:'https://www.transamerica.com/financial-professionals/', brand:'#EF4444' }, // Transamerica — Red
+  transamerica: { img:'',            eapp:'https://www.transamerica.com/financial-professionals/', brand:'#b42318' }, // Transamerica — Red
 };
 
 function getCompBadge(carrierId, tier) {
@@ -2018,84 +2015,74 @@ function estimateCoverage({ currentAge, policyYears, monthlyPremium, gender }) {
 // policyYears (no slider — the form's "Years In-Force" input drives it).
 const CashValueProjection = ({ monthlyPremium, policyYears, issueAge, C, isDark }) => {
   const fmt = n => '$' + Math.round(n).toLocaleString();
-  const amber = '#C5A059';
-  const green = '#34D399';
   const d = calculateCVCorridor(monthlyPremium, policyYears, issueAge || 65);
+  const card = {background:'#fff',border:'1px solid #eae9e6',borderRadius:12,boxShadow:'0 1px 2px rgba(25,24,23,0.04)'};
+  const eyebrow = {fontSize:11,fontWeight:600,letterSpacing:'0.08em',color:'#a09c94',textTransform:'uppercase'};
 
   return (
-    <div style={{display:'flex',flexDirection:'column',gap:16,padding:24,maxWidth:680,margin:'0 auto',width:'100%'}}>
+    <div style={{display:'flex',flexDirection:'column',gap:16,maxWidth:680,margin:'0 auto',width:'100%'}}>
 
-      {/* Header */}
-      <div style={{display:'flex',alignItems:'center',gap:12,paddingBottom:14,borderBottom:`1px solid ${C.bd}`}}>
-        <span style={{fontSize:30}}>💰</span>
+      {/* Title row (design 3b) */}
+      <div style={{display:'flex',alignItems:'center',gap:12,flexWrap:'wrap'}}>
         <div>
-          <div style={{fontSize:18,fontWeight:800,color:C.t0,fontFamily:"'DM Sans','Helvetica Neue',Arial,sans-serif"}}>Cash Value Estimator</div>
-          <div style={{fontSize:12,color:C.t4,marginTop:2}}>
+          <div style={{fontSize:20,fontWeight:700,color:'#191817',letterSpacing:'-0.01em'}}>Cash value estimator</div>
+          <div style={{fontSize:13,color:'#78746e',marginTop:2}}>
             Whole life · ${monthlyPremium.toLocaleString()}/mo · {policyYears} yr{policyYears===1?'':'s'} in-force · Issued age {issueAge||65}
           </div>
         </div>
-        <div style={{marginLeft:'auto',display:'flex',flexDirection:'column',alignItems:'flex-end',gap:4}}>
-          <span style={{background:'rgba(197,160,89,0.1)',border:'1px solid rgba(197,160,89,0.25)',borderRadius:6,padding:'3px 9px',fontSize:11,color:amber,fontWeight:700}}>
-            {(issueAge||65) < 60 ? 'Under 60' : (issueAge||65) <= 70 ? 'Age 60–70' : 'Age 71+'} tier
-          </span>
-        </div>
+        <span style={{marginLeft:'auto',background:'#f0efed',borderRadius:99,padding:'3px 10px',fontSize:11.5,color:'#78746e',fontWeight:600,whiteSpace:'nowrap'}}>
+          {(issueAge||65) < 60 ? 'Under-60' : (issueAge||65) <= 70 ? 'Age 60–70' : 'Age 71+'} tier
+        </span>
       </div>
 
-      {/* Key metrics row */}
+      {/* Stat cards */}
       <div style={{display:'grid',gridTemplateColumns:'1fr 1fr',gap:10}}>
-        <div style={{background:C.bg3,border:`1px solid ${C.bd}`,borderRadius:12,padding:'14px 16px'}}>
-          <div style={{fontSize:10,color:C.t4,fontWeight:700,letterSpacing:1.4,textTransform:'uppercase',marginBottom:6}}>Annual Premium</div>
-          <div style={{fontSize:20,fontWeight:800,color:C.t1,fontFamily:"'DM Mono',ui-monospace,'SF Mono',Menlo,monospace"}}>{fmt(d.annualPremium)}</div>
+        <div style={{...card,padding:'16px 18px'}}>
+          <div style={{...eyebrow,marginBottom:8}}>Annual Premium</div>
+          <div style={{fontSize:22,fontWeight:700,color:'#191817',letterSpacing:'-0.01em'}}>{fmt(d.annualPremium)}</div>
         </div>
-        <div style={{background:C.bg3,border:`1px solid ${C.bd}`,borderRadius:12,padding:'14px 16px'}}>
-          <div style={{fontSize:10,color:C.t4,fontWeight:700,letterSpacing:1.4,textTransform:'uppercase',marginBottom:6}}>Total Premiums Paid</div>
-          <div style={{fontSize:20,fontWeight:800,color:C.t1,fontFamily:"'DM Mono',ui-monospace,'SF Mono',Menlo,monospace"}}>{fmt(d.totalPaid)}</div>
+        <div style={{...card,padding:'16px 18px'}}>
+          <div style={{...eyebrow,marginBottom:8}}>Total Premiums Paid</div>
+          <div style={{fontSize:22,fontWeight:700,color:'#191817',letterSpacing:'-0.01em'}}>{fmt(d.totalPaid)}</div>
         </div>
       </div>
 
-      {/* Big corridor card */}
-      <div style={{background:isDark?'rgba(197,160,89,0.06)':'rgba(197,160,89,0.04)',border:'1px solid rgba(197,160,89,0.3)',borderRadius:14,padding:20}}>
-        <div style={{fontSize:10,fontWeight:700,letterSpacing:1.8,color:amber,textTransform:'uppercase',marginBottom:16}}>
+      {/* Surrender-value card */}
+      <div style={{...card,padding:22}}>
+        <div style={{...eyebrow,color:'#4a45d1',marginBottom:16}}>
           Estimated Surrender Value · After {policyYears} Year{policyYears===1?'':'s'}
         </div>
-        <div style={{marginBottom:14}}>
-          <div style={{fontSize:10,color:C.t4,marginBottom:8,fontWeight:600,letterSpacing:0.5}}>ESTIMATED CASH VALUE</div>
-          <div style={{display:'flex',alignItems:'baseline',gap:10,flexWrap:'wrap'}}>
-            <span style={{fontSize:28,fontWeight:800,color:C.t2,fontFamily:"'DM Mono',ui-monospace,'SF Mono',Menlo,monospace"}}>{fmt(d.low)}</span>
-            <span style={{fontSize:18,color:C.t4,fontWeight:400}}>–</span>
-            <span style={{fontSize:28,fontWeight:800,color:amber,fontFamily:"'DM Mono',ui-monospace,'SF Mono',Menlo,monospace"}}>{fmt(d.high)}</span>
-          </div>
-          <div style={{fontSize:11,color:C.t4,marginTop:6}}>Conservative estimate · Target estimate · Agent reference only</div>
+        <div style={{display:'flex',alignItems:'baseline',gap:10,flexWrap:'wrap',marginBottom:16}}>
+          <span style={{fontSize:32,fontWeight:700,color:'#191817',letterSpacing:'-0.02em'}}>{fmt(d.low)}</span>
+          <span style={{fontSize:20,color:'#a09c94',fontWeight:400}}>–</span>
+          <span style={{fontSize:32,fontWeight:700,color:'#4a45d1',letterSpacing:'-0.02em'}}>{fmt(d.high)}</span>
         </div>
 
-        {/* Visual bar */}
-        <div style={{marginTop:4}}>
-          <div style={{display:'flex',justifyContent:'space-between',fontSize:10,color:C.t4,marginBottom:4}}>
-            <span>{fmt(d.low)}</span><span style={{color:amber}}>{fmt(d.high)}</span>
+        {/* Range bar — track #f0efed, gradient fill spanning 18%–92% */}
+        <div style={{marginBottom:16}}>
+          <div style={{height:8,borderRadius:99,background:'#f0efed',overflow:'hidden',position:'relative'}}>
+            <div style={{position:'absolute',left:'18%',top:0,height:'100%',width:'74%',
+              background:'linear-gradient(90deg,#c9c6f2,#4a45d1)',borderRadius:99}}/>
           </div>
-          <div style={{height:8,borderRadius:4,background:C.bg2,overflow:'hidden',position:'relative'}}>
-            <div style={{position:'absolute',left:0,top:0,height:'100%',width:'100%',
-              background:'linear-gradient(90deg,rgba(148,163,184,0.4),#C5A059)',borderRadius:4}}/>
+          <div style={{display:'flex',justifyContent:'space-between',fontSize:11,color:'#a09c94',marginTop:6}}>
+            <span>Conservative {fmt(d.low)}</span><span style={{color:'#4740c8',fontWeight:600}}>Target {fmt(d.high)}</span>
           </div>
-          <div style={{fontSize:10,color:C.t4,marginTop:4,textAlign:'center'}}>Estimated corridor based on real carrier policy illustrations</div>
+        </div>
+
+        <div style={{fontSize:11.5,color:'#78746e',lineHeight:1.6,background:'#fbfbfa',border:'1px solid #f0efed',borderRadius:8,padding:'10px 14px'}}>
+          <strong style={{color:'#191817',fontWeight:600}}>Agent reference only.</strong> Estimates calibrated to real whole life carrier illustrations. Actual cash value depends on carrier, policy form, dividends, and loan history — pull the in-force illustration before discussing numbers.
         </div>
       </div>
 
       {/* Early-year warning */}
       {policyYears <= 2 && (
-        <div style={{display:'flex',alignItems:'flex-start',gap:10,background:'rgba(239,68,68,0.08)',border:'1px solid rgba(239,68,68,0.3)',borderRadius:10,padding:'10px 14px'}}>
-          <span style={{fontSize:16,flexShrink:0}}>⏳</span>
+        <div style={{display:'flex',alignItems:'flex-start',gap:10,background:'#fdecec',border:'1px solid #f5c6c2',borderRadius:10,padding:'12px 16px'}}>
           <div>
-            <div style={{fontSize:12,fontWeight:700,color:'#F87171',marginBottom:3}}>Early Policy Period</div>
-            <div style={{fontSize:11,color:'#CBD5E1',lineHeight:1.6}}>Most whole life policies accumulate little or no cash value during the first 2 years. Front-loaded carrier charges and mortality costs absorb the majority of early premiums. Significant accumulation typically begins in year 3+.</div>
+            <div style={{fontSize:12.5,fontWeight:600,color:'#b42318',marginBottom:3}}>Early policy period</div>
+            <div style={{fontSize:12,color:'#78746e',lineHeight:1.6}}>Most whole life policies accumulate little or no cash value during the first 2 years. Front-loaded carrier charges and mortality costs absorb the majority of early premiums. Significant accumulation typically begins in year 3+.</div>
           </div>
         </div>
       )}
-
-      {/* Disclaimer */}
-      <div style={{fontSize:10,color:C.t4,lineHeight:1.8,background:C.bg3,borderRadius:8,padding:'10px 14px',border:`1px solid ${C.bd}`}}>
-        ⚠️ <strong style={{color:C.t3}}>Agent reference only.</strong> Estimates calibrated to real whole life carrier illustrations (Americo, Royal Neighbors, LifeShield). Actual cash value depends on your specific carrier, policy form, dividends, and loan history. Always pull the carrier's in-force illustration before discussing numbers with a client.
-      </div>
     </div>
   );
 };
@@ -2106,23 +2093,13 @@ const CashValueProjection = ({ monthlyPremium, policyYears, issueAge, C, isDark 
 // Accendo Modified low). Gender comes from the shared Client Info intake.
 const CoverageEstimate = ({ monthlyPremium, policyYears, currentAge, gender, C, isDark }) => {
   const fmt = n => '$' + Math.round(n).toLocaleString();
-  const amber = '#C5A059';
   const r = estimateCoverage({ currentAge, policyYears, monthlyPremium, gender });
+  const card = {background:'#fff',border:'1px solid #eae9e6',borderRadius:12,boxShadow:'0 1px 2px rgba(25,24,23,0.04)'};
 
   return (
-    <div style={{display:'flex',flexDirection:'column',gap:14,padding:'24px',maxWidth:680,margin:'0 auto',width:'100%',borderTop:`1px solid ${C.bd}`,marginTop:8}}>
-      {/* Header */}
-      <div style={{display:'flex',alignItems:'center',gap:12,paddingBottom:10}}>
-        <span style={{fontSize:28}}>🛡️</span>
-        <div>
-          <div style={{fontSize:18,fontWeight:800,color:C.t0,fontFamily:"'DM Sans','Helvetica Neue',Arial,sans-serif"}}>Coverage Estimate</div>
-          <div style={{fontSize:11,color:C.t4,marginTop:2}}>Conservative estimate from premium · Standard / Modified WL rate book</div>
-        </div>
-      </div>
-
-      {/* Result */}
+    <div style={{display:'flex',flexDirection:'column',gap:14,maxWidth:680,margin:'0 auto',width:'100%',marginTop:16}}>
       {r.error ? (
-        <div style={{background:C.bg3,border:`1px solid ${C.bd}`,borderRadius:10,padding:16,fontSize:13,color:C.t3,textAlign:'center'}}>
+        <div style={{background:'#fbfbfa',border:'1px solid #eae9e6',borderRadius:10,padding:16,fontSize:13,color:'#78746e',textAlign:'center'}}>
           {r.error === 'insufficient products matched'
             ? 'No reference data at this issue age. Estimator covers issue ages 50–85 (WL/FE buyer range).'
             : r.error === 'policy years exceed current age'
@@ -2130,24 +2107,22 @@ const CoverageEstimate = ({ monthlyPremium, policyYears, currentAge, gender, C, 
             : 'Enter current age, monthly premium, and years in-force.'}
         </div>
       ) : (
-        <div style={{background:isDark?'rgba(197,160,89,0.06)':'rgba(197,160,89,0.04)',border:`1px solid ${amber}4D`,borderRadius:14,padding:20}}>
-          <div style={{fontSize:10,fontWeight:700,letterSpacing:1.8,color:amber,textTransform:'uppercase',marginBottom:14}}>
+        <div style={{...card,padding:22}}>
+          <div style={{fontSize:11,fontWeight:600,letterSpacing:'0.08em',color:'#4a45d1',textTransform:'uppercase',marginBottom:14}}>
             Estimated Death Benefit · Issued at age {r.issueAge}
           </div>
-          <div style={{display:'flex',alignItems:'baseline',gap:10,flexWrap:'wrap',marginBottom:10}}>
-            <span style={{fontSize:30,fontWeight:800,color:C.t2,fontFamily:"'DM Mono',ui-monospace,'SF Mono',Menlo,monospace"}}>{fmt(r.low)}</span>
-            <span style={{fontSize:18,color:C.t4}}>–</span>
-            <span style={{fontSize:30,fontWeight:800,color:amber,fontFamily:"'DM Mono',ui-monospace,'SF Mono',Menlo,monospace"}}>{fmt(r.high)}</span>
+          <div style={{display:'flex',alignItems:'baseline',gap:10,flexWrap:'wrap',marginBottom:14}}>
+            <span style={{fontSize:32,fontWeight:700,color:'#191817',letterSpacing:'-0.02em'}}>{fmt(r.low)}</span>
+            <span style={{fontSize:20,color:'#a09c94'}}>–</span>
+            <span style={{fontSize:32,fontWeight:700,color:'#4a45d1',letterSpacing:'-0.02em'}}>{fmt(r.high)}</span>
           </div>
-          <div style={{fontSize:11,color:C.t4,marginTop:10,paddingTop:10,borderTop:`1px solid ${C.bd}`,lineHeight:1.6,fontStyle:'italic'}}>
+          <div style={{fontSize:12,color:'#78746e',paddingTop:12,borderTop:'1px solid #f0efed',lineHeight:1.6,fontStyle:'italic'}}>
             (If the policy is ROP or Guaranteed Issue, the actual coverage is likely much less than this range.)
           </div>
         </div>
       )}
-
-      {/* Disclaimer */}
-      <div style={{fontSize:10,color:C.t4,lineHeight:1.8,background:C.bg3,borderRadius:8,padding:'10px 14px',border:`1px solid ${C.bd}`}}>
-        ⚠️ <strong style={{color:C.t3}}>Educational estimate.</strong> For conversational guidance only — verify actual coverage with policy documents.
+      <div style={{fontSize:11.5,color:'#78746e',lineHeight:1.7,background:'#fbfbfa',border:'1px solid #f0efed',borderRadius:8,padding:'10px 14px'}}>
+        <strong style={{color:'#191817',fontWeight:600}}>Educational estimate.</strong> For conversational guidance only — verify actual coverage with policy documents.
       </div>
     </div>
   );
@@ -2159,31 +2134,24 @@ const fmt$ = n => (n!=null&&typeof n==='number') ? `$${n.toFixed(2)}` : '—';
 const fmtF = n => (n!=null&&typeof n==='number') ? `$${n.toLocaleString()}` : '—';
 
 // ── DESIGN TOKENS ──
-const C_DARK = {
-  bg0:'#020617', bg1:'#0B1120', bg2:'#0F172A', bg3:'#1E293B', bg4:'#263347',
-  bd:'#1E293B', bd2:'#334155',
-  t0:'#FAF9F6', t1:'#E2E8F0', t2:'#CBD5E1', t3:'#94A3B8', t4:'#8A96AB',
-  blue:'#38BDF8', blueBg:'rgba(56,189,248,0.1)', blueBd:'rgba(56,189,248,0.25)',
-  gold:'#C5A059', goldBg:'rgba(197,160,89,0.12)', goldBd:'rgba(197,160,89,0.3)', goldText:'#C5A059',
-  green:'#22C55E',
-  cardShadow:'0 1px 3px rgba(0,0,0,0.5),0 0 0 1px rgba(255,255,255,0.03)',
-  ctaDisabled:'#2A3547',
-  selActive:'#38BDF8', selActiveTxt:'#0B1120',
-  pageBg:'#020617',
-};
-
-const C_LIGHT = {
-  // Executive warm palette — bone/cream backgrounds, deep navy text, champagne gold accents
-  bg0:'#FAF9F6', bg1:'#FAF9F6', bg2:'#FFFFFF', bg3:'#F2F1EC', bg4:'#E8E6DF',
-  bd:'#E5E3DB', bd2:'#D0CDBE',
-  t0:'#0A192F', t1:'#1A2B42', t2:'#3E4A59', t3:'#6B7280', t4:'#6E7583',
-  blue:'#0A192F', blueBg:'rgba(10,25,47,0.06)', blueBd:'rgba(10,25,47,0.18)',
-  gold:'#C5A059', goldBg:'rgba(197,160,89,0.1)', goldBd:'rgba(197,160,89,0.3)', goldText:'#9A7B38',
-  green:'#16A34A',
-  cardBg:'#FFFFFF', cardShadow:'0 4px 12px -2px rgba(10,25,47,0.08),0 2px 4px -2px rgba(10,25,47,0.04)',
-  ctaDisabled:'#D0CDBE',
-  selActive:'#0A192F', selActiveTxt:'#FFFFFF', selInactive:'#F2F1EC', selInactiveTxt:'#6B7280',
-  pageBg:'#FAF9F6',
+// Light "fintech" palette — single theme, per design_handoff_quotemarko_redesign.
+// Legacy token names kept so every existing C.* reference maps onto the new
+// system: the old gold accent slot now carries the design's indigo.
+const C_TOKENS = {
+  bg0:'#f8f8f7', bg1:'#f8f8f7', bg2:'#ffffff', bg3:'#ffffff', bg4:'#f0efed',
+  bd:'#eae9e6', bd2:'#dedcd7',
+  t0:'#191817', t1:'#191817', t2:'#78746e', t3:'#a09c94', t4:'#a09c94',
+  blue:'#4a45d1', blueBg:'#eef0fe', blueBd:'#c9c6f2',
+  gold:'#4a45d1', goldBg:'#eef0fe', goldBd:'#dbd9f4', goldText:'#4740c8',
+  green:'#177452',
+  cardBg:'#ffffff', cardShadow:'0 1px 2px rgba(25,24,23,0.04)',
+  ctaDisabled:'#dedcd7',
+  selActive:'#191817', selActiveTxt:'#ffffff', selInactive:'#ffffff', selInactiveTxt:'#78746e',
+  pageBg:'#f8f8f7',
+  // New-design extras (hover tints, insets, placeholders)
+  ink:'#191817', hairline:'#f0efed', inset:'#fbfbfa', placeholder:'#b5b1a8',
+  rowHover:'#f7f7ff', accent:'#4a45d1', accentHover:'#403bbd', accentActive:'#3b37ad',
+  accentTint:'#eef0fe', accentTintText:'#4740c8', accentBorder:'#dbd9f4',
 };
 
 
@@ -2195,13 +2163,14 @@ const C_LIGHT = {
 // Text colors come from the --qm-tier-* CSS vars (set in the theme effect) so
 // badges stay readable in BOTH themes — the raw 300-weight hexes measured
 // 1.7–2.5:1 on light-mode white cards.
-const LEVEL_TIER = { bg:'rgba(34,197,94,0.12)', bd:'rgba(34,197,94,0.35)', color:'var(--qm-tier-green)' };
+// Tier pills per the redesign handoff: soft tinted, borderless, radius 99px.
+const LEVEL_TIER = { bg:'#e8f6ef', bd:'transparent', color:'#177452' };
 const BADGE_STYLES = {
-  preferred: { bg:'rgba(139,92,246,0.15)', bd:'rgba(139,92,246,0.4)', color:'var(--qm-tier-purple)', label:'Preferred', tip:'Full immediate benefit from day 1. Client passed simplified underwriting — best available rate class.' },
+  preferred: { bg:'#eef0fe', bd:'transparent', color:'#4740c8', label:'Preferred', tip:'Full immediate benefit from day 1. Client passed simplified underwriting — best available rate class.' },
   level:     { ...LEVEL_TIER, label:'Level',    tip:'Full immediate benefit from day 1. Same tier as "Standard" — this carrier calls it Level.' },
   standard:  { ...LEVEL_TIER, label:'Standard', tip:'Full immediate benefit from day 1. Same tier as "Level" — this carrier calls it Standard.' },
-  modified:  { bg:'rgba(245,158,11,0.13)', bd:'rgba(245,158,11,0.35)', color:'var(--qm-tier-amber)', label:'Modified',  tip:'Graded death benefit — 2 to 3 year waiting period before full coverage applies.' },
-  gi:        { bg:'rgba(239,68,68,0.12)',  bd:'rgba(239,68,68,0.35)',  color:'var(--qm-tier-red)',   label:'GI',        tip:'Guaranteed Issue — no health questions. Graded benefit period applies. Approved regardless of health.' },
+  modified:  { bg:'#fdf3e0', bd:'transparent', color:'#96660f', label:'Modified',  tip:'Graded death benefit — 2 to 3 year waiting period before full coverage applies.' },
+  gi:        { bg:'#fdecec', bd:'transparent', color:'#b42318', label:'GI',        tip:'Guaranteed Issue — no health questions. Graded benefit period applies. Approved regardless of health.' },
 };
 function badgeType(tier, productName) {
   if(tier==='E') return 'gi';
@@ -2265,7 +2234,7 @@ function sheetFileName(sheet){
 async function buildClientSheetPdf(sheet, agentEmail, agentName){
   const { jsPDF } = await import('jspdf'); // lazy — keeps the main bundle lean
   const doc = new jsPDF({unit:'pt',format:'letter'});
-  const W = 612, M = 48, NAVY=[10,25,47], GOLD=[197,160,89], GRAY=[110,117,131], INK=[26,43,66], LINE=[209,213,219];
+  const W = 612, M = 48, NAVY=[25,24,23], GOLD=[74,69,209], GRAY=[120,116,110], INK=[25,24,23], LINE=[222,220,215];
   // Header band — branded to the signed-in AGENT, not QuoteMark. Last word of
   // the name renders gold (same two-tone treatment as the old wordmark).
   const who = (agentName||'').trim() || (agentEmail||'').split('@')[0] || 'Client Sheet';
@@ -2347,11 +2316,11 @@ const TierBadge = ({tier, productName}) => {
   return (
     <span style={{position:'relative',display:'inline-flex'}}
       onMouseEnter={()=>setHov(true)} onMouseLeave={()=>setHov(false)}>
-      <span style={{display:'inline-flex',alignItems:'center',gap:4,background:s.bg,border:`1px solid ${s.bd}`,color:s.color,borderRadius:5,padding:'2px 8px',fontSize:9,fontWeight:700,letterSpacing:0.5,cursor:'default',whiteSpace:'nowrap'}}>
+      <span style={{display:'inline-flex',alignItems:'center',background:s.bg,color:s.color,borderRadius:99,padding:'3px 10px',fontSize:11.5,fontWeight:600,cursor:'default',whiteSpace:'nowrap'}}>
         {s.label}
       </span>
       {hov&&(
-        <span style={{position:'absolute',bottom:'calc(100% + 6px)',left:0,background:'#1E3A5A',border:'1px solid #2A4F78',color:'#CBD5E1',fontSize:10,borderRadius:6,padding:'7px 10px',width:200,lineHeight:1.5,zIndex:9999,pointerEvents:'none',boxShadow:'0 4px 16px rgba(0,0,0,0.5)'}}>
+        <span style={{position:'absolute',bottom:'calc(100% + 6px)',left:0,background:'#fff',border:'1px solid #eae9e6',color:'#78746e',fontSize:11,borderRadius:8,padding:'8px 11px',width:210,lineHeight:1.5,zIndex:9999,pointerEvents:'none',boxShadow:'0 4px 16px rgba(25,24,23,0.12)'}}>
           {s.tip}
         </span>
       )}
@@ -2377,8 +2346,8 @@ const CompBadge = ({carrierId, tier}) => {
   if(!level || level!=='high') return null;
   const emoji = '💰';
   const color = 'var(--qm-tier-green)'; // theme-aware — readable in light mode too
-  const bg    = 'rgba(34,197,94,0.12)';
-  const bd    = 'rgba(34,197,94,0.35)';
+  const bg    = 'rgba(23,116,82,0.12)';
+  const bd    = 'rgba(23,116,82,0.35)';
   const tip   = 'Strong commission contract. One of the better-compensated products in this tier.';
   const handleOpen = () => {
     if(ref.current){
@@ -2436,48 +2405,24 @@ function termLogoKey(name) {
 }
 
 const CarrierLogo = ({carrierId, name, small=false}) => {
-  // Look up by FE carrier ID first; if not found, fall back to a term-product
-  // name match against the existing FE logo set.
+  // Redesign: square white tile (42px desktop / 38px mobile-small), real logo at
+  // ~32px contain-fit, 2-letter monogram fallback (600 12px #a09c94).
   const meta = CARRIER_META[carrierId] || CARRIER_META[termLogoKey(name)];
   const [err,setErr] = React.useState(false);
-  // Mobile-tight: shrink the small variant so carrier name doesn't get truncated
-  const w = small ? 78 : 124;
-  const h = small ? 36 : 54;
-  if (meta?.img && !err) {
-    return (
-      <div style={{width:w,height:h,borderRadius:4,background:'#FFFFFF',display:'flex',alignItems:'center',justifyContent:'center',overflow:'hidden',flexShrink:0,padding:'1px',boxSizing:'border-box',boxShadow:'0 1px 3px rgba(0,0,0,0.18)'}}>
-        <img
-          src={meta.img}
-          alt={name}
-          onError={()=>setErr(true)}
-          style={{width:'100%',height:'100%',objectFit:'contain'}}
-        />
-      </div>
-    );
-  }
-  // Fallback: colored initials box. Use the carrier brand color if available,
-  // else gold. Initials = first letter of each word (max 3).
-  const brand = meta?.brand || '#C5A059';
-  const initials = (name || '?')
-    .replace(/\s*\(.+?\)\s*/g, '')   // strip "(...)" suffix
+  const size = small ? 38 : 42;
+  const monogram = (name || '?')
+    .replace(/\s*\(.+?\)\s*/g, '')
     .split(/\s+/)
     .map(w => w[0])
     .filter(Boolean)
-    .slice(0, 3)
+    .slice(0, 2)
     .join('')
     .toUpperCase();
   return (
-    <div style={{
-      width: w, height: h, borderRadius: 4,
-      background: `linear-gradient(135deg, ${brand}, ${brand}cc)`,
-      display: 'flex', alignItems: 'center', justifyContent: 'center',
-      overflow: 'hidden', flexShrink: 0,
-      boxShadow: '0 1px 3px rgba(0,0,0,0.18)',
-      color: '#FFFFFF', fontFamily: "'DM Sans',sans-serif",
-      fontWeight: 800, fontSize: small ? 17 : 19,
-      letterSpacing: 0.5,
-    }}>
-      {initials}
+    <div style={{width:size,height:size,borderRadius:9,background:'#fff',border:'1px solid #f0efed',display:'flex',alignItems:'center',justifyContent:'center',overflow:'hidden',flexShrink:0,boxSizing:'border-box'}}>
+      {meta?.img && !err
+        ? <img src={meta.img} alt={name} onError={()=>setErr(true)} style={{width:size-10,height:size-10,objectFit:'contain'}}/>
+        : <span style={{fontSize:12,fontWeight:600,color:'#a09c94',letterSpacing:0.3}}>{monogram}</span>}
     </div>
   );
 };
@@ -2486,6 +2431,7 @@ const CarrierLogo = ({carrierId, name, small=false}) => {
 //   instant  → green pill, ⚡ INSTANT  (eApp instant decision, no exam)
 //   medical  → amber pill, 🩺 EXAM    (paramedical + blood/urine required)
 //   simplified → nothing rendered (the default — no extra UI noise)
+// Issue-type badges per the redesign: rounded rect r5, 600 10.5px, ls .05em.
 const UWBadge = ({uwType, productName, tier, small=false}) => {
   if (uwType === 'instant') {
     const tip = productName && TERM_TIER_DEPENDENT.has(productName)
@@ -2493,12 +2439,11 @@ const UWBadge = ({uwType, productName, tier, small=false}) => {
       : 'Instant decision via eApp — no exam, no blood work';
     return (
       <span title={tip} style={{
-        display:'inline-flex',alignItems:'center',gap:3,
-        background:'rgba(16,185,129,0.14)',border:'1px solid rgba(16,185,129,0.4)',
-        color:'#10B981',borderRadius:5,padding: small?'1px 5px':'2px 6px',
-        fontSize: small?9:10,fontWeight:800,letterSpacing:0.4,whiteSpace:'nowrap',
-        fontFamily:"'DM Sans','Helvetica Neue',Arial,sans-serif",lineHeight:1.2,
-      }}>⚡ INSTANT</span>
+        display:'inline-flex',alignItems:'center',
+        background:'#e8f6ef',color:'#177452',borderRadius:5,padding:'3px 8px',
+        fontSize:10.5,fontWeight:600,letterSpacing:'0.05em',whiteSpace:'nowrap',
+        fontFamily:"'Instrument Sans','Helvetica Neue',Arial,sans-serif",lineHeight:1.2,
+      }}>INSTANT</span>
     );
   }
   if (uwType === 'medical') {
@@ -2507,72 +2452,44 @@ const UWBadge = ({uwType, productName, tier, small=false}) => {
       : 'Requires paramedical exam + blood work';
     return (
       <span title={tip} style={{
-        display:'inline-flex',alignItems:'center',gap:3,
-        background:'rgba(245,158,11,0.14)',border:'1px solid rgba(245,158,11,0.4)',
-        color:'#F59E0B',borderRadius:5,padding: small?'1px 5px':'2px 6px',
-        fontSize: small?9:10,fontWeight:800,letterSpacing:0.4,whiteSpace:'nowrap',
-        fontFamily:"'DM Sans','Helvetica Neue',Arial,sans-serif",lineHeight:1.2,
-      }}>🩺 EXAM</span>
+        display:'inline-flex',alignItems:'center',
+        background:'#fdf3e0',color:'#96660f',borderRadius:5,padding:'3px 8px',
+        fontSize:10.5,fontWeight:600,letterSpacing:'0.05em',whiteSpace:'nowrap',
+        fontFamily:"'Instrument Sans','Helvetica Neue',Arial,sans-serif",lineHeight:1.2,
+      }}>{small?'MED EXAM':'REQUIRES MED EXAM'}</span>
     );
   }
   return null;
 };
 
-// eApp button — full-width (standard) or compact (GSB footer)
-// Muted outline style — brand color text, subtle border
+// eApp button per the redesign: rest = white bg / indigo text / #dbd9f4 border;
+// hover fills solid indigo (handled by .qm-eapp CSS). compact = row cell;
+// full = full-width card footer.
 const EAppBtn = ({carrierId, compact=false, lightMode=false}) => {
   const meta = CARRIER_META[carrierId];
-  const [hov,setHov] = React.useState(false);
   if(!meta?.eapp) return null;
-  const brand = meta.brand || '#3B82F6';
-  // Compact variant — filled button with clear hover state
+  const base = {
+    padding:'7px 14px',borderRadius:8,fontSize:13,fontWeight:600,
+    color:'#4a45d1',border:'1px solid #dbd9f4',background:'#fff',
+    boxShadow:'0 1px 2px rgba(25,24,23,.06)',textDecoration:'none',
+    whiteSpace:'nowrap',cursor:'pointer',boxSizing:'border-box',
+    fontFamily:"'Instrument Sans','Helvetica Neue',Arial,sans-serif",
+  };
   if(compact) {
     return (
-      <a href={meta.eapp} target="_blank" rel="noopener noreferrer"
+      <a className="qm-eapp" href={meta.eapp} target="_blank" rel="noopener noreferrer"
         onClick={()=>track('e-App Click',{carrier:carrierId,variant:'compact'})}
-        onMouseEnter={()=>setHov(true)} onMouseLeave={()=>setHov(false)}
-        style={{
-          display:'inline-flex',alignItems:'center',gap:6,
-          padding:'7px 16px',minHeight:40,boxSizing:'border-box',borderRadius:8,
-          border:`1.5px solid ${hov?brand:(lightMode?'#CBD5E1':'#3B4B66')}`,
-          background: hov
-            ? brand
-            : (lightMode?'#F1F5F9':'#28344A'),
-          color: hov
-            ? '#FFFFFF'
-            : (lightMode?'#0F172A':'#E2E8F0'),
-          fontSize:12,fontWeight:700,textDecoration:'none',
-          letterSpacing:0.3,
-          transition:'background 0.12s, color 0.12s, border-color 0.12s, transform 0.12s, box-shadow 0.12s',
-          transform: hov?'translateY(-1px) scale(1.04)':'translateY(0) scale(1)',
-          boxShadow: hov?`0 4px 14px ${brand}55`:'0 1px 2px rgba(0,0,0,0.06)',
-          whiteSpace:'nowrap',flexShrink:0,cursor:'pointer'
-        }}>
-        e-App <span style={{fontSize:13,fontWeight:800,marginTop:-1}}>→</span>
+        style={{...base,display:'inline-flex',alignItems:'center',gap:4,flexShrink:0}}>
+        e-App →
       </a>
     );
   }
-  // Full-width variant — outline, marginTop:auto keeps it pinned to bottom of card
   return (
-    <div style={{marginTop:'auto',paddingTop:12,borderTop:`1px solid ${lightMode?'#E5E3DB':'rgba(255,255,255,0.06)'}`}}>
-      <a href={meta.eapp} target="_blank" rel="noopener noreferrer"
-        onClick={()=>track('e-App Click',{carrier:carrierId,variant:'full'})}
-        onMouseEnter={()=>setHov(true)} onMouseLeave={()=>setHov(false)}
-        style={{
-          display:'flex',alignItems:'center',justifyContent:'center',gap:7,
-          width:'100%',padding:'9px 0',minHeight:40,boxSizing:'border-box',
-          borderRadius:8,
-          border:`1.5px solid ${hov?brand:(lightMode?'#D0CDBE':'#374151')}`,
-          background:hov?(lightMode?'rgba(197,160,89,0.06)':'rgba(255,255,255,0.04)'):'transparent',
-          color:lightMode?'#3E4A59':'#94A3B8',
-          fontSize:12,fontWeight:600,textDecoration:'none',
-          letterSpacing:0.3,transition:'all 0.15s',
-          boxShadow:'none',
-          transform:hov?'translateY(-1px)':'translateY(0)',
-        }}>
-        e-App →
-      </a>
-    </div>
+    <a className="qm-eapp" href={meta.eapp} target="_blank" rel="noopener noreferrer"
+      onClick={()=>track('e-App Click',{carrier:carrierId,variant:'full'})}
+      style={{...base,display:'flex',alignItems:'center',justifyContent:'center',gap:4,width:'100%',marginTop:'auto'}}>
+      e-App →
+    </a>
   );
 };
 
@@ -2617,27 +2534,35 @@ export default function QuoteMark() {
     const s=document.createElement('style');
     s.id='qm-btn-styles';
     s.textContent=`
-      .qm-btn { transition: transform 0.18s ease-in-out, box-shadow 0.18s ease-in-out !important; }
-      .qm-btn:hover:not(:disabled) { transform: scale(1.02) translateY(-2px) !important; box-shadow: 0 4px 12px rgba(0,0,0,0.18) !important; }
-      .qm-btn:active { transform: scale(0.98) !important; box-shadow: none !important; }
-      .qm-gsb-toggle:hover { opacity: 0.9; transform: translateY(-1px); }
-      .qm-gsb-toggle { transition: all 0.2s ease-in-out; }
-      /* CTA — the big "Get Quotes" button. Tactile press feel. */
-      .qm-cta { transition: transform 0.12s ease-out, box-shadow 0.18s ease-out, filter 0.15s ease-out !important; will-change: transform; }
-      .qm-cta:hover:not(:disabled) { transform: translateY(-1px) !important; box-shadow: 0 6px 18px rgba(197,160,89,0.35) !important; filter: brightness(1.05) !important; }
-      .qm-cta:active:not(:disabled) { transform: translateY(1px) scale(0.985) !important; box-shadow: 0 1px 3px rgba(0,0,0,0.25) inset, 0 0 0 1px rgba(0,0,0,0.06) !important; filter: brightness(0.96) !important; transition-duration: 0.04s !important; }
-      .qm-cta.qm-cta-pulse { animation: qmPulse 0.42s ease-out; }
-      @keyframes qmPulse {
-        0%   { box-shadow: 0 0 0 0 rgba(197,160,89,0.55); }
-        60%  { box-shadow: 0 0 0 14px rgba(197,160,89,0); }
-        100% { box-shadow: 0 0 0 0 rgba(197,160,89,0); }
-      }
+      /* Redesign interaction system — everything transitions all .12s ease */
+      .qm-btn { transition: all .12s ease !important; }
+      .qm-btn:hover:not(:disabled) { background: #f6f5f3; }
+      /* Nav product tabs (text pills) */
+      .qm-navtab { transition: all .12s ease !important; }
+      .qm-navtab:hover { background: #f6f5f3 !important; color: #191817 !important; }
+      /* Segmented-control inactive segment */
+      .qm-seg { transition: all .12s ease !important; }
+      .qm-seg:hover { background: #f6f5f3 !important; }
+      /* Quote row — highlight + shift */
+      .qm-row { transition: all .12s ease !important; }
+      .qm-row:hover { background: #f7f7ff !important; border-color: #c9c6f2 !important; box-shadow: 0 2px 8px rgba(74,69,209,.08) !important; transform: translateX(3px); }
+      /* e-App button — rest white/indigo, hover solid indigo */
+      .qm-eapp { transition: all .12s ease !important; }
+      .qm-eapp:hover { background: #4a45d1 !important; color: #fff !important; border-color: #4a45d1 !important; box-shadow: 0 2px 6px rgba(74,69,209,.35) !important; }
+      .qm-eapp:active { background: #3b37ad !important; box-shadow: 0 1px 2px rgba(74,69,209,.3) !important; }
+      /* Primary CTA — indigo */
+      .qm-cta { transition: all .12s ease !important; }
+      .qm-cta:hover:not(:disabled) { background: #403bbd !important; }
+      .qm-cta:active:not(:disabled) { background: #3b37ad !important; }
+      /* Bordered secondary (Contact) */
+      .qm-secondary { transition: all .12s ease !important; }
+      .qm-secondary:hover { border-color: #191817 !important; }
+      /* Profile pill */
+      .qm-pill { transition: all .12s ease !important; }
+      .qm-pill:hover { border-color: #dedcd7 !important; background: #fbfbfa !important; }
       @keyframes spin { to { transform: rotate(360deg); } }
-      /* Keyboard focus — one branded gold ring everywhere (mouse users never see it) */
-      *:focus-visible { outline: 2px solid #C5A059 !important; outline-offset: 2px !important; border-radius: 4px; }
-      /* Results mount — a quiet "they just landed" beat. ≤160ms, no spring.
-         'backwards' fill applies the start frame before the run, then releases
-         back to the element's inline styles — so hover transforms stay intact. */
+      /* Keyboard focus — one indigo ring everywhere (mouse users never see it) */
+      *:focus-visible { outline: 2px solid #4a45d1 !important; outline-offset: 2px !important; border-radius: 4px; }
       @keyframes qmRise { from { opacity: 0; transform: translateY(6px); } to { opacity: 1; transform: translateY(0); } }
       .qm-rise { animation: qmRise 0.16s ease-out backwards; }
     `;
@@ -2712,6 +2637,8 @@ export default function QuoteMark() {
   // ── CLIENT SHEET STATE ──
   // Persisted to localStorage so a mid-call refresh doesn't lose the sheet.
   const [sheet,setSheet] = useState(()=>{ try{ return {...SHEET_EMPTY, ...JSON.parse(localStorage.getItem('qm_client_sheet')||'{}')}; }catch(e){ return {...SHEET_EMPTY}; } });
+  // Sensitive fields (SSN, account) render masked by default; per-field Show toggles.
+  const [showSensitive,setShowSensitive] = useState({});
   useEffect(()=>{ try{ localStorage.setItem('qm_client_sheet', JSON.stringify(sheet)); }catch(e){} },[sheet]);
   const [sheetSaving,setSheetSaving] = useState(false);
   const [sheetMsg,setSheetMsg] = useState(null); // {t:'ok'|'err', m}
@@ -2741,6 +2668,7 @@ export default function QuoteMark() {
   const [termLength,setTermLength] = useState('10'); // '10' | '15' | '20' | '30'
   const [termFace,setTermFace] = useState(100000); // $25k-$1M, 5k step
   const [termMode,setTermMode] = useState('face'); // 'face' | 'budget'
+  const [issueFilter,setIssueFilter] = useState('ALL'); // 'ALL' | 'INSTANT' | 'EXAM' — client-side filter of loaded term quotes
   const [termBudget,setTermBudget] = useState(100); // monthly budget in $
   const [termHealth,setTermHealth] = useState('p'); // 'pp'=Preferred Plus, 'p'=Preferred, 'sp'=Standard Plus, 's'=Standard
   const [termHealthManual,setTermHealthManual] = useState(false); // true once user clicks a pill — disables auto-recommend
@@ -2769,21 +2697,22 @@ export default function QuoteMark() {
   const [pwMsg, setPwMsg] = useState(null);
   const [pwChanging, setPwChanging] = useState(false);
   const [carriersSaved, setCarriersSaved] = useState(false);
-  const [isDark, setIsDark] = useState(true);
-  const C = isDark ? C_DARK : C_LIGHT;
-  // Page background follows the active theme (was a hardcoded #05101E seam on overscroll).
-  // Also flips the tier text-color CSS vars: the 300-weight hues (#4ADE80 etc.)
-  // read at 8:1 on dark cards but ~1.7:1 on white — light mode needs the
-  // 700-weight equivalents to clear WCAG 4.5:1 at badge sizes.
+  // Single light theme (redesign): isDark pinned false so legacy ternaries
+  // resolve to their light branch until each screen's rebuild removes them.
+  const isDark = false;
+  const C = C_TOKENS;
   useEffect(()=>{
     document.documentElement.style.background = C.pageBg;
     document.body.style.background = C.pageBg;
+    document.body.style.fontFamily = "'Instrument Sans','Helvetica Neue',Arial,sans-serif";
+    // Handoff: tabular numerals on every numeric value — inherit from body.
+    document.body.style.fontVariantNumeric = 'tabular-nums';
     const rs = document.documentElement.style;
-    rs.setProperty('--qm-tier-purple', isDark ? '#A78BFA' : '#6D28D9');
-    rs.setProperty('--qm-tier-green',  isDark ? '#4ADE80' : '#15803D');
-    rs.setProperty('--qm-tier-amber',  isDark ? '#FBBF24' : '#B45309');
-    rs.setProperty('--qm-tier-red',    isDark ? '#F87171' : '#B91C1C');
-  },[isDark]);
+    rs.setProperty('--qm-tier-purple', '#4740c8');
+    rs.setProperty('--qm-tier-green',  '#177452');
+    rs.setProperty('--qm-tier-amber',  '#96660f');
+    rs.setProperty('--qm-tier-red',    '#b42318');
+  },[]);
 
   // ── CONTACT MODAL STATE ──
   const [showContact, setShowContact] = useState(false);
@@ -2794,11 +2723,6 @@ export default function QuoteMark() {
   const [contactErr, setContactErr] = useState(null);
 
 
-  const toggleDarkMode = async () => {
-    const next = !isDark;
-    setIsDark(next);
-    if(session) await supabase.from('profiles').update({dark_mode:next}).eq('id',session.user.id);
-  };
   const sendContact = async () => {
     if(!contactForm.name||!contactForm.email||!contactForm.message) return;
     setContactSending(true); setContactErr(null);
@@ -2817,7 +2741,7 @@ export default function QuoteMark() {
   // Load profile data + carrier prefs from Supabase on mount
   useEffect(()=>{
     if(!session) return;
-    supabase.from('profiles').select('display_name,carrier_prefs,dark_mode').eq('id',session.user.id).single()
+    supabase.from('profiles').select('display_name,carrier_prefs').eq('id',session.user.id).single()
       .then(({data})=>{
         if(!data) return;
         if(data.display_name) setProfileName(data.display_name);
@@ -2830,7 +2754,6 @@ export default function QuoteMark() {
               (c.termOnly ? !savedIds.includes('__disabled_'+c.id) : savedIds.includes(c.id))
           })));
         }
-        if(data.dark_mode !== null && data.dark_mode !== undefined) setIsDark(data.dark_mode);
       });
   },[session]);
 
@@ -3229,15 +3152,17 @@ export default function QuoteMark() {
     });
   }, [quoteMode, ageOK, ageNum, gender, smoker, dIulPremium, dIulFace, iulMode, hasQuoted, usState]);
 
-  // ── INPUT STYLES ──
-  const inp = {background:C.bg2,border:`1px solid ${C.bd}`,color:C.t1,borderRadius:8,padding:'9px 12px',fontSize:13,width:'100%',boxSizing:'border-box',outline:'none',fontFamily:"'DM Sans','Helvetica Neue',Arial,sans-serif"};
-  const togBtn = (active) => isDark ? {flex:1,padding:'9px 0',minHeight:40,borderRadius:7,border:`2px solid ${active?'#C5A059':'#374151'}`,cursor:'pointer',fontSize:12,fontWeight:600,background:active?'#C5A059':'#0F172A',color:active?'#0A192F':'#94A3B8',fontFamily:"'DM Sans','Helvetica Neue',Arial,sans-serif"} : {flex:1,padding:'9px 0',minHeight:40,borderRadius:7,border:`2px solid ${active?'#0A192F':'#D0CDBE'}`,cursor:'pointer',fontSize:12,fontWeight:600,background:active?'#0A192F':C.selInactive,color:active?'#FFFFFF':'#6B7280',fontFamily:"'DM Sans','Helvetica Neue',Arial,sans-serif"};
-  const sec = {background:C.bg3,border:`1px solid ${C.bd}`,borderRadius:12,padding:16};
-  const lbl = {fontSize:10,fontWeight:700,letterSpacing:1.8,color:C.t4,textTransform:'uppercase',marginBottom:10};
+  // ── INPUT STYLES (redesign: 36px fields, 7px radius, joined segmented toggles) ──
+  const inp = {background:'#fff',border:'1px solid #dedcd7',color:'#191817',borderRadius:7,padding:'9px 10px',fontSize:13,width:'100%',boxSizing:'border-box',outline:'none',fontFamily:"'Instrument Sans','Helvetica Neue',Arial,sans-serif"};
+  // Joined segmented control: wrap segments in segWrap; selected = solid ink.
+  const segWrap = {display:'flex',gap:0,border:'1px solid #dedcd7',borderRadius:7,overflow:'hidden'};
+  const togBtn = (active) => ({flex:1,padding:0,height:34,minHeight:34,border:'none',cursor:'pointer',fontSize:12.5,display:'flex',alignItems:'center',justifyContent:'center',fontWeight:active?600:400,background:active?'#191817':'#fff',color:active?'#fff':'#78746e',fontFamily:"'Instrument Sans','Helvetica Neue',Arial,sans-serif"});
+  const sec = {background:'#fff',border:'1px solid #eae9e6',borderRadius:10,padding:16,boxShadow:'0 1px 2px rgba(25,24,23,0.04)'};
+  const lbl = {fontSize:11,fontWeight:600,letterSpacing:'0.08em',color:'#a09c94',textTransform:'uppercase',marginBottom:12};
   // Mobile-tier styles (also used by ClientInfoBlock in desktop calls when sized for variant)
   // fontSize 16 minimum — below 16px iOS Safari auto-zooms on input focus (zoom is enabled now)
-  const mInp = {background:C.bg2,border:`1px solid ${C.bd}`,color:C.t1,borderRadius:10,padding:'12px 14px',fontSize:16,width:'100%',boxSizing:'border-box',outline:'none',fontFamily:"'DM Sans','Helvetica Neue',Arial,sans-serif",WebkitAppearance:'none'};
-  const mTogBtn = (active,color) => isDark ? {flex:1,padding:'14px 0',minHeight:48,borderRadius:10,border:`2px solid ${active?'#C5A059':'#374151'}`,cursor:'pointer',fontSize:14,fontWeight:600,background:active?'#C5A059':'#0F172A',color:active?'#0A192F':'#94A3B8',fontFamily:"'DM Sans','Helvetica Neue',Arial,sans-serif"} : {flex:1,padding:'14px 0',minHeight:48,borderRadius:10,border:`2px solid ${active?'#0A192F':'#D0CDBE'}`,cursor:'pointer',fontSize:14,fontWeight:600,background:active?'#0A192F':'#F2F1EC',color:active?'#FFFFFF':'#6B7280',fontFamily:"'DM Sans','Helvetica Neue',Arial,sans-serif"};
+  const mInp = {background:'#fff',border:'1px solid #dedcd7',color:'#191817',borderRadius:8,padding:'12px 14px',fontSize:16,width:'100%',boxSizing:'border-box',outline:'none',fontFamily:"'Instrument Sans','Helvetica Neue',Arial,sans-serif",WebkitAppearance:'none'};
+  const mTogBtn = (active) => ({flex:1,padding:0,minHeight:44,border:'none',cursor:'pointer',fontSize:14,display:'flex',alignItems:'center',justifyContent:'center',fontWeight:active?600:400,background:active?'#191817':'#fff',color:active?'#fff':'#78746e',fontFamily:"'Instrument Sans','Helvetica Neue',Arial,sans-serif"});
 
   // ── DOB → age auto-sync (when all 3 fields valid, compute age and set it) ──
   // ── REUSABLE CLIENT INFO BLOCK ──
@@ -3247,73 +3172,117 @@ export default function QuoteMark() {
   // remount it on each App render — that would steal focus from DOB inputs.
   // ── CLIENT SHEET FORM ── one plain column; shared by mobile + desktop.
   const renderClientSheet = (isM=true) => {
-    const inpS = isM ? mInp : {...inp, fontSize:14, padding:'11px 12px'};
-    return (
-      <div style={{display:'flex',flexDirection:'column',gap:12}}>
-        <div style={{background:C.bg2,border:`1px solid ${C.bd}`,borderRadius:12,padding:16,display:'flex',flexDirection:'column',gap:12}}>
-          <div style={{display:'flex',justifyContent:'space-between',alignItems:'center'}}>
-            <div style={{fontSize:10,fontWeight:700,letterSpacing:1.8,color:C.t4,textTransform:'uppercase'}}>Client Sheet</div>
-            <button onClick={()=>{ if(window.confirm('Clear the client sheet? This wipes every field.')) { setSheet({...SHEET_EMPTY}); setSheetMsg(null); } }}
-              style={{background:'transparent',border:'none',color:C.t4,fontSize:11,cursor:'pointer',padding:0,textDecoration:'underline',fontFamily:"'DM Sans','Helvetica Neue',Arial,sans-serif"}}>Clear</button>
+    const inpS = isM ? mInp : {...inp, fontSize:13, padding:'8px 10px'};
+    const SENSITIVE = new Set(['ssn','account','sp_ssn']);
+    const F = ({k, label, ph, im, span}) => (
+      <div style={span===2?{gridColumn:'1 / -1'}:undefined}>
+        <div style={{fontSize:12,color:'#78746e',marginBottom:5}}>{label}</div>
+        {SENSITIVE.has(k) ? (
+          <div style={{position:'relative'}}>
+            <input value={sheet[k]} inputMode={im||'text'} placeholder={ph||''}
+              type={showSensitive[k]?'text':'password'} autoComplete="off"
+              onChange={e=>setSheet(p=>({...p,[k]:e.target.value}))}
+              style={{...inpS,paddingRight:52}}/>
+            <button onClick={()=>setShowSensitive(p=>({...p,[k]:!p[k]}))} style={{
+              position:'absolute',right:6,top:'50%',transform:'translateY(-50%)',
+              background:'transparent',border:'none',cursor:'pointer',padding:'4px 6px',
+              fontSize:11.5,fontWeight:600,color:'#4a45d1',fontFamily:'inherit'
+            }}>{showSensitive[k]?'Hide':'Show'}</button>
           </div>
-          {SHEET_FIELDS.map(f=>(
-            <React.Fragment key={f.k}>
-              {f.sec && <div style={{fontSize:9,fontWeight:700,letterSpacing:1.5,color:C.goldText,textTransform:'uppercase',marginTop:f.k==='fullName'?0:6,paddingBottom:2,borderBottom:`1px solid ${C.bd}`}}>{f.sec}</div>}
-              <div>
-                <div style={{fontSize:11,color:C.t3,marginBottom:5,fontWeight:600}}>{f.label}</div>
-                <input value={sheet[f.k]} inputMode={f.im||'text'} placeholder={f.ph||''}
-                  onChange={e=>setSheet(p=>({...p,[f.k]:e.target.value}))}
-                  style={inpS}/>
-              </div>
-              {f.k==='ssn' && (
-                <>
-                  {/* Husband & wife — checkbox reveals a second client */}
-                  <button onClick={()=>setSheet(p=>({...p,spouse:!p.spouse}))} style={{
-                    padding:'10px 12px',borderRadius:8,border:`1px solid ${sheet.spouse?C.gold:C.bd}`,
-                    background:sheet.spouse?C.goldBg:C.bg3,color:C.t2,textAlign:'left',cursor:'pointer',
-                    fontSize:12,fontFamily:"'DM Sans','Helvetica Neue',Arial,sans-serif",display:'flex',alignItems:'center',gap:8
-                  }}>
-                    <span style={{width:16,height:16,borderRadius:4,border:`2px solid ${sheet.spouse?C.gold:C.bd2}`,background:sheet.spouse?C.gold:'transparent',display:'flex',alignItems:'center',justifyContent:'center',fontSize:11,color:C.bg0,fontWeight:900,flexShrink:0}}>{sheet.spouse?'✓':''}</span>
-                    <span>Husband &amp; wife — add a second client</span>
-                  </button>
-                  {sheet.spouse && (
-                    <>
-                      <div style={{fontSize:9,fontWeight:700,letterSpacing:1.5,color:C.goldText,textTransform:'uppercase',marginTop:6,paddingBottom:2,borderBottom:`1px solid ${C.bd}`}}>Client 2 (Spouse)</div>
-                      {SPOUSE_FIELDS.map(sf=>(
-                        <div key={sf.k}>
-                          <div style={{fontSize:11,color:C.t3,marginBottom:5,fontWeight:600}}>{sf.label}</div>
-                          <input value={sheet[sf.k]} placeholder={sf.ph||''}
-                            onChange={e=>setSheet(p=>({...p,[sf.k]:e.target.value}))}
-                            style={inpS}/>
-                        </div>
-                      ))}
-                    </>
-                  )}
-                </>
-              )}
-            </React.Fragment>
-          ))}
+        ) : (
+          <input value={sheet[k]} inputMode={im||'text'} placeholder={ph||''}
+            onChange={e=>setSheet(p=>({...p,[k]:e.target.value}))}
+            style={inpS}/>
+        )}
+      </div>
+    );
+    const Eyebrow = ({children,first}) => (
+      <div style={{gridColumn:'1 / -1',fontSize:11,fontWeight:600,letterSpacing:'0.08em',color:'#4a45d1',textTransform:'uppercase',paddingBottom:8,borderBottom:'1px solid #f0efed',marginTop:first?0:10}}>{children}</div>
+    );
+    const grid = cols => ({display:'grid',gridTemplateColumns:isM?'1fr':cols,gap:12});
+    return (
+      <div style={{display:'flex',flexDirection:'column',gap:14}}>
+        <div style={{display:'flex',justifyContent:'flex-end'}}>
+          <button onClick={()=>{ if(window.confirm('Clear the client sheet? This wipes every field.')) { setSheet({...SHEET_EMPTY}); setSheetMsg(null); } }}
+            style={{background:'transparent',border:'none',color:'#4a45d1',fontSize:12.5,fontWeight:600,cursor:'pointer',padding:0,fontFamily:"'Instrument Sans','Helvetica Neue',Arial,sans-serif"}}>Clear sheet</button>
+        </div>
+        <div style={{background:'#fff',border:'1px solid #eae9e6',borderRadius:12,padding:isM?16:22,display:'flex',flexDirection:'column',gap:14,boxShadow:'0 1px 2px rgba(25,24,23,0.04)'}}>
+          {/* CLIENT */}
+          <div style={grid('1fr 1fr')}>
+            <Eyebrow first>Client</Eyebrow>
+            <F k="fullName" label="Full name"/>
+            <F k="dob" label="Date of birth" ph="mm/dd/yyyy"/>
+            <F k="address" label="Address" span={2}/>
+            <F k="phone" label="Phone" im="tel"/>
+            <F k="email" label="Email" im="email"/>
+            <F k="heightWeight" label="Height / weight" ph={'5\'10" / 190 lb'}/>
+            <F k="dl" label="Driver's license #"/>
+            <F k="ssn" label="Social Security #"/>
+          </div>
+          {/* Husband & wife checkbox */}
+          <button onClick={()=>setSheet(p=>({...p,spouse:!p.spouse}))} style={{
+            padding:'10px 12px',borderRadius:8,border:`1px solid ${sheet.spouse?'#c9c6f2':'#e8e7e4'}`,
+            background:sheet.spouse?'#eef0fe':'#fbfbfa',color:'#191817',textAlign:'left',cursor:'pointer',
+            fontSize:12.5,fontFamily:"'Instrument Sans','Helvetica Neue',Arial,sans-serif",display:'flex',alignItems:'center',gap:8
+          }}>
+            <span style={{width:16,height:16,borderRadius:4,border:`1px solid ${sheet.spouse?'#4a45d1':'#dedcd7'}`,background:sheet.spouse?'#4a45d1':'#fff',display:'flex',alignItems:'center',justifyContent:'center',fontSize:11,color:'#fff',fontWeight:700,flexShrink:0}}>{sheet.spouse?'✓':''}</span>
+            <span>Husband &amp; wife — add a second client</span>
+          </button>
+          {sheet.spouse && (
+            <div style={grid('1fr 1fr')}>
+              <Eyebrow>Client 2 (Spouse)</Eyebrow>
+              <F k="sp_fullName" label="Full name"/>
+              <F k="sp_dob" label="Date of birth" ph="mm/dd/yyyy"/>
+              <F k="sp_heightWeight" label="Height / weight"/>
+              <F k="sp_dl" label="Driver's license #"/>
+              <F k="sp_ssn" label="Social Security #"/>
+            </div>
+          )}
+          {/* BENEFICIARIES */}
+          <div style={grid('2fr 1fr')}>
+            <Eyebrow>Beneficiaries</Eyebrow>
+            <F k="bene1" label="Primary beneficiary"/>
+            <F k="bene1Dob" label="DOB" ph="mm/dd/yyyy"/>
+            <F k="bene2" label="Contingent beneficiary"/>
+            <F k="bene2Dob" label="DOB" ph="mm/dd/yyyy"/>
+          </div>
+          {/* BANKING */}
+          <div style={grid('1fr 1fr 1fr')}>
+            <Eyebrow>Banking</Eyebrow>
+            <F k="bankName" label="Bank name"/>
+            <F k="routing" label="Routing number" im="numeric"/>
+            <F k="account" label="Account number" im="numeric"/>
+          </div>
+          {/* POLICY STATUS */}
+          <div style={grid('1fr 1fr 1fr')}>
+            <Eyebrow>Policy status</Eyebrow>
+            <F k="carrier" label="Carrier"/>
+            <F k="ap" label="Annual premium" im="decimal"/>
+            <F k="effectiveDate" label="Effective date" ph="mm/dd/yyyy"/>
+            <F k="declinedThrough" label="Declined through"/>
+            <F k="inUnderwriting" label="In underwriting"/>
+            <F k="approved" label="Approved"/>
+          </div>
+          {/* NOTES */}
           <div>
-            <div style={{fontSize:11,color:C.t3,marginBottom:5,fontWeight:600}}>Notes</div>
+            <div style={{fontSize:12,color:'#78746e',marginBottom:5}}>Notes</div>
             <textarea value={sheet.notes} rows={4} placeholder="Anything worth remembering about this client or call…"
               onChange={e=>setSheet(p=>({...p,notes:e.target.value}))}
-              style={{...inpS,resize:'vertical',minHeight:88,fontFamily:"'DM Sans','Helvetica Neue',Arial,sans-serif"}}/>
+              style={{...inpS,resize:'vertical',minHeight:88,fontFamily:"'Instrument Sans','Helvetica Neue',Arial,sans-serif"}}/>
           </div>
         </div>
         <button className="qm-cta" onClick={saveClientSheet} disabled={sheetSaving}
-          style={{width:'100%',padding:isM?'18px 0':'14px 0',borderRadius:12,border:'none',cursor:'pointer',background:C.gold,color:C.bg0,fontSize:isM?17:15,fontWeight:700,letterSpacing:0.5,opacity:sheetSaving?0.6:1,fontFamily:"'DM Sans','Helvetica Neue',Arial,sans-serif"}}>
-          {sheetSaving ? 'Building PDF…' : '💾 Save Client Sheet (PDF)'}
+          style={{width:'100%',minHeight:46,borderRadius:9,border:'none',cursor:'pointer',background:'#4a45d1',color:'#fff',fontSize:14.5,fontWeight:600,boxShadow:'0 1px 2px rgba(74,69,209,.3)',opacity:sheetSaving?0.6:1,fontFamily:"'Instrument Sans','Helvetica Neue',Arial,sans-serif"}}>
+          {sheetSaving ? 'Building PDF…' : 'Save client sheet (PDF)'}
         </button>
         {sheetMsg && (
-          <div style={{fontSize:12,textAlign:'center',padding:'9px 12px',borderRadius:8,lineHeight:1.5,
-            color:sheetMsg.t==='ok'?'var(--qm-tier-green)':'var(--qm-tier-red)',
-            background:sheetMsg.t==='ok'?'rgba(34,197,94,0.10)':'rgba(239,68,68,0.10)',
-            border:`1px solid ${sheetMsg.t==='ok'?'rgba(34,197,94,0.3)':'rgba(239,68,68,0.3)'}`,
-            fontFamily:"'DM Mono',ui-monospace,'SF Mono',Menlo,monospace"}}>{sheetMsg.m}</div>
+          <div style={{fontSize:12.5,textAlign:'center',padding:'9px 12px',borderRadius:8,lineHeight:1.5,
+            color:sheetMsg.t==='ok'?'#177452':'#b42318',
+            background:sheetMsg.t==='ok'?'#e8f6ef':'#fdecec',
+            border:`1px solid ${sheetMsg.t==='ok'?'#c4e8d6':'#f5c6c2'}`}}>{sheetMsg.m}</div>
         )}
-        <div style={{fontSize:10,color:C.t4,textAlign:'center',lineHeight:1.6}}>
-          Saves as <span style={{fontFamily:"'DM Mono',ui-monospace,'SF Mono',Menlo,monospace"}}>{sheetFileName(sheet)}</span><br/>
-          Carrier in the filename comes from the Carrier field (or APPROVED / In Underwriting if it's empty).
+        <div style={{fontSize:11.5,color:'#a09c94',textAlign:'center',lineHeight:1.6}}>
+          Saves as <span style={{fontFamily:"ui-monospace,'SF Mono',Menlo,monospace",fontSize:10.5,color:'#78746e'}}>{sheetFileName(sheet)}</span>
         </div>
       </div>
     );
@@ -3325,7 +3294,7 @@ export default function QuoteMark() {
     const T  = isM ? mTogBtn : togBtn;
     const rDd = isM ? dobDdRef  : dobDdRefD;
     const rYy = isM ? dobYyyyRef: dobYyyyRefD;
-    const titleStyle = {fontSize:isM?11:10,fontWeight:700,letterSpacing:1.8,color:isM?C.t4:'#C5A059',textTransform:'uppercase',marginBottom:isM?12:6};
+    const titleStyle = {fontSize:11,fontWeight:600,letterSpacing:'0.08em',color:'#a09c94',textTransform:'uppercase',marginBottom:12};
     const labelStyle = {fontSize:isM?12:11,color:C.t3,marginBottom:isM?8:6,fontWeight:600};
     const inner = (
       <>
@@ -3348,77 +3317,31 @@ export default function QuoteMark() {
             <span style={{color:C.t4,fontSize:isM?12:11,flexShrink:0}}>or</span>
             <input type="text" inputMode="numeric" maxLength="2" placeholder="age" value={age}
               onChange={e=>{setAge(e.target.value.replace(/\D/g,''));setDob({mm:'',dd:'',yyyy:''});}}
-              style={{...I,width:isM?56:48,padding:isM?'11px 6px':'8px 4px',borderColor:age&&!ageOK?'#EF4444':C.bd,textAlign:'center'}}/>
+              style={{...I,width:isM?56:48,padding:isM?'11px 6px':'8px 4px',borderColor:age&&!ageOK?'#b42318':C.bd,textAlign:'center'}}/>
             {/* +/- steppers */}
             <div style={{display:'flex',flexDirection:'column',gap:2,flexShrink:0}}>
               <button onClick={()=>{const n=Math.min(89,(parseInt(age)||0)+1);setAge(String(n));setDob({mm:'',dd:'',yyyy:''});}}
-                aria-label="Age up" style={{background:C.bg3,border:`1px solid ${C.bd}`,borderRadius:5,color:C.t2,width:isM?28:24,height:isM?22:18,padding:0,cursor:'pointer',fontSize:isM?12:10,lineHeight:1,fontFamily:"'DM Sans','Helvetica Neue',Arial,sans-serif"}}>▲</button>
+                aria-label="Age up" style={{background:C.bg3,border:`1px solid ${C.bd}`,borderRadius:5,color:C.t2,width:isM?28:24,height:isM?22:18,padding:0,cursor:'pointer',fontSize:isM?12:10,lineHeight:1,fontFamily:"'Instrument Sans','Helvetica Neue',Arial,sans-serif"}}>▲</button>
               <button onClick={()=>{const n=Math.max(1,(parseInt(age)||1)-1);setAge(String(n));setDob({mm:'',dd:'',yyyy:''});}}
-                aria-label="Age down" style={{background:C.bg3,border:`1px solid ${C.bd}`,borderRadius:5,color:C.t2,width:isM?28:24,height:isM?22:18,padding:0,cursor:'pointer',fontSize:isM?12:10,lineHeight:1,fontFamily:"'DM Sans','Helvetica Neue',Arial,sans-serif"}}>▼</button>
+                aria-label="Age down" style={{background:C.bg3,border:`1px solid ${C.bd}`,borderRadius:5,color:C.t2,width:isM?28:24,height:isM?22:18,padding:0,cursor:'pointer',fontSize:isM?12:10,lineHeight:1,fontFamily:"'Instrument Sans','Helvetica Neue',Arial,sans-serif"}}>▼</button>
             </div>
           </div>
           {age&&ageOK&&<div style={{fontSize:isM?11:10,color:C.green,marginTop:isM?6:4}}>✓ Age {age}</div>}
-          {age&&!ageOK&&parseInt(age)>0&&<div style={{fontSize:isM?11:10,color:'#EF4444',marginTop:isM?6:4}}>Age must be 1–89</div>}
+          {age&&!ageOK&&parseInt(age)>0&&<div style={{fontSize:isM?11:10,color:'#b42318',marginTop:isM?6:4}}>Age must be 1–89</div>}
         </div>
 
-        {/* Gender + Tobacco — side by side on desktop, stacked on mobile */}
-        {isM ? (
-          <>
-            {!hideGender && (
-              <div style={{marginBottom:14}}>
-                <div style={labelStyle}>Gender</div>
-                <div style={{display:'flex',gap:8}}>
-                  <button className='qm-btn' style={T(gender==='male')} onClick={()=>setGender('male')}>{!isDark&&gender==='male'?'✓ ':''}👨 Male</button>
-                  <button className='qm-btn' style={T(gender==='female')} onClick={()=>setGender('female')}>{!isDark&&gender==='female'?'✓ ':''}👩 Female</button>
-                </div>
-              </div>
-            )}
-            {!hideTobacco && (
-              <div style={{marginBottom:showState?14:0}}>
-                <div style={labelStyle}>Tobacco</div>
-                <div style={{display:'flex',gap:8}}>
-                  <button className='qm-btn' style={T(!smoker)} onClick={()=>setSmoker(false)}>{!isDark&&!smoker?'✓ ':''}Non-smoker</button>
-                  <button className='qm-btn' style={T(smoker,'#EF4444')} onClick={()=>setSmoker(true)}>{!isDark&&smoker?'✓ ':''}Smoker</button>
-                </div>
-              </div>
-            )}
-          </>
-        ) : (
-          (hideGender && hideTobacco) ? null : (hideGender || hideTobacco) ? (
-            <div style={{marginBottom:showState?12:0}}>
-              <div style={{...labelStyle,marginBottom:4}}>{hideGender ? 'Tobacco' : 'Gender'}</div>
-              <div style={{display:'flex',gap:5}}>
-                {hideGender ? (
-                  <>
-                    <button className="qm-btn" style={T(!smoker)} onClick={()=>setSmoker(false)}>{!isDark&&!smoker?'✓ ':''}Non-smoker</button>
-                    <button className="qm-btn" style={T(smoker)} onClick={()=>setSmoker(true)}>{!isDark&&smoker?'✓ ':''}Smoker</button>
-                  </>
-                ) : (
-                  <>
-                    <button className="qm-btn" style={T(gender==='male')} onClick={()=>setGender('male')}>{!isDark&&gender==='male'?'✓ ':''}Male</button>
-                    <button className="qm-btn" style={T(gender==='female')} onClick={()=>setGender('female')}>{!isDark&&gender==='female'?'✓ ':''}Female</button>
-                  </>
-                )}
-              </div>
-            </div>
-          ) : (
-            <div style={{display:'grid',gridTemplateColumns:'1fr 1fr',gap:10,marginBottom:showState?12:0}}>
-              <div>
-                <div style={{...labelStyle,marginBottom:4}}>Tobacco</div>
-                <div style={{display:'flex',gap:5}}>
-                  <button className="qm-btn" style={T(!smoker)} onClick={()=>setSmoker(false)}>{!isDark&&!smoker?'✓ ':''}Non-smoker</button>
-                  <button className="qm-btn" style={T(smoker)} onClick={()=>setSmoker(true)}>{!isDark&&smoker?'✓ ':''}Smoker</button>
-                </div>
-              </div>
-              <div>
-                <div style={{...labelStyle,marginBottom:4}}>Gender</div>
-                <div style={{display:'flex',gap:5}}>
-                  <button className="qm-btn" style={T(gender==='male')} onClick={()=>setGender('male')}>{!isDark&&gender==='male'?'✓ ':''}Male</button>
-                  <button className="qm-btn" style={T(gender==='female')} onClick={()=>setGender('female')}>{!isDark&&gender==='female'?'✓ ':''}Female</button>
-                </div>
-              </div>
-            </div>
-          )
+        {/* Tobacco + Gender — full-width joined segmented toggles, stacked (design 2a) */}
+        {!hideTobacco && (
+          <div style={{...segWrap,marginBottom:isM?14:12}}>
+            <button className={smoker?'qm-seg':undefined} style={T(!smoker)} onClick={()=>setSmoker(false)}>Non-smoker</button>
+            <button className={!smoker?'qm-seg':undefined} style={T(smoker)} onClick={()=>setSmoker(true)}>Smoker</button>
+          </div>
+        )}
+        {!hideGender && (
+          <div style={{...segWrap,marginBottom:showState?(isM?14:12):0}}>
+            <button className={gender!=='male'?'qm-seg':undefined} style={T(gender==='male')} onClick={()=>setGender('male')}>Male</button>
+            <button className={gender!=='female'?'qm-seg':undefined} style={T(gender==='female')} onClick={()=>setGender('female')}>Female</button>
+          </div>
         )}
 
         {/* State */}
@@ -3444,64 +3367,35 @@ export default function QuoteMark() {
   // ─────────────────────────────────────────────────
   if (isMobile) {
     return (
-      <div style={{fontFamily:"'DM Sans','Helvetica Neue',Arial,sans-serif",background:C.bg0,minHeight:'100vh',color:C.t1,position:'relative',paddingBottom:100,backgroundImage:isDark?'radial-gradient(circle,#1E293B 1px,transparent 1px)':'radial-gradient(circle,#D8D5CC 1px,transparent 1px)',backgroundSize:'24px 24px'}}>
+      <div style={{fontFamily:"'Instrument Sans','Helvetica Neue',Arial,sans-serif",background:'#f8f8f7',minHeight:'100vh',color:C.t1,position:'relative',paddingBottom:100}}>
 
-        {/* ── MOBILE HEADER ── */}
-        <div style={{background:C.bg1,borderBottom:`1px solid ${C.bd}`,padding:'12px 18px',display:'flex',alignItems:'center',justifyContent:'space-between',position:'sticky',top:0,zIndex:50}}>
-          <div style={{fontFamily:"'Barlow Condensed','Arial Narrow',sans-serif",fontSize:26,fontWeight:800,color:C.t0,letterSpacing:'-0.5px'}}>
-            <span style={{color:isDark?'#E2E8F0':'#0A192F',fontFamily:"'Barlow Condensed','Arial Narrow',sans-serif"}}>Quote</span><span style={{color:'#C5A059',fontFamily:"'Barlow Condensed','Arial Narrow',sans-serif"}}>Mark</span>
+        {/* ── MOBILE HEADER — 52px bar (design 3d) ── */}
+        <div style={{background:'#fff',borderBottom:'1px solid #eae9e6',height:52,padding:'0 16px',display:'flex',alignItems:'center',justifyContent:'space-between',position:'sticky',top:0,zIndex:50}}>
+          <div style={{fontSize:17,fontWeight:700,color:'#191817',letterSpacing:'-0.01em'}}>
+            Quotemarko<span style={{color:'#4a45d1'}}>.</span>
           </div>
-          <div style={{display:'flex',alignItems:'center',gap:6}}>
-            <button onClick={toggleDarkMode} title={isDark?'Switch to Light Mode':'Switch to Dark Mode'} aria-label={isDark?'Switch to light mode':'Switch to dark mode'} style={{padding:'8px 10px',borderRadius:8,border:`1px solid ${C.bd2}`,background:C.bg3,color:C.t2,fontSize:16,cursor:'pointer',lineHeight:1,display:'flex',alignItems:'center'}}>
-              {isDark?'☀️':'🌙'}
+          <div style={{display:'flex',alignItems:'center',gap:8}}>
+            <button className="qm-secondary" onClick={()=>setShowContact(true)} style={{padding:'7px 12px',minHeight:36,borderRadius:8,border:'1px solid #dedcd7',background:'#fff',color:'#191817',fontSize:12,fontWeight:600,cursor:'pointer',fontFamily:"'Instrument Sans','Helvetica Neue',Arial,sans-serif"}}>
+              Contact
             </button>
-            <button onClick={()=>setShowContact(true)} style={{padding:'8px 11px',borderRadius:8,border:`1px solid ${C.bd2}`,background:C.bg3,color:C.t2,fontSize:12,fontWeight:500,cursor:'pointer',fontFamily:"'DM Sans','Helvetica Neue',Arial,sans-serif",display:'flex',alignItems:'center',gap:5}}>
-              <span style={{fontSize:14}}>📬</span><span style={{fontSize:11}}>Contact</span>
-            </button>
-            <button onClick={()=>setMobileTab2('profile')} style={{padding:'8px 11px',borderRadius:8,border:`1px solid ${C.bd2}`,background:C.bg3,color:C.t2,fontSize:12,fontWeight:500,cursor:'pointer',fontFamily:"'DM Sans','Helvetica Neue',Arial,sans-serif",display:'flex',alignItems:'center',gap:5}}>
-              <span style={{fontSize:14}}>👤</span><span style={{fontSize:11}}>Profile</span>
+            <button onClick={()=>setMobileTab2('profile')} aria-label="Profile" style={{width:36,height:36,borderRadius:'50%',border:'1px solid #e8e7e4',background:'#f0efed',color:'#78746e',fontSize:13,fontWeight:600,cursor:'pointer',fontFamily:"'Instrument Sans','Helvetica Neue',Arial,sans-serif"}}>
+              {(profileName||session?.user?.email||'?').slice(0,1).toUpperCase()}
             </button>
           </div>
         </div>
 
-        {/* ── FEX / TERM STICKY SUB-BAR (mobile) ── */}
-        <div style={{background:C.bg1,borderBottom:`1px solid ${C.bd}`,padding:'8px 16px',position:'sticky',top:61,zIndex:49}}>
-          <div style={{display:'flex',background:isDark?'rgba(11,17,32,0.9)':'#F1F5F9',borderRadius:22,padding:3,border:`1px solid ${C.bd}`,gap:2}}>
-            <button onClick={()=>{track('Tab Switch',{to:'fe'});setQuoteMode('fe');}} style={{
-              flex:1,padding:'10px 0',borderRadius:18,border:'none',
-              background:quoteMode==='fe'?(isDark?'#C5A059':'#0A192F'):'transparent',
-              color:quoteMode==='fe'?(isDark?'#0A192F':'#FFFFFF'):C.t3,
-              fontSize:13,fontWeight:700,cursor:'pointer',fontFamily:"'DM Sans','Helvetica Neue',Arial,sans-serif",
-              transition:'all 0.18s'
-            }}><TabIcon name="fex"/>FEX / WL</button>
-            <button onClick={()=>{track('Tab Switch',{to:'term'});setQuoteMode('term');}} style={{
-              flex:1,padding:'10px 0',borderRadius:18,border:'none',
-              background:quoteMode==='term'?'#C5A059':'transparent',
-              color:quoteMode==='term'?'#0A192F':C.t3,
-              fontSize:12,fontWeight:700,cursor:'pointer',fontFamily:"'DM Sans','Helvetica Neue',Arial,sans-serif",
-              transition:'all 0.18s'
-            }}><TabIcon name="term"/>Term</button>
-            <button onClick={()=>{track('Tab Switch',{to:'iul'});setQuoteMode('iul');}} style={{
-              flex:1,padding:'10px 0',borderRadius:18,border:'none',
-              background:quoteMode==='iul'?'#C5A059':'transparent',
-              color:quoteMode==='iul'?'#0A192F':C.t3,
-              fontSize:12,fontWeight:700,cursor:'pointer',fontFamily:"'DM Sans','Helvetica Neue',Arial,sans-serif",
-              transition:'all 0.18s'
-            }}><TabIcon name="iul"/>IUL</button>
-            <button onClick={()=>{track('Tab Switch',{to:'cv'});setQuoteMode('cv');}} style={{
-              flex:1,padding:'10px 0',borderRadius:18,border:'none',
-              background:quoteMode==='cv'?'#C5A059':'transparent',
-              color:quoteMode==='cv'?'#0B1120':C.t3,
-              fontSize:12,fontWeight:700,cursor:'pointer',fontFamily:"'DM Sans','Helvetica Neue',Arial,sans-serif",
-              transition:'all 0.18s'
-            }}><TabIcon name="cv"/>CV</button>
-            <button onClick={()=>{track('Tab Switch',{to:'sheet'});setQuoteMode('sheet');setMobileTab('quote');}} style={{
-              flex:1,padding:'10px 0',borderRadius:18,border:'none',
-              background:quoteMode==='sheet'?'#C5A059':'transparent',
-              color:quoteMode==='sheet'?'#0B1120':C.t3,
-              fontSize:12,fontWeight:700,cursor:'pointer',fontFamily:"'DM Sans','Helvetica Neue',Arial,sans-serif",
-              transition:'all 0.18s'
-            }}><TabIcon name="sheet"/>Sheet</button>
+        {/* ── PRODUCT PILL TABS — horizontal scroll, active solid ink (design 3d) ── */}
+        <div style={{background:'#fff',borderBottom:'1px solid #eae9e6',padding:'8px 16px',position:'sticky',top:52,zIndex:49,overflowX:'auto',WebkitOverflowScrolling:'touch'}}>
+          <div style={{display:'flex',gap:6,width:'max-content'}}>
+            {[['fe','FEX / WL'],['term','Term'],['iul','IUL'],['cv','CV'],['sheet','Sheet']].map(([id,label])=>(
+              <button key={id} onClick={()=>{track('Tab Switch',{to:id});setQuoteMode(id);if(id==='sheet')setMobileTab('quote');}} style={{
+                padding:'9px 16px',minHeight:38,borderRadius:99,border:`1px solid ${quoteMode===id?'#191817':'#dedcd7'}`,
+                background:quoteMode===id?'#191817':'#fff',
+                color:quoteMode===id?'#fff':'#78746e',
+                fontSize:13,fontWeight:quoteMode===id?600:400,cursor:'pointer',whiteSpace:'nowrap',
+                fontFamily:"'Instrument Sans','Helvetica Neue',Arial,sans-serif"
+              }}>{label}</button>
+            ))}
           </div>
         </div>
 
@@ -3525,8 +3419,8 @@ export default function QuoteMark() {
                 </div>
               )}
               {isYoungAdult && (
-                <div style={{background:'rgba(34,197,94,0.08)',border:'1px solid rgba(34,197,94,0.28)',borderRadius:10,padding:'12px 14px',fontSize:12,color:C.t2,lineHeight:1.5}}>
-                  <div style={{fontWeight:700,color:'#22C55E',marginBottom:4,fontSize:11,letterSpacing:0.5}}>👤 ADULT WHOLE LIFE</div>
+                <div style={{background:'rgba(23,116,82,0.08)',border:'1px solid rgba(23,116,82,0.28)',borderRadius:10,padding:'12px 14px',fontSize:12,color:C.t2,lineHeight:1.5}}>
+                  <div style={{fontWeight:700,color:'#177452',marginBottom:4,fontSize:11,letterSpacing:0.5}}>👤 ADULT WHOLE LIFE</div>
                   Standard adult underwriting. Tip: term life is usually cheaper for ages 18–49 if pure death benefit is the goal.
                 </div>
               )}
@@ -3541,8 +3435,8 @@ export default function QuoteMark() {
                     border:`2px solid ${gsbOn ? C.goldBd : isDark?'#374151':'#D0CDBE'}`,
                     background:gsbOn ? C.goldBg : (isDark?'#0F172A':'#FAF9F6'),
                     color:gsbOn?C.gold:C.t3,
-                    fontSize:11,fontWeight:700,cursor:'pointer',fontFamily:"'DM Sans','Helvetica Neue',Arial,sans-serif",
-                    boxShadow:gsbOn?(isDark?'0 2px 8px rgba(0,0,0,0.3)':'0 1px 4px rgba(197,160,89,0.15)'):'none'
+                    fontSize:11,fontWeight:700,cursor:'pointer',fontFamily:"'Instrument Sans','Helvetica Neue',Arial,sans-serif",
+                    boxShadow:gsbOn?(isDark?'0 2px 8px rgba(0,0,0,0.3)':'0 1px 4px rgba(74,69,209,0.15)'):'none'
                   }}>
                     <span style={{position:'relative',display:'inline-block',width:28,height:16,borderRadius:8,
                       background:gsbOn ? C.gold : (isDark?'#1E293B':'#E2E8F0'),
@@ -3570,7 +3464,7 @@ export default function QuoteMark() {
                       <span style={{position:'absolute',left:14,top:'50%',transform:'translateY(-50%)',color:C.t3,fontSize:16,pointerEvents:'none'}}>$</span>
                       <input type="text" inputMode="numeric" placeholder="10,000" value={faceAmt?faceAmt.toLocaleString():''}
                         onChange={e=>{const n=Number(e.target.value.replace(/[^0-9]/g,''));setFaceAmt(isNaN(n)?0:n);}}
-                        style={{...mInp,paddingLeft:30,fontFamily:"'DM Mono',ui-monospace,'SF Mono',Menlo,monospace",fontSize:17}}/>
+                        style={{...mInp,paddingLeft:30,fontFamily:"'Instrument Sans',sans-serif",fontSize:17}}/>
                     </div>
                       </>
                     ) : (
@@ -3580,7 +3474,7 @@ export default function QuoteMark() {
                           <span style={{position:'absolute',left:14,top:'50%',transform:'translateY(-50%)',color:C.t3,fontSize:16,pointerEvents:'none'}}>$</span>
                           <input type="text" inputMode="decimal" placeholder="100" value={budget||''}
                             onChange={e=>{const v=e.target.value.replace(/[^0-9.]/g,'').replace(/^0+(?=\d)/,'');const n=Number(v);setBudget(v===''||isNaN(n)?0:n);}}
-                            style={{...mInp,paddingLeft:30,fontFamily:"'DM Mono',ui-monospace,'SF Mono',Menlo,monospace",fontSize:17}}/>
+                            style={{...mInp,paddingLeft:30,fontFamily:"'Instrument Sans',sans-serif",fontSize:17}}/>
                         </div>
                         <div style={{fontSize:11,color:C.t4,marginTop:6}}>Finds max coverage at this premium</div>
                       </>
@@ -3599,7 +3493,7 @@ export default function QuoteMark() {
                             onChange={e=>handleGsbChange(g.key,e.target.value)}
                             onBlur={()=>handleGsbBlur(g.key)}
                             onFocus={e=>e.target.select()}
-                            style={{...mInp,paddingLeft:24,fontFamily:"'DM Mono',ui-monospace,'SF Mono',Menlo,monospace"}}/>
+                            style={{...mInp,paddingLeft:24,fontFamily:"'Instrument Sans',sans-serif"}}/>
                         </div>
                       </div>
                     ))}
@@ -3680,7 +3574,7 @@ export default function QuoteMark() {
                     <span style={{fontSize:11,color:C.t4,fontWeight:600,letterSpacing:0.5}}>UW TIER</span>
                     <div style={{display:'flex',alignItems:'center',gap:6}}>
                       {tierOvr?(
-                        <button onClick={()=>setTierOvr(null)} style={{background:'transparent',border:'none',color:C.gold,fontSize:11,fontWeight:700,cursor:'pointer',padding:0,fontFamily:"'DM Sans','Helvetica Neue',Arial,sans-serif"}}>
+                        <button onClick={()=>setTierOvr(null)} style={{background:'transparent',border:'none',color:C.gold,fontSize:11,fontWeight:700,cursor:'pointer',padding:0,fontFamily:"'Instrument Sans','Helvetica Neue',Arial,sans-serif"}}>
                           ↺ Auto
                         </button>
                       ):(
@@ -3700,7 +3594,7 @@ export default function QuoteMark() {
                           color:active?ti.txt:C.t4,
                           cursor:'pointer',textAlign:'center',
                           display:'flex',flexDirection:'column',alignItems:'center',gap:4,
-                          fontFamily:"'DM Sans','Helvetica Neue',Arial,sans-serif",
+                          fontFamily:"'Instrument Sans','Helvetica Neue',Arial,sans-serif",
                           boxShadow:isOvr?`0 0 0 2px ${ti.dot}44`:'none'
                         }}>
                           <span style={{width:7,height:7,borderRadius:'50%',background:active?ti.dot:'#334155'}}/>
@@ -3720,15 +3614,15 @@ export default function QuoteMark() {
 
               {/* GET QUOTES button */}
               <button className="qm-cta" onClick={e=>fireCta(e,()=>{if(ageOK){track('Quote Requested',{tier:uwTier,mode,gsb:gsbOn,face:faceBand(faceAmt)});setHasQuoted(true);if(isMobile){setMobileTab('results');setTimeout(()=>window.scrollTo({top:0,behavior:'instant'}),0);}}})} style={{
-                width:'100%',padding:'18px 0',borderRadius:12,border:'none',
+                width:'100%',minHeight:48,borderRadius:9,border:'none',
                 cursor:ageOK?'pointer':'not-allowed',
-                background:ageOK?C.gold:'#2A3547',
-                color:ageOK?C.bg0:C.t4,
-                fontSize:17,fontWeight:700,letterSpacing:0.5,
-                opacity:ageOK?1:0.4,
-                fontFamily:"'DM Sans','Helvetica Neue',Arial,sans-serif"
+                background:ageOK?'#4a45d1':'#dedcd7',
+                color:'#fff',
+                fontSize:15,fontWeight:600,
+                boxShadow:ageOK?'0 1px 2px rgba(74,69,209,.3)':'none',
+                fontFamily:"'Instrument Sans','Helvetica Neue',Arial,sans-serif"
               }}>
-                ⚡ Get Quotes
+                Get quotes
               </button>
               {!ageOK && <div style={{fontSize:11,color:C.t4,textAlign:'center',marginTop:8}}>Enter client age above to quote</div>}
               </>
@@ -3748,9 +3642,9 @@ export default function QuoteMark() {
                     <div style={{display:'grid',gridTemplateColumns:'repeat(7,1fr)',gap:4}}>
                       {['10','15','20','25','30','35','40'].map(t=>(
                         <button key={t} onClick={()=>setTermLength(t)} style={{
-                          padding:'9px 0',borderRadius:7,border:`2px solid ${termLength===t?C.gold:isDark?'#374151':'#D0CDBE'}`,
-                          background:termLength===t?C.goldBg:C.bg2,color:termLength===t?C.goldText:C.t3,
-                          fontSize:12,fontWeight:700,cursor:'pointer',fontFamily:"'DM Sans','Helvetica Neue',Arial,sans-serif"
+                          padding:'9px 0',borderRadius:7,border:`1px solid ${termLength===t?'#191817':'#dedcd7'}`,
+                          background:termLength===t?'#191817':'#fff',color:termLength===t?'#fff':'#78746e',
+                          fontSize:12,fontWeight:700,cursor:'pointer',fontFamily:"'Instrument Sans','Helvetica Neue',Arial,sans-serif"
                         }}>{t}</button>
                       ))}
                     </div>
@@ -3765,34 +3659,34 @@ export default function QuoteMark() {
                       <span style={{position:'absolute',left:14,top:'50%',transform:'translateY(-50%)',color:C.t3,fontSize:16,pointerEvents:'none'}}>$</span>
                       <input type="text" inputMode="numeric" placeholder="100,000" value={termFace?termFace.toLocaleString():''}
                         onChange={e=>{const n=Number(e.target.value.replace(/[^0-9]/g,''));setTermFace(isNaN(n)?0:n);}}
-                        style={{...mInp,paddingLeft:30,fontFamily:"'DM Mono',ui-monospace,'SF Mono',Menlo,monospace",fontSize:17}}/>
+                        style={{...mInp,paddingLeft:30,fontFamily:"'Instrument Sans',sans-serif",fontSize:17}}/>
                     </div>
                   </div>
                   {/* Height / Weight → BMI */}
                   <div>
                     <div style={{fontSize:11,color:C.t3,marginBottom:6,fontWeight:600,display:'flex',justifyContent:'space-between'}}>
                       <span>Height & Weight</span>
-                      {termBMI!=null && <span style={{color:C.t4,fontWeight:500,fontSize:10,fontFamily:"'DM Mono',ui-monospace,'SF Mono',Menlo,monospace"}}>BMI {termBMI.toFixed(1)}</span>}
+                      {termBMI!=null && <span style={{color:C.t4,fontWeight:500,fontSize:10,fontFamily:"'Instrument Sans',sans-serif"}}>BMI {termBMI.toFixed(1)}</span>}
                     </div>
                     <div style={{display:'grid',gridTemplateColumns:'1fr 1fr 1.2fr',gap:6}}>
                       <input inputMode="numeric" placeholder="ft" value={termHtFt}
                         onChange={e=>setTermHtFt(e.target.value.replace(/\D/g,'').slice(0,1))}
-                        style={{...mInp,textAlign:'center',fontFamily:"'DM Mono',ui-monospace,'SF Mono',Menlo,monospace"}}/>
+                        style={{...mInp,textAlign:'center',fontFamily:"'Instrument Sans',sans-serif"}}/>
                       <input inputMode="numeric" placeholder="in" value={termHtIn}
                         onChange={e=>setTermHtIn(e.target.value.replace(/\D/g,'').slice(0,2))}
-                        style={{...mInp,textAlign:'center',fontFamily:"'DM Mono',ui-monospace,'SF Mono',Menlo,monospace"}}/>
+                        style={{...mInp,textAlign:'center',fontFamily:"'Instrument Sans',sans-serif"}}/>
                       <input inputMode="numeric" placeholder="weight (lb)" value={termWtLb}
                         onChange={e=>setTermWtLb(e.target.value.replace(/\D/g,'').slice(0,3))}
-                        style={{...mInp,textAlign:'center',fontFamily:"'DM Mono',ui-monospace,'SF Mono',Menlo,monospace"}}/>
+                        style={{...mInp,textAlign:'center',fontFamily:"'Instrument Sans',sans-serif"}}/>
                     </div>
                   </div>
                   {/* Family history toggle */}
                   <button onClick={()=>setTermFamHx(v=>!v)} style={{
-                    padding:'10px 12px',borderRadius:8,border:`1px solid ${termFamHx?'#C5A059':C.bd}`,
-                    background:termFamHx?'rgba(197,160,89,0.12)':C.bg2,color:C.t2,textAlign:'left',cursor:'pointer',
-                    fontSize:12,fontFamily:"'DM Sans','Helvetica Neue',Arial,sans-serif",display:'flex',alignItems:'center',gap:8
+                    padding:'10px 12px',borderRadius:8,border:`1px solid ${termFamHx?'#4a45d1':C.bd}`,
+                    background:termFamHx?'rgba(74,69,209,0.12)':C.bg2,color:C.t2,textAlign:'left',cursor:'pointer',
+                    fontSize:12,fontFamily:"'Instrument Sans','Helvetica Neue',Arial,sans-serif",display:'flex',alignItems:'center',gap:8
                   }}>
-                    <span style={{width:16,height:16,borderRadius:4,border:`2px solid ${termFamHx?'#C5A059':C.bd2}`,background:termFamHx?'#C5A059':'transparent',display:'flex',alignItems:'center',justifyContent:'center',fontSize:11,color:C.bg0,fontWeight:900,flexShrink:0}}>{termFamHx?'✓':''}</span>
+                    <span style={{width:16,height:16,borderRadius:4,border:`2px solid ${termFamHx?'#4a45d1':C.bd2}`,background:termFamHx?'#4a45d1':'transparent',display:'flex',alignItems:'center',justifyContent:'center',fontSize:11,color:C.bg0,fontWeight:900,flexShrink:0}}>{termFamHx?'✓':''}</span>
                     <span>Family history of cancer or heart disease before age 60</span>
                   </button>
                   {/* Conditions picker (shares `selected` state with FE tab) */}
@@ -3810,7 +3704,7 @@ export default function QuoteMark() {
                             <div key={c.id} onClick={()=>{toggleCond(c.id);setSearch('');}} style={{
                               display:'flex',alignItems:'center',justifyContent:'space-between',gap:8,
                               padding:'7px 10px',borderRadius:6,cursor:'pointer',
-                              background:active?'rgba(197,160,89,0.10)':'transparent',
+                              background:active?'rgba(74,69,209,0.10)':'transparent',
                               fontSize:12,color:C.t1
                             }}>
                               <span>{c.label.replace('⚠ ','')}</span>
@@ -3848,7 +3742,7 @@ export default function QuoteMark() {
                     <div style={{fontSize:11,color:C.t3,marginBottom:6,fontWeight:600,display:'flex',justifyContent:'space-between',alignItems:'center'}}>
                       <span title="Pref+ is the toughest underwriting class — ideal BMI, no tobacco, no chronic conditions, no family history of cardiac/cancer before 60. ~10-15% of applicants qualify. Hover each pill for full criteria.">Health Class <span style={{fontSize:9,color:C.t4,cursor:'help'}}>ⓘ</span></span>
                       {termRec.recommended==='decline' ? (
-                        <span style={{color:'#EF4444',fontWeight:700,fontSize:10}}>⚠ Likely Decline</span>
+                        <span style={{color:'#b42318',fontWeight:700,fontSize:10}}>⚠ Likely Decline</span>
                       ) : !termHealthManual && termRec.reasons.length ? (
                         <span style={{color:C.gold,fontWeight:600,fontSize:10}}>✨ Auto · {HEALTH_CLASS_SHORT[termRec.recommended]}</span>
                       ) : termHealthManual ? (
@@ -3865,9 +3759,9 @@ export default function QuoteMark() {
                         {k:'s',  label:'Std',   tip:'STANDARD — Average health risk. Multiple controlled conditions, BMI 32-35, slight family history, older smokers often land here. The most common class. About 30-40% qualify.'},
                       ].map(({k,label,tip})=>(
                         <button key={k} title={tip} onClick={()=>{setTermHealth(k);setTermHealthManual(true);}} style={{
-                          padding:'10px 0',borderRadius:7,border:`2px solid ${termHealth===k?C.gold:isDark?'#374151':'#D0CDBE'}`,
-                          background:termHealth===k?C.goldBg:C.bg2,color:termHealth===k?C.goldText:C.t3,
-                          fontSize:12,fontWeight:700,cursor:'pointer',fontFamily:"'DM Sans','Helvetica Neue',Arial,sans-serif"
+                          padding:'10px 0',borderRadius:7,border:`1px solid ${termHealth===k?'#191817':'#dedcd7'}`,
+                          background:termHealth===k?'#191817':'#fff',color:termHealth===k?'#fff':'#78746e',
+                          fontSize:12,fontWeight:700,cursor:'pointer',fontFamily:"'Instrument Sans','Helvetica Neue',Arial,sans-serif"
                         }}>{label}</button>
                       ))}
                     </div>
@@ -3879,8 +3773,8 @@ export default function QuoteMark() {
                   </div>
                   </div>
                   <button className="qm-cta" onClick={e=>fireCta(e,()=>{if(ageOK){track('Quote Requested',{tier:'term',mode:'term',gsb:false,face:faceBand(termFace)});setHasQuoted(true);setMobileTab('results');setTimeout(()=>window.scrollTo({top:0,behavior:'instant'}),0);}})}
-                    style={{width:'100%',padding:'18px 0',borderRadius:12,border:'none',cursor:ageOK?'pointer':'not-allowed',background:ageOK?C.gold:'#2A3547',color:ageOK?C.bg0:C.t4,fontSize:17,fontWeight:700,letterSpacing:0.5,opacity:ageOK?1:0.4,fontFamily:"'DM Sans','Helvetica Neue',Arial,sans-serif",marginTop:8}}>
-                    ⚡ Get Term Quotes
+                    style={{width:'100%',minHeight:52,borderRadius:9,border:'none',cursor:ageOK?'pointer':'not-allowed',background:ageOK?'#4a45d1':'#dedcd7',color:'#fff',fontSize:16,fontWeight:600,boxShadow:ageOK?'0 1px 2px rgba(74,69,209,.3)':'none',fontFamily:"'Instrument Sans','Helvetica Neue',Arial,sans-serif",marginTop:8}}>
+                    Get term quotes
                   </button>
                   {!ageOK && <div style={{fontSize:11,color:C.t4,textAlign:'center',marginTop:8}}>Enter client age above to quote</div>}
                 </div>
@@ -3910,7 +3804,7 @@ export default function QuoteMark() {
                         <span style={{position:'absolute',left:14,top:'50%',transform:'translateY(-50%)',color:C.t3,fontSize:16,pointerEvents:'none'}}>$</span>
                         <input type="text" inputMode="decimal" placeholder="200" value={iulPremium||''}
                           onChange={e=>{const v=e.target.value.replace(/[^0-9.]/g,'').replace(/^0+(?=\d)/,'');const n=Number(v);setIulPremium(v===''||isNaN(n)?0:n);}}
-                          style={{...mInp,paddingLeft:30,fontFamily:"'DM Mono',ui-monospace,'SF Mono',Menlo,monospace",fontSize:17}}/>
+                          style={{...mInp,paddingLeft:30,fontFamily:"'Instrument Sans',sans-serif",fontSize:17}}/>
                       </div>
                       <div style={{fontSize:11,color:C.t4,marginTop:6}}>Each carrier returns the face they'd issue for this premium</div>
                     </div>
@@ -3924,7 +3818,7 @@ export default function QuoteMark() {
                       <span style={{position:'absolute',left:14,top:'50%',transform:'translateY(-50%)',color:C.t3,fontSize:16,pointerEvents:'none'}}>$</span>
                       <input type="text" inputMode="numeric" placeholder="150,000" value={iulFace?iulFace.toLocaleString():''}
                         onChange={e=>{const n=Number(e.target.value.replace(/[^0-9]/g,''));setIulFace(isNaN(n)?0:n);}}
-                        style={{...mInp,paddingLeft:30,fontFamily:"'DM Mono',ui-monospace,'SF Mono',Menlo,monospace",fontSize:17}}/>
+                        style={{...mInp,paddingLeft:30,fontFamily:"'Instrument Sans',sans-serif",fontSize:17}}/>
                     </div>
                     </div>
                   )}
@@ -3938,8 +3832,8 @@ export default function QuoteMark() {
 
                   {/* Get IUL Quotes — match FE/Term pattern */}
                   <button className="qm-cta" onClick={e=>fireCta(e,()=>{if(ageOK){track('Quote Requested',{tier:'iul',mode:iulMode,gsb:false});setHasQuoted(true);setMobileTab('results');setTimeout(()=>window.scrollTo({top:0,behavior:'instant'}),0);}})}
-                    style={{width:'100%',padding:'18px 0',borderRadius:12,border:'none',cursor:ageOK?'pointer':'not-allowed',background:ageOK?C.gold:'#2A3547',color:ageOK?C.bg0:C.t4,fontSize:17,fontWeight:700,letterSpacing:0.5,opacity:ageOK?1:0.4,fontFamily:"'DM Sans','Helvetica Neue',Arial,sans-serif",marginTop:4}}>
-                    ⚡ Get IUL Quotes
+                    style={{width:'100%',minHeight:52,borderRadius:9,border:'none',cursor:ageOK?'pointer':'not-allowed',background:ageOK?'#4a45d1':'#dedcd7',color:'#fff',fontSize:16,fontWeight:600,boxShadow:ageOK?'0 1px 2px rgba(74,69,209,.3)':'none',fontFamily:"'Instrument Sans','Helvetica Neue',Arial,sans-serif",marginTop:4}}>
+                    Get IUL quotes
                   </button>
                   {!ageOK && <div style={{fontSize:11,color:C.t4,textAlign:'center',marginTop:8}}>Enter client age above to quote</div>}
 
@@ -3967,8 +3861,8 @@ export default function QuoteMark() {
                         </div>
                         {/* Quick specs */}
                         <div style={{display:'flex',flexDirection:'column',gap:5,fontSize:11,color:C.t2}}>
-                          <div style={{display:'flex',justifyContent:'space-between'}}><span style={{color:C.t4}}>Issue ages</span><span style={{fontFamily:"'DM Mono',ui-monospace,'SF Mono',Menlo,monospace"}}>{c.issueAges.min}–{c.issueAges.max}</span></div>
-                          <div style={{display:'flex',justifyContent:'space-between'}}><span style={{color:C.t4}}>Face range</span><span style={{fontFamily:"'DM Mono',ui-monospace,'SF Mono',Menlo,monospace"}}>{fmtFace(c.faceRange.min)}–{fmtFace(c.faceRange.max)}</span></div>
+                          <div style={{display:'flex',justifyContent:'space-between'}}><span style={{color:C.t4}}>Issue ages</span><span style={{fontFamily:"'Instrument Sans',sans-serif"}}>{c.issueAges.min}–{c.issueAges.max}</span></div>
+                          <div style={{display:'flex',justifyContent:'space-between'}}><span style={{color:C.t4}}>Face range</span><span style={{fontFamily:"'Instrument Sans',sans-serif"}}>{fmtFace(c.faceRange.min)}–{fmtFace(c.faceRange.max)}</span></div>
                           <div style={{display:'flex',justifyContent:'space-between'}}><span style={{color:C.t4}}>Index</span><span style={{fontSize:10}}>{c.indexStrategy}</span></div>
                           <div style={{display:'flex',justifyContent:'space-between'}}><span style={{color:C.t4}}>UW</span><span style={{fontSize:10}}>{c.underwriting}</span></div>
                           <div style={{display:'flex',justifyContent:'space-between'}}><span style={{color:C.t4}}>DB options</span><span style={{fontSize:10}}>{c.dbOptions.join(', ')}</span></div>
@@ -3979,7 +3873,7 @@ export default function QuoteMark() {
                             <div style={{fontWeight:700,marginBottom:4,color:C.t4,letterSpacing:0.5}}>FACE BY AGE BAND</div>
                             {c.faceRange.ageBands.map(b => (
                               <div key={b.ages} style={{display:'flex',justifyContent:'space-between'}}>
-                                <span>{b.ages}</span><span style={{fontFamily:"'DM Mono',ui-monospace,'SF Mono',Menlo,monospace"}}>{fmtFace(b.min)}–{fmtFace(b.max)}</span>
+                                <span>{b.ages}</span><span style={{fontFamily:"'Instrument Sans',sans-serif"}}>{fmtFace(b.min)}–{fmtFace(b.max)}</span>
                               </div>
                             ))}
                           </div>
@@ -3996,7 +3890,7 @@ export default function QuoteMark() {
                         {/* Knockouts */}
                         {c.knockouts && c.knockouts.length > 0 && (
                           <div style={{marginTop:10}}>
-                            <div style={{fontSize:9,color:'#EF4444',fontWeight:700,letterSpacing:1,marginBottom:5}}>AUTO-DECLINE</div>
+                            <div style={{fontSize:9,color:'#b42318',fontWeight:700,letterSpacing:1,marginBottom:5}}>AUTO-DECLINE</div>
                             <div style={{fontSize:10,color:C.t3,lineHeight:1.5}}>{c.knockouts.join(' · ')}</div>
                           </div>
                         )}
@@ -4022,13 +3916,13 @@ export default function QuoteMark() {
                       <div style={{fontSize:12,color:C.t3,marginBottom:6,fontWeight:600}}>Monthly Premium ($)</div>
                       <input inputMode="decimal" placeholder="e.g. 52.00" value={cvMonthly}
                         onChange={e=>setCvMonthly(e.target.value)}
-                        style={{...mInp,fontFamily:"'DM Mono',ui-monospace,'SF Mono',Menlo,monospace",fontSize:18}}/>
+                        style={{...mInp,fontFamily:"'Instrument Sans',sans-serif",fontSize:18}}/>
                     </div>
                     <div>
                       <div style={{fontSize:12,color:C.t3,marginBottom:6,fontWeight:600}}>Years In-Force</div>
                       <input inputMode="numeric" placeholder="e.g. 7" value={cvPolicyYrs}
                         onChange={e=>setCvPolicyYrs(e.target.value.replace(/[^0-9]/g,''))}
-                        style={{...mInp,fontFamily:"'DM Mono',ui-monospace,'SF Mono',Menlo,monospace",fontSize:18}}/>
+                        style={{...mInp,fontFamily:"'Instrument Sans',sans-serif",fontSize:18}}/>
                       <div style={{fontSize:10,color:C.t4,marginTop:4}}>How long has the client had this policy?</div>
                     </div>
                   </div>
@@ -4040,25 +3934,25 @@ export default function QuoteMark() {
                     const issueAge = Math.max(0, currentAge - Number(cvPolicyYrs));
                     const d=calculateCVCorridor(Number(cvMonthly),Number(cvPolicyYrs),issueAge);
                     const cov = estimateCoverage({ currentAge, policyYears: Number(cvPolicyYrs), monthlyPremium: Number(cvMonthly), gender });
-                    const amber = '#C5A059';
+                    const amber = '#4a45d1';
                     return (
                       <>
-                      <div ref={cvResultRef} style={{background:'rgba(197,160,89,0.06)',border:'1px solid rgba(197,160,89,0.22)',borderRadius:10,padding:'14px 16px'}}>
-                        <div style={{fontSize:9,color:'#C5A059',fontWeight:700,marginBottom:10,letterSpacing:1.2,textTransform:'uppercase'}}>Estimated Cash Value · Age {currentAge} · Issued at {issueAge}</div>
+                      <div ref={cvResultRef} style={{background:'rgba(74,69,209,0.06)',border:'1px solid rgba(74,69,209,0.22)',borderRadius:10,padding:'14px 16px'}}>
+                        <div style={{fontSize:9,color:'#4a45d1',fontWeight:700,marginBottom:10,letterSpacing:1.2,textTransform:'uppercase'}}>Estimated Cash Value · Age {currentAge} · Issued at {issueAge}</div>
                         <div style={{display:'flex',alignItems:'baseline',gap:8,marginBottom:10,flexWrap:'wrap'}}>
-                          <span style={{fontSize:22,fontWeight:800,color:C.t1,fontFamily:"'DM Mono',ui-monospace,'SF Mono',Menlo,monospace"}}>${Math.round(d.low).toLocaleString()}</span>
+                          <span style={{fontSize:22,fontWeight:800,color:C.t1,fontFamily:"'Instrument Sans',sans-serif"}}>${Math.round(d.low).toLocaleString()}</span>
                           <span style={{fontSize:16,color:C.t4}}>–</span>
-                          <span style={{fontSize:22,fontWeight:800,color:'#C5A059',fontFamily:"'DM Mono',ui-monospace,'SF Mono',Menlo,monospace"}}>${Math.round(d.high).toLocaleString()}</span>
+                          <span style={{fontSize:22,fontWeight:800,color:'#4a45d1',fontFamily:"'Instrument Sans',sans-serif"}}>${Math.round(d.high).toLocaleString()}</span>
                         </div>
                         <div style={{display:'flex',justifyContent:'space-between',fontSize:12,paddingTop:8,borderTop:`1px solid ${C.bd}`}}>
                           <span style={{color:C.t3}}>Total Premiums Paid</span>
-                          <strong style={{color:C.t2,fontFamily:"'DM Mono',ui-monospace,'SF Mono',Menlo,monospace"}}>${Math.round(d.totalPaid).toLocaleString()}</strong>
+                          <strong style={{color:C.t2,fontFamily:"'Instrument Sans',sans-serif"}}>${Math.round(d.totalPaid).toLocaleString()}</strong>
                         </div>
-                        {Number(cvPolicyYrs)<=2&&<div style={{fontSize:11,color:'#F87171',marginTop:8,lineHeight:1.5}}>⏳ Most policies accumulate little or no CV in years 1–2. Significant growth typically starts year 3+.</div>}
+                        {Number(cvPolicyYrs)<=2&&<div style={{fontSize:11,color:'#b42318',marginTop:8,lineHeight:1.5}}>⏳ Most policies accumulate little or no CV in years 1–2. Significant growth typically starts year 3+.</div>}
                       </div>
 
                       {/* Coverage estimate card */}
-                      <div style={{marginTop:14,background:isDark?'rgba(197,160,89,0.05)':'rgba(197,160,89,0.04)',border:`1px solid ${amber}4D`,borderRadius:10,padding:'14px 16px'}}>
+                      <div style={{marginTop:14,background:isDark?'rgba(74,69,209,0.05)':'rgba(74,69,209,0.04)',border:`1px solid ${amber}4D`,borderRadius:10,padding:'14px 16px'}}>
                         <div style={{display:'flex',alignItems:'center',gap:8,marginBottom:10}}>
                           <span style={{fontSize:18}}>🛡️</span>
                           <div style={{fontSize:13,fontWeight:700,color:C.t0,letterSpacing:0.3}}>Coverage Estimate</div>
@@ -4075,9 +3969,9 @@ export default function QuoteMark() {
                           <>
                             <div style={{fontSize:9,color:C.t4,fontWeight:700,letterSpacing:1.2,textTransform:'uppercase',marginBottom:6}}>Estimated Coverage · Issued at {cov.issueAge}</div>
                             <div style={{display:'flex',alignItems:'baseline',gap:8,marginBottom:8,flexWrap:'wrap'}}>
-                              <span style={{fontSize:22,fontWeight:800,color:C.t2,fontFamily:"'DM Mono',ui-monospace,'SF Mono',Menlo,monospace"}}>${cov.low.toLocaleString()}</span>
+                              <span style={{fontSize:22,fontWeight:800,color:C.t2,fontFamily:"'Instrument Sans',sans-serif"}}>${cov.low.toLocaleString()}</span>
                               <span style={{fontSize:14,color:C.t4}}>–</span>
-                              <span style={{fontSize:22,fontWeight:800,color:amber,fontFamily:"'DM Mono',ui-monospace,'SF Mono',Menlo,monospace"}}>${cov.high.toLocaleString()}</span>
+                              <span style={{fontSize:22,fontWeight:800,color:amber,fontFamily:"'Instrument Sans',sans-serif"}}>${cov.high.toLocaleString()}</span>
                             </div>
                           </>
                         )}
@@ -4106,30 +4000,44 @@ export default function QuoteMark() {
           {/* ── RESULTS TAB ── */}
           {mobileTab === 'results' && (
             <div ref={mobileResultsRef}>
+              {/* Collapsed client summary bar + Edit (design 3d) */}
+              {quoteMode!=='sheet' && ageOK && (
+                <div style={{background:'#fbfbfa',border:'1px solid #eae9e6',borderRadius:10,padding:'10px 14px',marginBottom:12,display:'flex',alignItems:'center',gap:8,flexWrap:'wrap'}}>
+                  <span style={{fontSize:13,fontWeight:600,color:'#191817'}}>
+                    {quoteMode==='fe' ? (mode==='face'?fmtF(faceAmt):`$${budget}/mo`) :
+                     quoteMode==='term' ? (termMode==='budget'?`$${termBudget}/mo`:fmtF(termFace)) :
+                     quoteMode==='iul' ? (iulMode==='face'?`$${iulPremium}/mo`:`$${(iulFace/1000).toFixed(0)}k`) :
+                     `$${cvMonthly||0}/mo`}
+                  </span>
+                  <span style={{fontSize:12.5,color:'#78746e'}}>· Age {age}{usState?` · ${usState}`:''} · {gender==='male'?'M':'F'} · {smoker?'Smoker':'NS'}</span>
+                  {quoteMode==='fe' && <span style={{fontSize:11.5,fontWeight:600,color:'#4740c8'}}>UW: {TIER_INFO[uwTier].short}</span>}
+                  <button onClick={()=>setMobileTab('quote')} style={{marginLeft:'auto',padding:'6px 14px',minHeight:32,borderRadius:8,border:'1px solid #dedcd7',background:'#fff',color:'#191817',fontSize:12,fontWeight:600,cursor:'pointer',fontFamily:"'Instrument Sans','Helvetica Neue',Arial,sans-serif"}}>Edit</button>
+                </div>
+              )}
               {quoteMode==='sheet' ? (
                 <div style={{display:'flex',flexDirection:'column',alignItems:'center',justifyContent:'center',paddingTop:80,gap:14,textAlign:'center'}}>
-                  <div style={{fontFamily:"'Barlow Condensed','Arial Narrow',sans-serif",fontSize:20,fontWeight:700,color:C.t4}}>The Client Sheet lives on the Quote tab</div>
-                  <button onClick={()=>setMobileTab('quote')} style={{padding:'12px 26px',borderRadius:10,border:`1px solid ${C.bd2}`,background:C.bg2,color:C.t2,fontSize:13,fontWeight:600,cursor:'pointer',fontFamily:"'DM Sans','Helvetica Neue',Arial,sans-serif"}}>← Back to Quote</button>
+                  <div style={{fontFamily:"'Instrument Sans',sans-serif",fontSize:20,fontWeight:700,color:C.t4}}>The Client Sheet lives on the Quote tab</div>
+                  <button onClick={()=>setMobileTab('quote')} style={{padding:'12px 26px',borderRadius:10,border:`1px solid ${C.bd2}`,background:C.bg2,color:C.t2,fontSize:13,fontWeight:600,cursor:'pointer',fontFamily:"'Instrument Sans','Helvetica Neue',Arial,sans-serif"}}>← Back to Quote</button>
                 </div>
               ) : quoteMode==='iul' ? (
                 /* ── MOBILE IUL RESULTS ── */
                 !ageOK ? (
                   <div style={{display:'flex',flexDirection:'column',alignItems:'center',justifyContent:'center',paddingTop:80,gap:16,textAlign:'center'}}>
                     <div style={{fontSize:52,opacity:0.4}}>📋</div>
-                    <div style={{fontFamily:"'Barlow Condensed','Arial Narrow',sans-serif",fontSize:22,fontWeight:700,color:C.t4}}>Enter client info first</div>
-                    <button onClick={()=>setMobileTab('quote')} style={{marginTop:8,padding:'13px 28px',borderRadius:10,border:`1px solid ${C.bd2}`,background:C.bg2,color:C.t2,fontSize:14,fontWeight:600,cursor:'pointer',fontFamily:"'DM Sans','Helvetica Neue',Arial,sans-serif"}}>← Back to Quote</button>
+                    <div style={{fontFamily:"'Instrument Sans',sans-serif",fontSize:22,fontWeight:700,color:C.t4}}>Enter client info first</div>
+                    <button onClick={()=>setMobileTab('quote')} style={{marginTop:8,padding:'13px 28px',borderRadius:10,border:`1px solid ${C.bd2}`,background:C.bg2,color:C.t2,fontSize:14,fontWeight:600,cursor:'pointer',fontFamily:"'Instrument Sans','Helvetica Neue',Arial,sans-serif"}}>← Back to Quote</button>
                   </div>
                 ) : !iulQuoteResults || iulQuoteResults.length === 0 ? (
                   <div style={{display:'flex',flexDirection:'column',alignItems:'center',justifyContent:'center',paddingTop:80,gap:16,textAlign:'center'}}>
                     <div style={{fontSize:52,opacity:0.4}}>🔍</div>
-                    <div style={{fontFamily:"'Barlow Condensed','Arial Narrow',sans-serif",fontSize:20,fontWeight:700,color:C.t4}}>No IUL quotes for this profile</div>
+                    <div style={{fontFamily:"'Instrument Sans',sans-serif",fontSize:20,fontWeight:700,color:C.t4}}>No IUL quotes for this profile</div>
                     <div style={{fontSize:12,color:C.t4,maxWidth:260,lineHeight:1.6}}>Try a different age, premium, or face amount.</div>
                   </div>
                 ) : (
                   <>
                     <div style={{display:'flex',justifyContent:'space-between',alignItems:'center',padding:'8px 4px 12px',gap:8,fontSize:11,color:C.t3,borderBottom:`1px solid ${C.bd}`,marginBottom:14}}>
                       <div style={{display:'flex',gap:6,alignItems:'center',flexWrap:'wrap'}}>
-                        <span style={{fontFamily:"'DM Mono',ui-monospace,'SF Mono',Menlo,monospace",fontWeight:600,color:C.t0}}>
+                        <span style={{fontFamily:"'Instrument Sans',sans-serif",fontWeight:600,color:C.t0}}>
                           {iulMode==='face' ? `$${iulPremium}/mo` : `$${(iulFace/1000).toFixed(0)}k face`}
                         </span>
                         <span style={{color:C.t4}}>·</span>
@@ -4138,12 +4046,12 @@ export default function QuoteMark() {
                         <span>{gender==='male'?'M':'F'} · {smoker?'Smoker':'NS'}</span>
                       </div>
                     </div>
-                    <div style={{fontSize:10,fontWeight:700,letterSpacing:1.8,color:'#C5A059',textTransform:'uppercase',marginBottom:8}}>
+                    <div style={{fontSize:10,fontWeight:700,letterSpacing:1.8,color:'#4a45d1',textTransform:'uppercase',marginBottom:8}}>
                       {iulMode==='face' ? 'Face Amounts' : 'Required Premiums'}
                     </div>
                     <div style={{display:'flex',flexDirection:'column',gap:10}}>
                       {iulQuoteResults.map(r => {
-                        const RED='#EF4444';
+                        const RED='#b42318';
                         const limitBlocked = iulMode==='premium' && (r.floored || r.capped);
                         const limitKind = r.floored ? 'min' : 'max';
                         const problem = r.unavailable ? 'state' : limitBlocked ? 'limit' : null;
@@ -4161,17 +4069,17 @@ export default function QuoteMark() {
                               <div style={{fontSize:11,color:C.t3,fontWeight:700,letterSpacing:0.5,textTransform:'uppercase'}}>Unavailable</div>
                             ) : problem==='limit' ? (
                               <>
-                                <div style={{fontFamily:"'DM Mono',ui-monospace,'SF Mono',Menlo,monospace",fontSize:18,fontWeight:800,color:RED,lineHeight:1}}>N/A</div>
+                                <div style={{fontFamily:"'Instrument Sans',sans-serif",fontSize:18,fontWeight:800,color:RED,lineHeight:1}}>N/A</div>
                                 <div style={{fontSize:9,color:RED,marginTop:2,fontWeight:700}}>{limitKind==='min'?'MIN':'MAX'} ${(r.face/1000).toFixed(0)}K</div>
                               </>
                             ) : iulMode==='face' ? (
                               <>
-                                <div style={{fontFamily:"'DM Mono',ui-monospace,'SF Mono',Menlo,monospace",fontSize:20,fontWeight:800,color:C.t0,lineHeight:1}}>${(r.face/1000).toFixed(0)}k</div>
+                                <div style={{fontFamily:"'Instrument Sans',sans-serif",fontSize:20,fontWeight:800,color:C.t0,lineHeight:1}}>${(r.face/1000).toFixed(0)}k</div>
                                 <div style={{fontSize:9,color:C.t4,marginTop:2}}>face · ${iulPremium}/mo</div>
                               </>
                             ) : (
                               <>
-                                <div style={{fontFamily:"'DM Mono',ui-monospace,'SF Mono',Menlo,monospace",fontSize:20,fontWeight:800,color:C.t0,lineHeight:1}}>${r.premium.toFixed(0)}<span style={{fontSize:11,color:C.t3,fontWeight:600}}>/mo</span></div>
+                                <div style={{fontFamily:"'Instrument Sans',sans-serif",fontSize:20,fontWeight:800,color:C.t0,lineHeight:1}}>${r.premium.toFixed(0)}<span style={{fontSize:11,color:C.t3,fontWeight:600}}>/mo</span></div>
                                 <div style={{fontSize:9,color:C.t4,marginTop:2}}>{`for $${(r.face/1000).toFixed(0)}k face`}</div>
                               </>
                             )}
@@ -4188,19 +4096,19 @@ export default function QuoteMark() {
                 !ageOK ? (
                   <div style={{display:'flex',flexDirection:'column',alignItems:'center',justifyContent:'center',paddingTop:80,gap:16,textAlign:'center'}}>
                     <div style={{fontSize:52,opacity:0.4}}>📋</div>
-                    <div style={{fontFamily:"'Barlow Condensed','Arial Narrow',sans-serif",fontSize:22,fontWeight:700,color:C.t4}}>Enter client info first</div>
-                    <button onClick={()=>setMobileTab('quote')} style={{marginTop:8,padding:'13px 28px',borderRadius:10,border:`1px solid ${C.bd2}`,background:C.bg2,color:C.t2,fontSize:14,fontWeight:600,cursor:'pointer',fontFamily:"'DM Sans','Helvetica Neue',Arial,sans-serif"}}>← Back to Quote</button>
+                    <div style={{fontFamily:"'Instrument Sans',sans-serif",fontSize:22,fontWeight:700,color:C.t4}}>Enter client info first</div>
+                    <button onClick={()=>setMobileTab('quote')} style={{marginTop:8,padding:'13px 28px',borderRadius:10,border:`1px solid ${C.bd2}`,background:C.bg2,color:C.t2,fontSize:14,fontWeight:600,cursor:'pointer',fontFamily:"'Instrument Sans','Helvetica Neue',Arial,sans-serif"}}>← Back to Quote</button>
                   </div>
                 ) : !termResults || termResults.length === 0 ? (
                   <div style={{display:'flex',flexDirection:'column',alignItems:'center',justifyContent:'center',paddingTop:80,gap:16,textAlign:'center'}}>
                     <div style={{fontSize:52,opacity:0.4}}>🔍</div>
-                    <div style={{fontFamily:"'Barlow Condensed','Arial Narrow',sans-serif",fontSize:20,fontWeight:700,color:C.t4}}>No quotes for this profile</div>
+                    <div style={{fontFamily:"'Instrument Sans',sans-serif",fontSize:20,fontWeight:700,color:C.t4}}>No quotes for this profile</div>
                     <div style={{fontSize:12,color:C.t4,maxWidth:260,lineHeight:1.6}}>Try a different age, face amount, or term length. Some carriers don't offer 25/35/40-year term or above age 65.</div>
                   </div>
                 ) : (
                   <>
                     {termRec.recommended === 'decline' && (
-                      <div style={{background:'linear-gradient(135deg, rgba(239,68,68,0.18), rgba(239,68,68,0.08))',border:'1.5px solid rgba(239,68,68,0.5)',borderRadius:12,padding:'14px 16px',marginBottom:12,display:'flex',gap:12,alignItems:'flex-start',boxShadow:'0 2px 12px rgba(239,68,68,0.15)'}}>
+                      <div style={{background:'linear-gradient(135deg, rgba(180,35,24,0.18), rgba(180,35,24,0.08))',border:'1.5px solid rgba(180,35,24,0.5)',borderRadius:12,padding:'14px 16px',marginBottom:12,display:'flex',gap:12,alignItems:'flex-start',boxShadow:'0 2px 12px rgba(180,35,24,0.15)'}}>
                         <div style={{fontSize:26,lineHeight:1,flexShrink:0}}>⚠</div>
                         <div style={{flex:1,minWidth:0}}>
                           <div style={{fontSize:15,fontWeight:800,color:'#FCA5A5',letterSpacing:0.2,marginBottom:4}}>Profile may not qualify for term</div>
@@ -4217,7 +4125,7 @@ export default function QuoteMark() {
                         <button onClick={()=>setTermCompatOpen(v=>!v)} style={{
                           width:'100%',background:'transparent',border:'none',cursor:'pointer',
                           padding:'10px 12px',display:'flex',alignItems:'center',justifyContent:'space-between',gap:8,
-                          fontFamily:"'DM Sans','Helvetica Neue',Arial,sans-serif",textAlign:'left'
+                          fontFamily:"'Instrument Sans','Helvetica Neue',Arial,sans-serif",textAlign:'left'
                         }}>
                           <div style={{display:'flex',alignItems:'center',gap:8,minWidth:0}}>
                             <span style={{fontSize:12,color:'#60A5FA',transition:'transform 0.18s',transform:termCompatOpen?'rotate(90deg)':'rotate(0deg)',flexShrink:0}}>▸</span>
@@ -4232,7 +4140,7 @@ export default function QuoteMark() {
                             {termCompat.excluded.map(e => (
                               <div key={e.name+'·'+e.sub} style={{display:'flex',justifyContent:'space-between',gap:8,fontSize:10,padding:'5px 8px',background:C.bg2,borderRadius:5,border:`1px solid ${C.bd}`}}>
                                 <span style={{color:C.t2,minWidth:0,overflow:'hidden',textOverflow:'ellipsis',whiteSpace:'nowrap'}}><strong style={{color:C.t1}}>{e.name}</strong> · <span style={{color:C.t4}}>{e.sub}</span></span>
-                                <span style={{color:C.t4,fontFamily:"'DM Mono',ui-monospace,'SF Mono',Menlo,monospace",flexShrink:0}}>{e.reason}</span>
+                                <span style={{color:C.t4,fontFamily:"'Instrument Sans',sans-serif",flexShrink:0}}>{e.reason}</span>
                               </div>
                             ))}
                           </div>
@@ -4241,7 +4149,7 @@ export default function QuoteMark() {
                     )}
                     <div style={{display:'flex',flexDirection:'column',gap:8, opacity: termRec.recommended === 'decline' ? 0.55 : 1, filter: termRec.recommended === 'decline' ? 'grayscale(40%)' : 'none', transition:'opacity 0.2s, filter 0.2s'}}>
                       {termResults.map(r => {
-                        const brandColor = CARRIER_META[r.id]?.brand || r.brand || '#C5A059';
+                        const brandColor = CARRIER_META[r.id]?.brand || r.brand || '#4a45d1';
                         return (
                           <div key={r.id} className="qm-rise" style={{background:isDark?'#1E293B':'#FFFFFF',border:`1px solid ${C.bd2}`,borderLeft:`4px solid ${brandColor}`,borderRadius:10,padding:'10px 12px',display:'flex',alignItems:'center',gap:10,boxShadow:C.cardShadow}}>
                             <div style={{flexShrink:0}}><CarrierLogo carrierId={r.id} name={r.name} small={true}/></div>
@@ -4255,12 +4163,12 @@ export default function QuoteMark() {
                             <div style={{textAlign:'right',flexShrink:0}}>
                               {termMode==='budget' ? (
                                 <>
-                                  <div style={{fontFamily:"'DM Mono',ui-monospace,'SF Mono',Menlo,monospace",fontSize:20,fontWeight:800,color:C.t0,lineHeight:1}}>{fmtF(r.face)}</div>
+                                  <div style={{fontFamily:"'Instrument Sans',sans-serif",fontSize:20,fontWeight:800,color:C.t0,lineHeight:1}}>{fmtF(r.face)}</div>
                                   <div style={{fontSize:9,color:C.t4,marginTop:2}}>${r.prem.toFixed(0)}/mo · {r.termLen}y</div>
                                 </>
                               ) : (
                                 <>
-                                  <div style={{fontFamily:"'DM Mono',ui-monospace,'SF Mono',Menlo,monospace",fontSize:22,fontWeight:800,color:C.t0,lineHeight:1}}>${r.prem.toFixed(2)}</div>
+                                  <div style={{fontFamily:"'Instrument Sans',sans-serif",fontSize:22,fontWeight:800,color:C.t0,lineHeight:1}}>${r.prem.toFixed(2)}</div>
                                   <div style={{fontSize:9,color:C.t4,marginTop:2}}>/mo · {r.termLen}y</div>
                                 </>
                               )}
@@ -4274,30 +4182,15 @@ export default function QuoteMark() {
               ) : !hasQuoted ? (
                 <div style={{display:'flex',flexDirection:'column',alignItems:'center',justifyContent:'center',paddingTop:80,gap:16,textAlign:'center'}}>
                   <div style={{fontSize:52,opacity:0.4}}>📋</div>
-                  <div style={{fontFamily:"'Barlow Condensed','Arial Narrow',sans-serif",fontSize:22,fontWeight:700,color:C.t4}}>Fill in client info first</div>
-                  <button onClick={()=>setMobileTab('quote')} style={{marginTop:8,padding:'13px 28px',borderRadius:10,border:`1px solid ${C.bd2}`,background:C.bg2,color:C.t2,fontSize:14,fontWeight:600,cursor:'pointer',fontFamily:"'DM Sans','Helvetica Neue',Arial,sans-serif"}}>
+                  <div style={{fontFamily:"'Instrument Sans',sans-serif",fontSize:22,fontWeight:700,color:C.t4}}>Fill in client info first</div>
+                  <button onClick={()=>setMobileTab('quote')} style={{marginTop:8,padding:'13px 28px',borderRadius:10,border:`1px solid ${C.bd2}`,background:C.bg2,color:C.t2,fontSize:14,fontWeight:600,cursor:'pointer',fontFamily:"'Instrument Sans','Helvetica Neue',Arial,sans-serif"}}>
                     ← Back to Quote
                   </button>
                 </div>
               ) : (
                 <>
-                  {/* Scenario bar */}
-                  <div style={{background:C.bg3,border:`1px solid ${C.bd}`,borderRadius:10,padding:'10px 14px',marginBottom:14,display:'flex',alignItems:'center',justifyContent:'space-between',flexWrap:'wrap',gap:6}}>
-                    <div style={{fontSize:13,color:C.t2,display:'flex',gap:8,flexWrap:'wrap',alignItems:'center'}}>
-                      <span style={{fontFamily:"'DM Mono',ui-monospace,'SF Mono',Menlo,monospace",fontWeight:600,color:C.t0}}>
-                        {gsbOn?`GSB Mode`:(mode==='face'?fmtF(faceAmt):`$${budget}/mo`)}
-                      </span>
-                      <span style={{color:C.t4}}>·</span>
-                      <span>Age {age}</span>
-                      <span style={{color:C.t4}}>·</span>
-                      <span>{gender==='male'?'M':'F'} · {smoker?'Smoker':'NS'}</span>
-                      {usState&&<><span style={{color:C.t4}}>·</span><span>{usState}</span></>}
-                    </div>
-                    <TierPill tier={uwTier}/>
-                  </div>
-
                   {/* Cards — single column full width */}
-                  <div style={{display:'flex',flexDirection:'column',gap:10}}>
+                  <div style={{display:'flex',flexDirection:'column',gap:8}}>
                     {results && results.map((r,idx)=>{
                       const isBest = false;
                       const isGhost = !r.prem;
@@ -4321,22 +4214,22 @@ export default function QuoteMark() {
                               {GSB.map(g=>{
                                 const tier=r.tiers?.[g.key];
                                 const hasPrem=tier?.prem!=null;
-                                const darkMetal=g.key==='gold'?'#C5A059':g.key==='silver'?'#94A3B8':'#CD7F32';
+                                const darkMetal=g.key==='gold'?'#4a45d1':g.key==='silver'?'#94A3B8':'#CD7F32';
                                 const lightLabel=g.key==='gold'?'#855D10':g.key==='silver'?'#475569':'#92400E';
                                 const isGoldKey=g.key==='gold';
                                 return(
                                   <div key={g.key} style={{
                                     flex:1,
                                     background: g.key==='silver'
-                                      ? (isDark?'rgba(197,160,89,0.04)':'rgba(197,160,89,0.05)')
+                                      ? (isDark?'rgba(74,69,209,0.04)':'rgba(74,69,209,0.05)')
                                       : (isDark?(hasPrem?C.bg1:C.bg0):'#FFFFFF'),
                                     border:`1px solid ${isDark?(hasPrem?darkMetal+'55':C.bd):'#E2E8F0'}`,
                                     borderTop: isDark
                                       ? `2px solid ${hasPrem?darkMetal:C.bd}`
-                                      : (isGoldKey?`4px solid #C5A059`:`2px solid ${hasPrem?(g.key==='silver'?'#94A3B8':'#C2700A'):C.bd}`),
+                                      : (isGoldKey?`4px solid #4a45d1`:`2px solid ${hasPrem?(g.key==='silver'?'#94A3B8':'#C2700A'):C.bd}`),
                                     borderRadius:9,padding:'10px 8px',textAlign:'center',
                                     opacity:hasPrem?1:0.35,
-                                    boxShadow:!isDark&&hasPrem&&isGoldKey?'0 2px 8px rgba(197,160,89,0.18)':'none'
+                                    boxShadow:!isDark&&hasPrem&&isGoldKey?'0 2px 8px rgba(74,69,209,0.18)':'none'
                                   }}>
                                     <div style={{
                                       fontSize:9,fontWeight:700,marginBottom:3,letterSpacing:1,textTransform:'uppercase',
@@ -4347,7 +4240,7 @@ export default function QuoteMark() {
                                       <div style={{
                                         fontSize:16,fontWeight:800,
                                         color:isDark?darkMetal:'#0F172A',
-                                        fontFamily:"'DM Mono',ui-monospace,'SF Mono',Menlo,monospace"
+                                        fontFamily:"'Instrument Sans',sans-serif"
                                       }}>{fmt$(tier.prem)}<span style={{fontSize:10,fontWeight:400,color:C.t4}}>/mo</span></div>
                                     ):(
                                       <div style={{fontSize:16,color:C.t4}}>—</div>
@@ -4367,68 +4260,34 @@ export default function QuoteMark() {
                           </div>
                         );
                       }
+                      // Compact quote row (design 3d): 38px logo tile, name +
+                      // product + small tier pill, right-aligned price.
                       return(
-                        <div key={r.id} className="qm-rise"
-                          onMouseEnter={()=>setHovCard(r.id)}
-                          onMouseLeave={()=>setHovCard(null)}
-                          style={{
-                          background: isDark ? (isGhost?C.bg2:'#1E293B') : (isGhost?C.bg3:'#FFFFFF'),
-                          border:`1px solid ${isGhost?C.bd:(isBest?C.gold:isDark?C.bd2:C.bd2)}`,
-                          borderTop:`3px solid ${isGhost?C.bd:(isBest?C.gold:brandColor)}`,
-                          borderRadius:12,padding:'14px 14px 12px',
-                          opacity:isGhost?0.4:r.capped?0.55:1,
-                          position:'relative',
-                          transition:'transform 0.18s,box-shadow 0.18s',
-                          transform: !isGhost&&hovCard===r.id?'translateY(-4px)':'translateY(0)',
-                          boxShadow: isGhost?'none': isDark
-                            ? (hovCard===r.id?`0 0 0 1px ${isBest?C.gold:brandColor}66,0 8px 24px rgba(0,0,0,0.4)`:`0 0 0 1px ${C.bd2}`)
-                            : (hovCard===r.id?'0 12px 24px -4px rgba(0,0,0,0.15)':'0 4px 6px -1px rgba(0,0,0,0.07)'),
-                          filter: isGhost && !isDark ? 'grayscale(1)' : 'none',
+                        <div key={r.id} className="qm-rise" style={{
+                          background:'#fff',border:'1px solid #eae9e6',borderRadius:10,
+                          padding:'12px 14px',display:'flex',alignItems:'center',gap:12,
+                          opacity:isGhost?0.55:r.capped?0.7:1,
+                          filter:isGhost?'grayscale(1)':'none'
                         }}>
-                          {isBest&&<div style={{position:'absolute',top:-1,left:'50%',transform:'translateX(-50%)',background:C.gold,color:'#fff',fontSize:9,fontWeight:800,padding:'2px 10px',borderRadius:'0 0 7px 7px',letterSpacing:1}}>BEST VALUE</div>}
-                          <div style={{display:'flex',justifyContent:'space-between',alignItems:'flex-start',marginBottom:isGhost?0:12,marginTop:isBest?10:0}}>
-                            <div style={{flex:1,minWidth:0}}>
-                              <div style={{fontSize:18,fontWeight:700,color:C.t0}}>{r.name}</div>
-                              <div style={{fontSize:11,color:C.t4,marginTop:2}}>{r.sub}</div>
-                            </div>
-                            <div style={{display:'flex',alignItems:'center',gap:6,flexShrink:0,marginLeft:10}}>
-                              <CarrierLogo carrierId={r.id} name={r.name} small={true}/>
-                            </div>
+                          <CarrierLogo carrierId={r.id} name={r.name} small={true}/>
+                          <div style={{flex:1,minWidth:0}}>
+                            <div style={{fontSize:14.5,fontWeight:600,color:'#191817',whiteSpace:'nowrap',overflow:'hidden',textOverflow:'ellipsis'}}>{r.name}</div>
+                            <div style={{fontSize:12,color:'#78746e',marginTop:1,whiteSpace:'nowrap',overflow:'hidden',textOverflow:'ellipsis'}}>{r.sub}{isGhost?'':` · ${fmtF(r.face||0)}`}{r.capped?' · capped':''}</div>
+                            {!isGhost && <div style={{marginTop:4,display:'flex',gap:5,alignItems:'center'}}><TierBadge tier={r.activeTier} productName={r.productName}/></div>}
+                            {isGhost && <div style={{fontSize:11.5,color:'#a09c94',fontStyle:'italic',marginTop:2}}>{r.reason}</div>}
                           </div>
-                          {!isGhost ? (
-                            <>
-                              {/* Premium mode: coverage is the answer — face hero, premium secondary.
-                                  Face mode: premium hero, face secondary. */}
-                              <div style={{display:'flex',alignItems:'baseline',gap:6,marginBottom:mode==='budget'?4:8}}>
-                                <span style={{fontSize:mode==='budget'?34:38,fontWeight:800,color:mode==='budget'?C.goldText:C.t0,letterSpacing:'-0.2px',fontFamily:"'DM Mono',ui-monospace,'SF Mono',Menlo,monospace"}}>{mode==='budget'?fmtF(r.face||0):fmt$(r.prem)}</span>
-                                <span style={{fontSize:10,color:C.t4,fontWeight:400,letterSpacing:0.3}}>{mode==='budget'?'coverage':'/mo EFT'}</span>
+                          {!isGhost && (
+                            <div style={{textAlign:'right',flexShrink:0}}>
+                              <div style={{fontSize:17,fontWeight:650,color:mode==='budget'?'#4740c8':'#191817',letterSpacing:'-0.01em',lineHeight:1.25}}>
+                                {mode==='budget'?fmtF(r.face||0):fmt$(r.prem)}{mode!=='budget'&&<span style={{fontSize:11,fontWeight:400,color:'#a09c94'}}> /mo</span>}
                               </div>
-                              <div style={{display:'flex',gap:6,marginBottom:10,flexWrap:'wrap',alignItems:'center'}}>
-                                {mode==='budget' ? (
-                                  <span style={{fontSize:15,fontWeight:700,color:C.t0,fontFamily:"'DM Mono',ui-monospace,'SF Mono',Menlo,monospace"}}>{fmt$(r.prem)}<span style={{fontSize:10,color:C.t4,fontWeight:400}}> /mo EFT</span></span>
-                                ) : (
-                                  <span style={{fontSize:12,color:C.t2}}>{fmtF(r.face||0)}</span>
-                                )}
-                                {r.capped&&<span style={{fontSize:10,color:C.t4,fontStyle:'italic'}}>Max coverage</span>}
-                                {!r.capped&&r.roundedTo&&mode==='budget'&&(
-                                  <span style={{fontSize:9,color:'#F59E0B',background:'rgba(245,158,11,0.10)',border:'1px solid rgba(245,158,11,0.3)',borderRadius:3,padding:'1px 5px',fontWeight:700,letterSpacing:0.4}}>
-                                    ${r.roundedTo>=1000?r.roundedTo/1000+'k':r.roundedTo} INC
-                                  </span>
-                                )}
-                                <TierBadge tier={r.activeTier} productName={r.productName}/>
-                                <CompBadge carrierId={r.id} tier={r.activeTier}/>
-                              </div>
+                              <div style={{fontSize:11,color:'#b5b1a8',marginTop:1}}>{mode==='budget'?`${fmt$(r.prem)} /mo`:`$${((r.prem??0)*12).toFixed(0)} /yr`}</div>
                               {CARRIER_META[r.id]?.eapp && (
-                                <a href={CARRIER_META[r.id].eapp} target="_blank" rel="noopener noreferrer" style={{
-                                  display:'block',padding:'14px 0',borderRadius:8,textAlign:'center',
-                                  background:'transparent',border:`1.5px solid ${isDark?'#374151':'#D0CDBE'}`,
-                                  color:isDark?'#94A3B8':'#3E4A59',fontSize:13,lineHeight:'20px',fontWeight:600,textDecoration:'none',
-                                  boxShadow:'none'
-                                }}>e-App →</a>
+                                <a href={CARRIER_META[r.id].eapp} target="_blank" rel="noopener noreferrer"
+                                  onClick={()=>track('e-App Click',{carrier:r.id,variant:'mobile-row'})}
+                                  style={{display:'inline-block',marginTop:5,fontSize:12,fontWeight:600,color:'#4a45d1',textDecoration:'none',padding:'4px 2px'}}>e-App →</a>
                               )}
-                            </>
-                          ) : (
-                            <div style={{fontSize:12,color:C.t4,fontStyle:'italic'}}>{r.reason}</div>
+                            </div>
                           )}
                         </div>
                       );
@@ -4443,36 +4302,32 @@ export default function QuoteMark() {
         {/* ── BOTTOM TAB BAR ── */}
         <div style={{
           position:'fixed',bottom:0,left:0,right:0,
-          background:C.bg1,borderTop:`1px solid ${C.bd}`,
+          background:'#fff',borderTop:'1px solid #eae9e6',
           display:'flex',zIndex:100,
           paddingBottom:'env(safe-area-inset-bottom,0px)'
         }}>
           <button onClick={()=>setMobileTab('quote')} style={{
-            flex:1,padding:'14px 0 12px',border:'none',cursor:'pointer',
+            flex:1,padding:'13px 0 11px',minHeight:48,border:'none',cursor:'pointer',
             background:'transparent',
-            color:mobileTab==='quote'?C.gold:C.t4,
-            fontSize:11,fontWeight:mobileTab==='quote'?700:500,
-            display:'flex',flexDirection:'column',alignItems:'center',gap:3,
-            fontFamily:"'DM Sans','Helvetica Neue',Arial,sans-serif",
-            borderTop:mobileTab==='quote'?`2px solid ${C.gold}`:'2px solid transparent'
+            color:mobileTab==='quote'?'#191817':'#a09c94',
+            fontSize:12,fontWeight:mobileTab==='quote'?600:400,
+            fontFamily:"'Instrument Sans','Helvetica Neue',Arial,sans-serif",
+            borderTop:mobileTab==='quote'?'2px solid #191817':'2px solid transparent'
           }}>
-            <span style={{fontSize:20}}>📋</span>
             Quote
           </button>
           <button onClick={()=>{setMobileTab('results');setTimeout(()=>window.scrollTo({top:0,behavior:'instant'}),0);}} style={{
-            flex:1,padding:'14px 0 12px',border:'none',cursor:'pointer',
+            flex:1,padding:'13px 0 11px',minHeight:48,border:'none',cursor:'pointer',
             background:'transparent',
-            color:mobileTab==='results'?C.gold:C.t4,
-            fontSize:11,fontWeight:mobileTab==='results'?700:500,
-            display:'flex',flexDirection:'column',alignItems:'center',gap:3,
-            fontFamily:"'DM Sans','Helvetica Neue',Arial,sans-serif",
-            borderTop:mobileTab==='results'?`2px solid ${C.gold}`:'2px solid transparent',
+            color:mobileTab==='results'?'#191817':'#a09c94',
+            fontSize:12,fontWeight:mobileTab==='results'?600:400,
+            fontFamily:"'Instrument Sans','Helvetica Neue',Arial,sans-serif",
+            borderTop:mobileTab==='results'?'2px solid #191817':'2px solid transparent',
             position:'relative'
           }}>
-            <span style={{fontSize:20}}>⚡</span>
             Results
             {hasQuoted&&results&&results.filter(r=>r.prem!=null).length>0&&(
-              <span style={{position:'absolute',top:10,right:'28%',background:C.gold,color:C.bg0,fontSize:9,fontWeight:800,borderRadius:10,padding:'1px 5px',minWidth:16,textAlign:'center'}}>
+              <span style={{position:'absolute',top:8,right:'26%',background:'#4a45d1',color:'#fff',fontSize:10,fontWeight:600,borderRadius:10,padding:'1px 6px',minWidth:16,textAlign:'center'}}>
                 {results.filter(r=>r.prem!=null).length}
               </span>
             )}
@@ -4486,7 +4341,7 @@ export default function QuoteMark() {
         <div onClick={()=>{if(!contactSending)setShowContact(false);}} style={{position:'fixed',inset:0,zIndex:400,background:'rgba(0,0,0,0.65)',display:'flex',alignItems:'center',justifyContent:'center',padding:'16px'}}>
           <div onClick={e=>e.stopPropagation()} style={{background:C.bg1,borderRadius:16,width:480,maxWidth:'100%',maxHeight:'90vh',overflowY:'auto',boxShadow:'0 24px 80px rgba(0,0,0,0.5)'}}>
             <div style={{display:'flex',alignItems:'center',justifyContent:'space-between',padding:'18px 20px 0'}}>
-              <div style={{fontSize:17,fontWeight:700,color:C.t1}}>Contact QuoteMark</div>
+              <div style={{fontSize:17,fontWeight:700,color:C.t1}}>Contact Quotemarko</div>
               <button onClick={()=>setShowContact(false)} style={{background:'transparent',border:'none',color:C.t4,fontSize:22,cursor:'pointer',lineHeight:1}}>✕</button>
             </div>
             {contactSent?(
@@ -4494,7 +4349,7 @@ export default function QuoteMark() {
                 <div style={{fontSize:40,marginBottom:12}}>✅</div>
                 <div style={{fontSize:16,fontWeight:700,color:C.t1,marginBottom:8}}>Message Sent!</div>
                 <div style={{fontSize:13,color:C.t3,marginBottom:24}}>We'll get back to you shortly.</div>
-                <button onClick={()=>{setShowContact(false);setContactSent(false);setContactForm({name:'',email:'',company:'',message:''}); }} style={{padding:'11px 28px',borderRadius:8,border:'none',background:C.gold,color:C.bg0,fontWeight:700,fontSize:14,cursor:'pointer',fontFamily:"'DM Sans','Helvetica Neue',Arial,sans-serif"}}>Close</button>
+                <button onClick={()=>{setShowContact(false);setContactSent(false);setContactForm({name:'',email:'',company:'',message:''}); }} style={{padding:'11px 28px',borderRadius:8,border:'none',background:C.gold,color:C.bg0,fontWeight:700,fontSize:14,cursor:'pointer',fontFamily:"'Instrument Sans','Helvetica Neue',Arial,sans-serif"}}>Close</button>
               </div>
             ):(
               <div style={{padding:'16px 20px 24px',display:'flex',flexDirection:'column',gap:14}}>
@@ -4502,7 +4357,7 @@ export default function QuoteMark() {
                 <div>
                   <div style={{fontSize:11,fontWeight:700,letterSpacing:1.2,color:C.t4,textTransform:'uppercase',marginBottom:10}}>Inquiry Type</div>
                   {[
-                    {id:'carrier',    emoji:'📋', label:'Submit a New Carrier', desc:'Request a carrier be added to QuoteMark'},
+                    {id:'carrier',    emoji:'📋', label:'Submit a New Carrier', desc:'Request a carrier be added to Quotemarko'},
                     {id:'suggestion', emoji:'💡', label:'General Suggestion',    desc:'Feature ideas, feedback, or improvements'},
                     {id:'partnership',emoji:'🤝', label:'Partnership / Whitelabel', desc:'Agency inquiries, 5+ seats, or white-label licensing'},
                   ].map(opt=>(
@@ -4524,22 +4379,22 @@ export default function QuoteMark() {
                   {key:'company', label:'Company / Agency', ph:'Optional',      req:false},
                 ].map(f=>(
                   <div key={f.key}>
-                    <div style={{fontSize:12,color:C.t4,marginBottom:5}}>{f.label}{f.req&&<span style={{color:'#EF4444'}}> *</span>}</div>
+                    <div style={{fontSize:12,color:C.t4,marginBottom:5}}>{f.label}{f.req&&<span style={{color:'#b42318'}}> *</span>}</div>
                     <input value={contactForm[f.key]} onChange={e=>setContactForm(p=>({...p,[f.key]:e.target.value}))}
                       placeholder={f.ph}
-                      style={{width:'100%',boxSizing:'border-box',background:C.bg3,border:`1px solid ${C.bd2}`,borderRadius:8,color:C.t1,fontSize:14,padding:'11px 12px',fontFamily:"'DM Sans','Helvetica Neue',Arial,sans-serif",outline:'none'}}/>
+                      style={{width:'100%',boxSizing:'border-box',background:C.bg3,border:`1px solid ${C.bd2}`,borderRadius:8,color:C.t1,fontSize:14,padding:'11px 12px',fontFamily:"'Instrument Sans','Helvetica Neue',Arial,sans-serif",outline:'none'}}/>
                   </div>
                 ))}
                 <div>
-                  <div style={{fontSize:12,color:C.t4,marginBottom:5}}>Message <span style={{color:'#EF4444'}}>*</span></div>
+                  <div style={{fontSize:12,color:C.t4,marginBottom:5}}>Message <span style={{color:'#b42318'}}>*</span></div>
                   <textarea value={contactForm.message} onChange={e=>setContactForm(p=>({...p,message:e.target.value}))}
                     placeholder={contactType==='carrier'?'Carrier name, website, and any relevant product details…':(contactType==='suggestion'?'Describe your idea or feedback…':'Tell us about your agency, team size, and what you are looking for…')}
                     rows={4}
-                    style={{width:'100%',boxSizing:'border-box',background:C.bg3,border:`1px solid ${C.bd2}`,borderRadius:8,color:C.t1,fontSize:14,padding:'11px 12px',fontFamily:"'DM Sans','Helvetica Neue',Arial,sans-serif",outline:'none',resize:'vertical'}}/>
+                    style={{width:'100%',boxSizing:'border-box',background:C.bg3,border:`1px solid ${C.bd2}`,borderRadius:8,color:C.t1,fontSize:14,padding:'11px 12px',fontFamily:"'Instrument Sans','Helvetica Neue',Arial,sans-serif",outline:'none',resize:'vertical'}}/>
                 </div>
-                {contactErr&&<div style={{fontSize:12,color:'#EF4444',padding:'8px 10px',background:'rgba(239,68,68,0.08)',borderRadius:7}}>{contactErr}</div>}
+                {contactErr&&<div style={{fontSize:12,color:'#b42318',padding:'8px 10px',background:'rgba(180,35,24,0.08)',borderRadius:7}}>{contactErr}</div>}
                 <button onClick={sendContact} disabled={contactSending||!contactForm.name||!contactForm.email||!contactForm.message}
-                  style={{padding:'13px',borderRadius:9,border:'none',background:C.gold,color:C.bg0,fontWeight:700,fontSize:14,cursor:'pointer',fontFamily:"'DM Sans','Helvetica Neue',Arial,sans-serif",opacity:(contactSending||!contactForm.name||!contactForm.email||!contactForm.message)?0.5:1}}>
+                  style={{padding:'13px',borderRadius:9,border:'none',background:C.gold,color:C.bg0,fontWeight:700,fontSize:14,cursor:'pointer',fontFamily:"'Instrument Sans','Helvetica Neue',Arial,sans-serif",opacity:(contactSending||!contactForm.name||!contactForm.email||!contactForm.message)?0.5:1}}>
                   {contactSending?'Sending…':'Send Message'}
                 </button>
               </div>
@@ -4559,7 +4414,7 @@ export default function QuoteMark() {
             </div>
             {/* ══ PROFILE PANEL CONTENT ══ */}
         {(()=>{
-          const inp={width:'100%',boxSizing:'border-box',background:C.bg3,border:`1px solid ${C.bd2}`,borderRadius:8,color:C.t1,fontSize:14,padding:'11px 12px',fontFamily:"'DM Sans','Helvetica Neue',Arial,sans-serif",outline:'none'};
+          const inp={width:'100%',boxSizing:'border-box',background:C.bg3,border:`1px solid ${C.bd2}`,borderRadius:8,color:C.t1,fontSize:14,padding:'11px 12px',fontFamily:"'Instrument Sans','Helvetica Neue',Arial,sans-serif",outline:'none'};
           return(
           <div style={{padding:'16px 16px 32px',display:'flex',flexDirection:'column',gap:20}}>
 
@@ -4570,7 +4425,7 @@ export default function QuoteMark() {
               <div style={{fontSize:14,color:C.t2,marginBottom:14,padding:'10px 12px',background:C.bg3,borderRadius:8,border:`1px solid ${C.bd}`}}>{session?.user?.email||'—'}</div>
               <div style={{fontSize:12,color:C.t4,marginBottom:6}}>Display Name</div>
               <input value={profileName} onChange={e=>setProfileName(e.target.value)} placeholder="Your name (optional)" style={inp}/>
-              <button onClick={saveProfile} disabled={profileSaving} style={{marginTop:10,width:'100%',padding:'11px',borderRadius:8,border:'none',background:profileSaved?'#16A34A':C.gold,color:profileSaved?'#fff':C.bg0,fontWeight:700,fontSize:13,cursor:'pointer',fontFamily:"'DM Sans','Helvetica Neue',Arial,sans-serif",transition:'background 0.2s'}}>
+              <button onClick={saveProfile} disabled={profileSaving} style={{marginTop:10,width:'100%',padding:'11px',borderRadius:8,border:'none',background:profileSaved?'#16A34A':C.gold,color:profileSaved?'#fff':C.bg0,fontWeight:700,fontSize:13,cursor:'pointer',fontFamily:"'Instrument Sans','Helvetica Neue',Arial,sans-serif",transition:'background 0.2s'}}>
                 {profileSaving?'Saving…':profileSaved?'✓ Saved!':'Save Name'}
               </button>
             </div>
@@ -4585,8 +4440,8 @@ export default function QuoteMark() {
                   <input type="password" value={pwForm[key]} onChange={e=>setPwForm(p=>({...p,[key]:e.target.value}))} placeholder={lbl} style={inp}/>
                 </div>);
               })}
-              {pwMsg&&<div style={{fontSize:12,color:pwMsg.err?'#EF4444':'#22C55E',marginBottom:8,padding:'7px 10px',background:pwMsg.err?'rgba(239,68,68,0.08)':'rgba(34,197,94,0.08)',borderRadius:7}}>{pwMsg.msg}</div>}
-              <button onClick={changePassword} disabled={pwChanging||!pwForm.next} style={{width:'100%',padding:'11px',borderRadius:8,border:'none',background:C.gold,color:C.bg0,fontWeight:700,fontSize:13,cursor:'pointer',fontFamily:"'DM Sans','Helvetica Neue',Arial,sans-serif",opacity:pwForm.next?1:0.5}}>
+              {pwMsg&&<div style={{fontSize:12,color:pwMsg.err?'#b42318':'#177452',marginBottom:8,padding:'7px 10px',background:pwMsg.err?'rgba(180,35,24,0.08)':'rgba(23,116,82,0.08)',borderRadius:7}}>{pwMsg.msg}</div>}
+              <button onClick={changePassword} disabled={pwChanging||!pwForm.next} style={{width:'100%',padding:'11px',borderRadius:8,border:'none',background:C.gold,color:C.bg0,fontWeight:700,fontSize:13,cursor:'pointer',fontFamily:"'Instrument Sans','Helvetica Neue',Arial,sans-serif",opacity:pwForm.next?1:0.5}}>
                 {pwChanging?'Updating…':'Update Password'}
               </button>
             </div>
@@ -4612,16 +4467,16 @@ export default function QuoteMark() {
                   </div>);
                 })}
               </div>
-              <button onClick={saveCarrierPrefs} style={{marginTop:14,width:'100%',padding:'12px',borderRadius:8,border:'none',background:carriersSaved?'#16A34A':C.gold,color:carriersSaved?'#fff':C.bg0,fontWeight:700,fontSize:13,cursor:'pointer',fontFamily:"'DM Sans','Helvetica Neue',Arial,sans-serif",transition:'background 0.2s'}}>
+              <button onClick={saveCarrierPrefs} style={{marginTop:14,width:'100%',padding:'12px',borderRadius:8,border:'none',background:carriersSaved?'#16A34A':C.gold,color:carriersSaved?'#fff':C.bg0,fontWeight:700,fontSize:13,cursor:'pointer',fontFamily:"'Instrument Sans','Helvetica Neue',Arial,sans-serif",transition:'background 0.2s'}}>
                 {carriersSaved?'✓ Carriers Saved!':'Save Carrier Preferences'}
               </button>
             </div>
 
             {/* Sign Out */}
-            <button onClick={openCustomerPortal} disabled={portalLoading} style={{padding:'12px',borderRadius:10,border:`1px solid ${C.bd2}`,background:'transparent',color:C.t1,fontWeight:600,fontSize:13,cursor:portalLoading?'not-allowed':'pointer',fontFamily:"'DM Sans','Helvetica Neue',Arial,sans-serif",opacity:portalLoading?0.6:1,marginBottom:8}}>
+            <button onClick={openCustomerPortal} disabled={portalLoading} style={{padding:'12px',borderRadius:10,border:`1px solid ${C.bd2}`,background:'transparent',color:C.t1,fontWeight:600,fontSize:13,cursor:portalLoading?'not-allowed':'pointer',fontFamily:"'Instrument Sans','Helvetica Neue',Arial,sans-serif",opacity:portalLoading?0.6:1,marginBottom:8}}>
               {portalLoading ? 'Opening…' : 'Manage Subscription'}
             </button>
-            <button onClick={signOut} style={{padding:'13px',borderRadius:10,border:`1px solid ${C.bd2}`,background:'transparent',color:'#EF4444',fontWeight:600,fontSize:14,cursor:'pointer',fontFamily:"'DM Sans','Helvetica Neue',Arial,sans-serif"}}>
+            <button onClick={signOut} style={{padding:'13px',borderRadius:10,border:`1px solid ${C.bd2}`,background:'transparent',color:'#b42318',fontWeight:600,fontSize:14,cursor:'pointer',fontFamily:"'Instrument Sans','Helvetica Neue',Arial,sans-serif"}}>
               Sign Out
             </button>
 
@@ -4646,7 +4501,7 @@ export default function QuoteMark() {
                     flex:1,padding:'10px 0',border:'none',background:'transparent',
                     color:carrierPanelTab===tab?C.t0:C.t4,fontSize:12,fontWeight:carrierPanelTab===tab?700:500,
                     cursor:'pointer',borderBottom:carrierPanelTab===tab?`2px solid ${C.blue}`:'2px solid transparent',
-                    fontFamily:"'DM Sans','Helvetica Neue',Arial,sans-serif",transition:'all 0.15s'
+                    fontFamily:"'Instrument Sans','Helvetica Neue',Arial,sans-serif",transition:'all 0.15s'
                   }}>{label}</button>
                 ))}
               </div>
@@ -4679,11 +4534,11 @@ export default function QuoteMark() {
                   <div style={{fontSize:11,fontWeight:700,color:C.t4,letterSpacing:1.5,textTransform:'uppercase',marginBottom:4}}>Request a Carrier</div>
                   <div style={{fontSize:12,color:C.t3,marginBottom:14,lineHeight:1.6}}>Don't see your carrier? Submit a request and we'll add them.</div>
                   {reqSent?(
-                    <div style={{background:'rgba(34,197,94,0.1)',border:'1px solid rgba(34,197,94,0.3)',borderRadius:10,padding:'14px 16px',textAlign:'center'}}>
+                    <div style={{background:'rgba(23,116,82,0.1)',border:'1px solid rgba(23,116,82,0.3)',borderRadius:10,padding:'14px 16px',textAlign:'center'}}>
                       <div style={{fontSize:22,marginBottom:6}}>✓</div>
                       <div style={{fontSize:14,color:C.green,fontWeight:600}}>Request submitted</div>
                       <div style={{fontSize:12,color:C.t3,marginTop:3}}>We'll review and add within 48 hrs</div>
-                      <button onClick={()=>{setReqSent(false);setReqForm({name:'',state:'',notes:''}); }} style={{marginTop:10,padding:'8px 16px',borderRadius:8,border:`1px solid ${C.bd}`,background:C.bg2,color:C.t3,fontSize:12,cursor:'pointer',fontFamily:"'DM Sans','Helvetica Neue',Arial,sans-serif"}}>Submit another</button>
+                      <button onClick={()=>{setReqSent(false);setReqForm({name:'',state:'',notes:''}); }} style={{marginTop:10,padding:'8px 16px',borderRadius:8,border:`1px solid ${C.bd}`,background:C.bg2,color:C.t3,fontSize:12,cursor:'pointer',fontFamily:"'Instrument Sans','Helvetica Neue',Arial,sans-serif"}}>Submit another</button>
                     </div>
                   ):(
                     <div style={{display:'flex',flexDirection:'column',gap:10}}>
@@ -4691,23 +4546,23 @@ export default function QuoteMark() {
                         <div style={{fontSize:12,color:C.t3,marginBottom:5}}>Carrier name *</div>
                         <input placeholder="e.g. Mutual of Omaha" value={reqForm.name}
                           onChange={e=>setReqForm(p=>({...p,name:e.target.value}))}
-                          style={{background:C.bg3,border:`1px solid ${C.bd}`,color:C.t1,borderRadius:9,padding:'11px 13px',fontSize:14,width:'100%',outline:'none',boxSizing:'border-box',fontFamily:"'DM Sans','Helvetica Neue',Arial,sans-serif"}}/>
+                          style={{background:C.bg3,border:`1px solid ${C.bd}`,color:C.t1,borderRadius:9,padding:'11px 13px',fontSize:14,width:'100%',outline:'none',boxSizing:'border-box',fontFamily:"'Instrument Sans','Helvetica Neue',Arial,sans-serif"}}/>
                       </div>
                       <div>
                         <div style={{fontSize:12,color:C.t3,marginBottom:5}}>State(s) needed</div>
                         <input placeholder="e.g. FL, TX, GA" value={reqForm.state}
                           onChange={e=>setReqForm(p=>({...p,state:e.target.value}))}
-                          style={{background:C.bg3,border:`1px solid ${C.bd}`,color:C.t1,borderRadius:9,padding:'11px 13px',fontSize:14,width:'100%',outline:'none',boxSizing:'border-box',fontFamily:"'DM Sans','Helvetica Neue',Arial,sans-serif"}}/>
+                          style={{background:C.bg3,border:`1px solid ${C.bd}`,color:C.t1,borderRadius:9,padding:'11px 13px',fontSize:14,width:'100%',outline:'none',boxSizing:'border-box',fontFamily:"'Instrument Sans','Helvetica Neue',Arial,sans-serif"}}/>
                       </div>
                       <div>
                         <div style={{fontSize:12,color:C.t3,marginBottom:5}}>Notes</div>
                         <textarea placeholder="Product type, tier, special requirements…" value={reqForm.notes}
                           onChange={e=>setReqForm(p=>({...p,notes:e.target.value}))}
-                          rows={3} style={{background:C.bg3,border:`1px solid ${C.bd}`,color:C.t1,borderRadius:9,padding:'11px 13px',fontSize:14,width:'100%',outline:'none',resize:'none',boxSizing:'border-box',fontFamily:"'DM Sans','Helvetica Neue',Arial,sans-serif"}}/>
+                          rows={3} style={{background:C.bg3,border:`1px solid ${C.bd}`,color:C.t1,borderRadius:9,padding:'11px 13px',fontSize:14,width:'100%',outline:'none',resize:'none',boxSizing:'border-box',fontFamily:"'Instrument Sans','Helvetica Neue',Arial,sans-serif"}}/>
                       </div>
                       <button
                         onClick={()=>{if(reqForm.name.trim())setReqSent(true);}}
-                        style={{padding:'13px 0',borderRadius:10,border:'none',background:reqForm.name.trim()?C.blue:'#1E3A5A',color:reqForm.name.trim()?C.t0:C.t4,fontSize:14,fontWeight:600,cursor:reqForm.name.trim()?'pointer':'not-allowed',fontFamily:"'DM Sans','Helvetica Neue',Arial,sans-serif"}}>
+                        style={{padding:'13px 0',borderRadius:10,border:'none',background:reqForm.name.trim()?C.blue:'#1E3A5A',color:reqForm.name.trim()?C.t0:C.t4,fontSize:14,fontWeight:600,cursor:reqForm.name.trim()?'pointer':'not-allowed',fontFamily:"'Instrument Sans','Helvetica Neue',Arial,sans-serif"}}>
                         Submit Request
                       </button>
                     </div>
@@ -4725,74 +4580,36 @@ export default function QuoteMark() {
   // ─────────────────────────────────────────────────
 
   return (
-    <div style={{fontFamily:"'DM Sans','Helvetica Neue',Arial,sans-serif",background:C.bg0,minHeight:'100vh',color:C.t1,position:'relative',backgroundImage:isDark?'radial-gradient(circle,#1E293B 1px,transparent 1px)':'radial-gradient(circle,#D8D5CC 1px,transparent 1px)',backgroundSize:'24px 24px'}}>
-      {/* ── HEADER ── */}
-      <div style={{background:C.bg1,borderBottom:`1px solid ${C.bd}`,padding:'11px 24px',display:'flex',alignItems:'center',justifyContent:'space-between',position:'sticky',top:0,zIndex:50}}>
-        <div style={{fontFamily:"'Barlow Condensed','Arial Narrow',sans-serif",fontSize:26,fontWeight:800,color:C.t0,letterSpacing:'-0.5px'}}>
-          <span style={{color:isDark?'#E2E8F0':'#0A192F',fontFamily:"'Barlow Condensed','Arial Narrow',sans-serif"}}>Quote</span><span style={{color:'#C5A059',fontFamily:"'Barlow Condensed','Arial Narrow',sans-serif"}}>Mark</span>
-        </div>
-        {/* ── FEX / TERM TOGGLE ── */}
-        <div style={{display:'flex',background:isDark?'rgba(11,17,32,0.8)':'#F1F5F9',borderRadius:24,padding:3,border:`1px solid ${C.bd}`,gap:2}}>
-          <button onClick={()=>{track('Tab Switch',{to:'fe'});setQuoteMode('fe');}} style={{
-            padding:'7px 20px',borderRadius:20,border:'none',
-            background:quoteMode==='fe'?(isDark?'#C5A059':'#0A192F'):'transparent',
-            color:quoteMode==='fe'?(isDark?'#0B1120':'#FFFFFF'):C.t3,
-            fontSize:12,fontWeight:700,cursor:'pointer',fontFamily:"'DM Sans','Helvetica Neue',Arial,sans-serif",
-            transition:'all 0.18s',letterSpacing:0.3,whiteSpace:'nowrap'
-          }}><TabIcon name="fex"/>FEX / WL</button>
-          <button onClick={()=>{track('Tab Switch',{to:'term'});setQuoteMode('term');}} style={{
-            padding:'7px 20px',borderRadius:20,border:'none',
-            background:quoteMode==='term'?'#C5A059':'transparent',
-            color:quoteMode==='term'?'#0A192F':C.t3,
-            fontSize:12,fontWeight:700,cursor:'pointer',fontFamily:"'DM Sans','Helvetica Neue',Arial,sans-serif",
-            transition:'all 0.18s',letterSpacing:0.3,whiteSpace:'nowrap'
-          }}><TabIcon name="term"/>Term Life</button>
-          <button onClick={()=>{track('Tab Switch',{to:'iul'});setQuoteMode('iul');}} style={{
-            padding:'7px 20px',borderRadius:20,border:'none',
-            background:quoteMode==='iul'?'#C5A059':'transparent',
-            color:quoteMode==='iul'?'#0A192F':C.t3,
-            fontSize:12,fontWeight:700,cursor:'pointer',fontFamily:"'DM Sans','Helvetica Neue',Arial,sans-serif",
-            transition:'all 0.18s',letterSpacing:0.3,whiteSpace:'nowrap'
-          }}><TabIcon name="iul"/>IUL</button>
-          <button onClick={()=>{track('Tab Switch',{to:'cv'});setQuoteMode('cv');}} style={{
-            padding:'7px 20px',borderRadius:20,border:'none',
-            background:quoteMode==='cv'?'#C5A059':'transparent',
-            color:quoteMode==='cv'?'#0B1120':C.t3,
-            fontSize:12,fontWeight:700,cursor:'pointer',fontFamily:"'DM Sans','Helvetica Neue',Arial,sans-serif",
-            transition:'all 0.18s',letterSpacing:0.3,whiteSpace:'nowrap'
-          }}><TabIcon name="cv"/>CV / Coverage</button>
-          <button onClick={()=>{track('Tab Switch',{to:'sheet'});setQuoteMode('sheet');}} style={{
-            padding:'7px 20px',borderRadius:20,border:'none',
-            background:quoteMode==='sheet'?'#C5A059':'transparent',
-            color:quoteMode==='sheet'?'#0B1120':C.t3,
-            fontSize:12,fontWeight:700,cursor:'pointer',fontFamily:"'DM Sans','Helvetica Neue',Arial,sans-serif",
-            transition:'all 0.18s',letterSpacing:0.3,whiteSpace:'nowrap'
-          }}><TabIcon name="sheet"/>Client Sheet</button>
+    <div style={{fontFamily:"'Instrument Sans','Helvetica Neue',Arial,sans-serif",background:'#f8f8f7',minHeight:'100vh',color:C.t1,position:'relative'}}>
+      {/* ── HEADER — 60px white bar, wordmark + text-pill tabs + Contact/Profile ── */}
+      <div style={{display:'flex',alignItems:'center',justifyContent:'space-between',height:60,padding:'0 28px',background:'#fff',borderBottom:'1px solid #eae9e6',position:'sticky',top:0,zIndex:50}}>
+        <div style={{display:'flex',alignItems:'center',gap:36}}>
+          <span style={{fontSize:17,fontWeight:700,color:'#191817',letterSpacing:'-0.01em'}}>Quotemarko<span style={{color:'#4a45d1'}}>.</span></span>
+          <div style={{display:'flex',gap:4,fontSize:13}}>
+            {[['fe','FEX / WL'],['term','Term Life'],['iul','IUL'],['cv','CV / Coverage'],['sheet','Client Sheet']].map(([id,label])=>(
+              <button key={id} className={quoteMode===id?undefined:'qm-navtab'} onClick={()=>{track('Tab Switch',{to:id});setQuoteMode(id);}} style={{
+                padding:'7px 14px',borderRadius:7,border:'none',cursor:'pointer',fontSize:13,fontFamily:'inherit',
+                background:quoteMode===id?'#f0efed':'transparent',
+                color:quoteMode===id?'#191817':'#78746e',
+                fontWeight:quoteMode===id?600:500,whiteSpace:'nowrap'
+              }}>{label}</button>
+            ))}
+          </div>
         </div>
         <div style={{display:'flex',alignItems:'center',gap:10}}>
-
-
-          {/* Account menu */}
-          <div style={{display:'flex',alignItems:'center',gap:8,paddingLeft:10,borderLeft:`1px solid ${C.bd}`}}>
-            <button onClick={toggleDarkMode} title={isDark?'Switch to Light Mode':'Switch to Dark Mode'} aria-label={isDark?'Switch to light mode':'Switch to dark mode'} style={{padding:'5px 9px',borderRadius:7,border:`1px solid ${C.bd2}`,background:C.bg3,color:C.t2,fontSize:14,cursor:'pointer',lineHeight:1,display:'flex',alignItems:'center'}}>
-              {isDark?'☀️':'🌙'}
-            </button>
-            <button onClick={()=>setShowContact(true)} style={{padding:'6px 12px',borderRadius:7,border:`1px solid ${C.bd2}`,background:C.bg3,color:C.t2,fontSize:11,fontWeight:500,cursor:'pointer',fontFamily:"'DM Sans','Helvetica Neue',Arial,sans-serif",display:'flex',alignItems:'center',gap:5}}>
-              <span style={{fontSize:13}}>📬</span> Contact
-            </button>
-            <span style={{fontSize:12,color:C.t4,maxWidth:140,overflow:'hidden',textOverflow:'ellipsis',whiteSpace:'nowrap'}}>{session?.user?.email}</span>
-            <button onClick={()=>setShowProfileModal(true)} style={{padding:'6px 12px',borderRadius:7,border:`1px solid ${C.bd2}`,background:'transparent',color:C.t3,fontSize:11,fontWeight:500,cursor:'pointer',fontFamily:"'DM Sans','Helvetica Neue',Arial,sans-serif",whiteSpace:'nowrap',display:'flex',alignItems:'center',gap:5}}>
-              <span style={{fontSize:13}}>👤</span> Profile
-            </button>
-          </div>
+          <button className="qm-secondary" onClick={()=>setShowContact(true)} style={{padding:'7px 14px',borderRadius:8,border:'1px solid #dedcd7',background:'#fff',fontSize:12.5,fontWeight:600,color:'#191817',cursor:'pointer',fontFamily:'inherit'}}>Contact</button>
+          <button className="qm-pill" onClick={()=>setShowProfileModal(true)} title={session?.user?.email} style={{display:'inline-flex',alignItems:'center',gap:8,padding:'4px 12px 4px 5px',borderRadius:99,border:'1px solid #e8e7e4',background:'#fff',fontSize:12.5,fontWeight:600,color:'#191817',cursor:'pointer',fontFamily:'inherit'}}>
+            <span style={{width:24,height:24,borderRadius:'50%',background:'#e8e7e4',display:'inline-flex',alignItems:'center',justifyContent:'center',fontSize:11,fontWeight:600,color:'#78746e'}}>{(profileName||session?.user?.email||'?').slice(0,1).toUpperCase()}</span>
+            Profile
+          </button>
         </div>
       </div>
 
-      {/* ── LAYOUT ── */}
-      <div style={{display:'grid',gridTemplateColumns:'360px 1fr',minHeight:'calc(100vh - 49px)'}}>
+      {/* ── LAYOUT — 264px card-stack sidebar + results, on the warm page bg ── */}
+      <div style={{display:'flex',gap:24,padding:'24px 28px',alignItems:'flex-start',minHeight:'calc(100vh - 61px)'}}>
 
         {/* ── SIDEBAR ── */}
-        <div style={{background:C.bg2,borderRight:`1px solid ${C.bd}`,padding:16,overflowY:'auto',display:'flex',flexDirection:'column',gap:12}}>
+        <div style={{width:264,flex:'none',display:'flex',flexDirection:'column',gap:16}}>
 
           {quoteMode==='fe' ? (
           <>
@@ -4807,8 +4624,8 @@ export default function QuoteMark() {
             </div>
           )}
           {isYoungAdult && (
-            <div style={{background:'rgba(34,197,94,0.08)',border:'1px solid rgba(34,197,94,0.28)',borderRadius:10,padding:'10px 12px',fontSize:11,color:C.t2,lineHeight:1.5}}>
-              <div style={{fontWeight:700,color:'#22C55E',marginBottom:3,fontSize:10,letterSpacing:0.5}}>👤 ADULT WHOLE LIFE</div>
+            <div style={{background:'rgba(23,116,82,0.08)',border:'1px solid rgba(23,116,82,0.28)',borderRadius:10,padding:'10px 12px',fontSize:11,color:C.t2,lineHeight:1.5}}>
+              <div style={{fontWeight:700,color:'#177452',marginBottom:3,fontSize:10,letterSpacing:0.5}}>👤 ADULT WHOLE LIFE</div>
               Standard underwriting. Term is usually cheaper for pure DB.
             </div>
           )}
@@ -4823,8 +4640,8 @@ export default function QuoteMark() {
                 border:`2px solid ${gsbOn ? C.goldBd : isDark?'#374151':'#D0CDBE'}`,
                 background:gsbOn ? C.goldBg : (isDark?'#0F172A':'#FAF9F6'),
                 color:gsbOn?C.gold:C.t3,
-                fontSize:11,fontWeight:700,cursor:'pointer',fontFamily:"'DM Sans','Helvetica Neue',Arial,sans-serif",
-                boxShadow:gsbOn?(isDark?'0 2px 8px rgba(0,0,0,0.3)':'0 1px 4px rgba(197,160,89,0.15)'):'none'
+                fontSize:11,fontWeight:700,cursor:'pointer',fontFamily:"'Instrument Sans','Helvetica Neue',Arial,sans-serif",
+                boxShadow:gsbOn?(isDark?'0 2px 8px rgba(0,0,0,0.3)':'0 1px 4px rgba(74,69,209,0.15)'):'none'
               }}>
                 <span style={{
                   position:'relative',display:'inline-block',
@@ -4857,7 +4674,7 @@ export default function QuoteMark() {
                       <span style={{position:'absolute',left:12,top:'50%',transform:'translateY(-50%)',color:C.t3,fontSize:14,pointerEvents:'none'}}>$</span>
                       <input type="text" inputMode="numeric" placeholder="10,000" value={faceAmt?faceAmt.toLocaleString():''}
                         onChange={e=>{const n=Number(e.target.value.replace(/[^0-9]/g,''));setFaceAmt(isNaN(n)?0:n);}}
-                        style={{...inp,paddingLeft:26,fontFamily:"'DM Mono',ui-monospace,'SF Mono',Menlo,monospace",fontSize:16}}/>
+                        style={{...inp,paddingLeft:26,fontFamily:"'Instrument Sans',sans-serif",fontSize:16}}/>
                     </div>
                   </>
                 ):(
@@ -4867,7 +4684,7 @@ export default function QuoteMark() {
                       <span style={{position:'absolute',left:12,top:'50%',transform:'translateY(-50%)',color:C.t3,fontSize:14,pointerEvents:'none'}}>$</span>
                       <input type="text" inputMode="decimal" placeholder="100" value={budget||''}
                         onChange={e=>{const v=e.target.value.replace(/[^0-9.]/g,'').replace(/^0+(?=\d)/,'');const n=Number(v);setBudget(v===''||isNaN(n)?0:n);}}
-                        style={{...inp,paddingLeft:26,fontFamily:"'DM Mono',ui-monospace,'SF Mono',Menlo,monospace",fontSize:16}}/>
+                        style={{...inp,paddingLeft:26,fontFamily:"'Instrument Sans',sans-serif",fontSize:16}}/>
                     </div>
                     <div style={{fontSize:11,color:C.t4,marginTop:6}}>Finds max coverage at this premium</div>
                   </>
@@ -4886,7 +4703,7 @@ export default function QuoteMark() {
                         onChange={e=>handleGsbChange(g.key,e.target.value)}
                         onBlur={()=>handleGsbBlur(g.key)}
                         onFocus={e=>e.target.select()}
-                        style={{...inp,paddingLeft:22,fontSize:13,fontFamily:"'DM Mono',ui-monospace,'SF Mono',Menlo,monospace"}}/>
+                        style={{...inp,paddingLeft:22,fontSize:13,fontFamily:"'Instrument Sans',sans-serif"}}/>
                     </div>
                   </div>
                 ))}
@@ -4921,7 +4738,7 @@ export default function QuoteMark() {
                         background:isOvr?ti.pill:'transparent',
                         color:isOvr||isAuto?ti.txt:C.t3,
                         cursor:'pointer',fontSize:12,fontWeight:600,textAlign:'left',
-                        display:'flex',alignItems:'center',gap:7,fontFamily:"'DM Sans','Helvetica Neue',Arial,sans-serif"
+                        display:'flex',alignItems:'center',gap:7,fontFamily:"'Instrument Sans','Helvetica Neue',Arial,sans-serif"
                       }}>
                         <span style={{width:6,height:6,borderRadius:'50%',background:isOvr||isAuto?ti.dot:'#334155',flexShrink:0}}/>
                         <span style={{flex:1}}>{ti.short}</span>
@@ -5022,15 +4839,15 @@ export default function QuoteMark() {
           )}
 
           <button className="qm-cta" onClick={e=>fireCta(e,()=>{if(ageOK){track('Quote Requested',{tier:uwTier,mode,gsb:gsbOn,face:faceBand(faceAmt)});setHasQuoted(true);if(isMobile){setMobileTab('results');setTimeout(()=>window.scrollTo({top:0,behavior:'instant'}),0);}}})} style={{
-            width:'100%',padding:'13px 0',borderRadius:10,border:'none',
+            width:'100%',height:44,borderRadius:9,border:'none',
             cursor:ageOK?'pointer':'not-allowed',
-            background:ageOK?C.gold:'#2A3547',
-            color:ageOK?C.bg0:C.t4,
-            fontSize:14,fontWeight:700,letterSpacing:0.5,
-            opacity:ageOK?1:0.4,
-            fontFamily:"'DM Sans','Helvetica Neue',Arial,sans-serif"
+            background:ageOK?'#4a45d1':'#dedcd7',
+            color:'#fff',
+            fontSize:14,fontWeight:600,
+            boxShadow:ageOK?'0 1px 2px rgba(74,69,209,.3)':'none',
+            fontFamily:"'Instrument Sans','Helvetica Neue',Arial,sans-serif"
           }}>
-            ⚡ Get Quotes
+            Get quotes
           </button>
           {!ageOK && <div style={{fontSize:11,color:C.t4,textAlign:'center',marginTop:8}}>Enter client age above to quote</div>}
           </>
@@ -5048,9 +4865,9 @@ export default function QuoteMark() {
                 <div style={{display:'grid',gridTemplateColumns:'repeat(7,1fr)',gap:4}}>
                   {['10','15','20','25','30','35','40'].map(t=>(
                     <button key={t} onClick={()=>setTermLength(t)} style={{
-                      padding:'9px 0',borderRadius:7,border:`2px solid ${termLength===t?C.gold:isDark?'#374151':'#D0CDBE'}`,
-                      background:termLength===t?C.goldBg:C.bg2,color:termLength===t?C.goldText:C.t3,
-                      fontSize:12,fontWeight:700,cursor:'pointer',fontFamily:"'DM Sans','Helvetica Neue',Arial,sans-serif"
+                      padding:'9px 0',borderRadius:7,border:`1px solid ${termLength===t?'#191817':'#dedcd7'}`,
+                      background:termLength===t?'#191817':'#fff',color:termLength===t?'#fff':'#78746e',
+                      fontSize:12,fontWeight:700,cursor:'pointer',fontFamily:"'Instrument Sans','Helvetica Neue',Arial,sans-serif"
                     }}>{t}</button>
                   ))}
                 </div>
@@ -5065,17 +4882,17 @@ export default function QuoteMark() {
                       <span style={{position:'absolute',left:12,top:'50%',transform:'translateY(-50%)',color:C.t3,fontSize:14,pointerEvents:'none'}}>$</span>
                       <input type="text" inputMode="numeric" placeholder="100,000" value={termFace?termFace.toLocaleString():''}
                         onChange={e=>{const n=Number(e.target.value.replace(/[^0-9]/g,''));setTermFace(isNaN(n)?0:n);}}
-                        style={{...inp,paddingLeft:26,fontFamily:"'DM Mono',ui-monospace,'SF Mono',Menlo,monospace",fontSize:16}}/>
+                        style={{...inp,paddingLeft:26,fontFamily:"'Instrument Sans',sans-serif",fontSize:16}}/>
                     </div>
               </div>
             </div>
 
             {/* 3 — UW ASSESSMENT (health class) */}
-            <div style={{...sec,border:`1px solid ${termHealth==='pp'?'#C5A059':termHealth==='p'?'#C5A059':C.bd}`}}>
+            <div style={sec}>
               <div style={{...lbl,marginBottom:10,display:'flex',justifyContent:'space-between',alignItems:'center'}}>
                 <span>UW Assessment</span>
                 {termRec.recommended==='decline' ? (
-                  <span style={{color:'#EF4444',fontWeight:700,fontSize:10,textTransform:'none',letterSpacing:0}}>⚠ Likely Decline</span>
+                  <span style={{color:'#b42318',fontWeight:700,fontSize:10,textTransform:'none',letterSpacing:0}}>⚠ Likely Decline</span>
                 ) : !termHealthManual && termRec.reasons.length ? (
                   <span style={{color:C.gold,fontWeight:700,fontSize:10,textTransform:'none',letterSpacing:0}}>✨ Auto · {HEALTH_CLASS_SHORT[termRec.recommended]}</span>
                 ) : termHealthManual ? (
@@ -5088,9 +4905,9 @@ export default function QuoteMark() {
               <div style={{display:'grid',gridTemplateColumns:'repeat(4,1fr)',gap:4,marginBottom:10}}>
                 {[{k:'pp',label:'Pref+'},{k:'p',label:'Pref'},{k:'sp',label:'Std+'},{k:'s',label:'Std'}].map(({k,label})=>(
                   <button key={k} onClick={()=>{setTermHealth(k);setTermHealthManual(true);}} style={{
-                    padding:'9px 0',borderRadius:7,border:`2px solid ${termHealth===k?C.gold:isDark?'#374151':'#D0CDBE'}`,
-                    background:termHealth===k?C.goldBg:C.bg2,color:termHealth===k?C.goldText:C.t3,
-                    fontSize:12,fontWeight:700,cursor:'pointer',fontFamily:"'DM Sans','Helvetica Neue',Arial,sans-serif"
+                    padding:'9px 0',borderRadius:7,border:`1px solid ${termHealth===k?'#191817':'#dedcd7'}`,
+                    background:termHealth===k?'#191817':'#fff',color:termHealth===k?'#fff':'#78746e',
+                    fontSize:12,fontWeight:700,cursor:'pointer',fontFamily:"'Instrument Sans','Helvetica Neue',Arial,sans-serif"
                   }}>{label}</button>
                 ))}
               </div>
@@ -5107,26 +4924,26 @@ export default function QuoteMark() {
               <div style={{marginBottom:12}}>
                 <div style={{fontSize:11,color:C.t3,marginBottom:6,fontWeight:600,display:'flex',justifyContent:'space-between'}}>
                   <span>Height & Weight</span>
-                  {termBMI!=null && <span style={{color:C.t4,fontWeight:500,fontSize:10,fontFamily:"'DM Mono',ui-monospace,'SF Mono',Menlo,monospace"}}>BMI {termBMI.toFixed(1)}</span>}
+                  {termBMI!=null && <span style={{color:C.t4,fontWeight:500,fontSize:10,fontFamily:"'Instrument Sans',sans-serif"}}>BMI {termBMI.toFixed(1)}</span>}
                 </div>
                 <div style={{display:'grid',gridTemplateColumns:'1fr 1fr 1.2fr',gap:6}}>
                   <input inputMode="numeric" placeholder="ft" value={termHtFt}
                     onChange={e=>setTermHtFt(e.target.value.replace(/\D/g,'').slice(0,1))}
-                    style={{...inp,textAlign:'center',fontFamily:"'DM Mono',ui-monospace,'SF Mono',Menlo,monospace"}}/>
+                    style={{...inp,textAlign:'center',fontFamily:"'Instrument Sans',sans-serif"}}/>
                   <input inputMode="numeric" placeholder="in" value={termHtIn}
                     onChange={e=>setTermHtIn(e.target.value.replace(/\D/g,'').slice(0,2))}
-                    style={{...inp,textAlign:'center',fontFamily:"'DM Mono',ui-monospace,'SF Mono',Menlo,monospace"}}/>
+                    style={{...inp,textAlign:'center',fontFamily:"'Instrument Sans',sans-serif"}}/>
                   <input inputMode="numeric" placeholder="weight (lb)" value={termWtLb}
                     onChange={e=>setTermWtLb(e.target.value.replace(/\D/g,'').slice(0,3))}
-                    style={{...inp,textAlign:'center',fontFamily:"'DM Mono',ui-monospace,'SF Mono',Menlo,monospace"}}/>
+                    style={{...inp,textAlign:'center',fontFamily:"'Instrument Sans',sans-serif"}}/>
                 </div>
               </div>
               <button onClick={()=>setTermFamHx(v=>!v)} style={{
-                width:'100%',padding:'9px 11px',borderRadius:8,border:`1px solid ${termFamHx?'#C5A059':C.bd}`,
-                background:termFamHx?'rgba(197,160,89,0.12)':C.bg2,color:C.t2,textAlign:'left',cursor:'pointer',
-                fontSize:11,fontFamily:"'DM Sans','Helvetica Neue',Arial,sans-serif",display:'flex',alignItems:'center',gap:8,marginBottom:12
+                width:'100%',padding:'9px 11px',borderRadius:8,border:`1px solid ${termFamHx?'#4a45d1':C.bd}`,
+                background:termFamHx?'rgba(74,69,209,0.12)':C.bg2,color:C.t2,textAlign:'left',cursor:'pointer',
+                fontSize:11,fontFamily:"'Instrument Sans','Helvetica Neue',Arial,sans-serif",display:'flex',alignItems:'center',gap:8,marginBottom:12
               }}>
-                <span style={{width:14,height:14,borderRadius:3,border:`2px solid ${termFamHx?'#C5A059':C.bd2}`,background:termFamHx?'#C5A059':'transparent',display:'flex',alignItems:'center',justifyContent:'center',fontSize:10,color:C.bg0,fontWeight:900,flexShrink:0}}>{termFamHx?'✓':''}</span>
+                <span style={{width:14,height:14,borderRadius:3,border:`2px solid ${termFamHx?'#4a45d1':C.bd2}`,background:termFamHx?'#4a45d1':'transparent',display:'flex',alignItems:'center',justifyContent:'center',fontSize:10,color:C.bg0,fontWeight:900,flexShrink:0}}>{termFamHx?'✓':''}</span>
                 <span>Family history of cancer / heart disease (pre-60)</span>
               </button>
               <div>
@@ -5141,7 +4958,7 @@ export default function QuoteMark() {
                       <div key={c.id} onClick={()=>{toggleCond(c.id);setSearch('');}} style={{
                         display:'flex',alignItems:'center',justifyContent:'space-between',gap:8,
                         padding:'6px 9px',borderRadius:5,cursor:'pointer',
-                        background:selected.includes(c.id)?'rgba(197,160,89,0.10)':'transparent',
+                        background:selected.includes(c.id)?'rgba(74,69,209,0.10)':'transparent',
                         fontSize:11,color:C.t1
                       }}>
                         <span>{c.label.replace('⚠ ','')}</span>
@@ -5176,8 +4993,8 @@ export default function QuoteMark() {
             </div>
 
             <button className="qm-cta" onClick={e=>fireCta(e,()=>{if(ageOK){track('Quote Requested',{tier:'term',mode:'term',gsb:false,face:faceBand(termFace)});setHasQuoted(true);}})}
-              style={{width:'100%',padding:'14px 0',borderRadius:10,border:'none',cursor:ageOK?'pointer':'not-allowed',background:ageOK?C.gold:'#2A3547',color:ageOK?C.bg0:C.t4,fontSize:14,fontWeight:700,letterSpacing:0.5,opacity:ageOK?1:0.4,fontFamily:"'DM Sans','Helvetica Neue',Arial,sans-serif"}}>
-              ⚡ Get Term Quotes
+              style={{width:'100%',minHeight:44,borderRadius:9,border:'none',cursor:ageOK?'pointer':'not-allowed',background:ageOK?'#4a45d1':'#dedcd7',color:'#fff',fontSize:14,fontWeight:600,boxShadow:ageOK?'0 1px 2px rgba(74,69,209,.3)':'none',fontFamily:"'Instrument Sans','Helvetica Neue',Arial,sans-serif"}}>
+              Get term quotes
             </button>
             {!ageOK && <div style={{fontSize:11,color:C.t4,textAlign:'center',marginTop:8}}>Enter client age above to quote</div>}
           </>
@@ -5204,7 +5021,7 @@ export default function QuoteMark() {
                       <span style={{position:'absolute',left:12,top:'50%',transform:'translateY(-50%)',color:C.t3,fontSize:14,pointerEvents:'none'}}>$</span>
                       <input type="text" inputMode="decimal" placeholder="200" value={iulPremium||''}
                         onChange={e=>{const v=e.target.value.replace(/[^0-9.]/g,'').replace(/^0+(?=\d)/,'');const n=Number(v);setIulPremium(v===''||isNaN(n)?0:n);}}
-                        style={{...inp,paddingLeft:26,fontFamily:"'DM Mono',ui-monospace,'SF Mono',Menlo,monospace",fontSize:16}}/>
+                        style={{...inp,paddingLeft:26,fontFamily:"'Instrument Sans',sans-serif",fontSize:16}}/>
                     </div>
                     <div style={{fontSize:11,color:C.t4,marginTop:6}}>Each carrier returns the face they'd issue for this premium</div>
                   </div>
@@ -5218,7 +5035,7 @@ export default function QuoteMark() {
                       <span style={{position:'absolute',left:12,top:'50%',transform:'translateY(-50%)',color:C.t3,fontSize:14,pointerEvents:'none'}}>$</span>
                       <input type="text" inputMode="numeric" placeholder="150,000" value={iulFace?iulFace.toLocaleString():''}
                         onChange={e=>{const n=Number(e.target.value.replace(/[^0-9]/g,''));setIulFace(isNaN(n)?0:n);}}
-                        style={{...inp,paddingLeft:26,fontFamily:"'DM Mono',ui-monospace,'SF Mono',Menlo,monospace",fontSize:16}}/>
+                        style={{...inp,paddingLeft:26,fontFamily:"'Instrument Sans',sans-serif",fontSize:16}}/>
                     </div>
                   </div>
                 )}
@@ -5227,7 +5044,7 @@ export default function QuoteMark() {
               {/* 3 — CARRIER NOTES */}
               <div style={sec}>
                 <div style={lbl}>Carrier Notes</div>
-                <div style={{background:'rgba(197,160,89,0.08)',border:'1px solid rgba(197,160,89,0.3)',borderRadius:8,padding:'10px 12px',fontSize:11,color:C.t3,lineHeight:1.5,marginBottom:10}}>
+                <div style={{background:'rgba(74,69,209,0.08)',border:'1px solid rgba(74,69,209,0.3)',borderRadius:8,padding:'10px 12px',fontSize:11,color:C.t3,lineHeight:1.5,marginBottom:10}}>
                   ⚠ Cap rates reset periodically. Verify against the carrier's current brochure before quoting.
                 </div>
                 <div style={{padding:'10px 11px',background:C.bg2,border:`1px solid ${C.bd}`,borderRadius:8,fontSize:11,color:C.t3,lineHeight:1.6}}>
@@ -5239,8 +5056,8 @@ export default function QuoteMark() {
               </div>
 
               <button className="qm-cta" onClick={e=>fireCta(e,()=>{if(ageOK){track('Quote Requested',{tier:'iul',mode:iulMode,gsb:false});setHasQuoted(true);}})}
-                style={{width:'100%',padding:'13px 0',borderRadius:10,border:'none',cursor:ageOK?'pointer':'not-allowed',background:ageOK?C.gold:'#2A3547',color:ageOK?C.bg0:C.t4,fontSize:14,fontWeight:700,letterSpacing:0.5,opacity:ageOK?1:0.4,fontFamily:"'DM Sans','Helvetica Neue',Arial,sans-serif"}}>
-                ⚡ Get IUL Quotes
+                style={{width:'100%',minHeight:44,borderRadius:9,border:'none',cursor:ageOK?'pointer':'not-allowed',background:ageOK?'#4a45d1':'#dedcd7',color:'#fff',fontSize:14,fontWeight:600,boxShadow:ageOK?'0 1px 2px rgba(74,69,209,.3)':'none',fontFamily:"'Instrument Sans','Helvetica Neue',Arial,sans-serif"}}>
+                Get IUL quotes
               </button>
               {!ageOK && <div style={{fontSize:11,color:C.t4,textAlign:'center',marginTop:8}}>Enter client age above to quote</div>}
             </>
@@ -5258,13 +5075,13 @@ export default function QuoteMark() {
                   <div style={{fontSize:11,color:C.t3,marginBottom:6,fontWeight:600}}>Monthly Premium ($)</div>
                   <input inputMode="decimal" placeholder="e.g. 52.00" value={cvMonthly}
                     onChange={e=>setCvMonthly(e.target.value)}
-                    style={{...inp,fontFamily:"'DM Mono',ui-monospace,'SF Mono',Menlo,monospace",fontSize:15}}/>
+                    style={{...inp,fontFamily:"'Instrument Sans',sans-serif",fontSize:15}}/>
                 </div>
                 <div>
                   <div style={{fontSize:11,color:C.t3,marginBottom:6,fontWeight:600}}>Years In-Force</div>
                   <input inputMode="numeric" placeholder="e.g. 7" value={cvPolicyYrs}
                     onChange={e=>setCvPolicyYrs(e.target.value.replace(/\D/g,''))}
-                    style={{...inp,fontFamily:"'DM Mono',ui-monospace,'SF Mono',Menlo,monospace",fontSize:15}}/>
+                    style={{...inp,fontFamily:"'Instrument Sans',sans-serif",fontSize:15}}/>
                   <div style={{fontSize:10,color:C.t4,marginTop:4}}>How long has the client had this policy?</div>
                 </div>
               </div>
@@ -5276,29 +5093,29 @@ export default function QuoteMark() {
                 const issueAge = Math.max(0, currentAge - Number(cvPolicyYrs));
                 const d=calculateCVCorridor(Number(cvMonthly),Number(cvPolicyYrs),issueAge);
                 return (
-                  <div style={{...sec,background:'rgba(197,160,89,0.06)',border:'1px solid rgba(197,160,89,0.22)'}}>
-                    <div style={{...lbl,color:'#C5A059',marginBottom:10}}>Quick Look · Age {currentAge} · Issued at {issueAge}</div>
-                    <div style={{display:'flex',justifyContent:'space-between',fontSize:12,marginBottom:4}}>
-                      <span style={{color:C.t3}}>Conservative</span>
-                      <strong style={{color:C.t1,fontFamily:"'DM Mono',ui-monospace,'SF Mono',Menlo,monospace"}}>${Math.round(d.low).toLocaleString()}</strong>
+                  <div style={sec}>
+                    <div style={{...lbl,color:'#4a45d1',marginBottom:10}}>Quick Look · Issued at {issueAge}</div>
+                    <div style={{display:'flex',justifyContent:'space-between',fontSize:12.5,marginBottom:6}}>
+                      <span style={{color:'#78746e'}}>Conservative</span>
+                      <strong style={{color:'#191817',fontWeight:600}}>${Math.round(d.low).toLocaleString()}</strong>
                     </div>
-                    <div style={{display:'flex',justifyContent:'space-between',fontSize:12,marginBottom:4}}>
-                      <span style={{color:C.t3}}>Target</span>
-                      <strong style={{color:'#C5A059',fontFamily:"'DM Mono',ui-monospace,'SF Mono',Menlo,monospace"}}>${Math.round(d.high).toLocaleString()}</strong>
+                    <div style={{display:'flex',justifyContent:'space-between',fontSize:12.5,paddingBottom:8,marginBottom:8,borderBottom:'1px solid #f0efed'}}>
+                      <span style={{color:'#78746e'}}>Target</span>
+                      <strong style={{color:'#4a45d1',fontWeight:600}}>${Math.round(d.high).toLocaleString()}</strong>
                     </div>
-                    <div style={{display:'flex',justifyContent:'space-between',fontSize:12}}>
-                      <span style={{color:C.t3}}>Total Paid</span>
-                      <strong style={{color:C.t2,fontFamily:"'DM Mono',ui-monospace,'SF Mono',Menlo,monospace"}}>${Math.round(d.totalPaid).toLocaleString()}</strong>
+                    <div style={{display:'flex',justifyContent:'space-between',fontSize:12.5}}>
+                      <span style={{color:'#78746e'}}>Total paid</span>
+                      <strong style={{color:'#191817',fontWeight:600}}>${Math.round(d.totalPaid).toLocaleString()}</strong>
                     </div>
-                    {Number(cvPolicyYrs)<=2&&<div style={{fontSize:10,color:'#F87171',marginTop:8,lineHeight:1.5}}>⏳ Most policies accumulate little or no CV in years 1–2. Significant growth typically starts year 3+.</div>}
+                    {Number(cvPolicyYrs)<=2&&<div style={{fontSize:11,color:'#b42318',marginTop:8,lineHeight:1.5}}>Most policies accumulate little or no CV in years 1–2. Significant growth typically starts year 3+.</div>}
                   </div>
                 );
               })()}
 
               {/* CTA */}
               <button className="qm-cta" onClick={e=>fireCta(e,()=>{if(ageOK&&Number(cvMonthly)>0&&Number(cvPolicyYrs)>0){track('CV Estimate Viewed');setHasQuoted(true);}})}
-                style={{width:'100%',padding:'13px 0',borderRadius:10,border:'none',cursor:(ageOK&&Number(cvMonthly)>0&&Number(cvPolicyYrs)>0)?'pointer':'not-allowed',background:(ageOK&&Number(cvMonthly)>0&&Number(cvPolicyYrs)>0)?C.gold:'#2A3547',color:(ageOK&&Number(cvMonthly)>0&&Number(cvPolicyYrs)>0)?C.bg0:C.t4,fontSize:14,fontWeight:700,letterSpacing:0.5,opacity:(ageOK&&Number(cvMonthly)>0&&Number(cvPolicyYrs)>0)?1:0.4,fontFamily:"'DM Sans','Helvetica Neue',Arial,sans-serif"}}>
-                💰 View Cash Value Estimate
+                style={{width:'100%',minHeight:44,borderRadius:9,border:'none',cursor:(ageOK&&Number(cvMonthly)>0&&Number(cvPolicyYrs)>0)?'pointer':'not-allowed',background:(ageOK&&Number(cvMonthly)>0&&Number(cvPolicyYrs)>0)?'#4a45d1':'#dedcd7',color:'#fff',fontSize:14,fontWeight:600,boxShadow:(ageOK&&Number(cvMonthly)>0&&Number(cvPolicyYrs)>0)?'0 1px 2px rgba(74,69,209,.3)':'none',fontFamily:"'Instrument Sans','Helvetica Neue',Arial,sans-serif"}}>
+                View cash value estimate
               </button>
             </>
           )}
@@ -5313,7 +5130,7 @@ export default function QuoteMark() {
               </div>
               <div style={sec}>
                 <div style={lbl}>File name</div>
-                <div style={{fontSize:11,color:C.t3,lineHeight:1.7,fontFamily:"'DM Mono',ui-monospace,'SF Mono',Menlo,monospace",wordBreak:'break-all'}}>{sheetFileName(sheet)}</div>
+                <div style={{fontSize:11.5,color:'#78746e',lineHeight:1.7,fontFamily:"ui-monospace,'SF Mono',Menlo,monospace",wordBreak:'break-all',background:'#fbfbfa',border:'1px solid #f0efed',borderRadius:6,padding:'8px 10px'}}>{sheetFileName(sheet)}</div>
                 <div style={{fontSize:10,color:C.t4,marginTop:8,lineHeight:1.6}}>first_last_carrier_month_year — carrier pulls from the Carrier field (falls back to APPROVED / In Underwriting).</div>
               </div>
               <div style={{padding:'10px 11px',background:C.bg2,border:`1px solid ${C.bd}`,borderRadius:8,fontSize:11,color:C.t3,lineHeight:1.6}}>
@@ -5326,18 +5143,17 @@ export default function QuoteMark() {
         </div>
 
         {/* ── RESULTS PANEL ── */}
-        <div style={{padding:'0',overflowY:'auto',display:'flex',flexDirection:'column'}}>
+        <div style={{flex:1,minWidth:0,display:'flex',flexDirection:'column'}}>
           {quoteMode==='iul'?(
-            <div style={{padding:24,overflowY:'auto'}}>
-              <div style={{display:'flex',alignItems:'center',gap:14,paddingBottom:14,marginBottom:18,borderBottom:`1px solid ${C.bd}`}}>
-                <span style={{fontSize:32}}>📈</span>
+            <div>
+              <div style={{display:'flex',alignItems:'center',gap:14,marginBottom:16}}>
                 <div style={{flex:1}}>
-                  <div style={{fontSize:20,fontWeight:800,color:C.t0}}>IUL Quote · {iulMode==='face' ? 'Premium → Face' : 'Face → Premium'}</div>
-                  <div style={{fontSize:12,color:C.t4,marginTop:2}}>{IUL_QUOTE_CARRIERS.length} carriers · live lookup mirrors Insurance Toolkits</div>
+                  <div style={{fontSize:20,fontWeight:700,color:'#191817',letterSpacing:'-0.01em'}}>IUL quote · {iulMode==='face' ? 'Premium → Face' : 'Face → Premium'}</div>
+                  <div style={{fontSize:13,color:'#78746e',marginTop:2}}>{IUL_QUOTE_CARRIERS.length} carriers · live lookup mirrors Insurance Toolkits</div>
                 </div>
-                <div style={{background:'rgba(197,160,89,0.1)',border:'1px solid rgba(197,160,89,0.3)',borderRadius:6,padding:'4px 10px',fontSize:11,color:C.gold,fontWeight:700}}>
+                <span style={{background:'#f0efed',borderRadius:99,padding:'3px 10px',fontSize:11.5,color:'#78746e',fontWeight:600,whiteSpace:'nowrap'}}>
                   Agent reference only
-                </div>
+                </span>
               </div>
 
               {/* Quote results */}
@@ -5355,17 +5171,18 @@ export default function QuoteMark() {
                 </div>
               ) : (
                 <div style={{marginBottom:24}}>
-                  <div style={{background:C.bg3,border:`1px solid ${C.bd}`,borderRadius:10,padding:'10px 14px',marginBottom:12,display:'flex',justifyContent:'space-between',fontSize:13,color:C.t2,flexWrap:'wrap',gap:6}}>
-                    <span>
-                      <span style={{fontFamily:"'DM Mono',ui-monospace,'SF Mono',Menlo,monospace",fontWeight:600,color:C.t0}}>
+                  <div style={{display:'flex',alignItems:'baseline',justifyContent:'space-between',gap:8,marginBottom:14,flexWrap:'wrap'}}>
+                    <div style={{display:'flex',alignItems:'baseline',gap:8,fontSize:13,color:'#78746e'}}>
+                      <span style={{fontSize:20,fontWeight:700,color:'#191817',letterSpacing:'-0.01em'}}>
                         {iulMode==='face' ? `$${iulPremium}/mo` : `$${(iulFace/1000).toFixed(0)}k face`}
-                      </span> · Age {age} · {gender==='male'?'M':'F'} · {smoker?'Smoker':'NS'}
-                    </span>
-                    <span style={{fontSize:11,color:C.t3}}>{iulQuoteResults.filter(r=>!r.unavailable&&!(iulMode==='premium'&&(r.floored||r.capped))).length} carriers · sorted by {iulMode==='face' ? 'face desc' : 'premium asc'}</span>
+                      </span>
+                      <span>· Age {age} · {gender==='male'?'M':'F'} · {smoker?'Smoker':'NS'}</span>
+                    </div>
+                    <span style={{fontSize:12.5,color:'#a09c94'}}>{iulQuoteResults.filter(r=>!r.unavailable&&!(iulMode==='premium'&&(r.floored||r.capped))).length} carriers · sorted by {iulMode==='face' ? 'face desc' : 'premium asc'}</span>
                   </div>
                   <div style={{display:'flex',flexDirection:'column',gap:10}}>
                     {iulQuoteResults.map(r => {
-                      const RED = '#EF4444';
+                      const RED = '#b42318';
                       // In premium mode, a carrier that can't issue the requested face —
                       // below its minimum (floored) OR above its max (capped) — is a red
                       // "unavailable" state, NOT a real quote. Showing the min/max-face
@@ -5375,51 +5192,41 @@ export default function QuoteMark() {
                       const limitBlocked = iulMode === 'premium' && (r.floored || r.capped);
                       const limitKind = r.floored ? 'min' : 'max';
                       const problem = r.unavailable ? 'state' : limitBlocked ? 'limit' : null;
-                      const accent = problem === 'state' ? C.bd2 : problem === 'limit' ? RED : r.brand;
                       return (
-                      <div key={r.id} className="qm-rise" style={{
-                        background:isDark?'#1E293B':'#FFFFFF',
-                        border:`1px solid ${problem==='limit'?RED+'55':C.bd2}`,
-                        borderLeft:`5px solid ${accent}`,borderRadius:12,padding:'14px 20px',
-                        display:'flex',alignItems:'center',gap:18,boxShadow:C.cardShadow,
-                        opacity:problem==='state'?0.5:1,
-                        filter:problem==='state'?'grayscale(0.6)':'none'}}>
-                        <div style={{flexShrink:0,width:120,display:'flex',alignItems:'center',justifyContent:'center'}}>
-                          <CarrierLogo carrierId={r.id} name={r.name} small={false}/>
-                        </div>
+                      <div key={r.id} className={problem?undefined:'qm-row'} style={{
+                        background:'#fff',
+                        border:`1px solid ${problem==='limit'?'#f5c6c2':'#eae9e6'}`,
+                        borderRadius:10,padding:'12px 20px',
+                        display:'flex',alignItems:'center',gap:16,
+                        opacity:problem==='state'?0.55:1,
+                        filter:problem==='state'?'grayscale(0.7)':'none'}}>
+                        <CarrierLogo carrierId={r.id} name={r.name} small={false}/>
                         <div style={{flex:1,minWidth:0}}>
-                          <div style={{fontSize:16,fontWeight:800,color:C.t0,letterSpacing:'-0.2px'}}>{r.name}</div>
-                          <div style={{fontSize:12,color:C.t4,marginTop:2}}>{r.sub}</div>
+                          <div style={{fontSize:14.5,fontWeight:600,color:'#191817'}}>{r.name}</div>
+                          <div style={{fontSize:12.5,color:'#78746e',marginTop:2}}>{r.sub}</div>
                           {problem==='state' ? (
-                            <div style={{fontSize:11,color:C.t3,marginTop:5,fontWeight:600}}>⊘ {r.reason}</div>
+                            <div style={{fontSize:12,color:'#78746e',marginTop:4,fontWeight:600}}>{r.reason}</div>
                           ) : problem==='limit' ? (
-                            <div style={{fontSize:11,color:RED,marginTop:5,fontWeight:700}}>{limitKind==='min'?'Minimum':'Maximum'} face ${(r.face/1000).toFixed(0)}k at age {age} · won't issue ${(r.targetFace/1000).toFixed(0)}k</div>
-                          ) : (
-                            <div style={{fontSize:10,color:C.t4,marginTop:5,fontStyle:'italic'}}>
-                              {iulMode==='face'
-                                ? `Premium $${iulPremium}/mo buys this face amount`
-                                : `Premium needed for $${(iulFace/1000).toFixed(0)}k face`}
-                            </div>
-                          )}
+                            <div style={{fontSize:12,color:RED,marginTop:4,fontWeight:600}}>{limitKind==='min'?'Minimum':'Maximum'} face ${(r.face/1000).toFixed(0)}k at age {age} · won't issue ${(r.targetFace/1000).toFixed(0)}k</div>
+                          ) : null}
                         </div>
                         <div style={{textAlign:'right',flexShrink:0}}>
                           {problem==='state' ? (
-                            <div style={{fontSize:13,color:C.t3,fontWeight:700,letterSpacing:1,textTransform:'uppercase'}}>Unavailable</div>
+                            <span style={{display:'inline-block',padding:'3px 10px',borderRadius:99,background:'#f0efed',color:'#78746e',fontSize:11.5,fontWeight:600}}>Unavailable</span>
                           ) : problem==='limit' ? (
                             <>
-                              <div style={{fontFamily:"'DM Mono',ui-monospace,'SF Mono',Menlo,monospace",fontSize:26,fontWeight:800,color:RED,lineHeight:1}}>N/A</div>
-                              <div style={{fontSize:10,color:RED,marginTop:4,fontWeight:700,letterSpacing:1,textTransform:'uppercase'}}>{limitKind==='min'?'MIN':'MAX'} FACE ${(r.face/1000).toFixed(0)}K</div>
-                              <div style={{fontSize:10,color:C.t4,marginTop:3}}>${r.premium.toFixed(2)}/mo at ${(r.face/1000).toFixed(0)}k {limitKind}</div>
+                              <div style={{fontSize:19,fontWeight:650,color:RED,lineHeight:1.25}}>N/A</div>
+                              <div style={{fontSize:11.5,color:'#b5b1a8',marginTop:2}}>${r.premium.toFixed(2)}/mo at ${(r.face/1000).toFixed(0)}k {limitKind}</div>
                             </>
                           ) : iulMode==='face' ? (
                             <>
-                              <div style={{fontFamily:"'DM Mono',ui-monospace,'SF Mono',Menlo,monospace",fontSize:32,fontWeight:800,color:C.t0,lineHeight:1}}>${r.face.toLocaleString()}</div>
-                              <div style={{fontSize:10,color:C.t4,marginTop:4,fontWeight:600,letterSpacing:1,textTransform:'uppercase'}}>Face Amount</div>
+                              <div style={{fontSize:19,fontWeight:650,color:'#191817',letterSpacing:'-0.01em',lineHeight:1.25}}>${r.face.toLocaleString()}</div>
+                              <div style={{fontSize:11.5,color:'#b5b1a8',marginTop:2}}>face at ${iulPremium}/mo</div>
                             </>
                           ) : (
                             <>
-                              <div style={{fontFamily:"'DM Mono',ui-monospace,'SF Mono',Menlo,monospace",fontSize:32,fontWeight:800,color:C.t0,lineHeight:1}}>${r.premium.toFixed(2)}<span style={{fontSize:18,color:C.t3,fontWeight:600}}>/mo</span></div>
-                              <div style={{fontSize:10,color:C.t4,marginTop:4,fontWeight:600,letterSpacing:1,textTransform:'uppercase'}}>Required Premium</div>
+                              <div style={{fontSize:19,fontWeight:650,color:'#191817',letterSpacing:'-0.01em',lineHeight:1.25}}>${r.premium.toFixed(2)}<span style={{fontSize:12,fontWeight:400,color:'#a09c94'}}> /mo</span></div>
+                              <div style={{fontSize:11.5,color:'#b5b1a8',marginTop:2}}>for ${(iulFace/1000).toFixed(0)}k face</div>
                             </>
                           )}
                         </div>
@@ -5436,7 +5243,7 @@ export default function QuoteMark() {
                 paddingBottom:10,marginBottom:iulSpecsOpen?14:0,
                 borderTop:`1px solid ${C.bd}`,paddingTop:18,
                 background:'transparent',border:'none',borderTopColor:C.bd,cursor:'pointer',
-                fontFamily:"'DM Sans','Helvetica Neue',Arial,sans-serif"
+                fontFamily:"'Instrument Sans','Helvetica Neue',Arial,sans-serif"
               }}>
                 <div style={{display:'flex',alignItems:'center',gap:10}}>
                   <span style={{fontSize:14,color:C.t4,transition:'transform 0.18s',transform:iulSpecsOpen?'rotate(90deg)':'rotate(0deg)'}}>▸</span>
@@ -5462,8 +5269,8 @@ export default function QuoteMark() {
                       </div>
                       {/* Specs */}
                       <div style={{display:'flex',flexDirection:'column',gap:5,fontSize:12,color:C.t2}}>
-                        <div style={{display:'flex',justifyContent:'space-between'}}><span style={{color:C.t4}}>Issue ages</span><span style={{fontFamily:"'DM Mono',ui-monospace,'SF Mono',Menlo,monospace"}}>{c.issueAges.min}–{c.issueAges.max}</span></div>
-                        <div style={{display:'flex',justifyContent:'space-between'}}><span style={{color:C.t4}}>Face range</span><span style={{fontFamily:"'DM Mono',ui-monospace,'SF Mono',Menlo,monospace"}}>{fmtFace(c.faceRange.min)}–{fmtFace(c.faceRange.max)}</span></div>
+                        <div style={{display:'flex',justifyContent:'space-between'}}><span style={{color:C.t4}}>Issue ages</span><span style={{fontFamily:"'Instrument Sans',sans-serif"}}>{c.issueAges.min}–{c.issueAges.max}</span></div>
+                        <div style={{display:'flex',justifyContent:'space-between'}}><span style={{color:C.t4}}>Face range</span><span style={{fontFamily:"'Instrument Sans',sans-serif"}}>{fmtFace(c.faceRange.min)}–{fmtFace(c.faceRange.max)}</span></div>
                         <div style={{display:'flex',justifyContent:'space-between',gap:8}}><span style={{color:C.t4,flexShrink:0}}>Index</span><span style={{fontSize:11,textAlign:'right'}}>{c.indexStrategy}</span></div>
                         <div style={{display:'flex',justifyContent:'space-between',gap:8}}><span style={{color:C.t4,flexShrink:0}}>UW</span><span style={{fontSize:11,textAlign:'right'}}>{c.underwriting}</span></div>
                         <div style={{display:'flex',justifyContent:'space-between'}}><span style={{color:C.t4}}>DB options</span><span style={{fontSize:11}}>{c.dbOptions.join(', ')}</span></div>
@@ -5474,7 +5281,7 @@ export default function QuoteMark() {
                           <div style={{fontWeight:700,marginBottom:5,color:C.t4,letterSpacing:0.5,fontSize:9}}>FACE BY AGE BAND</div>
                           {c.faceRange.ageBands.map(b => (
                             <div key={b.ages} style={{display:'flex',justifyContent:'space-between',color:C.t2,marginBottom:2}}>
-                              <span>{b.ages}</span><span style={{fontFamily:"'DM Mono',ui-monospace,'SF Mono',Menlo,monospace"}}>{fmtFace(b.min)}–{fmtFace(b.max)}</span>
+                              <span>{b.ages}</span><span style={{fontFamily:"'Instrument Sans',sans-serif"}}>{fmtFace(b.min)}–{fmtFace(b.max)}</span>
                             </div>
                           ))}
                         </div>
@@ -5491,7 +5298,7 @@ export default function QuoteMark() {
                       {/* Knockouts */}
                       {c.knockouts && c.knockouts.length > 0 && (
                         <div>
-                          <div style={{fontSize:9,color:'#EF4444',fontWeight:700,letterSpacing:1.2,marginBottom:6}}>AUTO-DECLINE</div>
+                          <div style={{fontSize:9,color:'#b42318',fontWeight:700,letterSpacing:1.2,marginBottom:6}}>AUTO-DECLINE</div>
                           <div style={{fontSize:11,color:C.t3,lineHeight:1.55}}>{c.knockouts.join(' · ')}</div>
                         </div>
                       )}
@@ -5513,8 +5320,8 @@ export default function QuoteMark() {
           ):quoteMode==='sheet'?(
             <div style={{display:'flex',justifyContent:'center',width:'100%',overflowY:'auto',padding:'32px 24px'}}>
               <div style={{width:'100%',maxWidth:620}}>
-                <div style={{fontFamily:"'Barlow Condensed','Arial Narrow',sans-serif",fontSize:24,fontWeight:800,color:C.t1,letterSpacing:'-0.3px',marginBottom:4}}>Client Sheet</div>
-                <div style={{fontSize:12,color:C.t4,marginBottom:16,lineHeight:1.6}}>Everything from the call in one place — Save downloads a PDF so nothing lives on loose paper.</div>
+                <div style={{fontSize:20,fontWeight:700,color:'#191817',letterSpacing:'-0.01em',marginBottom:4}}>Client sheet</div>
+                <div style={{fontSize:13,color:'#78746e',marginBottom:14,lineHeight:1.6}}>Everything from the call in one place — Save downloads a PDF so nothing lives on loose paper.</div>
                 {renderClientSheet(false)}
               </div>
             </div>
@@ -5530,7 +5337,7 @@ export default function QuoteMark() {
                       <div style={{fontSize:13,textAlign:'center',maxWidth:280,lineHeight:1.6,color:C.t4}}>
                         {!inputsReady
                           ? 'Enter age, monthly premium, and years in-force in the sidebar to estimate surrender value.'
-                          : 'Click View Cash Value Estimate to run the calculation.'}
+                          : 'Click View cash value estimate to run the calculation.'}
                       </div>
                     </div>
                   );
@@ -5554,7 +5361,7 @@ export default function QuoteMark() {
             !ageOK ? (
               <div style={{display:'flex',flexDirection:'column',alignItems:'center',justifyContent:'center',height:'100%',gap:14,padding:40}}>
                 <div style={{fontSize:48,opacity:0.5}}>📋</div>
-                <div style={{fontFamily:"'Barlow Condensed','Arial Narrow',sans-serif",fontSize:22,fontWeight:700,color:C.t4}}>Enter client info to get term quotes</div>
+                <div style={{fontFamily:"'Instrument Sans',sans-serif",fontSize:22,fontWeight:700,color:C.t4}}>Enter client info to get term quotes</div>
                 <div style={{fontSize:13,color:C.t4,textAlign:'center',lineHeight:1.8}}>
                   {carriers.filter(c=>c.enabled&&c.termOnly).length} term carriers · {Object.keys(TERM_RATES).length} products
                 </div>
@@ -5562,160 +5369,166 @@ export default function QuoteMark() {
             ) : !termResults || termResults.length === 0 ? (
               <div style={{display:'flex',flexDirection:'column',alignItems:'center',justifyContent:'center',height:'100%',gap:14,padding:40,textAlign:'center'}}>
                 <div style={{fontSize:48,opacity:0.5}}>🔍</div>
-                <div style={{fontFamily:"'Barlow Condensed','Arial Narrow',sans-serif",fontSize:22,fontWeight:700,color:C.t4}}>No quotes for this profile</div>
+                <div style={{fontFamily:"'Instrument Sans',sans-serif",fontSize:22,fontWeight:700,color:C.t4}}>No quotes for this profile</div>
                 <div style={{fontSize:13,color:C.t4,maxWidth:340,lineHeight:1.7}}>Try a different age, face amount, or term length. Most carriers don't quote 25/35/40-year term, or above age 65 on shorter terms.</div>
               </div>
             ) : (
-              <div style={{padding:24}}>
+              <div>
                 {termRec.recommended === 'decline' && (
-                  <div style={{background:'linear-gradient(135deg, rgba(239,68,68,0.18), rgba(239,68,68,0.08))',border:'1.5px solid rgba(239,68,68,0.5)',borderRadius:12,padding:'18px 20px',marginBottom:16,display:'flex',gap:16,alignItems:'flex-start',boxShadow:'0 4px 16px rgba(239,68,68,0.15)'}}>
-                    <div style={{fontSize:34,lineHeight:1,flexShrink:0}}>⚠</div>
+                  <div style={{background:'#fdecec',border:'1px solid #f5c6c2',borderRadius:10,padding:'16px 20px',marginBottom:14,display:'flex',gap:14,alignItems:'flex-start'}}>
+                    <div style={{fontSize:22,lineHeight:1,flexShrink:0,color:'#b42318'}}>⚠</div>
                     <div style={{flex:1,minWidth:0}}>
-                      <div style={{fontSize:20,fontWeight:800,color:'#FCA5A5',letterSpacing:0.2,marginBottom:6,lineHeight:1.2}}>Profile may not qualify for term</div>
-                      <div style={{fontSize:13,color:C.t3,lineHeight:1.6}}>{termRec.reasons.join(' · ')}. Quotes below are <strong style={{color:C.t2}}>best-case estimates only</strong> — verify with carrier underwriting before promising rates.</div>
+                      <div style={{fontSize:15,fontWeight:600,color:'#b42318',marginBottom:4,lineHeight:1.2}}>Profile may not qualify for term</div>
+                      <div style={{fontSize:13,color:'#78746e',lineHeight:1.6}}>{termRec.reasons.join(' · ')}. Quotes below are <strong style={{color:'#191817'}}>best-case estimates only</strong> — verify with carrier underwriting before promising rates.</div>
                     </div>
                   </div>
                 )}
-                <div style={{background:C.bg3,border:`1px solid ${C.bd}`,borderRadius:10,padding:'10px 14px',marginBottom:14,display:'flex',alignItems:'center',justifyContent:'space-between',flexWrap:'wrap',gap:6}}>
-                  <div style={{fontSize:13,color:C.t2,display:'flex',gap:8,flexWrap:'wrap',alignItems:'center'}}>
-                    <span style={{fontFamily:"'DM Mono',ui-monospace,'SF Mono',Menlo,monospace",fontWeight:600,color:C.t0}}>{termMode==='budget' ? `$${termBudget}/mo budget` : fmtF(termFace)}</span>
-                    <span style={{color:C.t4}}>·</span>
-                    <span>{termLength}-year</span>
-                    <span style={{color:C.t4}}>·</span>
-                    <span>Age {age}</span>
-                    <span style={{color:C.t4}}>·</span>
-                    <span>{gender==='male'?'M':'F'} · {smoker?'Smoker':'NS'}</span>
-                    <span style={{color:C.t4}}>·</span>
-                    <span>{HEALTH_CLASS_SHORT[termHealth]}</span>
-                    {termBMI!=null && <><span style={{color:C.t4}}>·</span><span>BMI {termBMI.toFixed(1)}</span></>}
-                  </div>
-                  <div style={{fontSize:11,color:C.t3}}>{termResults.length} quotes · sorted by {termMode==='budget' ? 'face' : 'price'}</div>
-                </div>
-                {/* Compatible carriers — transparency about which products will write this client */}
-                {termCompat && termCompat.excluded.length > 0 && (
-                  <div style={{background:isDark?'rgba(59,130,246,0.06)':'rgba(59,130,246,0.04)',border:`1px solid ${isDark?'rgba(59,130,246,0.25)':'rgba(59,130,246,0.2)'}`,borderRadius:10,marginBottom:14,fontSize:12,overflow:'hidden'}}>
-                    <button onClick={()=>setTermCompatOpen(v=>!v)} style={{
-                      width:'100%',background:'transparent',border:'none',cursor:'pointer',
-                      padding:'10px 14px',display:'flex',alignItems:'center',justifyContent:'space-between',gap:10,
-                      fontFamily:"'DM Sans','Helvetica Neue',Arial,sans-serif",textAlign:'left'
-                    }}>
-                      <div style={{display:'flex',alignItems:'center',gap:10}}>
-                        <span style={{fontSize:14,color:'#60A5FA',transition:'transform 0.18s',transform:termCompatOpen?'rotate(90deg)':'rotate(0deg)'}}>▸</span>
-                        <span style={{color:C.t2}}>
-                          <strong style={{color:C.t0}}>{termCompat.writers}</strong> of {termCompat.total} term products will write at age {age} · <span style={{color:C.t4}}>{termCompat.excluded.length} can't issue at this age</span>
-                        </span>
-                      </div>
-                      <span style={{fontSize:11,color:C.t4}}>{termCompatOpen?'Hide':'See excluded'}</span>
-                    </button>
-                    {termCompatOpen && (
-                      <div style={{padding:'4px 14px 12px',display:'flex',flexDirection:'column',gap:5}}>
-                        {termCompat.excluded.map(e => (
-                          <div key={e.name+'·'+e.sub} style={{display:'flex',justifyContent:'space-between',gap:10,fontSize:11,padding:'6px 10px',background:C.bg2,borderRadius:6,border:`1px solid ${C.bd}`}}>
-                            <span style={{color:C.t2}}><strong style={{color:C.t1}}>{e.name}</strong> · <span style={{color:C.t4}}>{e.sub}</span></span>
-                            <span style={{color:C.t4,fontFamily:"'DM Mono',ui-monospace,'SF Mono',Menlo,monospace"}}>{e.reason}</span>
-                          </div>
+                {/* ── RESULTS HEADER + ISSUE-TYPE FILTER (design 3a) ── */}
+                {(()=>{
+                  const filtered = termResults.filter(r =>
+                    issueFilter==='ALL' ? true :
+                    issueFilter==='INSTANT' ? r.uwType==='instant' :
+                    r.uwType==='medical');
+                  return (
+                  <>
+                  <div style={{display:'flex',alignItems:'center',justifyContent:'space-between',gap:12,flexWrap:'wrap',marginBottom:14}}>
+                    <div style={{display:'flex',alignItems:'baseline',gap:8,fontSize:13,color:'#78746e',flexWrap:'wrap'}}>
+                      <span style={{fontSize:20,fontWeight:700,color:'#191817',letterSpacing:'-0.01em'}}>{termMode==='budget' ? `$${termBudget}/mo` : fmtF(termFace)}</span>
+                      <span>· {termLength}-year · Age {age} · {gender==='male'?'M':'F'} · {smoker?'Smoker':'NS'} · {HEALTH_CLASS_SHORT[termHealth]}{termBMI!=null?` · BMI ${termBMI.toFixed(1)}`:''}</span>
+                    </div>
+                    <div style={{display:'flex',alignItems:'center',gap:12}}>
+                      <span style={{fontSize:12.5,color:'#a09c94'}}>{filtered.length} quotes · sorted by {termMode==='budget' ? 'face' : 'price'}</span>
+                      <div style={{display:'flex',gap:2,background:'#fff',border:'1px solid #eae9e6',borderRadius:9,padding:3}}>
+                        {[['ALL','All'],['INSTANT','Instant'],['EXAM','Med exam']].map(([id,label])=>(
+                          <button key={id} className={issueFilter===id?undefined:'qm-seg'} onClick={()=>setIssueFilter(id)} style={{
+                            padding:'5px 12px',borderRadius:7,border:'none',cursor:'pointer',fontSize:12.5,fontFamily:'inherit',
+                            background:issueFilter===id?'#191817':'transparent',
+                            color:issueFilter===id?'#fff':'#78746e',
+                            fontWeight:issueFilter===id?600:400,whiteSpace:'nowrap'
+                          }}>{label}</button>
                         ))}
+                      </div>
+                    </div>
+                  </div>
+                  {/* Availability banner card */}
+                  {termCompat && termCompat.excluded.length > 0 && (
+                    <div style={{background:'#fff',border:'1px solid #eae9e6',borderRadius:10,marginBottom:14,fontSize:13,overflow:'hidden',boxShadow:'0 1px 2px rgba(25,24,23,0.04)'}}>
+                      <button onClick={()=>setTermCompatOpen(v=>!v)} style={{
+                        width:'100%',background:'transparent',border:'none',cursor:'pointer',
+                        padding:'12px 18px',display:'flex',alignItems:'center',justifyContent:'space-between',gap:10,
+                        fontFamily:"'Instrument Sans','Helvetica Neue',Arial,sans-serif",textAlign:'left'
+                      }}>
+                        <span style={{color:'#78746e',fontSize:13}}>
+                          <strong style={{color:'#191817',fontWeight:600}}>{termCompat.writers} of {termCompat.total}</strong> term products will write at age {age} · {termCompat.excluded.length} can't issue at this age
+                        </span>
+                        <span style={{fontSize:12.5,color:'#4a45d1',fontWeight:600}}>{termCompatOpen?'Hide':'See excluded'}</span>
+                      </button>
+                      {termCompatOpen && (
+                        <div style={{padding:'4px 18px 14px',display:'flex',flexDirection:'column',gap:5}}>
+                          {termCompat.excluded.map(e => (
+                            <div key={e.name+'·'+e.sub} style={{display:'flex',justifyContent:'space-between',gap:10,fontSize:12,padding:'7px 12px',background:'#fbfbfa',borderRadius:6,border:'1px solid #f0efed'}}>
+                              <span style={{color:'#78746e'}}><strong style={{color:'#191817',fontWeight:600}}>{e.name}</strong> · {e.sub}</span>
+                              <span style={{color:'#a09c94'}}>{e.reason}</span>
+                            </div>
+                          ))}
+                        </div>
+                      )}
+                    </div>
+                  )}
+                  {/* Column headers — term grid (design 3a) */}
+                  <div style={{display:'grid',gridTemplateColumns:'42px 1fr 132px 104px 150px 96px',gap:16,padding:'2px 21px 8px',fontSize:10.5,fontWeight:600,color:'#a09c94',letterSpacing:'0.08em'}}>
+                    <span>CARRIER</span><span>PRODUCT · COVERAGE</span><span>ISSUE TYPE</span><span>UW TIER</span><span style={{textAlign:'right'}}>MONTHLY PREMIUM</span><span></span>
+                  </div>
+                  <div style={{display:'flex',flexDirection:'column',gap:8, opacity: termRec.recommended === 'decline' ? 0.55 : 1, filter: termRec.recommended === 'decline' ? 'grayscale(45%)' : 'none', transition:'opacity 0.25s, filter 0.25s'}}>
+                    {filtered.map(r => {
+                      // Term UW tier pill — Super Pref-style solid for Pref+, tints below.
+                      const tu = (r.tierUsed||'').toLowerCase();
+                      const pill = tu.includes('preferred plus')||tu.includes('pref+')||tu.includes('super')
+                        ? {bg:'#0d6a86',color:'#fff',label:'Pref+'}
+                        : tu.includes('preferred') ? {bg:'#eef0fe',color:'#4740c8',label:'Preferred'}
+                        : tu.includes('standard plus')||tu.includes('std+') ? {bg:'#e8f6ef',color:'#177452',label:'Std+'}
+                        : tu.includes('standard') ? {bg:'#fdf3e0',color:'#96660f',label:'Standard'}
+                        : {bg:'#f0efed',color:'#78746e',label:r.tierUsed||'—'};
+                      return (
+                        <div key={r.id} className="qm-row" style={{
+                            display:'grid',gridTemplateColumns:'42px 1fr 132px 104px 150px 96px',
+                            alignItems:'center',gap:16,padding:'12px 20px',
+                            background:'#fff',border:'1px solid #eae9e6',borderRadius:10,cursor:'pointer'
+                          }}>
+                          <CarrierLogo carrierId={r.id} name={r.name} small={false}/>
+                          <div style={{display:'flex',flexDirection:'column',gap:2,minWidth:0}}>
+                            <span style={{fontSize:14.5,fontWeight:600,color:'#191817',whiteSpace:'nowrap',overflow:'hidden',textOverflow:'ellipsis'}}>{r.name}</span>
+                            <span style={{fontSize:12.5,color:'#78746e',whiteSpace:'nowrap',overflow:'hidden',textOverflow:'ellipsis'}}>{r.sub} · {fmtF(r.face)}</span>
+                          </div>
+                          <div><UWBadge uwType={r.uwType} productName={r.product} tier={r.tierUsed} small={true}/></div>
+                          <div><span style={{display:'inline-block',padding:'3px 10px',borderRadius:99,background:pill.bg,color:pill.color,fontSize:11.5,fontWeight:600,whiteSpace:'nowrap'}}>{pill.label}</span></div>
+                          <div style={{display:'flex',flexDirection:'column',alignItems:'flex-end',gap:1}}>
+                            <span style={{fontSize:19,fontWeight:650,color:'#191817',letterSpacing:'-0.01em',lineHeight:1.25}}>{fmt$(r.prem)}<span style={{fontSize:12,fontWeight:400,color:'#a09c94'}}> /mo</span></span>
+                            <span style={{fontSize:11.5,color:'#b5b1a8'}}>${(r.prem*12).toFixed(0)} /yr · {r.termLen}y</span>
+                          </div>
+                          <div style={{display:'flex',justifyContent:'flex-end'}}>
+                            <EAppBtn carrierId={r.id} compact={true}/>
+                          </div>
+                        </div>
+                      );
+                    })}
+                    {filtered.length===0 && (
+                      <div style={{padding:'28px 20px',textAlign:'center',background:'#fbfbfa',border:'1px solid #eae9e6',borderRadius:10,fontSize:13,color:'#78746e'}}>
+                        No {issueFilter==='INSTANT'?'instant-decision':'med-exam'} products in these results — switch the filter back to All.
                       </div>
                     )}
                   </div>
-                )}
-                <div style={{display:'flex',flexDirection:'column',gap:8, opacity: termRec.recommended === 'decline' ? 0.5 : 1, filter: termRec.recommended === 'decline' ? 'grayscale(45%)' : 'none', transition:'opacity 0.25s, filter 0.25s'}}>
-                  {termResults.map(r => {
-                    const brandColor = CARRIER_META[r.id]?.brand || r.brand || '#C5A059';
-                    const isHov = hovCard === r.id;
-                    return (
-                      <div key={r.id} className="qm-rise"
-                        onMouseEnter={()=>setHovCard(r.id)}
-                        onMouseLeave={()=>setHovCard(null)}
-                        style={{
-                          background: isDark ? (isHov?'#2A3A57':'#1E293B') : (isHov?'#FAFAF6':'#FFFFFF'),
-                          border:`1px solid ${isHov?brandColor:C.bd2}`,
-                          borderLeft:`${isHov?6:4}px solid ${brandColor}`,
-                          borderRadius:10,padding:'10px 18px',
-                          display:'flex',alignItems:'center',gap:18,
-                          transition:'background 0.12s, border-color 0.12s, border-left-width 0.12s, box-shadow 0.15s',
-                          boxShadow: isDark
-                            ? (isHov?`0 0 0 2px ${brandColor}66, 0 8px 28px rgba(0,0,0,0.5)`:'none')
-                            : (isHov?`0 0 0 2px ${brandColor}33, 0 8px 24px -4px rgba(15,23,42,0.18)`:'0 1px 2px rgba(0,0,0,0.04)')
-                        }}>
-                        <div style={{flexShrink:0,width:96,display:'flex',alignItems:'center',justifyContent:'center'}}>
-                          <CarrierLogo carrierId={r.id} name={r.name} small={true}/>
-                        </div>
-                        <div style={{flex:1,minWidth:0}}>
-                          <div style={{display:'flex',alignItems:'center',gap:8}}>
-                            <div style={{fontSize:15,fontWeight:700,color:C.t0,letterSpacing:'-0.2px',whiteSpace:'nowrap',overflow:'hidden',textOverflow:'ellipsis'}}>{r.name}</div>
-                            <UWBadge uwType={r.uwType} productName={r.product} tier={r.tierUsed}/>
-                          </div>
-                          <div style={{fontSize:11,color:C.t4,marginTop:2,whiteSpace:'nowrap',overflow:'hidden',textOverflow:'ellipsis'}}>{r.sub}{r.tierUsed && r.tierUsed !== r.sub && r.tierUsed !== 'Approved' ? ` · ${r.tierUsed}` : ''}</div>
-                        </div>
-                        <div style={{flexShrink:0,width:80,textAlign:'right'}}>
-                          <div style={{fontSize:9,color:C.t4,fontWeight:600,letterSpacing:1,textTransform:'uppercase',marginBottom:2}}>Face</div>
-                          <div style={{fontFamily:"'DM Mono',ui-monospace,'SF Mono',Menlo,monospace",fontSize:13,fontWeight:500,color:C.t1}}>{fmtF(r.face)}</div>
-                        </div>
-                        <div style={{flexShrink:0,width:60,textAlign:'right'}}>
-                          <div style={{fontSize:9,color:C.t4,fontWeight:600,letterSpacing:1,textTransform:'uppercase',marginBottom:2}}>Term</div>
-                          <div style={{fontFamily:"'DM Mono',ui-monospace,'SF Mono',Menlo,monospace",fontSize:13,fontWeight:500,color:C.t1}}>{r.termLen}y</div>
-                        </div>
-                        <div style={{flexShrink:0,width:130,textAlign:'right'}}>
-                          <div style={{display:'flex',alignItems:'baseline',justifyContent:'flex-end',gap:5}}>
-                            <span style={{fontFamily:"'DM Mono',ui-monospace,'SF Mono',Menlo,monospace",fontSize:30,fontWeight:800,color:C.t0,letterSpacing:'-0.2px',lineHeight:1}}>{fmt$(r.prem)}</span>
-                            <span style={{fontSize:10,color:C.t4,fontWeight:400}}>/mo</span>
-                          </div>
-                          <div style={{fontSize:10,color:C.t4,marginTop:3,fontFamily:"'DM Mono',ui-monospace,'SF Mono',Menlo,monospace"}}>${(r.prem*12).toFixed(0)}/yr</div>
-                        </div>
-                        <div style={{flexShrink:0}}>
-                          <EAppBtn carrierId={r.id} compact={true} lightMode={!isDark}/>
-                        </div>
-                      </div>
-                    );
-                  })}
-                </div>
+                  </>
+                  );
+                })()}
               </div>
             )
           ):!hasQuoted?(
-            <div style={{display:'flex',flexDirection:'column',alignItems:'center',justifyContent:'center',height:'100%',gap:26,padding:40}}>
-              <div style={{fontFamily:"'Barlow Condensed','Arial Narrow',sans-serif",fontSize:26,fontWeight:800,color:C.t2,letterSpacing:'-0.3px'}}>Quote in three steps</div>
-              <div style={{display:'flex',flexDirection:'column',gap:14,maxWidth:340,width:'100%'}}>
+            /* ── EMPTY STATE (design 3c): numbered steps, step 1 solid ink ── */
+            <div style={{display:'flex',flexDirection:'column',alignItems:'center',justifyContent:'center',minHeight:'60vh',gap:8,padding:40}}>
+              <div style={{fontSize:22,fontWeight:700,color:'#191817',letterSpacing:'-0.01em'}}>Quote in three steps</div>
+              <div style={{fontSize:12.5,color:'#a09c94',marginBottom:22}}>{carriers.filter(c=>c.enabled&&!c.termOnly).length} carriers enabled · sorted by price when you quote</div>
+              <div style={{display:'flex',flexDirection:'column',gap:18,maxWidth:340,width:'100%'}}>
                 {[
                   ['1','Client age','DOB or age — quotes are age-driven'],
                   ['2','Health picture','Type meds or conditions; the UW tier sets itself'],
-                  ['3','Get Quotes','Every carrier, sorted by price — pivot tabs to compare products'],
-                ].map(([n,title,sub])=>(
+                  ['3','Get quotes','Every carrier, sorted by price — pivot tabs to compare products'],
+                ].map(([n,title,sub],i)=>(
                   <div key={n} style={{display:'flex',alignItems:'flex-start',gap:14}}>
-                    <span style={{width:26,height:26,borderRadius:'50%',border:`1.5px solid ${C.goldBd}`,background:C.goldBg,color:C.goldText,fontSize:13,fontWeight:800,display:'flex',alignItems:'center',justifyContent:'center',flexShrink:0,fontFamily:"'DM Mono',ui-monospace,'SF Mono',Menlo,monospace"}}>{n}</span>
+                    <span style={{width:28,height:28,borderRadius:'50%',border:i===0?'none':'1px solid #dedcd7',background:i===0?'#191817':'#fff',color:i===0?'#fff':'#78746e',fontSize:13,fontWeight:600,display:'flex',alignItems:'center',justifyContent:'center',flexShrink:0}}>{n}</span>
                     <div>
-                      <div style={{fontSize:14,fontWeight:700,color:C.t2}}>{title}</div>
-                      <div style={{fontSize:12,color:C.t4,marginTop:2,lineHeight:1.5}}>{sub}</div>
+                      <div style={{fontSize:14.5,fontWeight:600,color:'#191817'}}>{title}</div>
+                      <div style={{fontSize:13,color:'#78746e',marginTop:2,lineHeight:1.5}}>{sub}</div>
                     </div>
                   </div>
                 ))}
               </div>
-              <div style={{fontSize:12,color:C.t4,fontFamily:"'DM Mono',ui-monospace,'SF Mono',Menlo,monospace"}}>
-                {carriers.filter(c=>c.enabled&&!c.termOnly).length} carriers enabled
-              </div>
             </div>
           ):(
             <>
-              {/* ── SCENARIO BAR ── */}
-              <div style={{background:C.bg3,borderBottom:`1px solid ${C.bd}`,padding:'11px 24px',display:'flex',alignItems:'center',justifyContent:'space-between',gap:12,flexWrap:'wrap',position:'sticky',top:0,zIndex:10}}>
-                <div style={{display:'flex',alignItems:'center',gap:10,flexWrap:'wrap'}}>
-                  <span style={{fontFamily:"'DM Mono',ui-monospace,'SF Mono',Menlo,monospace",fontSize:15,fontWeight:500,color:C.t0}}>
-                    {!gsbOn&&(mode==='face'?<span>{fmtF(faceAmt)}</span>:<span>${budget}/mo premium</span>)}
-                    {gsbOn&&<span>Gold {fmtF(gsbFace.gold)} · Silver {fmtF(gsbFace.silver)} · Bronze {fmtF(gsbFace.bronze)}</span>}
+              {/* ── RESULTS HEADER (design 2a) ── */}
+              <div style={{display:'flex',alignItems:'center',justifyContent:'space-between',gap:12,flexWrap:'wrap',marginBottom:14}}>
+                <div style={{display:'flex',alignItems:'baseline',gap:8,fontSize:13,color:'#78746e',flexWrap:'wrap'}}>
+                  <span style={{fontSize:20,fontWeight:700,color:'#191817',letterSpacing:'-0.01em'}}>
+                    {!gsbOn&&(mode==='face'?fmtF(faceAmt):`$${budget}/mo`)}
+                    {gsbOn&&`${fmtF(gsbFace.gold)} / ${fmtF(gsbFace.silver)} / ${fmtF(gsbFace.bronze)}`}
                   </span>
-                  <span style={{color:C.bd2}}>·</span>
-                  <span style={{fontSize:13,color:C.t2}}>Age {age}</span>
-                  {usState&&<><span style={{color:C.bd2}}>·</span><span style={{fontSize:13,color:C.t2}}>{usState}</span></>}
-                  <span style={{color:C.bd2}}>·</span>
-                  <span style={{fontSize:13,color:C.t2}}>{gender==='male'?'Male':'Female'}</span>
-                  <span style={{color:C.bd2}}>·</span>
-                  <span style={{fontSize:13,color:C.t2}}>{smoker?'Smoker':'Non-smoker'}</span>
-                  {tierOvr&&<><span style={{color:C.bd2}}>·</span><span style={{fontSize:11,color:C.gold,fontWeight:600}}>Manual override</span></>}
+                  <span>· Age {age}{usState?` · ${usState}`:''} · {gender==='male'?'Male':'Female'} · {smoker?'Smoker':'Non-smoker'}</span>
+                  {tierOvr&&<span style={{color:'#4740c8',fontWeight:600,fontSize:11.5}}>· Manual override</span>}
                 </div>
-                <TierPill tier={uwTier}/>
+                <div style={{display:'flex',alignItems:'center',gap:10}}>
+                  <TierPill tier={uwTier}/>
+                  <span style={{fontSize:12.5,color:'#a09c94'}}>{(results||[]).filter(r=>gsbOn?r.anyPrem:r.prem!=null).length} quotes · sorted by price</span>
+                </div>
               </div>
 
-              <div style={{padding:24}}>
+              <div>
+                {/* ── COLUMN HEADERS (design: dummy-proof labels above the row grid) ── */}
+                {!gsbOn&&(
+                  <div style={{display:'grid',gridTemplateColumns:'42px 1fr 104px 150px 96px',gap:16,padding:'2px 21px 8px',fontSize:10.5,fontWeight:600,color:'#a09c94',letterSpacing:'0.08em'}}>
+                    <span>CARRIER</span><span>PRODUCT · COVERAGE</span><span>UW TIER</span><span style={{textAlign:'right'}}>MONTHLY PREMIUM</span><span></span>
+                  </div>
+                )}
                 {/* ── QUOTE CARDS — active ── */}
                 <div style={gsbOn
                   ? {display:'grid',gridTemplateColumns:'repeat(auto-fill,minmax(420px,1fr))',gap:20,marginBottom:20,alignItems:'start'}
@@ -5754,16 +5567,16 @@ export default function QuoteMark() {
                               return(
                                 <div key={g.key} style={{
                                   background: g.key==='silver'
-                                    ? (isDark?'rgba(197,160,89,0.04)':'rgba(197,160,89,0.05)')
+                                    ? (isDark?'rgba(74,69,209,0.04)':'rgba(74,69,209,0.05)')
                                     : (isDark?C.bg1:'#FFFFFF'),
                                   borderRadius:8,
                                   padding:'12px 10px',
                                   border:`1px solid ${isDark?(tr.prem?C.bd2:C.bd):'#E2E8F0'}`,
                                   borderTop: isDark
                                     ? `2px solid ${darkColor}`
-                                    : (isGoldKey?`4px solid #C5A059`:`2px solid ${g.key==='silver'?'#94A3B8':'#C2700A'}`),
+                                    : (isGoldKey?`4px solid #4a45d1`:`2px solid ${g.key==='silver'?'#94A3B8':'#C2700A'}`),
                                   textAlign:'center',
-                                  boxShadow:!isDark&&isGoldKey&&tr.prem?'0 2px 12px rgba(197,160,89,0.16)':'none',
+                                  boxShadow:!isDark&&isGoldKey&&tr.prem?'0 2px 12px rgba(74,69,209,0.16)':'none',
                                   opacity:tr.prem?1:0.4
                                 }}>
                                   <div style={{
@@ -5771,16 +5584,16 @@ export default function QuoteMark() {
                                     letterSpacing:1.2,textTransform:'uppercase',
                                     color:isDark?darkColor:lightLabel
                                   }}>{g.medal} {g.label}</div>
-                                  <div style={{fontSize:13,color:C.t3,marginBottom:8,fontFamily:"'DM Mono',ui-monospace,'SF Mono',Menlo,monospace",fontWeight:500}}>{fmtF(gsbFace[g.key])}</div>
+                                  <div style={{fontSize:13,color:C.t3,marginBottom:8,fontFamily:"'Instrument Sans',sans-serif",fontWeight:500}}>{fmtF(gsbFace[g.key])}</div>
                                   {tr.prem!=null?(
                                     <>
                                       <div style={{
-                                        fontFamily:"'DM Mono',ui-monospace,'SF Mono',Menlo,monospace",fontSize:22,fontWeight:800,
+                                        fontFamily:"'Instrument Sans',sans-serif",fontSize:22,fontWeight:800,
                                         color:isDark?darkColor:'#0F172A',
                                         letterSpacing:'-0.5px',lineHeight:1
                                       }}>{fmt$(tr.prem)}</div>
                                       <div style={{fontSize:9,color:C.t4,marginTop:4,fontWeight:400}}>/mo EFT</div>
-                                      <div style={{fontSize:9,color:C.t4,marginTop:2,fontWeight:400,fontFamily:"'DM Mono',ui-monospace,'SF Mono',Menlo,monospace"}}>${((tr.prem??0)*12).toFixed(0)}<span style={{fontSize:8}}>/yr</span></div>
+                                      <div style={{fontSize:9,color:C.t4,marginTop:2,fontWeight:400,fontFamily:"'Instrument Sans',sans-serif"}}>${((tr.prem??0)*12).toFixed(0)}<span style={{fontSize:8}}>/yr</span></div>
                                     </>
                                   ):(
                                     <div style={{fontSize:18,color:C.t4,marginTop:8,minHeight:52,display:'flex',alignItems:'center',justifyContent:'center'}}>—</div>
@@ -5802,66 +5615,30 @@ export default function QuoteMark() {
                         </div>
                       );
                     }
-                    // Single mode — list row
-                    const brandColor = CARRIER_META[r.id]?.brand||C.bd2;
-                    const isHov = hovCard===r.id;
+                    // Single mode — design 2a row: grid 42px 1fr 104px 150px 96px,
+                    // each row its own white card, .qm-row hover (tint+shift).
+                    const covNote = r.capped ? ' · capped' : (!r.capped&&r.roundedTo&&mode==='budget') ? ` · $${r.roundedTo>=1000?r.roundedTo/1000+'k':r.roundedTo} increments` : '';
                     return(
-                      <div key={r.id}
-                        onMouseEnter={()=>setHovCard(r.id)}
-                        onMouseLeave={()=>setHovCard(null)}
-                        style={{
-                          background: isDark
-                            ? (isHov?'#2A3A57':'#1E293B')
-                            : (isHov?'#FAFAF6':'#FFFFFF'),
-                          border:`1px solid ${isHov?brandColor:C.bd2}`,
-                          borderLeft:`${isHov?6:4}px solid ${brandColor}`,
-                          borderRadius:10,
-                          padding:'10px 18px',
-                          opacity:r.capped?0.6:1,
-                          display:'flex',alignItems:'center',gap:18,
-                          transition:'background 0.12s, border-color 0.12s, border-left-width 0.12s, box-shadow 0.15s, transform 0.12s',
-                          transform: isHov?'translateX(2px)':'translateX(0)',
-                          cursor:'default',
-                          boxShadow: isDark
-                            ? (isHov?`0 0 0 2px ${brandColor}66, 0 8px 28px rgba(0,0,0,0.5)`:'none')
-                            : (isHov?`0 0 0 2px ${brandColor}33, 0 8px 24px -4px rgba(15,23,42,0.18)`:'0 1px 2px rgba(0,0,0,0.04)')
+                      <div key={r.id} className="qm-row" style={{
+                          display:'grid',gridTemplateColumns:'42px 1fr 104px 150px 96px',
+                          alignItems:'center',gap:16,padding:'12px 20px',
+                          background:'#fff',border:'1px solid #eae9e6',borderRadius:10,
+                          opacity:r.capped?0.65:1,cursor:'pointer'
                         }}>
-                        {/* Logo */}
-                        <div style={{flexShrink:0,width:114,display:'flex',alignItems:'center',justifyContent:'center'}}>
-                          <CarrierLogo carrierId={r.id} name={r.name} small={true}/>
+                        <CarrierLogo carrierId={r.id} name={r.name} small={false}/>
+                        <div style={{display:'flex',flexDirection:'column',gap:2,minWidth:0}}>
+                          <span style={{fontSize:14.5,fontWeight:600,color:'#191817'}}>{r.name}</span>
+                          <span style={{fontSize:12.5,color:'#78746e',whiteSpace:'nowrap',overflow:'hidden',textOverflow:'ellipsis'}}>
+                            {r.sub}{r.productName&&r.productName!==r.sub?` · ${r.productName}`:''} · <span style={mode==='budget'?{fontWeight:600,color:'#4740c8'}:undefined}>{fmtF(r.face)}</span>{covNote}
+                          </span>
                         </div>
-                        {/* Name + product */}
-                        <div style={{flex:1,minWidth:0}}>
-                          <div style={{fontSize:15,fontWeight:700,color:C.t0,letterSpacing:'-0.2px',whiteSpace:'nowrap',overflow:'hidden',textOverflow:'ellipsis'}}>{r.name}</div>
-                          <div style={{fontSize:11,color:C.t4,marginTop:2,whiteSpace:'nowrap',overflow:'hidden',textOverflow:'ellipsis'}}>{r.sub}{r.productName?` · ${r.productName}`:''}</div>
+                        <div><TierBadge tier={r.activeTier} productName={r.productName}/></div>
+                        <div style={{display:'flex',flexDirection:'column',alignItems:'flex-end',gap:1}}>
+                          <span style={{fontSize:19,fontWeight:650,color:'#191817',letterSpacing:'-0.01em',lineHeight:1.25}}>{fmt$(r.prem)}<span style={{fontSize:12,fontWeight:400,color:'#a09c94'}}> /mo</span></span>
+                          <span style={{fontSize:11.5,color:'#b5b1a8'}}>${((r.prem??0)*12).toFixed(0)} /yr</span>
                         </div>
-                        {/* Face amount — in premium mode the coverage IS the answer, render it hero-size */}
-                        <div style={{flexShrink:0,width:mode==='budget'?150:88,textAlign:'right'}}>
-                          <div style={{fontSize:9,color:C.t4,fontWeight:600,letterSpacing:1,textTransform:'uppercase',marginBottom:2}}>{mode==='budget'?'Coverage':'Face'}</div>
-                          <div style={{fontFamily:"'DM Mono',ui-monospace,'SF Mono',Menlo,monospace",fontSize:mode==='budget'?26:13,fontWeight:mode==='budget'?800:500,color:mode==='budget'?C.goldText:C.t1,letterSpacing:mode==='budget'?'-0.2px':0,lineHeight:1.2}}>{fmtF(r.face)}</div>
-                          {r.capped&&<div style={{fontSize:9,color:C.t4,fontStyle:'italic',marginTop:1}}>capped</div>}
-                          {!r.capped&&r.roundedTo&&mode==='budget'&&(
-                            <div title={`${r.name} issues face amounts in $${r.roundedTo.toLocaleString()} increments. Rate calculated at $${(r.face||0).toLocaleString()}.`}
-                              style={{fontSize:8,color:'#F59E0B',background:'rgba(245,158,11,0.10)',border:'1px solid rgba(245,158,11,0.3)',borderRadius:3,padding:'1px 5px',marginTop:3,display:'inline-block',fontWeight:700,letterSpacing:0.4,cursor:'help'}}>
-                              ${r.roundedTo>=1000?r.roundedTo/1000+'k':r.roundedTo} INC
-                            </div>
-                          )}
-                        </div>
-                        {/* Coverage tier */}
-                        <div style={{flexShrink:0,minWidth:90,display:'flex',justifyContent:'center'}}>
-                          <TierBadge tier={r.activeTier} productName={r.productName}/>
-                        </div>
-                        {/* Price — the hero, right-aligned for vertical scanning */}
-                        <div style={{flexShrink:0,width:130,textAlign:'right'}}>
-                          <div style={{display:'flex',alignItems:'baseline',justifyContent:'flex-end',gap:5}}>
-                            <span style={{fontFamily:"'DM Mono',ui-monospace,'SF Mono',Menlo,monospace",fontSize:30,fontWeight:800,color:C.t0,letterSpacing:'-0.2px',lineHeight:1}}>{fmt$(r.prem)}</span>
-                            <span style={{fontSize:10,color:C.t4,fontWeight:400}}>/mo</span>
-                          </div>
-                          <div style={{fontSize:10,color:C.t4,marginTop:3,fontFamily:"'DM Mono',ui-monospace,'SF Mono',Menlo,monospace"}}>${((r.prem??0)*12).toFixed(0)}/yr</div>
-                        </div>
-                        {/* e-App */}
-                        <div style={{flexShrink:0}}>
-                          <EAppBtn carrierId={r.id} compact={true} lightMode={!isDark}/>
+                        <div style={{display:'flex',justifyContent:'flex-end'}}>
+                          <EAppBtn carrierId={r.id} compact={true}/>
                         </div>
                       </div>
                     );
@@ -5893,12 +5670,12 @@ export default function QuoteMark() {
                       <div style={{display:'grid',gridTemplateColumns:'repeat(auto-fill,minmax(240px,1fr))',gap:8}}>
                         {ghosts.map(r=>(
                           <div key={r.id} style={{
-                            background:isDark?'rgba(15,23,42,0.4)':C.bg3,
-                            border:`1px solid ${C.bd}`,
+                            background:'#fbfbfa',
+                            border:'1px solid #eae9e6',
                             borderRadius:8,padding:'10px 14px',
-                            opacity:0.45,
+                            opacity:0.6,
                             display:'flex',alignItems:'center',gap:10,
-                            filter:isDark?'none':'grayscale(1)'
+                            filter:'grayscale(1)'
                           }}>
                             <CarrierLogo carrierId={r.id} name={r.name} small={true}/>
                             <div style={{minWidth:0,flex:1}}>
@@ -5912,29 +5689,17 @@ export default function QuoteMark() {
                   );
                 })()}
 
-                {/* ── PRICE RANGE BAR ── */}
+                {/* ── FOOTER STRIP (design 2a) ── */}
                 {!gsbOn&&results&&(()=>{
                   const avail = results.filter(r=>r.prem!=null);
                   if(avail.length<1) return null;
                   const cheapest=avail.reduce((a,b)=>a.prem<b.prem?a:b);
                   const mostExp=avail.reduce((a,b)=>a.prem>b.prem?a:b);
                   return(
-                    <div style={{background:C.bg3,border:`1px solid ${C.bd}`,borderRadius:12,padding:'14px 18px',display:'flex',gap:18,flexWrap:'wrap',alignItems:'center'}}>
-                      <div>
-                        <div style={{fontSize:10,color:C.t4,fontWeight:600,letterSpacing:1.2,textTransform:'uppercase',marginBottom:3}}>Price range</div>
-                        <div style={{display:'flex',alignItems:'baseline',gap:6}}>
-                          <span style={{fontFamily:"'DM Mono',ui-monospace,'SF Mono',Menlo,monospace",fontSize:18,fontWeight:500,color:C.green}}>{fmt$(cheapest.prem)}</span>
-                          <span style={{color:C.t4,fontSize:12}}>—</span>
-                          <span style={{fontFamily:"'DM Mono',ui-monospace,'SF Mono',Menlo,monospace",fontSize:18,fontWeight:500,color:C.t2}}>{fmt$(mostExp.prem)}</span>
-                          <span style={{fontSize:11,color:C.t3}}>/mo</span>
-                        </div>
-                        <div style={{fontSize:11,color:C.t4,marginTop:1}}>{cheapest.name} to {mostExp.name}</div>
-                      </div>
-                      <div style={{borderLeft:`1px solid ${C.bd}`,paddingLeft:20}}>
-                        <div style={{fontSize:10,color:C.t4,fontWeight:600,letterSpacing:1.2,textTransform:'uppercase',marginBottom:3}}>Available</div>
-                        <div style={{fontSize:18,fontWeight:600,color:C.t0}}>{avail.length}<span style={{fontSize:12,color:C.t3,fontWeight:400}}> of {results.length}</span></div>
-                        <div style={{fontSize:11,color:C.t4,marginTop:1}}>UW: {TIER_INFO[uwTier].short}</div>
-                      </div>
+                    <div style={{display:'flex',alignItems:'center',gap:32,padding:'14px 20px',background:'#fbfbfa',border:'1px solid #eae9e6',borderRadius:10,fontSize:12.5,color:'#78746e',flexWrap:'wrap'}}>
+                      <span>Price range <span style={{fontWeight:600,color:'#191817'}}>{fmt$(cheapest.prem)} – {fmt$(mostExp.prem)}</span> /mo</span>
+                      <span>Available <span style={{fontWeight:600,color:'#191817'}}>{avail.length} of {results.length}</span></span>
+                      <span>UW: <span style={{fontWeight:600,color:'#191817'}}>{TIER_INFO[uwTier].short}</span></span>
                     </div>
                   );
                 })()}
@@ -5954,7 +5719,7 @@ export default function QuoteMark() {
         <div onClick={()=>{if(!contactSending)setShowContact(false);}} style={{position:'fixed',inset:0,zIndex:400,background:'rgba(0,0,0,0.65)',display:'flex',alignItems:'center',justifyContent:'center',padding:'16px'}}>
           <div onClick={e=>e.stopPropagation()} style={{background:C.bg1,borderRadius:16,width:480,maxWidth:'100%',maxHeight:'90vh',overflowY:'auto',boxShadow:'0 24px 80px rgba(0,0,0,0.5)'}}>
             <div style={{display:'flex',alignItems:'center',justifyContent:'space-between',padding:'18px 20px 0'}}>
-              <div style={{fontSize:17,fontWeight:700,color:C.t1}}>Contact QuoteMark</div>
+              <div style={{fontSize:17,fontWeight:700,color:C.t1}}>Contact Quotemarko</div>
               <button onClick={()=>setShowContact(false)} style={{background:'transparent',border:'none',color:C.t4,fontSize:22,cursor:'pointer',lineHeight:1}}>✕</button>
             </div>
             {contactSent?(
@@ -5962,7 +5727,7 @@ export default function QuoteMark() {
                 <div style={{fontSize:40,marginBottom:12}}>✅</div>
                 <div style={{fontSize:16,fontWeight:700,color:C.t1,marginBottom:8}}>Message Sent!</div>
                 <div style={{fontSize:13,color:C.t3,marginBottom:24}}>We'll get back to you shortly.</div>
-                <button onClick={()=>{setShowContact(false);setContactSent(false);setContactForm({name:'',email:'',company:'',message:''}); }} style={{padding:'11px 28px',borderRadius:8,border:'none',background:C.gold,color:C.bg0,fontWeight:700,fontSize:14,cursor:'pointer',fontFamily:"'DM Sans','Helvetica Neue',Arial,sans-serif"}}>Close</button>
+                <button onClick={()=>{setShowContact(false);setContactSent(false);setContactForm({name:'',email:'',company:'',message:''}); }} style={{padding:'11px 28px',borderRadius:8,border:'none',background:C.gold,color:C.bg0,fontWeight:700,fontSize:14,cursor:'pointer',fontFamily:"'Instrument Sans','Helvetica Neue',Arial,sans-serif"}}>Close</button>
               </div>
             ):(
               <div style={{padding:'16px 20px 24px',display:'flex',flexDirection:'column',gap:14}}>
@@ -5970,7 +5735,7 @@ export default function QuoteMark() {
                 <div>
                   <div style={{fontSize:11,fontWeight:700,letterSpacing:1.2,color:C.t4,textTransform:'uppercase',marginBottom:10}}>Inquiry Type</div>
                   {[
-                    {id:'carrier',    emoji:'📋', label:'Submit a New Carrier', desc:'Request a carrier be added to QuoteMark'},
+                    {id:'carrier',    emoji:'📋', label:'Submit a New Carrier', desc:'Request a carrier be added to Quotemarko'},
                     {id:'suggestion', emoji:'💡', label:'General Suggestion',    desc:'Feature ideas, feedback, or improvements'},
                     {id:'partnership',emoji:'🤝', label:'Partnership / Whitelabel', desc:'Agency inquiries, 5+ seats, or white-label licensing'},
                   ].map(opt=>(
@@ -5992,22 +5757,22 @@ export default function QuoteMark() {
                   {key:'company', label:'Company / Agency', ph:'Optional',      req:false},
                 ].map(f=>(
                   <div key={f.key}>
-                    <div style={{fontSize:12,color:C.t4,marginBottom:5}}>{f.label}{f.req&&<span style={{color:'#EF4444'}}> *</span>}</div>
+                    <div style={{fontSize:12,color:C.t4,marginBottom:5}}>{f.label}{f.req&&<span style={{color:'#b42318'}}> *</span>}</div>
                     <input value={contactForm[f.key]} onChange={e=>setContactForm(p=>({...p,[f.key]:e.target.value}))}
                       placeholder={f.ph}
-                      style={{width:'100%',boxSizing:'border-box',background:C.bg3,border:`1px solid ${C.bd2}`,borderRadius:8,color:C.t1,fontSize:14,padding:'11px 12px',fontFamily:"'DM Sans','Helvetica Neue',Arial,sans-serif",outline:'none'}}/>
+                      style={{width:'100%',boxSizing:'border-box',background:C.bg3,border:`1px solid ${C.bd2}`,borderRadius:8,color:C.t1,fontSize:14,padding:'11px 12px',fontFamily:"'Instrument Sans','Helvetica Neue',Arial,sans-serif",outline:'none'}}/>
                   </div>
                 ))}
                 <div>
-                  <div style={{fontSize:12,color:C.t4,marginBottom:5}}>Message <span style={{color:'#EF4444'}}>*</span></div>
+                  <div style={{fontSize:12,color:C.t4,marginBottom:5}}>Message <span style={{color:'#b42318'}}>*</span></div>
                   <textarea value={contactForm.message} onChange={e=>setContactForm(p=>({...p,message:e.target.value}))}
                     placeholder={contactType==='carrier'?'Carrier name, website, and any relevant product details…':(contactType==='suggestion'?'Describe your idea or feedback…':'Tell us about your agency, team size, and what you are looking for…')}
                     rows={4}
-                    style={{width:'100%',boxSizing:'border-box',background:C.bg3,border:`1px solid ${C.bd2}`,borderRadius:8,color:C.t1,fontSize:14,padding:'11px 12px',fontFamily:"'DM Sans','Helvetica Neue',Arial,sans-serif",outline:'none',resize:'vertical'}}/>
+                    style={{width:'100%',boxSizing:'border-box',background:C.bg3,border:`1px solid ${C.bd2}`,borderRadius:8,color:C.t1,fontSize:14,padding:'11px 12px',fontFamily:"'Instrument Sans','Helvetica Neue',Arial,sans-serif",outline:'none',resize:'vertical'}}/>
                 </div>
-                {contactErr&&<div style={{fontSize:12,color:'#EF4444',padding:'8px 10px',background:'rgba(239,68,68,0.08)',borderRadius:7}}>{contactErr}</div>}
+                {contactErr&&<div style={{fontSize:12,color:'#b42318',padding:'8px 10px',background:'rgba(180,35,24,0.08)',borderRadius:7}}>{contactErr}</div>}
                 <button onClick={sendContact} disabled={contactSending||!contactForm.name||!contactForm.email||!contactForm.message}
-                  style={{padding:'13px',borderRadius:9,border:'none',background:C.gold,color:C.bg0,fontWeight:700,fontSize:14,cursor:'pointer',fontFamily:"'DM Sans','Helvetica Neue',Arial,sans-serif",opacity:(contactSending||!contactForm.name||!contactForm.email||!contactForm.message)?0.5:1}}>
+                  style={{padding:'13px',borderRadius:9,border:'none',background:C.gold,color:C.bg0,fontWeight:700,fontSize:14,cursor:'pointer',fontFamily:"'Instrument Sans','Helvetica Neue',Arial,sans-serif",opacity:(contactSending||!contactForm.name||!contactForm.email||!contactForm.message)?0.5:1}}>
                   {contactSending?'Sending…':'Send Message'}
                 </button>
               </div>
@@ -6031,8 +5796,8 @@ export default function QuoteMark() {
                 <div style={{fontSize:12,color:C.t4,marginBottom:4}}>Email</div>
                 <div style={{fontSize:14,color:C.t2,marginBottom:14,padding:'10px 12px',background:C.bg3,borderRadius:8,border:`1px solid ${C.bd}`}}>{session?.user?.email||'—'}</div>
                 <div style={{fontSize:12,color:C.t4,marginBottom:6}}>Display Name</div>
-                <input value={profileName} onChange={e=>setProfileName(e.target.value)} placeholder="Your name (optional)" style={{width:'100%',boxSizing:'border-box',background:C.bg3,border:`1px solid ${C.bd2}`,borderRadius:8,color:C.t1,fontSize:14,padding:'11px 12px',fontFamily:"'DM Sans','Helvetica Neue',Arial,sans-serif",outline:'none'}}/>
-                <button onClick={saveProfile} disabled={profileSaving} style={{marginTop:10,width:'100%',padding:'11px',borderRadius:8,border:'none',background:profileSaved?'#16A34A':C.gold,color:profileSaved?'#fff':C.bg0,fontWeight:700,fontSize:13,cursor:'pointer',fontFamily:"'DM Sans','Helvetica Neue',Arial,sans-serif"}}>
+                <input value={profileName} onChange={e=>setProfileName(e.target.value)} placeholder="Your name (optional)" style={{width:'100%',boxSizing:'border-box',background:C.bg3,border:`1px solid ${C.bd2}`,borderRadius:8,color:C.t1,fontSize:14,padding:'11px 12px',fontFamily:"'Instrument Sans','Helvetica Neue',Arial,sans-serif",outline:'none'}}/>
+                <button onClick={saveProfile} disabled={profileSaving} style={{marginTop:10,width:'100%',padding:'11px',borderRadius:8,border:'none',background:profileSaved?'#16A34A':C.gold,color:profileSaved?'#fff':C.bg0,fontWeight:700,fontSize:13,cursor:'pointer',fontFamily:"'Instrument Sans','Helvetica Neue',Arial,sans-serif"}}>
                   {profileSaving?'Saving…':profileSaved?'✓ Saved!':'Save Name'}
                 </button>
               </div>
@@ -6041,11 +5806,11 @@ export default function QuoteMark() {
                 {[['New Password','next'],['Confirm Password','confirm']].map(([lbl,key])=>(
                   <div key={key} style={{marginBottom:10}}>
                     <div style={{fontSize:12,color:C.t4,marginBottom:5}}>{lbl}</div>
-                    <input type="password" value={pwForm[key]} onChange={e=>setPwForm(p=>({...p,[key]:e.target.value}))} placeholder={lbl} style={{width:'100%',boxSizing:'border-box',background:C.bg3,border:`1px solid ${C.bd2}`,borderRadius:8,color:C.t1,fontSize:14,padding:'11px 12px',fontFamily:"'DM Sans','Helvetica Neue',Arial,sans-serif",outline:'none'}}/>
+                    <input type="password" value={pwForm[key]} onChange={e=>setPwForm(p=>({...p,[key]:e.target.value}))} placeholder={lbl} style={{width:'100%',boxSizing:'border-box',background:C.bg3,border:`1px solid ${C.bd2}`,borderRadius:8,color:C.t1,fontSize:14,padding:'11px 12px',fontFamily:"'Instrument Sans','Helvetica Neue',Arial,sans-serif",outline:'none'}}/>
                   </div>
                 ))}
-                {pwMsg&&<div style={{fontSize:12,color:pwMsg.err?'#EF4444':'#22C55E',marginBottom:8,padding:'7px 10px',background:pwMsg.err?'rgba(239,68,68,0.08)':'rgba(34,197,94,0.08)',borderRadius:7}}>{pwMsg.msg}</div>}
-                <button onClick={changePassword} disabled={pwChanging||!pwForm.next} style={{width:'100%',padding:'11px',borderRadius:8,border:'none',background:C.gold,color:C.bg0,fontWeight:700,fontSize:13,cursor:'pointer',fontFamily:"'DM Sans','Helvetica Neue',Arial,sans-serif",opacity:pwForm.next?1:0.5}}>
+                {pwMsg&&<div style={{fontSize:12,color:pwMsg.err?'#b42318':'#177452',marginBottom:8,padding:'7px 10px',background:pwMsg.err?'rgba(180,35,24,0.08)':'rgba(23,116,82,0.08)',borderRadius:7}}>{pwMsg.msg}</div>}
+                <button onClick={changePassword} disabled={pwChanging||!pwForm.next} style={{width:'100%',padding:'11px',borderRadius:8,border:'none',background:C.gold,color:C.bg0,fontWeight:700,fontSize:13,cursor:'pointer',fontFamily:"'Instrument Sans','Helvetica Neue',Arial,sans-serif",opacity:pwForm.next?1:0.5}}>
                   {pwChanging?'Updating…':'Update Password'}
                 </button>
               </div>
@@ -6070,14 +5835,14 @@ export default function QuoteMark() {
                     );
                   })}
                 </div>
-                <button onClick={saveCarrierPrefs} style={{marginTop:14,width:'100%',padding:'12px',borderRadius:8,border:'none',background:carriersSaved?'#16A34A':C.gold,color:carriersSaved?'#fff':C.bg0,fontWeight:700,fontSize:13,cursor:'pointer',fontFamily:"'DM Sans','Helvetica Neue',Arial,sans-serif"}}>
+                <button onClick={saveCarrierPrefs} style={{marginTop:14,width:'100%',padding:'12px',borderRadius:8,border:'none',background:carriersSaved?'#16A34A':C.gold,color:carriersSaved?'#fff':C.bg0,fontWeight:700,fontSize:13,cursor:'pointer',fontFamily:"'Instrument Sans','Helvetica Neue',Arial,sans-serif"}}>
                   {carriersSaved?'✓ Carriers Saved!':'Save Carrier Preferences'}
                 </button>
               </div>
-              <button onClick={openCustomerPortal} disabled={portalLoading} style={{padding:'12px',borderRadius:10,border:`1px solid ${C.bd2}`,background:'transparent',color:C.t1,fontWeight:600,fontSize:13,cursor:portalLoading?'not-allowed':'pointer',fontFamily:"'DM Sans','Helvetica Neue',Arial,sans-serif",opacity:portalLoading?0.6:1,marginBottom:8}}>
+              <button onClick={openCustomerPortal} disabled={portalLoading} style={{padding:'12px',borderRadius:10,border:`1px solid ${C.bd2}`,background:'transparent',color:C.t1,fontWeight:600,fontSize:13,cursor:portalLoading?'not-allowed':'pointer',fontFamily:"'Instrument Sans','Helvetica Neue',Arial,sans-serif",opacity:portalLoading?0.6:1,marginBottom:8}}>
               {portalLoading ? 'Opening…' : 'Manage Subscription'}
             </button>
-            <button onClick={signOut} style={{padding:'13px',borderRadius:10,border:`1px solid ${C.bd2}`,background:'transparent',color:'#EF4444',fontWeight:600,fontSize:14,cursor:'pointer',fontFamily:"'DM Sans','Helvetica Neue',Arial,sans-serif"}}>
+            <button onClick={signOut} style={{padding:'13px',borderRadius:10,border:`1px solid ${C.bd2}`,background:'transparent',color:'#b42318',fontWeight:600,fontSize:14,cursor:'pointer',fontFamily:"'Instrument Sans','Helvetica Neue',Arial,sans-serif"}}>
                 Sign Out
               </button>
             </div>
@@ -6090,7 +5855,7 @@ export default function QuoteMark() {
           <div onClick={()=>setCarrierPanel(false)} style={{flex:1,background:'rgba(0,0,0,0.55)'}}/>
           <div style={{width:380,background:C.bg2,borderLeft:`1px solid ${C.bd}`,padding:24,overflowY:'auto',display:'flex',flexDirection:'column',gap:20}}>
             <div style={{display:'flex',alignItems:'center',justifyContent:'space-between'}}>
-              <div style={{fontFamily:"'Barlow Condensed','Arial Narrow',sans-serif",fontSize:22,fontWeight:800,color:C.t0}}>Carrier Settings</div>
+              <div style={{fontFamily:"'Instrument Sans',sans-serif",fontSize:22,fontWeight:800,color:C.t0}}>Carrier Settings</div>
               <button onClick={()=>setCarrierPanel(false)} style={{background:'none',border:'none',color:C.t3,fontSize:20,cursor:'pointer',lineHeight:1}}>×</button>
             </div>
 
@@ -6103,7 +5868,7 @@ export default function QuoteMark() {
                     flex:1,padding:'6px 0',border:'none',borderRadius:6,fontSize:11,fontWeight:700,cursor:'pointer',
                     background:carrierPanelTab===tab?(isDark?C.blue:'#0F172A'):'transparent',
                     color:carrierPanelTab===tab?'#FFFFFF':C.t4,
-                    fontFamily:"'DM Sans','Helvetica Neue',Arial,sans-serif",transition:'all 0.15s'
+                    fontFamily:"'Instrument Sans','Helvetica Neue',Arial,sans-serif",transition:'all 0.15s'
                   }}>{label}</button>
                 ))}
               </div>
@@ -6140,11 +5905,11 @@ export default function QuoteMark() {
               <div style={{fontSize:10,fontWeight:700,color:C.t4,letterSpacing:1.8,textTransform:'uppercase',marginBottom:4}}>Request a Carrier</div>
               <div style={{fontSize:12,color:C.t3,marginBottom:14,lineHeight:1.6}}>Don't see a carrier you're contracted with? Submit a request and we'll add them to the system.</div>
               {reqSent?(
-                <div style={{background:'rgba(34,197,94,0.1)',border:'1px solid rgba(34,197,94,0.3)',borderRadius:10,padding:'14px 16px',textAlign:'center'}}>
+                <div style={{background:'rgba(23,116,82,0.1)',border:'1px solid rgba(23,116,82,0.3)',borderRadius:10,padding:'14px 16px',textAlign:'center'}}>
                   <div style={{fontSize:20,marginBottom:6}}>✓</div>
                   <div style={{fontSize:13,color:C.green,fontWeight:600}}>Request submitted</div>
                   <div style={{fontSize:11,color:C.t3,marginTop:3}}>We'll review and add within 48 hrs</div>
-                  <button onClick={()=>{setReqSent(false);setReqForm({name:'',state:'',notes:''});}} style={{marginTop:10,padding:'6px 14px',borderRadius:7,border:`1px solid ${C.bd}`,background:C.bg2,color:C.t3,fontSize:11,cursor:'pointer',fontFamily:"'DM Sans','Helvetica Neue',Arial,sans-serif"}}>Submit another</button>
+                  <button onClick={()=>{setReqSent(false);setReqForm({name:'',state:'',notes:''});}} style={{marginTop:10,padding:'6px 14px',borderRadius:7,border:`1px solid ${C.bd}`,background:C.bg2,color:C.t3,fontSize:11,cursor:'pointer',fontFamily:"'Instrument Sans','Helvetica Neue',Arial,sans-serif"}}>Submit another</button>
                 </div>
               ):(
                 <div style={{display:'flex',flexDirection:'column',gap:10}}>
@@ -6152,23 +5917,23 @@ export default function QuoteMark() {
                     <div style={{fontSize:11,color:C.t3,marginBottom:4}}>Carrier name *</div>
                     <input placeholder="e.g. Mutual of Omaha" value={reqForm.name}
                       onChange={e=>setReqForm(p=>({...p,name:e.target.value}))}
-                      style={{background:C.bg3,border:`1px solid ${C.bd}`,color:C.t1,borderRadius:8,padding:'9px 12px',fontSize:13,width:'100%',outline:'none',fontFamily:"'DM Sans','Helvetica Neue',Arial,sans-serif"}}/>
+                      style={{background:C.bg3,border:`1px solid ${C.bd}`,color:C.t1,borderRadius:8,padding:'9px 12px',fontSize:13,width:'100%',outline:'none',fontFamily:"'Instrument Sans','Helvetica Neue',Arial,sans-serif"}}/>
                   </div>
                   <div>
                     <div style={{fontSize:11,color:C.t3,marginBottom:4}}>State(s) needed</div>
                     <input placeholder="e.g. FL, TX, GA" value={reqForm.state}
                       onChange={e=>setReqForm(p=>({...p,state:e.target.value}))}
-                      style={{background:C.bg3,border:`1px solid ${C.bd}`,color:C.t1,borderRadius:8,padding:'9px 12px',fontSize:13,width:'100%',outline:'none',fontFamily:"'DM Sans','Helvetica Neue',Arial,sans-serif"}}/>
+                      style={{background:C.bg3,border:`1px solid ${C.bd}`,color:C.t1,borderRadius:8,padding:'9px 12px',fontSize:13,width:'100%',outline:'none',fontFamily:"'Instrument Sans','Helvetica Neue',Arial,sans-serif"}}/>
                   </div>
                   <div>
                     <div style={{fontSize:11,color:C.t3,marginBottom:4}}>Notes</div>
                     <textarea placeholder="Product type, tier info, special requirements…" value={reqForm.notes}
                       onChange={e=>setReqForm(p=>({...p,notes:e.target.value}))}
-                      rows={3} style={{background:C.bg3,border:`1px solid ${C.bd}`,color:C.t1,borderRadius:8,padding:'9px 12px',fontSize:13,width:'100%',outline:'none',resize:'vertical',fontFamily:"'DM Sans','Helvetica Neue',Arial,sans-serif"}}/>
+                      rows={3} style={{background:C.bg3,border:`1px solid ${C.bd}`,color:C.t1,borderRadius:8,padding:'9px 12px',fontSize:13,width:'100%',outline:'none',resize:'vertical',fontFamily:"'Instrument Sans','Helvetica Neue',Arial,sans-serif"}}/>
                   </div>
                   <button
                     onClick={()=>{if(reqForm.name.trim())setReqSent(true);}}
-                    style={{padding:'11px 0',borderRadius:9,border:'none',background:reqForm.name.trim()?C.blue:'#1E3A5A',color:reqForm.name.trim()&&C.t0||C.t4,fontSize:13,fontWeight:600,cursor:reqForm.name.trim()?'pointer':'not-allowed',fontFamily:"'DM Sans','Helvetica Neue',Arial,sans-serif"}}>
+                    style={{padding:'11px 0',borderRadius:9,border:'none',background:reqForm.name.trim()?C.blue:'#1E3A5A',color:reqForm.name.trim()&&C.t0||C.t4,fontSize:13,fontWeight:600,cursor:reqForm.name.trim()?'pointer':'not-allowed',fontFamily:"'Instrument Sans','Helvetica Neue',Arial,sans-serif"}}>
                     Submit request
                   </button>
                 </div>
