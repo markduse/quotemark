@@ -1983,7 +1983,20 @@ function estimateCoverage({ currentAge, policyYears, monthlyPremium, gender }) {
   // which produced unrealistically wide spreads in practice. Instead we
   // compute the male estimate and then bump by 15–25% for females — keeps the
   // numbers proportional and the spread tight.
-  const ageMap = FEX_RATES?.['Foresters (PlanRight)||PlanRight Preferred']?.['MNS']?.[String(issueAge)];
+  // Anchor products in preference order: PlanRight Preferred is the calibrated
+  // FE anchor but only issues 50–85; Transamerica Immediate Solution Preferred
+  // issues 1–85 and covers the younger issue ages (e.g. 55-year-old with a
+  // policy 7+ years in force → issue age < 50).
+  const ANCHORS = [
+    'Foresters (PlanRight)||PlanRight Preferred',
+    'Transamerica (Solutions)||Immediate Solution Preferred',
+    'Liberty Bankers||SIMPL Preferred',
+  ];
+  let ageMap = null;
+  for (const key of ANCHORS) {
+    ageMap = FEX_RATES?.[key]?.['MNS']?.[String(issueAge)];
+    if (ageMap) break;
+  }
   if (!ageMap) return { error: 'insufficient products matched' };
   const candidates = Object.entries(ageMap).map(([face, prem]) => ({
     face: Number(face), prem: Number(prem),
@@ -2440,8 +2453,8 @@ const UWBadge = ({uwType, productName, tier, small=false}) => {
     return (
       <span title={tip} style={{
         display:'inline-flex',alignItems:'center',
-        background:'#e8f6ef',color:'#177452',borderRadius:5,padding:'3px 8px',
-        fontSize:10.5,fontWeight:600,letterSpacing:'0.05em',whiteSpace:'nowrap',
+        background:'#e8f6ef',color:'#177452',borderRadius:5,padding:small?'2px 6px':'3px 8px',
+        fontSize:small?9.5:10.5,fontWeight:600,letterSpacing:'0.05em',whiteSpace:'nowrap',
         fontFamily:"'Instrument Sans','Helvetica Neue',Arial,sans-serif",lineHeight:1.2,
       }}>INSTANT</span>
     );
@@ -2453,8 +2466,8 @@ const UWBadge = ({uwType, productName, tier, small=false}) => {
     return (
       <span title={tip} style={{
         display:'inline-flex',alignItems:'center',
-        background:'#fdf3e0',color:'#96660f',borderRadius:5,padding:'3px 8px',
-        fontSize:10.5,fontWeight:600,letterSpacing:'0.05em',whiteSpace:'nowrap',
+        background:'#fdf3e0',color:'#96660f',borderRadius:5,padding:small?'2px 6px':'3px 8px',
+        fontSize:small?9.5:10.5,fontWeight:600,letterSpacing:'0.05em',whiteSpace:'nowrap',
         fontFamily:"'Instrument Sans','Helvetica Neue',Arial,sans-serif",lineHeight:1.2,
       }}>{small?'MED EXAM':'REQUIRES MED EXAM'}</span>
     );
@@ -3388,7 +3401,7 @@ export default function QuoteMark() {
         <div style={{background:'#fff',borderBottom:'1px solid #eae9e6',padding:'8px 16px',position:'sticky',top:52,zIndex:49,overflowX:'auto',WebkitOverflowScrolling:'touch'}}>
           <div style={{display:'flex',gap:6,width:'max-content'}}>
             {[['fe','FEX / WL'],['term','Term'],['iul','IUL'],['cv','CV'],['sheet','Sheet']].map(([id,label])=>(
-              <button key={id} onClick={()=>{track('Tab Switch',{to:id});setQuoteMode(id);if(id==='sheet')setMobileTab('quote');}} style={{
+              <button key={id} onClick={()=>{track('Tab Switch',{to:id});setQuoteMode(id);setMobileTab('quote');window.scrollTo({top:0,behavior:'instant'});}} style={{
                 padding:'9px 16px',minHeight:38,borderRadius:99,border:`1px solid ${quoteMode===id?'#191817':'#dedcd7'}`,
                 background:quoteMode===id?'#191817':'#fff',
                 color:quoteMode===id?'#fff':'#78746e',
@@ -4009,8 +4022,9 @@ export default function QuoteMark() {
                      quoteMode==='iul' ? (iulMode==='face'?`$${iulPremium}/mo`:`$${(iulFace/1000).toFixed(0)}k`) :
                      `$${cvMonthly||0}/mo`}
                   </span>
-                  <span style={{fontSize:12.5,color:'#78746e'}}>· Age {age}{usState?` · ${usState}`:''} · {gender==='male'?'M':'F'} · {smoker?'Smoker':'NS'}</span>
+                  <span style={{fontSize:12.5,color:'#78746e'}}>{quoteMode==='term'?`· ${termLength}y `:''}· Age {age}{usState?` · ${usState}`:''} · {gender==='male'?'M':'F'} · {smoker?'Smoker':'NS'}</span>
                   {quoteMode==='fe' && <span style={{fontSize:11.5,fontWeight:600,color:'#4740c8'}}>UW: {TIER_INFO[uwTier].short}</span>}
+                  {quoteMode==='term' && <span style={{fontSize:11.5,fontWeight:600,color:'#4740c8'}}>{HEALTH_CLASS_SHORT[termHealth]}</span>}
                   <button onClick={()=>setMobileTab('quote')} style={{marginLeft:'auto',padding:'6px 14px',minHeight:32,borderRadius:8,border:'1px solid #dedcd7',background:'#fff',color:'#191817',fontSize:12,fontWeight:600,cursor:'pointer',fontFamily:"'Instrument Sans','Helvetica Neue',Arial,sans-serif"}}>Edit</button>
                 </div>
               )}
@@ -4116,9 +4130,6 @@ export default function QuoteMark() {
                         </div>
                       </div>
                     )}
-                    <div style={{background:C.bg3,border:`1px solid ${C.bd}`,borderRadius:10,padding:'10px 14px',marginBottom:10,fontSize:13,color:C.t2}}>
-                      {termMode==='budget' ? `$${termBudget}/mo budget` : fmtF(termFace)} · {termLength}-year · Age {age} · {gender==='male'?'M':'F'} · {smoker?'Smoker':'NS'} · {HEALTH_CLASS_SHORT[termHealth]}{termBMI!=null ? ` · BMI ${termBMI.toFixed(1)}`:''}
-                    </div>
                     {/* Compatible carriers banner — mobile */}
                     {termCompat && termCompat.excluded.length > 0 && (
                       <div style={{background:isDark?'rgba(59,130,246,0.06)':'rgba(59,130,246,0.04)',border:`1px solid ${isDark?'rgba(59,130,246,0.25)':'rgba(59,130,246,0.2)'}`,borderRadius:10,marginBottom:12,fontSize:12,overflow:'hidden'}}>
@@ -4151,25 +4162,23 @@ export default function QuoteMark() {
                       {termResults.map(r => {
                         const brandColor = CARRIER_META[r.id]?.brand || r.brand || '#4a45d1';
                         return (
-                          <div key={r.id} className="qm-rise" style={{background:isDark?'#1E293B':'#FFFFFF',border:`1px solid ${C.bd2}`,borderLeft:`4px solid ${brandColor}`,borderRadius:10,padding:'10px 12px',display:'flex',alignItems:'center',gap:10,boxShadow:C.cardShadow}}>
-                            <div style={{flexShrink:0}}><CarrierLogo carrierId={r.id} name={r.name} small={true}/></div>
+                          <div key={r.id} className="qm-rise" style={{background:'#fff',border:'1px solid #eae9e6',borderRadius:10,padding:'12px 14px',display:'flex',alignItems:'center',gap:12}}>
+                            <CarrierLogo carrierId={r.id} name={r.name} small={true}/>
                             <div style={{flex:1,minWidth:0}}>
-                              <div style={{display:'flex',alignItems:'center',gap:6}}>
-                                <div style={{fontSize:14,fontWeight:700,color:C.t0,whiteSpace:'nowrap',overflow:'hidden',textOverflow:'ellipsis',minWidth:0,flex:1}}>{r.name}</div>
-                                <UWBadge uwType={r.uwType} productName={r.product} tier={r.tierUsed} small={true}/>
-                              </div>
-                              <div style={{fontSize:10,color:C.t4,marginTop:2,whiteSpace:'nowrap',overflow:'hidden',textOverflow:'ellipsis'}}>{r.sub}{r.tierUsed && r.tierUsed !== r.sub && r.tierUsed !== 'Approved' ? ` · ${r.tierUsed}` : ''}</div>
+                              <div style={{fontSize:14.5,fontWeight:600,color:'#191817',whiteSpace:'nowrap',overflow:'hidden',textOverflow:'ellipsis'}}>{r.name}</div>
+                              <div style={{fontSize:12,color:'#78746e',marginTop:1,whiteSpace:'nowrap',overflow:'hidden',textOverflow:'ellipsis'}}>{r.sub}{r.tierUsed && r.tierUsed !== r.sub && r.tierUsed !== 'Approved' ? ` · ${r.tierUsed}` : ''}</div>
+                              <div style={{marginTop:4}}><UWBadge uwType={r.uwType} productName={r.product} tier={r.tierUsed} small={true}/></div>
                             </div>
                             <div style={{textAlign:'right',flexShrink:0}}>
                               {termMode==='budget' ? (
                                 <>
-                                  <div style={{fontFamily:"'Instrument Sans',sans-serif",fontSize:20,fontWeight:800,color:C.t0,lineHeight:1}}>{fmtF(r.face)}</div>
-                                  <div style={{fontSize:9,color:C.t4,marginTop:2}}>${r.prem.toFixed(0)}/mo · {r.termLen}y</div>
+                                  <div style={{fontSize:17,fontWeight:650,color:'#4740c8',letterSpacing:'-0.01em',lineHeight:1.25}}>{fmtF(r.face)}</div>
+                                  <div style={{fontSize:11,color:'#b5b1a8',marginTop:1}}>${r.prem.toFixed(0)}/mo · {r.termLen}y</div>
                                 </>
                               ) : (
                                 <>
-                                  <div style={{fontFamily:"'Instrument Sans',sans-serif",fontSize:22,fontWeight:800,color:C.t0,lineHeight:1}}>${r.prem.toFixed(2)}</div>
-                                  <div style={{fontSize:9,color:C.t4,marginTop:2}}>/mo · {r.termLen}y</div>
+                                  <div style={{fontSize:17,fontWeight:650,color:'#191817',letterSpacing:'-0.01em',lineHeight:1.25}}>${r.prem.toFixed(2)}<span style={{fontSize:11,fontWeight:400,color:'#a09c94'}}> /mo</span></div>
+                                  <div style={{fontSize:11,color:'#b5b1a8',marginTop:1}}>${(r.prem*12).toFixed(0)} /yr · {r.termLen}y</div>
                                 </>
                               )}
                             </div>
@@ -4178,6 +4187,20 @@ export default function QuoteMark() {
                       })}
                     </div>
                   </>
+                )
+              ) : quoteMode==='cv' ? (
+                /* ── MOBILE CV RESULTS — the estimator, never FEX quotes ── */
+                (ageOK && cvMonthly && cvPolicyYrs && Number(cvMonthly)>0 && Number(cvPolicyYrs)>0) ? (
+                  <div style={{display:'flex',flexDirection:'column'}}>
+                    <CashValueProjection monthlyPremium={Number(cvMonthly)} policyYears={Number(cvPolicyYrs)} issueAge={Math.max(0, ageNum - Number(cvPolicyYrs))} C={C} isDark={isDark}/>
+                    <CoverageEstimate monthlyPremium={Number(cvMonthly)} policyYears={Number(cvPolicyYrs)} currentAge={ageNum} gender={gender} C={C} isDark={isDark}/>
+                  </div>
+                ) : (
+                  <div style={{display:'flex',flexDirection:'column',alignItems:'center',justifyContent:'center',paddingTop:80,gap:16,textAlign:'center'}}>
+                    <div style={{fontFamily:"'Instrument Sans',sans-serif",fontSize:20,fontWeight:700,color:C.t4}}>Enter policy info first</div>
+                    <div style={{fontSize:13,color:C.t4,maxWidth:280,lineHeight:1.6}}>Age, monthly premium, and years in-force drive the cash value estimate.</div>
+                    <button onClick={()=>setMobileTab('quote')} style={{marginTop:8,padding:'13px 28px',borderRadius:9,border:'1px solid #dedcd7',background:'#fff',color:'#191817',fontSize:14,fontWeight:600,cursor:'pointer',fontFamily:"'Instrument Sans','Helvetica Neue',Arial,sans-serif"}}>← Back to Quote</button>
+                  </div>
                 )
               ) : !hasQuoted ? (
                 <div style={{display:'flex',flexDirection:'column',alignItems:'center',justifyContent:'center',paddingTop:80,gap:16,textAlign:'center'}}>
