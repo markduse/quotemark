@@ -3315,7 +3315,7 @@ export default function QuoteMark() {
         {/* DOB / Age row */}
         <div style={{marginBottom:isM?14:12}}>
           <div style={{fontSize:isM?12:11,color:C.t3,marginBottom:isM?8:6}}>Date of birth <span style={{color:C.t4}}>· or enter age →</span></div>
-          <div style={{display:'flex',gap:isM?6:5,alignItems:'center',flexWrap:'wrap'}}>
+          <div style={{display:'flex',gap:isM?6:5,alignItems:'center',flexWrap:isM?'wrap':'nowrap'}}>
             <input type="text" inputMode="numeric" maxLength="2" placeholder="mm" value={dob.mm}
               onChange={e=>{const v=e.target.value.replace(/\D/g,'');setDob(p=>({...p,mm:v}));if(v.length===2)rDd.current?.focus();}}
               style={{...I,width:isM?52:44,textAlign:'center',padding:isM?'11px 4px':'8px 4px'}}/>
@@ -4628,11 +4628,12 @@ export default function QuoteMark() {
         </div>
       </div>
 
-      {/* ── LAYOUT — 264px card-stack sidebar + results, on the warm page bg ── */}
+      {/* ── LAYOUT — card-stack sidebar + results, on the warm page bg.
+           320px (not the handoff's 264) so DOB + age share one line. ── */}
       <div style={{display:'flex',gap:24,padding:'24px 28px',alignItems:'flex-start',minHeight:'calc(100vh - 61px)'}}>
 
         {/* ── SIDEBAR ── */}
-        <div style={{width:264,flex:'none',display:'flex',flexDirection:'column',gap:16}}>
+        <div style={{width:320,flex:'none',display:'flex',flexDirection:'column',gap:16}}>
 
           {quoteMode==='fe' ? (
           <>
