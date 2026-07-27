@@ -8,6 +8,9 @@ export function AuthProvider({ children }) {
   const [session, setSession]       = useState(undefined); // undefined = loading
   const [profile, setProfile]       = useState(null);
   const [loading, setLoading]       = useState(true);
+  // True while the user arrived via a password-reset link — the Gate shows a
+  // "set new password" screen until the new password is saved.
+  const [passwordRecovery, setPasswordRecovery] = useState(false);
 
   async function fetchProfile(userId) {
     const { data } = await supabase
@@ -46,6 +49,7 @@ export function AuthProvider({ children }) {
     });
 
     const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
+      if (_event === 'PASSWORD_RECOVERY') setPasswordRecovery(true);
       setSession(session);
       if (session) {
         fetchProfile(session.user.id);
@@ -67,8 +71,10 @@ export function AuthProvider({ children }) {
     setProfile(null);
   }
 
+  const clearPasswordRecovery = () => setPasswordRecovery(false);
+
   return (
-    <AuthContext.Provider value={{ session, profile, loading, isSubscribed, signOut, fetchProfile }}>
+    <AuthContext.Provider value={{ session, profile, loading, isSubscribed, signOut, fetchProfile, passwordRecovery, clearPasswordRecovery }}>
       {children}
     </AuthContext.Provider>
   );

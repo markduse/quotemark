@@ -2,7 +2,7 @@ import React from 'react';
 import ReactDOM from 'react-dom/client';
 import { AuthProvider, useAuth } from './AuthContext';
 import App from './App.jsx';
-import AuthScreen from './AuthScreen.jsx';
+import AuthScreen, { SetPasswordScreen } from './AuthScreen.jsx';
 import PaywallScreen from './PaywallScreen.jsx';
 import { PrivacyPage, TermsPage } from './LegalPages.jsx';
 
@@ -41,7 +41,7 @@ class ErrorBoundary extends React.Component {
 }
 
 function Gate() {
-  const { session, loading, isSubscribed } = useAuth();
+  const { session, loading, isSubscribed, passwordRecovery, clearPasswordRecovery } = useAuth();
 
   // Static legal pages — render before auth gating so they're publicly accessible.
   const path = typeof window !== 'undefined' ? window.location.pathname : '/';
@@ -54,7 +54,7 @@ function Gate() {
         minHeight:'100vh',background:'#f8f8f7',
         display:'flex',alignItems:'center',justifyContent:'center',
         fontFamily:"'Instrument Sans',sans-serif",
-        fontSize:28,fontWeight:700,color:'#F1F5F9',letterSpacing:'-0.5px',
+        fontSize:28,fontWeight:700,color:'#191817',letterSpacing:'-0.01em',
       }}>
         Quotemarko<span style={{color:'#4a45d1'}}>.</span>
       </div>
@@ -66,6 +66,9 @@ function Gate() {
   // is statically false in production builds — this branch is compiled away.
   const devBypass = import.meta.env.DEV && typeof localStorage !== 'undefined' && localStorage.getItem('qm_dev_bypass');
   if (devBypass) return <App />;
+
+  // Arrived via a password-reset link — force a new password before the app.
+  if (session && passwordRecovery) return <SetPasswordScreen onDone={clearPasswordRecovery} />;
 
   if (!session)       return <AuthScreen />;
   if (!isSubscribed)  return <PaywallScreen />;

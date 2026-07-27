@@ -19,6 +19,58 @@ const inp = {
   transition: 'border-color 0.12s',
 };
 
+// Shown when the user arrives via a password-reset email link (PASSWORD_RECOVERY).
+// Saves the new password against the recovery session, then hands off to the app.
+export function SetPasswordScreen({ onDone }) {
+  const [password, setPassword] = useState('');
+  const [confirm, setConfirm]   = useState('');
+  const [loading, setLoading]   = useState(false);
+  const [msg, setMsg]           = useState(null);
+
+  async function handleSubmit(e) {
+    e.preventDefault();
+    setMsg(null);
+    if (password !== confirm) { setMsg("Passwords don't match."); return; }
+    if (password.length < 8)  { setMsg('Password must be at least 8 characters.'); return; }
+    setLoading(true);
+    const { error } = await supabase.auth.updateUser({ password });
+    setLoading(false);
+    if (error) { setMsg(error.message); return; }
+    track('Password Reset Completed');
+    onDone && onDone();
+  }
+
+  return (
+    <div style={{minHeight:'100vh',background:C.bg0,display:'flex',alignItems:'center',justifyContent:'center',fontFamily:"'Instrument Sans', sans-serif",padding:20}}>
+      <div style={{width:'100%',maxWidth:400}}>
+        <div style={{textAlign:'center',marginBottom:32}}>
+          <div style={{fontSize:28,fontWeight:700,letterSpacing:'-0.01em',color:C.t0}}>Quotemarko<span style={{color:'#4a45d1'}}>.</span></div>
+        </div>
+        <div style={{background:'#fff',border:'1px solid #eae9e6',borderRadius:12,padding:'32px 28px',boxShadow:'0 1px 2px rgba(25,24,23,0.04)'}}>
+          <div style={{fontSize:20,fontWeight:700,color:C.t0,marginBottom:6}}>Set a new password</div>
+          <div style={{fontSize:13,color:C.t4,marginBottom:24}}>You're signed in via your reset link — choose a new password to finish.</div>
+          <form onSubmit={handleSubmit} style={{display:'flex',flexDirection:'column',gap:14}}>
+            <div>
+              <label style={{fontSize:11,fontWeight:600,color:C.t4,letterSpacing:0.8,textTransform:'uppercase',display:'block',marginBottom:6}}>New password</label>
+              <input type="password" required autoComplete="new-password" value={password} onChange={e=>setPassword(e.target.value)} placeholder="••••••••" style={inp}/>
+            </div>
+            <div>
+              <label style={{fontSize:11,fontWeight:600,color:C.t4,letterSpacing:0.8,textTransform:'uppercase',display:'block',marginBottom:6}}>Confirm password</label>
+              <input type="password" required autoComplete="new-password" value={confirm} onChange={e=>setConfirm(e.target.value)} placeholder="••••••••" style={inp}/>
+            </div>
+            {msg && (
+              <div style={{background:'#fdecec',border:'1px solid #f5c6c2',borderRadius:7,padding:'10px 13px',fontSize:13,color:C.red,lineHeight:1.5}}>{msg}</div>
+            )}
+            <button type="submit" disabled={loading} style={{width:'100%',minHeight:44,borderRadius:9,border:'none',background:loading?'#dedcd7':'#4a45d1',color:'#fff',fontSize:14,fontWeight:600,cursor:loading?'not-allowed':'pointer',transition:'all 0.12s',boxShadow:loading?'none':'0 1px 2px rgba(74,69,209,.3)',fontFamily:"'Instrument Sans', sans-serif",marginTop:4}}>
+              {loading ? '...' : 'Save new password'}
+            </button>
+          </form>
+        </div>
+      </div>
+    </div>
+  );
+}
+
 export default function AuthScreen() {
   const [mode, setMode] = useState('login'); // 'login' | 'signup' | 'reset'
   const [email, setEmail]       = useState('');
