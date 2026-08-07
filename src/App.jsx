@@ -8,6 +8,7 @@ import RESTRICTIONS from "./data/restrictions.json";
 import TERM_RATES from "./data/term_rates.json";
 import IUL_RATES  from "./data/iul_rates.json";
 import IUL_STATE_AVAIL from "./data/iul_state_availability.json";
+import { fexUwRules, SI_TERM_UW, IUL_UW } from "./data/uw_rules.js";
 
 // ── US STATES ──
 const US_STATES = ['AL','AK','AZ','AR','CA','CO','CT','DE','FL','GA','HI','ID','IL','IN','IA','KS','KY','LA','ME','MD','MA','MI','MN','MS','MO','MT','NE','NV','NH','NJ','NM','NY','NC','ND','OH','OK','OR','PA','RI','SC','SD','TN','TX','UT','VT','VA','WA','WV','WI','WY','DC'];
@@ -485,17 +486,23 @@ const CONDITIONS = [
   {id:'aneurysm_old',  label:'Aneurysm - treated 2+ years ago',                       tier:'B', cat:'Heart & Blood',    meds:'aneurysm aortic'},
   {id:'pad_old',       label:'PAD / PVD - peripheral artery disease',                 tier:'B', cat:'Heart & Blood',    meds:'cilostazol pletal peripheral artery pad pvd claudication circulation'},
   {id:'angina_2plus',  label:'Angina (chest pain) - treated 2+ years ago',            tier:'C', cat:'Heart & Blood',    meds:'nitroglycerin nitro angina chest pain'},
+  {id:'angina_1to2',   label:'Angina (chest pain) - 1 to 2 years ago',                tier:'C', cat:'Heart & Blood',    meds:'nitroglycerin nitro angina chest pain'},
   {id:'angio_2plus',   label:'Angioplasty - 2+ years ago',                            tier:'C', cat:'Heart & Blood',    meds:'angioplasty balloon stent cardiac'},
-  {id:'mi_4plus',      label:'Heart attack - 4+ years ago (stable)',                  tier:'C', cat:'Heart & Blood',    meds:'clopidogrel plavix aspirin heart attack mi cardiac'},
+  {id:'mi_3plus',      label:'Heart attack - 3+ years ago (stable)',                  tier:'C', cat:'Heart & Blood',    meds:'clopidogrel plavix aspirin heart attack mi cardiac'},
+  {id:'mi_2to3',       label:'Heart attack - 2 to 3 years ago',                       tier:'C', cat:'Heart & Blood',    meds:'heart attack mi cardiac'},
   {id:'stent_2plus',   label:'Stent / bypass surgery - 2+ years ago',                 tier:'C', cat:'Heart & Blood',    meds:'stent bypass cardiac surgery atorvastatin lipitor'},
-  {id:'stroke_4plus',  label:'Stroke / TIA - 4+ years ago (stable)',                  tier:'C', cat:'Heart & Blood',    meds:'warfarin apixaban eliquis stroke tia mini-stroke'},
+  {id:'stroke_3plus',  label:'Stroke / TIA - 3+ years ago (stable)',                  tier:'C', cat:'Heart & Blood',    meds:'warfarin apixaban eliquis stroke tia mini-stroke'},
+  {id:'stroke_2to3',   label:'Stroke / TIA - 2 to 3 years ago',                       tier:'C', cat:'Heart & Blood',    meds:'stroke tia mini-stroke'},
   {id:'cardiomyo_old', label:'Cardiomyopathy - 2+ years ago',                         tier:'C', cat:'Heart & Blood',    meds:'cardiomyopathy heart muscle'},
+  {id:'cardiomyo_new', label:'Cardiomyopathy - within 2 years',                       tier:'D', cat:'Heart & Blood',    meds:'cardiomyopathy heart muscle recent'},
   {id:'cad',           label:'Coronary artery disease (CAD)',                          tier:'C', cat:'Heart & Blood',    meds:'coronary artery disease cad ischemic'},
   {id:'pacemaker_old', label:'Pacemaker / defibrillator - implanted 2+ years ago',    tier:'C', cat:'Heart & Blood',    meds:'pacemaker defibrillator icd implant'},
-  {id:'mi_2to4',       label:'Heart attack - 2 to 4 years ago',                       tier:'D', cat:'Heart & Blood',    meds:'recent heart attack mi stent'},
-  {id:'stroke_2to4',   label:'Stroke / TIA - 2 to 4 years ago',                      tier:'D', cat:'Heart & Blood',    meds:'recent stroke tia'},
+  {id:'mi_1to2',       label:'Heart attack - 1 to 2 years ago',                       tier:'D', cat:'Heart & Blood',    meds:'recent heart attack mi stent'},
+  {id:'stroke_1to2',   label:'Stroke / TIA - 1 to 2 years ago',                      tier:'D', cat:'Heart & Blood',    meds:'recent stroke tia'},
   {id:'angina_1yr',    label:'Angina (chest pain) - within last year',                tier:'D', cat:'Heart & Blood',    meds:'nitroglycerin nitro angina recent'},
+  {id:'stent_1yr',     label:'Stent / heart surgery - within 1 year',                 tier:'D', cat:'Heart & Blood',    meds:'stent bypass recent surgery cardiac'},
   {id:'stent_1to2',    label:'Stent / heart surgery - 1 to 2 years ago',              tier:'D', cat:'Heart & Blood',    meds:'stent bypass recent surgery cardiac'},
+  {id:'aneurysm_new',  label:'Aneurysm - within 2 years / untreated',                 tier:'D', cat:'Heart & Blood',    meds:'aneurysm aortic recent'},
   {id:'pacemaker_new', label:'Pacemaker / defibrillator - implanted within 2 years',  tier:'D', cat:'Heart & Blood',    meds:'pacemaker defibrillator icd implant recent'},
   {id:'chf',           label:'Congestive heart failure (CHF)',                         tier:'D', cat:'Heart & Blood',    meds:'furosemide lasix spironolactone digoxin carvedilol sacubitril entresto heart failure chf edema ejection fraction'},
   {id:'mi_1yr',        label:'Heart attack - last 12 months',                         tier:'E', cat:'Knockout',         meds:'recent heart attack mi cardiac'},
@@ -519,9 +526,11 @@ const CONDITIONS = [
   // CANCER
   {id:'basal_cell',    label:'Basal cell / squamous cell skin cancer',                 tier:'B', cat:'Cancer',           meds:'basal cell squamous cell skin cancer bcc scc mohs'},
   {id:'cancer_5plus',  label:'Cancer - in remission 5+ years',                        tier:'B', cat:'Cancer',           meds:'remission survivor cancer oncology'},
-  {id:'cancer_4plus',  label:'Cancer - in remission 4+ years',                        tier:'C', cat:'Cancer',           meds:'cancer remission survivor 4 years oncology'},
-  {id:'cancer_2to4',   label:'Cancer - in remission 2 to 4 years',                   tier:'D', cat:'Cancer',           meds:'cancer remission 2 years chemo radiation'},
+  {id:'cancer_4to5',   label:'Cancer - in remission 4 to 5 years',                    tier:'C', cat:'Cancer',           meds:'cancer remission survivor 4 years oncology'},
+  {id:'cancer_3to4',   label:'Cancer - in remission 3 to 4 years',                    tier:'C', cat:'Cancer',           meds:'cancer remission survivor oncology'},
+  {id:'cancer_2to3',   label:'Cancer - in remission 2 to 3 years',                   tier:'D', cat:'Cancer',           meds:'cancer remission 2 years chemo radiation'},
   {id:'melanoma_2to4', label:'Melanoma - in remission 2 to 4 years',                 tier:'D', cat:'Cancer',           meds:'melanoma skin cancer malignant'},
+  {id:'melanoma_lt2',  label:'Melanoma - within 2 years',                             tier:'E', cat:'Cancer',           meds:'melanoma skin cancer malignant recent'},
   {id:'cancer_lt2',    label:'Cancer - active or treated under 2 years ago',          tier:'E', cat:'Knockout',         meds:'active chemo radiation tumor chemotherapy cancer current'},
   {id:'chemo_active',  label:'Currently receiving chemotherapy or radiation',          tier:'E', cat:'Knockout',         meds:'chemotherapy radiation oncology active treatment current'},
 
@@ -1751,10 +1760,10 @@ const COND_TERM_IMPACT = {
   // Heart & Blood — moderate (resolved/controlled)
   afib_ctrl: 'sp', aneurysm_old: 'sp', pad_old: 'sp',
   // Heart & Blood — significant but stable
-  angina_2plus: 's', angio_2plus: 's', mi_4plus: 's', stent_2plus: 's',
-  stroke_4plus: 's', cardiomyo_old: 's', cad: 's', pacemaker_old: 's',
+  angina_2plus: 's', angina_1to2: 'decline', angio_2plus: 's', mi_3plus: 's', mi_2to3: 'decline', stent_2plus: 's', stent_1yr: 'decline',
+  stroke_3plus: 's', stroke_2to3: 'decline', cardiomyo_old: 's', cardiomyo_new: 'decline', cad: 's', pacemaker_old: 's', aneurysm_new: 'decline',
   // Heart & Blood — recent or active
-  mi_2to4: 'decline', stroke_2to4: 'decline', angina_1yr: 'decline',
+  mi_1to2: 'decline', stroke_1to2: 'decline', angina_1yr: 'decline',
   stent_1to2: 'decline', pacemaker_new: 'decline', chf: 'decline',
   mi_1yr: 'decline', stroke_1yr: 'decline',
   // Diabetes
@@ -1765,8 +1774,8 @@ const COND_TERM_IMPACT = {
   asthma_mod: 'sp', copd_no_o2: 's', bronchitis_chr: 's',
   copd_o2: 'decline', pulm_fib: 'decline',
   // Cancer
-  basal_cell: 'p', cancer_5plus: 'sp', cancer_4plus: 's',
-  cancer_2to4: 'decline', melanoma_2to4: 'decline',
+  basal_cell: 'p', cancer_5plus: 'sp', cancer_4to5: 's', cancer_3to4: 'decline',
+  cancer_2to3: 'decline', melanoma_2to4: 'decline', melanoma_lt2: 'decline',
   cancer_lt2: 'decline', chemo_active: 'decline',
   // Neurological
   seizures_rare: 'sp', neuropathy: 'p',
@@ -2914,12 +2923,38 @@ export default function QuoteMark() {
       if(carr.stateCheck && !carr.stateCheck(usState)) return{...carr,prem:null,face:null,productName:null,reason:`Not available in ${STATE_NAMES[usState]||usState}`};
       else if(!carr.stateCheck && stateRule?.excludeStates?.includes(usState)) return{...carr,prem:null,face:null,productName:null,reason:`Not licensed in ${STATE_NAMES[usState]||usState}`};
     }
+    // ── PER-CARRIER UW RULES (COPD / heart / cancer accuracy engine) ──
+    // Each carrier's own guide decides what the selected conditions do HERE:
+    // decline, GI-only, or a tier floor — instead of one global tier for all.
+    // Sources: docs/uw-extractions/*.md (page-cited carrier guides).
+    const TIER_RANK = {B:0, C:1, D:2, E:3};
+    const rules = fexUwRules(carr.id);
+    let uwNotes = null, ruleForcedGI = false, tierFloor = null;
+    if (rules) {
+      const OUT_RANK = {ok:0, C:1, D:2, GI:3, X:4};
+      let worst = 'ok'; const notes = [];
+      for (const id of selected) {
+        if (id === 'none') continue;
+        const r = rules[id];
+        if (!r) continue;
+        const o = typeof r === 'string' ? r : r.o;
+        const note = typeof r === 'object' ? r.note : null;
+        if (OUT_RANK[o] > OUT_RANK[worst]) worst = o;
+        if (note && o !== 'ok') notes.push(note);
+      }
+      if (worst === 'X') return {...carr, prem:null, face:null, productName:null, uwDecline:true, reason: notes[0] || 'Carrier declines this health profile'};
+      if (worst === 'GI') { tierFloor = 'E'; ruleForcedGI = true; }
+      else if (worst === 'D') tierFloor = 'D';
+      else if (worst === 'C') tierFloor = 'C';
+      if (notes.length) uwNotes = notes;
+    }
     // GI fallback: Modified is strictly better than GI for the client.
     // When the agent picks tier E, prefer this carrier's Modified product if
     // it exists and the client's age fits — only show GI when it's the only
     // option this carrier offers.
     let effTier = uwTier;
-    if (uwTier === 'E' && carr.product.D && a <= getAgeMax(carr.id, 'D')) {
+    if (tierFloor && TIER_RANK[tierFloor] > TIER_RANK[effTier]) effTier = tierFloor;
+    if (effTier === 'E' && !ruleForcedGI && carr.product.D && a <= getAgeMax(carr.id, 'D')) {
       effTier = 'D';
     }
     const maxAge = getAgeMax(carr.id, effTier);
@@ -2966,9 +3001,9 @@ export default function QuoteMark() {
     if(isCapped){
       // maxFace already checked above — if we got here, carrier accepts this face
       // Show with the nearest available band premium
-      return{...carr,...(subOverride?{sub:subOverride}:{}),face:effFace,prem,productName:pNameEff,activeTier:effTier,capped:true,roundedTo,reason:null};
+      return{...carr,...(subOverride?{sub:subOverride}:{}),face:effFace,prem,productName:pNameEff,activeTier:effTier,capped:true,roundedTo,uwNotes,reason:null};
     }
-    return{...carr,...(subOverride?{sub:subOverride}:{}),face:prem!=null?effFace:null,prem,productName:pNameEff,activeTier:effTier,roundedTo,reason};
+    return{...carr,...(subOverride?{sub:subOverride}:{}),face:prem!=null?effFace:null,prem,productName:pNameEff,activeTier:effTier,roundedTo,uwNotes,reason};
   }
 
 
@@ -3041,6 +3076,22 @@ export default function QuoteMark() {
   // ── TERM LIFE RESULTS ──
   // Term mode reuses the shared age/gender/smoker/usState fields. Term length
   // and face come from termLength / termFace state.
+  // SI term products decline outright on certain conditions (per carrier UW
+  // guides — docs/uw-extractions). Returns the rule when the product is
+  // screened out by the selected health profile.
+  const termUwScreen = (carr) => {
+    const name = ((carr.product||'') + ' ' + (carr.name||'') + ' ' + (carr.sub||'')).toLowerCase();
+    const key = Object.keys(SI_TERM_UW).find(k => name.includes(k));
+    if (!key) return null;
+    const rule = SI_TERM_UW[key];
+    return selected.some(id => id!=='none' && rule.declines.includes(id)) ? rule : null;
+  };
+  const termUwScreened = useMemo(()=>{
+    if (quoteMode!=='term') return [];
+    return activeCarriers.filter(c=>c.termOnly).map(c=>({c, rule: termUwScreen(c)}))
+      .filter(x=>x.rule).map(x=>({name:x.c.name, sub:x.c.sub, note:x.rule.note}));
+  },[quoteMode, activeCarriers, selected]);
+
   const termResults = useMemo(()=>{
     if(quoteMode!=='term'||!ageOK) return null;
     const male = gender==='male';
@@ -3063,7 +3114,7 @@ export default function QuoteMark() {
     };
 
     // Build one result per term carrier (each carrier=one product in TERM_RATES)
-    const results = activeCarriers.filter(c => c.termOnly).map(carr => {
+    const results = activeCarriers.filter(c => c.termOnly && !termUwScreen(c)).map(carr => {
       let prem = null;
       let effFace = dTermFace;
       let tierUsed = null;
@@ -3096,7 +3147,7 @@ export default function QuoteMark() {
 
     // Sort: budget-mode → largest face first; face-mode → cheapest premium first
     return results.sort((a, b) => termMode === 'budget' ? b.face - a.face : a.prem - b.prem);
-  }, [quoteMode, ageOK, ageNum, termLength, dTermFace, termMode, dTermBudget, gender, smoker, activeCarriers, termHealth]);
+  }, [quoteMode, ageOK, ageNum, termLength, dTermFace, termMode, dTermBudget, gender, smoker, activeCarriers, termHealth, selected]);
 
   // Compatibility map — which term carriers can/can't write at the entered age.
   // Helps explain why a 65yo client only sees 19 of 28 carriers without making
@@ -3128,6 +3179,10 @@ export default function QuoteMark() {
       // but flag it unavailable so it renders grayed-out (not silently dropped).
       if (c.availableStates && usState && !c.availableStates.has(usState))
         return { ...c, unavailable: true, reason: `Not available in ${STATE_NAMES[usState] || usState}` };
+      // Health screening: SI/instant IUL products decline on these conditions
+      const iulRule = IUL_UW[c.product];
+      if (iulRule && selected.some(id => id!=='none' && iulRule.declines.includes(id)))
+        return { ...c, unavailable: true, uwDecline: true, reason: 'Health profile: ' + iulRule.note };
       // Issue-age gate: outside the carrier's real min/max age → not offered.
       if (!iulAgeOK(c.product, a)) return null;
       // Carrier's real max face for this age (age-banded), independent of data.
@@ -3163,7 +3218,7 @@ export default function QuoteMark() {
       if (rank(a) !== rank(b)) return rank(a) - rank(b);
       return iulMode === 'face' ? (b.face || 0) - (a.face || 0) : (a.premium ?? Infinity) - (b.premium ?? Infinity);
     });
-  }, [quoteMode, ageOK, ageNum, gender, smoker, dIulPremium, dIulFace, iulMode, hasQuoted, usState]);
+  }, [quoteMode, ageOK, ageNum, gender, smoker, dIulPremium, dIulFace, iulMode, hasQuoted, usState, selected]);
 
   // ── INPUT STYLES (redesign: 36px fields, 7px radius, joined segmented toggles) ──
   const inp = {background:'#fff',border:'1px solid #dedcd7',color:'#191817',borderRadius:7,padding:'9px 10px',fontSize:13,width:'100%',boxSizing:'border-box',outline:'none',fontFamily:"'Instrument Sans','Helvetica Neue',Arial,sans-serif"};
@@ -4146,6 +4201,12 @@ export default function QuoteMark() {
                         </div>
                       </div>
                     )}
+                    {termUwScreened.length > 0 && (
+                      <div style={{background:'#fdf3e0',border:'1px solid #f5e3bb',borderRadius:10,marginBottom:10,padding:'10px 14px',fontSize:12,color:'#78746e'}}>
+                        <span style={{fontWeight:600,color:'#96660f'}}>{termUwScreened.length} screened out by health profile:</span>{' '}
+                        {termUwScreened.map(p=>p.name).join(', ')}
+                      </div>
+                    )}
                     {/* Compatible carriers banner — mobile */}
                     {termCompat && termCompat.excluded.length > 0 && (
                       <div style={{background:isDark?'rgba(59,130,246,0.06)':'rgba(59,130,246,0.04)',border:`1px solid ${isDark?'rgba(59,130,246,0.25)':'rgba(59,130,246,0.2)'}`,borderRadius:10,marginBottom:12,fontSize:12,overflow:'hidden'}}>
@@ -4312,7 +4373,7 @@ export default function QuoteMark() {
                           <div style={{flex:1,minWidth:0}}>
                             <div style={{fontSize:14.5,fontWeight:600,color:'#191817',whiteSpace:'nowrap',overflow:'hidden',textOverflow:'ellipsis'}}>{r.name}</div>
                             <div style={{fontSize:12,color:'#78746e',marginTop:1,whiteSpace:'nowrap',overflow:'hidden',textOverflow:'ellipsis'}}>{r.sub}{isGhost?'':` · ${fmtF(r.face||0)}`}{r.capped?' · capped':''}</div>
-                            {!isGhost && <div style={{marginTop:4,display:'flex',gap:5,alignItems:'center'}}><TierBadge tier={r.activeTier} productName={r.productName}/></div>}
+                            {!isGhost && <div style={{marginTop:4,display:'flex',gap:5,alignItems:'center'}} title={r.uwNotes?r.uwNotes.join('\n'):undefined}><TierBadge tier={r.activeTier} productName={r.productName}/>{r.uwNotes&&<span style={{width:6,height:6,borderRadius:'50%',background:'#4a45d1',flexShrink:0}}/>}</div>}
                             {isGhost && <div style={{fontSize:11.5,color:'#a09c94',fontStyle:'italic',marginTop:2}}>{r.reason}</div>}
                           </div>
                           {!isGhost && (
@@ -5475,6 +5536,13 @@ export default function QuoteMark() {
                       )}
                     </div>
                   )}
+                  {/* Health-profile screening banner */}
+                  {termUwScreened.length > 0 && (
+                    <div style={{background:'#fdf3e0',border:'1px solid #f5e3bb',borderRadius:10,marginBottom:14,padding:'12px 18px',fontSize:13,color:'#78746e'}}>
+                      <span style={{fontWeight:600,color:'#96660f'}}>{termUwScreened.length} product{termUwScreened.length===1?'':'s'} screened out by health profile:</span>{' '}
+                      {termUwScreened.map(p=><span key={p.name+p.sub} title={p.note} style={{whiteSpace:'nowrap',marginRight:8,cursor:'help',textDecoration:'underline dotted',textUnderlineOffset:3}}>{p.name} · {p.sub}</span>)}
+                    </div>
+                  )}
                   {/* Column headers — term grid (design 3a) */}
                   <div style={{display:'grid',gridTemplateColumns:'42px 1fr 132px 104px 150px 96px',gap:16,padding:'2px 21px 8px',fontSize:10.5,fontWeight:600,color:'#a09c94',letterSpacing:'0.08em'}}>
                     <span>CARRIER</span><span>PRODUCT · COVERAGE</span><span>ISSUE TYPE</span><span>UW TIER</span><span style={{textAlign:'right'}}>MONTHLY PREMIUM</span><span></span>
@@ -5672,7 +5740,10 @@ export default function QuoteMark() {
                             {r.sub}{r.productName&&r.productName!==r.sub?` · ${r.productName}`:''} · <span style={mode==='budget'?{fontWeight:600,color:'#4740c8'}:undefined}>{fmtF(r.face)}</span>{covNote}
                           </span>
                         </div>
-                        <div><TierBadge tier={r.activeTier} productName={r.productName}/></div>
+                        <div title={r.uwNotes?r.uwNotes.join('\n'):undefined} style={{display:'flex',alignItems:'center',gap:5}}>
+                          <TierBadge tier={r.activeTier} productName={r.productName}/>
+                          {r.uwNotes&&<span style={{width:6,height:6,borderRadius:'50%',background:'#4a45d1',flexShrink:0}} title={r.uwNotes.join('\n')}/>}
+                        </div>
                         <div style={{display:'flex',flexDirection:'column',alignItems:'flex-end',gap:1}}>
                           <span style={{fontSize:19,fontWeight:650,color:'#191817',letterSpacing:'-0.01em',lineHeight:1.25}}>{fmt$(r.prem)}<span style={{fontSize:12,fontWeight:400,color:'#a09c94'}}> /mo</span></span>
                           <span style={{fontSize:11.5,color:'#b5b1a8'}}>${((r.prem??0)*12).toFixed(0)} /yr</span>

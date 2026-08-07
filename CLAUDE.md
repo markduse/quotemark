@@ -107,6 +107,16 @@ target face. When OFF, agent picks face directly.
 selected health conditions + family history and pick the most-likely class.
 Agent can override.
 
+**Per-carrier UW rules (8/2026)**: `src/data/uw_rules.js` maps condition ids →
+per-carrier outcomes (ok/C/D/GI/X + note) for COPD, heart, and cancer, built
+from Mark's carrier UW guides (verbatim extractions in `docs/uw-extractions/`).
+`buildResult` applies them per FEX carrier (tier floor / GI-route / decline
+with reason; indigo dot + tooltip on the row); SI term products + IULs decline
+via `SI_TERM_UW` / `IUL_UW` (term shows a "screened out" banner, IUL grays the
+row). Carriers without rules (Senior Life, Liberty Bankers, UHL, Baltimore)
+fall back to the global tier. Condition recency buckets follow real carrier
+boundaries (heart 1/2/3 yrs; cancer 2/3/4/5 yrs).
+
 ---
 
 ## SCRAPING / DATA SOURCING
