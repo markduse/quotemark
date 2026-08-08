@@ -1541,7 +1541,7 @@ const CARRIERS = [
      if(tier==='E') return factorCalc('corebridge_gi','gi',age,male,smoker,face);
      return null;
    }},
-  {id:'lb',   name:'Liberty Bankers',    sub:'SIMPL Whole Life', abbr:'LB', enabled:true,
+  {id:'lb',   name:'Liberty Bankers',    sub:'SIMPL Whole Life', abbr:'LB', enabled:false,
    product:{B:'SIMPL Preferred',C:'SIMPL Standard',D:'SIMPL Modified',E:null},
    stateCheck:(s)=>(fexStateOK('Liberty Bankers',s)),
    fn:(age,male,smoker,tier,face)=>{
@@ -1565,7 +1565,7 @@ const CARRIERS = [
      if(tier==='E') return fexPrem('Royal Arcanum (SIWL)','Simplified Issue Level',age,male,smoker,face);
      return null;
    }},
-  {id:'bl_sg', name:'Baltimore Life',    sub:'iProvide FE', abbr:'BL', enabled:true,
+  {id:'bl_sg', name:'Baltimore Life',    sub:'iProvide FE', abbr:'BL', enabled:false,
    product:{B:'Preferred',C:'Standard',D:'Modified',E:null},
    stateCheck:(s)=>(fexStateOK('Baltimore Life (iProvide 45-69)',s)),
    fn:(age,male,smoker,tier,face)=>{
@@ -1579,7 +1579,7 @@ const CARRIERS = [
      if(tier==='D') return mod ? fexPrem(co, mod, age, male, smoker, face) : null;
      return null;
    }},
-  {id:'ls',   name:'Lifeshield',         sub:'Survivor Level / Graded', abbr:'LS', enabled:true,
+  {id:'ls',   name:'Lifeshield',         sub:'Survivor Level / Graded', abbr:'LS', enabled:false,
    product:{B:'Level',C:'Level',D:'Graded',E:null},
    stateCheck:(s)=>(fexStateOK('Lifeshield',s)),
    fn:(age,male,smoker,tier,face)=>{
