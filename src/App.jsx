@@ -1764,20 +1764,20 @@ const DUAL_TIER_CARRIERS = ['ahl', 'acc'];
 // Bands: applicable when issue age >= age. `tier:'D'` = that tier only;
 // no tier = level tiers (B/C). Last applicable band wins (order ascending).
 const COMP_AGE_CUTS = {
-  moo:  [{age:76, note:'Comp cut up to 10% ages 76\u201380 (ITK)'},
-         {age:81, note:'Comp cut up to 40% ages 81\u201385 (ITK)'}],
-  rn:   [{age:76, note:'Comp cut up to 15% ages 76\u201380 (ITK)'},
-         {age:81, note:'Comp cut up to 35% ages 81\u201385 (ITK)'}],
-  for:  [{age:50, tier:'D', note:'PlanRight Basic: comp cut up to 57.5% (ITK)'},
-         {age:81, note:'Comp cut up to 30% ages 81\u201385 (ITK)'}],
-  amr:  [{age:81, note:'Comp cut up to 10% ages 81\u201385; Eagle Select pays little/no renewal comp (ITK)'}],
-  amam: [{age:50, tier:'D', note:'Senior Choice ROP: comp cut up to 15% (ITK)'},
-         {age:80, note:'Comp cut up to 35% ages 80\u201385 (ITK)'}],
-  amam_gs: [{age:81, note:'Comp cut up to 27.5% ages 81\u201385 (ITK)'}],
-  occ_gs:  [{age:81, note:'Comp cut up to 27.5% ages 81\u201385 (ITK)'}],
-  ahl:  [{age:40, tier:'D', note:'Patriot Modified: comp cut up to 10% (ITK)'}],
-  lb:   [{age:18, note:'SIMPL Standard: comp cut up to 5% (ITK)'},
-         {age:40, tier:'D', note:'SIMPL Modified: comp cut up to 30% (ITK)'}],
+  moo:  [{age:76, note:'Comp cut up to 10% ages 76\u201380'},
+         {age:81, note:'Comp cut up to 40% ages 81\u201385'}],
+  rn:   [{age:76, note:'Comp cut up to 15% ages 76\u201380'},
+         {age:81, note:'Comp cut up to 35% ages 81\u201385'}],
+  for:  [{age:50, tier:'D', note:'PlanRight Basic: comp cut up to 57.5%'},
+         {age:81, note:'Comp cut up to 30% ages 81\u201385'}],
+  amr:  [{age:81, note:'Comp cut up to 10% ages 81\u201385; Eagle Select pays little/no renewal comp'}],
+  amam: [{age:50, tier:'D', note:'Senior Choice ROP: comp cut up to 15%'},
+         {age:80, note:'Comp cut up to 35% ages 80\u201385'}],
+  amam_gs: [{age:81, note:'Comp cut up to 27.5% ages 81\u201385'}],
+  occ_gs:  [{age:81, note:'Comp cut up to 27.5% ages 81\u201385'}],
+  ahl:  [{age:40, tier:'D', note:'Patriot Modified: comp cut up to 10%'}],
+  lb:   [{age:18, note:'SIMPL Standard: comp cut up to 5%'},
+         {age:40, tier:'D', note:'SIMPL Modified: comp cut up to 30%'}],
 };
 
 function getCompBadge(carrierId, tier) {
