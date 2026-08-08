@@ -3002,6 +3002,9 @@ export default function QuoteMark() {
         } else { prem=res; }
       }catch(e){console.error(`[QuoteMark] ${carr.id} GI retry threw:`,e.message);prem=null;}
     }
+    // Guard: corrupt/absurd rate cells must never render (e.g. $1 scrape
+    // artifacts extrapolating to negative premiums).
+    if(prem!=null && prem < 2) prem = null;
     let reason;
     if(prem==null){if(effTier==='D'&&a>75)reason='Modified not available after 75';else if(effTier==='E'&&a>80)reason='GI not available after 80';else reason='Not available for this profile';}
     const isCapped = prem!=null && effFace !== face;
