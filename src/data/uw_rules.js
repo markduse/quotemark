@@ -55,13 +55,16 @@ export const FEX_UW = {
 
   // ── Transamerica — Immediate Solution / Easy Solution ──
   // OFFICIAL FE Rate & UW Guide 12/23 (extract_ta_official.md) — supersedes
-  // IMO grid sheets. Heart events carry NO lookback windows: all Preferred.
-  // Graded arises from combinations/lifestyle/build, not single conditions.
+  // IMO grid sheets. Heart events carry NO lookback windows: all Preferred
+  // ON THE CHART — but the no-touch engine pulls Milliman Rx data and the
+  // combination rules bite hard (2 Standard conditions → Graded, 4+ →
+  // decline). Field reality per Mark: Immediate declines/downgrades far more
+  // than the chart implies — FE EXPRESS (ta_exp) is the stronger TA product.
   ta: {
     copd_no_o2:    {o:'C',  note:'COPD/emphysema/bronchitis → Standard (Activity Credit can lift to Preferred)'},
     copd_o2:       {o:'C',  note:'Oxygen use → Standard (official guide; better than Graded per old grids)'},
     home_o2_24hr:  {o:'C',  note:'Oxygen → Standard'},
-    mi_1yr:        {o:'ok', note:'Heart attack → Preferred, no lookback (official guide)'},
+    mi_1yr:        {o:'ok', note:'Heart attack → Preferred on chart — but no-touch engine + Rx pull; combos drop to Graded. FE Express is the safer TA placement'},
     mi_1to2:       'ok',
     mi_2to3:       'ok',
     mi_3plus:      'ok',
@@ -72,7 +75,7 @@ export const FEX_UW = {
     angina_1to2:   'ok',
     angina_2plus:  'ok',
     cad:           {o:'ok', note:'CAD → Preferred'},
-    chf:           {o:'C',  note:'CHF → Standard (Graded only in combination with build/other conditions)'},
+    chf:           {o:'C',  note:'CHF → Standard on chart — combos with build/second condition drop to Graded; FE Express (Select) is the safer TA placement'},
     cardiomyo_new: {o:'ok', note:'Cardiomyopathy → Preferred'},
     cardiomyo_old: 'ok',
     afib_ctrl:     {o:'ok', note:'AFib → Preferred'},
@@ -135,7 +138,7 @@ export const FEX_UW = {
   // ── Aetna / Accendo (CVS) — Protection Series (Preferred → Standard → Modified → Decline) ──
   acc: {
     copd_no_o2:    {o:'C',  note:'COPD/emphysema/bronchitis → Standard'},
-    copd_o2:       {o:'X',  note:'Oxygen within 1 yr → decline (CPAP OK)'},
+    copd_o2:       {o:'X',  note:'Oxygen (any condition, any duration) → decline per Rx guide (CPAP OK)'},
     home_o2_24hr:  'X',
     mi_1yr:        {o:'D',  note:'Heart attack within 1 yr → Modified'},
     mi_1to2:       {o:'C',  note:'Heart attack 1–2 yrs → Standard'},
@@ -160,10 +163,10 @@ export const FEX_UW = {
     stroke_3plus:  'ok',
     aneurysm_new:  {o:'D',  note:'Aneurysm within 1 yr → Modified'},
     cancer_lt2:    {o:'X',  note:'Cancer current/within 2 yrs/recurring → decline'},
-    cancer_2to3:   {o:'ok', note:'Cancer >2 yrs → Preferred'},
-    cancer_3to4:   'ok',
-    cancer_4to5:   'ok',
-    cancer_5plus:  'ok',
+    cancer_2to3:   {o:'ok', note:'Cancer >2 yrs → Preferred — ONLY if off ALL cancer meds; maintenance hormone therapy (anastrozole/letrozole/Lupron/tamoxifen/Ibrance) = decline per Rx guide'},
+    cancer_3to4:   {o:'ok', note:'OK only if off all cancer meds incl. hormone therapy'},
+    cancer_4to5:   {o:'ok', note:'OK only if off all cancer meds incl. hormone therapy'},
+    cancer_5plus:  {o:'ok', note:'OK only if off all cancer meds incl. hormone therapy'},
     melanoma_lt2:  {o:'D',  note:'Melanoma within 3 yrs → Modified (basal/squamous exempt)'},
     melanoma_2to4: {o:'D',  note:'Melanoma within 3 yrs → Modified'},
     basal_cell:    {o:'ok', note:'Basal/squamous → Preferred'},
@@ -174,8 +177,8 @@ export const FEX_UW = {
   // ── American Amicable — Senior Choice / Family Choice ──
   // (Immediate → Graded → ROP → Decline). Grid sheets: ROP@2yrs / Graded@3yrs.
   amam: {
-    copd_no_o2:    {o:'D',  note:'COPD treated within 2 yrs → ROP; within 3 yrs → Graded; >3 yrs → Immediate'},
-    copd_o2:       {o:'X',  note:'Oxygen use → decline'},
+    copd_no_o2:    {o:'D',  note:'COPD treated within 2 yrs → ROP; within 3 yrs → Graded; >3 yrs → Immediate (official SC guide)'},
+    copd_o2:       {o:'X',  note:'Current oxygen → decline; oxygen stopped within 2 yrs → ROP'},
     home_o2_24hr:  'X',
     mi_1yr:        {o:'D',  note:'Heart attack within 2 yrs → ROP'},
     mi_1to2:       'D',
@@ -242,8 +245,8 @@ export const FEX_UW = {
     cancer_3to4:   'ok',
     cancer_4to5:   'ok',
     cancer_5plus:  'ok',
-    melanoma_lt2:  {o:'X',  note:'Malignant melanoma → decline'},
-    melanoma_2to4: {o:'X',  note:'Malignant melanoma → decline'},
+    melanoma_lt2:  {o:'GI', note:'Malignant melanoma → Eagle Guaranteed (true GI — every client qualifies)'},
+    melanoma_2to4: {o:'GI', note:'Malignant melanoma → Eagle Guaranteed'},
     basal_cell:    'ok',
     chemo_active:  'X',
   },
@@ -451,6 +454,11 @@ export const SI_TERM_UW = {
   'easy term': {
     declines: ['copd_no_o2','copd_o2','home_o2_24hr','bronchitis_chr','mi_1yr','mi_1to2','mi_2to3','mi_3plus','stent_1yr','stent_1to2','stent_2plus','angina_1yr','angina_1to2','angina_2plus','cad','chf','cardiomyo_new','cardiomyo_old','afib_ctrl','pacemaker_new','pacemaker_old','stroke_1yr','stroke_1to2','stroke_2to3','stroke_3plus','cancer_lt2','cancer_2to3','cancer_3to4','cancer_4to5','melanoma_lt2','melanoma_2to4','chemo_active'],
     note: 'Declines COPD, all heart disease, AFib, pacemaker, stent/bypass, stroke; cancer needs 8 yrs treatment-free',
+  },
+  // AmAm/Occidental Home Protector — mirrors Easy Term declines; 7-yr cancer window
+  'home protector': {
+    declines: ['copd_no_o2','copd_o2','home_o2_24hr','bronchitis_chr','mi_1yr','mi_1to2','mi_2to3','mi_3plus','stent_1yr','stent_1to2','stent_2plus','angina_1yr','angina_1to2','angina_2plus','cad','chf','cardiomyo_new','cardiomyo_old','afib_ctrl','pacemaker_new','pacemaker_old','aneurysm_new','aneurysm_old','stroke_1yr','stroke_1to2','stroke_2to3','stroke_3plus','cancer_lt2','cancer_2to3','cancer_3to4','cancer_4to5','melanoma_lt2','melanoma_2to4','chemo_active'],
+    note: 'Declines COPD, all heart disease, AFib, pacemaker, stroke; cancer needs 7 yrs treatment-free; asthma + tobacco = decline',
   },
   // Foresters Your Term (non-med) — cardiac/cancer/COPD declines; smoker COPD auto-decline
   'your term': {
