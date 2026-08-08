@@ -2931,7 +2931,7 @@ export default function QuoteMark() {
       else if(!carr.stateCheck && stateRule?.excludeStates?.includes(usState)) return{...carr,prem:null,face:null,productName:null,reason:`Not licensed in ${STATE_NAMES[usState]||usState}`};
     }
     // Commission cut at this issue age? (agency comp grid)
-    const compCut = COMP_AGE_CUTS[carr.id] && a >= COMP_AGE_CUTS[carr.id].age ? COMP_AGE_CUTS[carr.id].note : null;
+    let compCut = COMP_AGE_CUTS[carr.id] && a >= COMP_AGE_CUTS[carr.id].age ? COMP_AGE_CUTS[carr.id].note : null;
     // ── PER-CARRIER UW RULES (COPD / heart / cancer accuracy engine) ──
     // Each carrier's own guide decides what the selected conditions do HERE:
     // decline, GI-only, or a tier floor — instead of one global tier for all.
@@ -2965,6 +2965,16 @@ export default function QuoteMark() {
     if (tierFloor && TIER_RANK[tierFloor] > TIER_RANK[effTier]) effTier = tierFloor;
     if (effTier === 'E' && !ruleForcedGI && carr.product.D && a <= getAgeMax(carr.id, 'D')) {
       effTier = 'D';
+    }
+    // Graded/Modified/GI plans: waiting-period benefit AND commission is
+    // typically cut on these tiers — flag it so agents see it before selling.
+    if (effTier === 'D' || effTier === 'E') {
+      const rates = COMP_RATES[carr.id];
+      const tierPct = rates?.[effTier], levelPct = rates?.B ?? rates?.C;
+      const pctNote = (tierPct != null && levelPct != null && tierPct < levelPct)
+        ? ` — commission ${tierPct}% vs ${levelPct}% on level` : ' — commission typically reduced on this tier';
+      const gradedNote = (effTier === 'E' ? 'Guaranteed-issue plan' : 'Graded/modified plan') + ': waiting period applies' + pctNote;
+      compCut = compCut ? compCut + '\n' + gradedNote : gradedNote;
     }
     const maxAge = getAgeMax(carr.id, effTier);
     if(a>maxAge) return{...carr,prem:null,face:null,productName:null,reason:`Maximum age is ${maxAge}`};
