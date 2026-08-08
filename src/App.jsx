@@ -1738,6 +1738,10 @@ const CARRIER_META = {
 // Commission reductions by issue age. Shown as a caution flag on quote rows
 // so agents know a sale at this age pays reduced comp. Fill from the agency
 // comp grid — only entries listed here fire the flag.
+// Carriers whose Standard row shows ALONGSIDE Preferred when the assessment
+// is Preferred — their Preferred class rarely survives real underwriting.
+const DUAL_TIER_CARRIERS = ['ahl', 'acc'];
+
 const COMP_AGE_CUTS = {
   // carrierId: { age: threshold, note: 'shown in tooltip' }
 };
@@ -3070,12 +3074,13 @@ export default function QuoteMark() {
     let list;
     if(mode==='face'){
       list=activeCarriers.map(carr=>buildResult(carr,a,male,dFaceAmt));
-      // AHL: also show Standard next to Preferred (their Preferred rarely
-      // survives underwriting — give agents the realistic quote too).
+      // Dual-row carriers: also show Standard next to Preferred (their
+      // Preferred rarely survives underwriting — show the realistic quote too).
       if(uwTier==='B'){
-        const ahlCarr=activeCarriers.find(c=>c.id==='ahl');
-        if(ahlCarr){
-          const extra=buildResult(ahlCarr,a,male,dFaceAmt,'C');
+        for(const dualId of DUAL_TIER_CARRIERS){
+          const carr=activeCarriers.find(c=>c.id===dualId);
+          if(!carr) continue;
+          const extra=buildResult(carr,a,male,dFaceAmt,'C');
           if(extra.prem!=null&&extra.activeTier==='C') list.push({...extra,_extraTier:'C'});
         }
       }
@@ -3089,14 +3094,14 @@ export default function QuoteMark() {
         return buildResult(carr,a,male,cap?Math.min(solved,cap):solved);
       });
       if(uwTier==='B'){
-        const ahlCarr=activeCarriers.find(c=>c.id==='ahl');
-        if(ahlCarr){
-          const solved=solveForFace(dBudget,a,male,smoker,'C',ahlCarr.fn);
-          if(solved){
-            const cap=AGE_FACE_BANDS[ahlCarr.id]?getFaceCap(ahlCarr.id,a):FACE_CAPS[ahlCarr.id];
-            const extra=buildResult(ahlCarr,a,male,cap?Math.min(solved,cap):solved,'C');
-            if(extra.prem!=null&&extra.activeTier==='C') list.push({...extra,_extraTier:'C'});
-          }
+        for(const dualId of DUAL_TIER_CARRIERS){
+          const carr=activeCarriers.find(c=>c.id===dualId);
+          if(!carr) continue;
+          const solved=solveForFace(dBudget,a,male,smoker,'C',carr.fn);
+          if(!solved) continue;
+          const cap=AGE_FACE_BANDS[carr.id]?getFaceCap(carr.id,a):FACE_CAPS[carr.id];
+          const extra=buildResult(carr,a,male,cap?Math.min(solved,cap):solved,'C');
+          if(extra.prem!=null&&extra.activeTier==='C') list.push({...extra,_extraTier:'C'});
         }
       }
     }
