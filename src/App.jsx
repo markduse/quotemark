@@ -1735,6 +1735,13 @@ const CARRIER_META = {
   transamerica: { img:'',            eapp:'https://www.transamerica.com/financial-professionals/', brand:'#b42318' }, // Transamerica — Red
 };
 
+// Commission reductions by issue age. Shown as a caution flag on quote rows
+// so agents know a sale at this age pays reduced comp. Fill from the agency
+// comp grid — only entries listed here fire the flag.
+const COMP_AGE_CUTS = {
+  // carrierId: { age: threshold, note: 'shown in tooltip' }
+};
+
 function getCompBadge(carrierId, tier) {
   const rates = COMP_RATES[carrierId];
   if(!rates) return null;
@@ -2915,7 +2922,7 @@ export default function QuoteMark() {
   const cats = useMemo(()=>{const m={};filteredConds.forEach(c=>{if(!m[c.cat])m[c.cat]=[];m[c.cat].push(c);});return m;},[filteredConds]);
   const medHints = useMemo(()=>search.length<3?[]:filteredConds.filter(c=>c.meds&&c.meds.toLowerCase().includes(q)&&!c.label.toLowerCase().includes(q)),[search,filteredConds]);
 
-  function buildResult(carr, a, male, face) {
+  function buildResult(carr, a, male, face, forceTier) {
     if(!carr.enabled) return {...carr,prem:null,face:null,productName:null,reason:'Carrier disabled'};
     const maxFace=AGE_FACE_BANDS[carr.id]?getFaceCap(carr.id,a):FACE_CAPS[carr.id],stateRule=STATE_RULES[carr.id];
     // State check: new data-driven check (fexStateOK) + legacy STATE_RULES fallback
@@ -2923,6 +2930,8 @@ export default function QuoteMark() {
       if(carr.stateCheck && !carr.stateCheck(usState)) return{...carr,prem:null,face:null,productName:null,reason:`Not available in ${STATE_NAMES[usState]||usState}`};
       else if(!carr.stateCheck && stateRule?.excludeStates?.includes(usState)) return{...carr,prem:null,face:null,productName:null,reason:`Not licensed in ${STATE_NAMES[usState]||usState}`};
     }
+    // Commission cut at this issue age? (agency comp grid)
+    const compCut = COMP_AGE_CUTS[carr.id] && a >= COMP_AGE_CUTS[carr.id].age ? COMP_AGE_CUTS[carr.id].note : null;
     // ── PER-CARRIER UW RULES (COPD / heart / cancer accuracy engine) ──
     // Each carrier's own guide decides what the selected conditions do HERE:
     // decline, GI-only, or a tier floor — instead of one global tier for all.
@@ -2952,7 +2961,7 @@ export default function QuoteMark() {
     // When the agent picks tier E, prefer this carrier's Modified product if
     // it exists and the client's age fits — only show GI when it's the only
     // option this carrier offers.
-    let effTier = uwTier;
+    let effTier = forceTier || uwTier;
     if (tierFloor && TIER_RANK[tierFloor] > TIER_RANK[effTier]) effTier = tierFloor;
     if (effTier === 'E' && !ruleForcedGI && carr.product.D && a <= getAgeMax(carr.id, 'D')) {
       effTier = 'D';
@@ -3001,9 +3010,9 @@ export default function QuoteMark() {
     if(isCapped){
       // maxFace already checked above — if we got here, carrier accepts this face
       // Show with the nearest available band premium
-      return{...carr,...(subOverride?{sub:subOverride}:{}),face:effFace,prem,productName:pNameEff,activeTier:effTier,capped:true,roundedTo,uwNotes,reason:null};
+      return{...carr,...(subOverride?{sub:subOverride}:{}),face:effFace,prem,productName:pNameEff,activeTier:effTier,capped:true,roundedTo,uwNotes,compCut,reason:null};
     }
-    return{...carr,...(subOverride?{sub:subOverride}:{}),face:prem!=null?effFace:null,prem,productName:pNameEff,activeTier:effTier,roundedTo,uwNotes,reason};
+    return{...carr,...(subOverride?{sub:subOverride}:{}),face:prem!=null?effFace:null,prem,productName:pNameEff,activeTier:effTier,roundedTo,uwNotes,compCut,reason};
   }
 
 
@@ -3048,6 +3057,15 @@ export default function QuoteMark() {
     let list;
     if(mode==='face'){
       list=activeCarriers.map(carr=>buildResult(carr,a,male,dFaceAmt));
+      // AHL: also show Standard next to Preferred (their Preferred rarely
+      // survives underwriting — give agents the realistic quote too).
+      if(uwTier==='B'){
+        const ahlCarr=activeCarriers.find(c=>c.id==='ahl');
+        if(ahlCarr){
+          const extra=buildResult(ahlCarr,a,male,dFaceAmt,'C');
+          if(extra.prem!=null&&extra.activeTier==='C') list.push({...extra,_extraTier:'C'});
+        }
+      }
     } else {
       list=activeCarriers.map(carr=>{
         const solved=solveForFace(dBudget,a,male,smoker,uwTier,carr.fn);
@@ -3057,6 +3075,17 @@ export default function QuoteMark() {
         const cap=AGE_FACE_BANDS[carr.id]?getFaceCap(carr.id,a):FACE_CAPS[carr.id];
         return buildResult(carr,a,male,cap?Math.min(solved,cap):solved);
       });
+      if(uwTier==='B'){
+        const ahlCarr=activeCarriers.find(c=>c.id==='ahl');
+        if(ahlCarr){
+          const solved=solveForFace(dBudget,a,male,smoker,'C',ahlCarr.fn);
+          if(solved){
+            const cap=AGE_FACE_BANDS[ahlCarr.id]?getFaceCap(ahlCarr.id,a):FACE_CAPS[ahlCarr.id];
+            const extra=buildResult(ahlCarr,a,male,cap?Math.min(solved,cap):solved,'C');
+            if(extra.prem!=null&&extra.activeTier==='C') list.push({...extra,_extraTier:'C'});
+          }
+        }
+      }
     }
     return list.sort((a,b)=>{
       if(a.prem==null&&b.prem==null)return 0;
@@ -4363,7 +4392,7 @@ export default function QuoteMark() {
                       // Compact quote row (design 3d): 38px logo tile, name +
                       // product + small tier pill, right-aligned price.
                       return(
-                        <div key={r.id} className="qm-rise" style={{
+                        <div key={r.id+(r._extraTier||'')} className="qm-rise" style={{
                           background:'#fff',border:'1px solid #eae9e6',borderRadius:10,
                           padding:'12px 14px',display:'flex',alignItems:'center',gap:12,
                           opacity:isGhost?0.55:r.capped?0.7:1,
@@ -4373,7 +4402,7 @@ export default function QuoteMark() {
                           <div style={{flex:1,minWidth:0}}>
                             <div style={{fontSize:14.5,fontWeight:600,color:'#191817',whiteSpace:'nowrap',overflow:'hidden',textOverflow:'ellipsis'}}>{r.name}</div>
                             <div style={{fontSize:12,color:'#78746e',marginTop:1,whiteSpace:'nowrap',overflow:'hidden',textOverflow:'ellipsis'}}>{r.sub}{isGhost?'':` · ${fmtF(r.face||0)}`}{r.capped?' · capped':''}</div>
-                            {!isGhost && <div style={{marginTop:4,display:'flex',gap:5,alignItems:'center'}} title={r.uwNotes?r.uwNotes.join('\n'):undefined}><TierBadge tier={r.activeTier} productName={r.productName}/>{r.uwNotes&&<span style={{width:6,height:6,borderRadius:'50%',background:'#4a45d1',flexShrink:0}}/>}</div>}
+                            {!isGhost && <div style={{marginTop:4,display:'flex',gap:5,alignItems:'center'}} title={[...(r.uwNotes||[]),...(r.compCut?[r.compCut]:[])].join('\n')||undefined}><TierBadge tier={r.activeTier} productName={r.productName}/>{(r.uwNotes||r.compCut)&&<span style={{fontSize:12}}>⚠️</span>}</div>}
                             {isGhost && <div style={{fontSize:11.5,color:'#a09c94',fontStyle:'italic',marginTop:2}}>{r.reason}</div>}
                           </div>
                           {!isGhost && (
@@ -5633,8 +5662,8 @@ export default function QuoteMark() {
               <div>
                 {/* ── COLUMN HEADERS (design: dummy-proof labels above the row grid) ── */}
                 {!gsbOn&&(
-                  <div style={{display:'grid',gridTemplateColumns:'42px 1fr 104px 150px 96px',gap:16,padding:'2px 21px 8px',fontSize:10.5,fontWeight:600,color:'#a09c94',letterSpacing:'0.08em'}}>
-                    <span>CARRIER</span><span>PRODUCT · COVERAGE</span><span>UW TIER</span><span style={{textAlign:'right'}}>MONTHLY PREMIUM</span><span></span>
+                  <div style={{display:'grid',gridTemplateColumns:'42px 1fr 104px 28px 150px 96px',gap:16,padding:'2px 21px 8px',fontSize:10.5,fontWeight:600,color:'#a09c94',letterSpacing:'0.08em'}}>
+                    <span>CARRIER</span><span>PRODUCT · COVERAGE</span><span>UW TIER</span><span></span><span style={{textAlign:'right'}}>MONTHLY PREMIUM</span><span></span>
                   </div>
                 )}
                 {/* ── QUOTE CARDS — active ── */}
@@ -5727,8 +5756,8 @@ export default function QuoteMark() {
                     // each row its own white card, .qm-row hover (tint+shift).
                     const covNote = r.capped ? ' · capped' : (!r.capped&&r.roundedTo&&mode==='budget') ? ` · $${r.roundedTo>=1000?r.roundedTo/1000+'k':r.roundedTo} increments` : '';
                     return(
-                      <div key={r.id} className="qm-row" style={{
-                          display:'grid',gridTemplateColumns:'42px 1fr 104px 150px 96px',
+                      <div key={r.id+(r._extraTier||'')} className="qm-row" style={{
+                          display:'grid',gridTemplateColumns:'42px 1fr 104px 28px 150px 96px',
                           alignItems:'center',gap:16,padding:'12px 20px',
                           background:'#fff',border:'1px solid #eae9e6',borderRadius:10,
                           opacity:r.capped?0.65:1,cursor:'pointer'
@@ -5743,6 +5772,11 @@ export default function QuoteMark() {
                         <div title={r.uwNotes?r.uwNotes.join('\n'):undefined} style={{display:'flex',alignItems:'center',gap:5}}>
                           <TierBadge tier={r.activeTier} productName={r.productName}/>
                           {r.uwNotes&&<span style={{width:6,height:6,borderRadius:'50%',background:'#4a45d1',flexShrink:0}} title={r.uwNotes.join('\n')}/>}
+                        </div>
+                        <div style={{textAlign:'center'}}>
+                          {(r.uwNotes||r.compCut)&&(
+                            <span title={[...(r.uwNotes||[]),...(r.compCut?[r.compCut]:[])].join('\n')} style={{fontSize:14,cursor:'help'}}>⚠️</span>
+                          )}
                         </div>
                         <div style={{display:'flex',flexDirection:'column',alignItems:'flex-end',gap:1}}>
                           <span style={{fontSize:19,fontWeight:650,color:'#191817',letterSpacing:'-0.01em',lineHeight:1.25}}>{fmt$(r.prem)}<span style={{fontSize:12,fontWeight:400,color:'#a09c94'}}> /mo</span></span>

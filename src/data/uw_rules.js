@@ -334,6 +334,97 @@ export const FEX_UW = {
     basal_cell:    'ok',
     chemo_active:  'X',
   },
+
+  // ── Transamerica — FE EXPRESS Solution (Premier → Select → Graded → Decline) ──
+  // From the Express Solution Agent Guide (docs/uw-extractions/extract_ta_express.md).
+  // Notably liberal: CHF/cardiomyopathy EVER = Select; O2 >1 yr = Premier.
+  ta_exp: {
+    copd_no_o2:    {o:'C',  note:'COPD/emphysema/bronchitis ever → Select'},
+    copd_o2:       {o:'D',  note:'Oxygen <1 yr → Graded; >1 yr → Premier'},
+    home_o2_24hr:  {o:'D',  note:'Oxygen <1 yr → Graded; >1 yr → Premier (tobacco + O2 = decline)'},
+    mi_1yr:        {o:'C',  note:'Heart attack <1 yr → Select'},
+    mi_1to2:       'ok',
+    mi_2to3:       'ok',
+    mi_3plus:      'ok',
+    stent_1yr:     {o:'C',  note:'Stent/bypass <1 yr → Select'},
+    stent_1to2:    'ok',
+    stent_2plus:   'ok',
+    angina_1yr:    {o:'ok', note:'Angina → Premier'},
+    angina_1to2:   'ok',
+    angina_2plus:  'ok',
+    cad:           {o:'ok', note:'CAD → Premier'},
+    chf:           {o:'C',  note:'CHF ever → Select — best CHF placement on the shelf'},
+    cardiomyo_new: {o:'C',  note:'Cardiomyopathy ever → Select'},
+    cardiomyo_old: 'C',
+    afib_ctrl:     {o:'ok', note:'AFib → Premier'},
+    pacemaker_new: {o:'C',  note:'Pacemaker <1 yr → Select (defibrillator/ICD = decline)'},
+    pacemaker_old: 'ok',
+    stroke_1yr:    {o:'C',  note:'Stroke/TIA <5 yrs → Select; 5+ → Premier'},
+    stroke_1to2:   'C',
+    stroke_2to3:   'C',
+    stroke_3plus:  {o:'C',  note:'Stroke/TIA <5 yrs → Select; 5+ yrs → Premier'},
+    cancer_lt2:    {o:'X',  note:'Cancer <2 yrs since last treatment → decline'},
+    cancer_2to3:   {o:'D',  note:'Cancer 2–4 yrs → Graded/Select by type (breast/testicular Select; bladder/kidney/colorectal Graded)'},
+    cancer_3to4:   'D',
+    cancer_4to5:   {o:'C',  note:'Cancer 4+ yrs → Select/Premier by type'},
+    cancer_5plus:  {o:'C',  note:'Type-based: breast/prostate/melanoma 5+ → Premier; other → Select'},
+    melanoma_lt2:  {o:'X',  note:'Melanoma <2 yrs → decline'},
+    melanoma_2to4: {o:'C',  note:'Melanoma 2–5 yrs → Select; 5+ → Premier'},
+    basal_cell:    'ok',
+    chemo_active:  'X',
+  },
+
+  // ── Baltimore Life — iProvide/Silver Guard (from dusefg.com/uw curated data) ──
+  bl_sg: {
+    copd_no_o2:    {o:'D',  note:'COPD → graded-tier placement (dusefg.com/uw)'},
+    copd_o2:       'X',
+    home_o2_24hr:  'X',
+    chf:           'X',
+    chemo_active:  'X',
+    cancer_lt2:    'X',
+  },
+
+  // ── Liberty Bankers — SIMPL (from dusefg.com/uw curated data) ──
+  lb: {
+    copd_o2:       'X',
+    home_o2_24hr:  'X',
+    chf:           'X',
+    chemo_active:  'X',
+    cancer_lt2:    'X',
+  },
+
+  // ── New Bridge — FE (Level/Modified only; underwritten by Continental General) ──
+  // Unusually liberal: COPD ever = Standard; not available CA/FL/NY/SC.
+  newbridge: {
+    copd_no_o2:    {o:'C',  note:'COPD ever → Standard'},
+    copd_o2:       {o:'X',  note:'Current oxygen use → decline'},
+    home_o2_24hr:  'X',
+    mi_1yr:        {o:'D',  note:'Heart event <2 yrs → Modified'},
+    mi_1to2:       'D',
+    mi_2to3:       {o:'C',  note:'2–5 yrs → Standard; 5+ → Preferred'},
+    mi_3plus:      'C',
+    stent_1yr:     'D',
+    stent_1to2:    'D',
+    stent_2plus:   'C',
+    chf:           {o:'X',  note:'CHF ever → decline'},
+    cardiomyo_new: 'X',
+    cardiomyo_old: 'X',
+    pacemaker_new: {o:'D',  note:'Pacemaker <2 yrs → Modified (defibrillator ever = decline)'},
+    pacemaker_old: 'C',
+    stroke_1yr:    'D',
+    stroke_1to2:   'D',
+    stroke_2to3:   'C',
+    stroke_3plus:  'C',
+    cancer_lt2:    {o:'X',  note:'Cancer <2 yrs → decline'},
+    cancer_2to3:   {o:'C',  note:'Clean >2 yrs → Standard (melanoma treated as full cancer)'},
+    cancer_3to4:   'C',
+    cancer_4to5:   'C',
+    cancer_5plus:  'C',
+    melanoma_lt2:  'X',
+    melanoma_2to4: 'C',
+    basal_cell:    'ok',
+    chemo_active:  'X',
+  },
 };
 
 // ── SIMPLIFIED-ISSUE TERM + IUL PRODUCT DECLINES ──
