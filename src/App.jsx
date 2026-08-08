@@ -2376,6 +2376,29 @@ const TabIcon = ({name, size=13}) => {
   );
 };
 
+// Amber caution flag with hover/tap explainer card. `notes` = list of
+// reasons (UW-rule notes, comp cuts, waiting periods) shown stacked.
+const Caution = ({notes, size, align}) => {
+  const [open,setOpen] = React.useState(false);
+  const lines = (notes||[]).filter(Boolean);
+  if(!lines.length) return null;
+  const side = align==='left' ? {left:-6} : {right:-6};
+  return (
+    <span style={{position:'relative',display:'inline-flex'}}
+      onMouseEnter={()=>setOpen(true)} onMouseLeave={()=>setOpen(false)}>
+      <button type="button" aria-label="Why the caution?"
+        onClick={(e)=>{e.stopPropagation();setOpen(o=>!o);}} onBlur={()=>setOpen(false)}
+        style={{all:'unset',cursor:'help',fontSize:size||14,lineHeight:1}}>⚠️</button>
+      {open&&(
+        <span style={{position:'absolute',bottom:'calc(100% + 6px)',...side,background:'#fff',border:'1px solid #eae9e6',borderLeft:'3px solid #96660f',color:'#78746e',fontSize:11,borderRadius:8,padding:'8px 11px',width:230,lineHeight:1.5,zIndex:9999,pointerEvents:'none',boxShadow:'0 4px 16px rgba(25,24,23,0.12)',textAlign:'left',whiteSpace:'normal'}}>
+          <span style={{display:'block',fontWeight:650,fontSize:9.5,letterSpacing:'0.07em',textTransform:'uppercase',color:'#96660f',marginBottom:4}}>Why the caution</span>
+          {lines.map((l,i)=>(<span key={i} style={{display:'block',marginTop:i?4:0,color:'#191817'}}>{l}</span>))}
+        </span>
+      )}
+    </span>
+  );
+};
+
 const TierBadge = ({tier, productName}) => {
   const [hov,setHov] = React.useState(false);
   const type = badgeType(tier, productName);
@@ -4458,7 +4481,7 @@ export default function QuoteMark() {
                           <div style={{flex:1,minWidth:0}}>
                             <div style={{fontSize:14.5,fontWeight:600,color:'#191817',whiteSpace:'nowrap',overflow:'hidden',textOverflow:'ellipsis'}}>{r.name}</div>
                             <div style={{fontSize:12,color:'#78746e',marginTop:1,whiteSpace:'nowrap',overflow:'hidden',textOverflow:'ellipsis'}}>{r.sub}{isGhost?'':` · ${fmtF(r.face||0)}`}{r.capped?' · capped':''}</div>
-                            {!isGhost && <div style={{marginTop:4,display:'flex',gap:5,alignItems:'center'}} title={[...(r.uwNotes||[]),...(r.compCut?[r.compCut]:[])].join('\n')||undefined}><TierBadge tier={r.activeTier} productName={r.productName}/>{(r.uwNotes||r.compCut)&&<span style={{fontSize:12}}>⚠️</span>}</div>}
+                            {!isGhost && <div style={{marginTop:4,display:'flex',gap:5,alignItems:'center'}}><TierBadge tier={r.activeTier} productName={r.productName}/>{(r.uwNotes||r.compCut)&&<Caution notes={[...(r.uwNotes||[]),...(r.compCut?r.compCut.split('\n'):[])]} size={12} align="left"/>}</div>}
                             {isGhost && <div style={{fontSize:11.5,color:'#a09c94',fontStyle:'italic',marginTop:2}}>{r.reason}</div>}
                           </div>
                           {!isGhost && (
@@ -5831,7 +5854,7 @@ export default function QuoteMark() {
                         </div>
                         <div style={{textAlign:'center'}}>
                           {(r.uwNotes||r.compCut)&&(
-                            <span title={[...(r.uwNotes||[]),...(r.compCut?[r.compCut]:[])].join('\n')} style={{fontSize:14,cursor:'help'}}>⚠️</span>
+                            <Caution notes={[...(r.uwNotes||[]),...(r.compCut?r.compCut.split('\n'):[])]} size={14}/>
                           )}
                         </div>
                         <div style={{display:'flex',flexDirection:'column',alignItems:'flex-end',gap:1}}>
