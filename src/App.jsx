@@ -46,6 +46,7 @@ const AGE_FACE_BANDS = {
   cont:[{aMin:45,aMax:55,max:50000},{aMin:56,aMax:65,max:40000},{aMin:66,aMax:75,max:35000},{aMin:76,aMax:89,max:25000}],
   acc:[{aMin:45,aMax:55,max:50000},{aMin:56,aMax:65,max:40000},{aMin:66,aMax:75,max:35000},{aMin:76,aMax:89,max:25000}],
   ahl:[{aMin:50,aMax:75,max:40000},{aMin:76,aMax:85,max:25000}],
+  newbridge:[{aMin:50,aMax:74,max:35000},{aMin:75,aMax:85,max:20000}],
   for:[{aMin:50,aMax:80,max:35000},{aMin:81,aMax:85,max:15000}],
   lb:[{aMin:18,aMax:80,max:40000}],
   ls:[{aMin:50,aMax:85,max:30000}],
@@ -1448,6 +1449,23 @@ const CARRIERS = [
      if(tier==='D') return factorCalc('ahl','modified',age,male,smoker,face);
      return null;
    }},
+  {id:'newbridge', name:'New Bridge', sub:'Final Expense WL', abbr:'NB', enabled:true,
+   product:{B:'Preferred',C:'Standard',D:'Modified',E:null},
+   stateCheck:(s)=>(fexStateOK('NewBridge (Final Expense)',s)),
+   fn:(age,male,smoker,tier,face)=>{
+     // Per-tier face caps (official product guide p4): Level 50-74 $35k, 75+
+     // $20k Preferred / $15k Standard; Modified 50-74 $20k, 75-80 $10k.
+     // Tobacco issue stops (Level 80 / Modified 75) live in the rate table.
+     const cap = tier==='D' ? (age>=75?10000:20000) : age>=75 ? (tier==='B'?20000:15000) : 35000;
+     const f = Math.min(face, cap);
+     if(tier==='B'){
+       if(smoker){ const r=factorCalc('newbridge','standard',age,male,smoker,f); return r?{...r,productName:'Standard'}:null; }
+       return factorCalc('newbridge','preferred',age,male,smoker,f);
+     }
+     if(tier==='C') return factorCalc('newbridge','standard',age,male,smoker,f);
+     if(tier==='D') return factorCalc('newbridge','modified',age,male,smoker,f);
+     return null;
+   }},
   {id:'cont', name:'Aetna / Continental', sub:'Protection Series FE', abbr:'CL', enabled:true,
    product:{B:'Preferred',C:null,D:null,E:null},
    stateCheck:(s)=>(fexStateOK('Aetna (Protection Series)',s)),
@@ -1742,8 +1760,24 @@ const CARRIER_META = {
 // is Preferred — their Preferred class rarely survives real underwriting.
 const DUAL_TIER_CARRIERS = ['ahl', 'acc'];
 
+// Age-based commission cuts, pulled from ITK quoter comp warnings 8/8/2026.
+// Bands: applicable when issue age >= age. `tier:'D'` = that tier only;
+// no tier = level tiers (B/C). Last applicable band wins (order ascending).
 const COMP_AGE_CUTS = {
-  // carrierId: { age: threshold, note: 'shown in tooltip' }
+  moo:  [{age:76, note:'Comp cut up to 10% ages 76\u201380 (ITK)'},
+         {age:81, note:'Comp cut up to 40% ages 81\u201385 (ITK)'}],
+  rn:   [{age:76, note:'Comp cut up to 15% ages 76\u201380 (ITK)'},
+         {age:81, note:'Comp cut up to 35% ages 81\u201385 (ITK)'}],
+  for:  [{age:50, tier:'D', note:'PlanRight Basic: comp cut up to 57.5% (ITK)'},
+         {age:81, note:'Comp cut up to 30% ages 81\u201385 (ITK)'}],
+  amr:  [{age:81, note:'Comp cut up to 10% ages 81\u201385; Eagle Select pays little/no renewal comp (ITK)'}],
+  amam: [{age:50, tier:'D', note:'Senior Choice ROP: comp cut up to 15% (ITK)'},
+         {age:80, note:'Comp cut up to 35% ages 80\u201385 (ITK)'}],
+  amam_gs: [{age:81, note:'Comp cut up to 27.5% ages 81\u201385 (ITK)'}],
+  occ_gs:  [{age:81, note:'Comp cut up to 27.5% ages 81\u201385 (ITK)'}],
+  ahl:  [{age:40, tier:'D', note:'Patriot Modified: comp cut up to 10% (ITK)'}],
+  lb:   [{age:18, note:'SIMPL Standard: comp cut up to 5% (ITK)'},
+         {age:40, tier:'D', note:'SIMPL Modified: comp cut up to 30% (ITK)'}],
 };
 
 function getCompBadge(carrierId, tier) {
@@ -2934,8 +2968,7 @@ export default function QuoteMark() {
       if(carr.stateCheck && !carr.stateCheck(usState)) return{...carr,prem:null,face:null,productName:null,reason:`Not available in ${STATE_NAMES[usState]||usState}`};
       else if(!carr.stateCheck && stateRule?.excludeStates?.includes(usState)) return{...carr,prem:null,face:null,productName:null,reason:`Not licensed in ${STATE_NAMES[usState]||usState}`};
     }
-    // Commission cut at this issue age? (agency comp grid)
-    let compCut = COMP_AGE_CUTS[carr.id] && a >= COMP_AGE_CUTS[carr.id].age ? COMP_AGE_CUTS[carr.id].note : null;
+    let compCut = null; // evaluated below once effTier is final
     // ── PER-CARRIER UW RULES (COPD / heart / cancer accuracy engine) ──
     // Each carrier's own guide decides what the selected conditions do HERE:
     // decline, GI-only, or a tier floor — instead of one global tier for all.
@@ -2969,6 +3002,11 @@ export default function QuoteMark() {
     if (tierFloor && TIER_RANK[tierFloor] > TIER_RANK[effTier]) effTier = tierFloor;
     if (effTier === 'E' && !ruleForcedGI && carr.product.D && a <= getAgeMax(carr.id, 'D')) {
       effTier = 'D';
+    }
+    // Commission cut at this issue age/tier? (ITK comp warnings)
+    for (const b of (COMP_AGE_CUTS[carr.id] || [])) {
+      const tierOK = b.tier ? effTier === b.tier : (effTier === 'B' || effTier === 'C');
+      if (tierOK && a >= b.age) compCut = b.note;
     }
     // Graded/Modified/GI plans: waiting-period benefit AND commission is
     // typically cut on these tiers — flag it so agents see it before selling.
