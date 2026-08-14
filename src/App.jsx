@@ -589,6 +589,150 @@ const CONDITIONS = [
   {id:'terminal',      label:'Terminal illness - life expectancy under 2 years',       tier:'E', cat:'Knockout',         meds:'terminal illness prognosis palliative hospice'},
   {id:'felony',        label:'Felony - currently incarcerated, on probation/parole, or awaiting trial', tier:'E', cat:'Knockout', meds:'felony probation parole incarceration jail prison awaiting trial conviction outstanding fines restitution'},
 ]
+
+// ── MEDICATION CATALOG ──────────────────────────────────────────────
+// Curated: agents type a few letters ("gab"), we guess the medication
+// ("Gabapentin"), THEN they pick which condition it's actually for.
+// `conds` = condition ids the med is commonly prescribed for, most-likely first.
+const MEDICATIONS = [
+  // Heart & blood pressure
+  {name:'Lisinopril', aka:'Zestril Prinivil', conds:['htn','chf']},
+  {name:'Amlodipine', aka:'Norvasc', conds:['htn']},
+  {name:'Losartan', aka:'Cozaar', conds:['htn']},
+  {name:'Valsartan', aka:'Diovan', conds:['htn','chf']},
+  {name:'Metoprolol', aka:'Lopressor Toprol', conds:['htn','afib_ctrl','cad','chf']},
+  {name:'Carvedilol', aka:'Coreg', conds:['chf','htn','cad']},
+  {name:'Atenolol', aka:'Tenormin', conds:['htn','afib_ctrl']},
+  {name:'Hydrochlorothiazide', aka:'HCTZ Microzide', conds:['htn']},
+  {name:'Furosemide', aka:'Lasix', conds:['chf','htn','kidney_disease']},
+  {name:'Spironolactone', aka:'Aldactone', conds:['chf','htn','cirrhosis']},
+  {name:'Hydralazine', aka:'', conds:['htn','chf']},
+  {name:'Clonidine', aka:'Catapres', conds:['htn']},
+  {name:'Diltiazem', aka:'Cardizem', conds:['htn','afib_ctrl']},
+  {name:'Atorvastatin', aka:'Lipitor', conds:['hcl']},
+  {name:'Simvastatin', aka:'Zocor', conds:['hcl']},
+  {name:'Rosuvastatin', aka:'Crestor', conds:['hcl']},
+  {name:'Pravastatin', aka:'Pravachol', conds:['hcl']},
+  {name:'Clopidogrel', aka:'Plavix', conds:['stent_2plus','mi_3plus','stroke_3plus','cad','pad_old']},
+  {name:'Ticagrelor', aka:'Brilinta', conds:['mi_1to2','stent_1to2','mi_1yr','stent_1yr','cad']},
+  {name:'Apixaban', aka:'Eliquis', conds:['afib_ctrl','stroke_3plus']},
+  {name:'Rivaroxaban', aka:'Xarelto', conds:['afib_ctrl','stroke_3plus']},
+  {name:'Warfarin', aka:'Coumadin Jantoven', conds:['afib_ctrl','stroke_3plus']},
+  {name:'Amiodarone', aka:'Pacerone', conds:['afib_ctrl']},
+  {name:'Digoxin', aka:'Lanoxin', conds:['chf','afib_ctrl']},
+  {name:'Sacubitril-Valsartan', aka:'Entresto', conds:['chf']},
+  {name:'Nitroglycerin', aka:'Nitrostat Nitro', conds:['angina_2plus','angina_1yr','cad']},
+  {name:'Isosorbide', aka:'Imdur', conds:['angina_2plus','cad']},
+  {name:'Ranolazine', aka:'Ranexa', conds:['angina_2plus','cad']},
+  {name:'Cilostazol', aka:'Pletal', conds:['pad_old']},
+  // Diabetes
+  {name:'Metformin', aka:'Glucophage', conds:['diabetes_oral']},
+  {name:'Glipizide', aka:'Glucotrol', conds:['diabetes_oral']},
+  {name:'Glimepiride', aka:'Amaryl', conds:['diabetes_oral']},
+  {name:'Glyburide', aka:'', conds:['diabetes_oral']},
+  {name:'Sitagliptin', aka:'Januvia', conds:['diabetes_oral']},
+  {name:'Empagliflozin', aka:'Jardiance', conds:['diabetes_oral','chf']},
+  {name:'Dapagliflozin', aka:'Farxiga', conds:['diabetes_oral','chf','kidney_disease']},
+  {name:'Semaglutide', aka:'Ozempic Rybelsus Wegovy', conds:['diabetes_oral','obesity']},
+  {name:'Dulaglutide', aka:'Trulicity', conds:['diabetes_oral']},
+  {name:'Liraglutide', aka:'Victoza Saxenda', conds:['diabetes_oral','obesity']},
+  {name:'Pioglitazone', aka:'Actos', conds:['diabetes_oral']},
+  {name:'Insulin', aka:'Lantus Humalog Novolog Levemir Tresiba Basaglar Toujeo', conds:['diabetes_ins','diabetes_comp']},
+  // Respiratory
+  {name:'Albuterol', aka:'ProAir Ventolin Proventil', conds:['asthma_b','copd_no_o2']},
+  {name:'Fluticasone-Umeclidinium-Vilanterol', aka:'Trelegy', conds:['copd_no_o2']},
+  {name:'Fluticasone-Vilanterol', aka:'Breo Ellipta', conds:['copd_no_o2','asthma_mod']},
+  {name:'Budesonide-Formoterol', aka:'Symbicort', conds:['copd_no_o2','asthma_mod']},
+  {name:'Fluticasone-Salmeterol', aka:'Advair', conds:['asthma_mod','copd_no_o2']},
+  {name:'Tiotropium', aka:'Spiriva', conds:['copd_no_o2']},
+  {name:'Umeclidinium', aka:'Anoro Incruse', conds:['copd_no_o2']},
+  {name:'Montelukast', aka:'Singulair', conds:['asthma_b']},
+  {name:'Prednisone', aka:'Deltasone', conds:['copd_no_o2','asthma_mod','rheum_arth','lupus','crohn','sarcoidosis']},
+  {name:'Oxygen therapy', aka:'home oxygen O2', conds:['copd_o2','home_o2_24hr']},
+  // Neuro & pain
+  {name:'Gabapentin', aka:'Neurontin Gralise', conds:['neuropathy','diabetes_comp','seizures_rare','restless_leg','chronic_pain']},
+  {name:'Pregabalin', aka:'Lyrica', conds:['neuropathy','diabetes_comp','chronic_pain']},
+  {name:'Levetiracetam', aka:'Keppra', conds:['seizures_rare']},
+  {name:'Phenytoin', aka:'Dilantin', conds:['seizures_rare']},
+  {name:'Phenobarbital', aka:'', conds:['seizures_rare']},
+  {name:'Lamotrigine', aka:'Lamictal', conds:['seizures_rare','bipolar']},
+  {name:'Divalproex', aka:'Depakote valproate', conds:['seizures_rare','bipolar']},
+  {name:'Carbamazepine', aka:'Tegretol', conds:['seizures_rare','bipolar','neuropathy']},
+  {name:'Carbidopa-Levodopa', aka:'Sinemet', conds:['parkinsons','restless_leg']},
+  {name:'Ropinirole', aka:'Requip', conds:['restless_leg','parkinsons']},
+  {name:'Pramipexole', aka:'Mirapex', conds:['restless_leg','parkinsons']},
+  {name:'Donepezil', aka:'Aricept', conds:['alzheimers']},
+  {name:'Memantine', aka:'Namenda', conds:['alzheimers']},
+  {name:'Rivastigmine', aka:'Exelon', conds:['alzheimers','parkinsons']},
+  {name:'Glatiramer', aka:'Copaxone', conds:['ms']},
+  {name:'Dimethyl fumarate', aka:'Tecfidera', conds:['ms']},
+  {name:'Ocrelizumab', aka:'Ocrevus', conds:['ms']},
+  {name:'Riluzole', aka:'Rilutek', conds:['als']},
+  {name:'Tramadol', aka:'Ultram', conds:['chronic_pain','arthritis','neuropathy']},
+  {name:'Oxycodone', aka:'Percocet OxyContin Roxicodone', conds:['chronic_pain']},
+  {name:'Hydrocodone', aka:'Norco Vicodin Lortab', conds:['chronic_pain']},
+  {name:'Morphine', aka:'MS Contin', conds:['chronic_pain','hospice']},
+  {name:'Fentanyl patch', aka:'Duragesic', conds:['chronic_pain','hospice']},
+  {name:'Duloxetine', aka:'Cymbalta', conds:['anxiety','neuropathy','diabetes_comp','chronic_pain']},
+  {name:'Amitriptyline', aka:'Elavil', conds:['anxiety','neuropathy','chronic_pain']},
+  {name:'Meloxicam', aka:'Mobic', conds:['arthritis','chronic_pain']},
+  {name:'Celecoxib', aka:'Celebrex', conds:['arthritis']},
+  // Mental health
+  {name:'Sertraline', aka:'Zoloft', conds:['anxiety','ptsd']},
+  {name:'Fluoxetine', aka:'Prozac', conds:['anxiety']},
+  {name:'Escitalopram', aka:'Lexapro', conds:['anxiety']},
+  {name:'Citalopram', aka:'Celexa', conds:['anxiety']},
+  {name:'Paroxetine', aka:'Paxil', conds:['anxiety','ptsd']},
+  {name:'Trazodone', aka:'Desyrel', conds:['anxiety']},
+  {name:'Bupropion', aka:'Wellbutrin Zyban', conds:['anxiety']},
+  {name:'Venlafaxine', aka:'Effexor', conds:['anxiety','ptsd']},
+  {name:'Mirtazapine', aka:'Remeron', conds:['anxiety']},
+  {name:'Prazosin', aka:'Minipress', conds:['ptsd','htn']},
+  {name:'Lithium', aka:'Lithobid', conds:['bipolar']},
+  {name:'Quetiapine', aka:'Seroquel', conds:['bipolar','schizophrenia','anxiety','alzheimers']},
+  {name:'Olanzapine', aka:'Zyprexa', conds:['bipolar','schizophrenia']},
+  {name:'Risperidone', aka:'Risperdal', conds:['schizophrenia','bipolar']},
+  {name:'Aripiprazole', aka:'Abilify', conds:['bipolar','schizophrenia','anxiety']},
+  {name:'Buspirone', aka:'Buspar', conds:['anxiety']},
+  {name:'Alprazolam', aka:'Xanax', conds:['anxiety']},
+  {name:'Lorazepam', aka:'Ativan', conds:['anxiety','seizures_rare']},
+  {name:'Clonazepam', aka:'Klonopin', conds:['anxiety','seizures_rare','restless_leg']},
+  // Substance / addiction
+  {name:'Buprenorphine', aka:'Suboxone Subutex', conds:['alcohol_2yr','alcohol_2plus','chronic_pain']},
+  {name:'Methadone', aka:'', conds:['alcohol_2yr','alcohol_2plus','chronic_pain']},
+  {name:'Naltrexone', aka:'Vivitrol Revia', conds:['alcohol_2yr','alcohol_2plus']},
+  {name:'Disulfiram', aka:'Antabuse', conds:['alcohol_2yr','alcohol_2plus']},
+  {name:'Acamprosate', aka:'Campral', conds:['alcohol_2plus','alcohol_2yr']},
+  // Kidney & liver
+  {name:'Sevelamer', aka:'Renvela', conds:['dialysis','kidney_disease']},
+  {name:'Epoetin', aka:'Epogen Procrit', conds:['kidney_disease','dialysis']},
+  {name:'Sofosbuvir-Velpatasvir', aka:'Epclusa', conds:['hep_c_active','hep_c_curr']},
+  {name:'Ledipasvir-Sofosbuvir', aka:'Harvoni', conds:['hep_c_active','hep_c_curr']},
+  {name:'Lactulose', aka:'', conds:['cirrhosis']},
+  {name:'Rifaximin', aka:'Xifaxan', conds:['cirrhosis','crohn']},
+  // Cancer & hormone therapy
+  {name:'Tamoxifen', aka:'Nolvadex', conds:['cancer_lt2','cancer_2to3','cancer_3to4','cancer_4to5','cancer_5plus']},
+  {name:'Anastrozole', aka:'Arimidex', conds:['cancer_lt2','cancer_2to3','cancer_3to4','cancer_4to5','cancer_5plus']},
+  {name:'Letrozole', aka:'Femara', conds:['cancer_lt2','cancer_2to3','cancer_3to4','cancer_4to5','cancer_5plus']},
+  {name:'Pembrolizumab', aka:'Keytruda', conds:['chemo_active','cancer_lt2']},
+  {name:'Palbociclib', aka:'Ibrance', conds:['chemo_active','cancer_lt2']},
+  {name:'Hydroxyurea', aka:'Hydrea', conds:['sickle_cell']},
+  // Thyroid, GI, autoimmune, misc
+  {name:'Levothyroxine', aka:'Synthroid Levoxyl Unithroid', conds:['thyroid']},
+  {name:'Methimazole', aka:'Tapazole', conds:['thyroid']},
+  {name:'Allopurinol', aka:'Zyloprim', conds:['arthritis']},
+  {name:'Colchicine', aka:'Colcrys', conds:['arthritis']},
+  {name:'Methotrexate', aka:'Trexall', conds:['rheum_arth','lupus','crohn']},
+  {name:'Adalimumab', aka:'Humira', conds:['rheum_arth','crohn']},
+  {name:'Etanercept', aka:'Enbrel', conds:['rheum_arth']},
+  {name:'Hydroxychloroquine', aka:'Plaquenil', conds:['lupus','rheum_arth']},
+  {name:'Omeprazole', aka:'Prilosec', conds:['gerd']},
+  {name:'Pantoprazole', aka:'Protonix', conds:['gerd']},
+  {name:'Famotidine', aka:'Pepcid', conds:['gerd']},
+  {name:'Mesalamine', aka:'Lialda Asacol', conds:['crohn']},
+  {name:'Pancrelipase', aka:'Creon', conds:['pancreatitis']},
+  {name:'Bictegravir combo', aka:'Biktarvy Truvada Descovy', conds:['aids_hiv']},
+];
 // `dot` stays a hex literal (it feeds string-concat alpha suffixes like dot+'CC'
 // and non-text dot backgrounds); `txt` is the theme-aware CSS var for TEXT so
 // tier-colored labels stay ≥4.5:1 in light mode too.
@@ -2982,6 +3126,62 @@ export default function QuoteMark() {
   },[q]);
   const cats = useMemo(()=>{const m={};filteredConds.forEach(c=>{if(!m[c.cat])m[c.cat]=[];m[c.cat].push(c);});return m;},[filteredConds]);
   const medHints = useMemo(()=>search.length<3?[]:filteredConds.filter(c=>c.meds&&c.meds.toLowerCase().includes(q)&&!c.label.toLowerCase().includes(q)),[search,filteredConds]);
+  // ── Medication guessing: type "gab" → suggest "Gabapentin" → agent picks
+  // WHICH of its conditions applies. medPick = the med awaiting a pick.
+  const [medPick, setMedPickRaw] = React.useState(null);
+  const setMedPick = (m)=>{ setMedPickRaw(m); if(m) setSearch(m.name); };
+  const medMatches = React.useMemo(()=>{
+    if(q.length<2 || medPick) return [];
+    const starts=[], words=[];
+    for(const m of MEDICATIONS){
+      const name=m.name.toLowerCase(), aka=(m.aka||'').toLowerCase();
+      if(name.startsWith(q)) starts.push(m);
+      else if(name.split(/[\s-]+/).some(w=>w.startsWith(q)) || aka.split(/\s+/).some(w=>w.startsWith(q))) words.push(m);
+    }
+    return [...starts, ...words].slice(0,3);
+  },[q, medPick]);
+  // Suggestion rows: hide conditions that matched ONLY via med keywords when
+  // the med flow is offering the same info more clearly.
+  const condSuggests = React.useMemo(
+    ()=> medMatches.length ? filteredConds.filter(c=>c._score!==3) : filteredConds,
+    [filteredConds, medMatches]);
+  const pickMedCond = (id)=>{ toggleCond(id); setMedPickRaw(null); setSearch(''); };
+  const searchKeyDown = (e)=>{
+    if(e.key!=='Tab' && e.key!=='Enter') return;
+    if(medPick) return; // agent must click a condition
+    if(medMatches.length){ e.preventDefault(); setMedPick(medMatches[0]); return; }
+    if(e.key==='Enter' && q.length>=2 && condSuggests.length){ e.preventDefault(); toggleCond(condSuggests[0].id); setSearch(''); }
+  };
+  const searchChange = (e)=>{ setSearch(e.target.value); setMedPickRaw(null); };
+  // Shared renderer for the med-guess UI (both steps), sized 'lg' or 'sm'.
+  const renderMedGuess = (sz) => {
+    const big = sz !== 'sm';
+    if (medPick) return (
+      <div style={{background:C.goldBg,border:`1px solid ${C.goldBd}`,borderRadius:big?10:8,padding:big?'10px 12px':'8px 10px',marginBottom:big?10:8}}>
+        <div style={{display:'flex',justifyContent:'space-between',alignItems:'center',marginBottom:6,gap:8}}>
+          <span style={{fontSize:big?12.5:11.5,color:C.gold,fontWeight:700}}>💊 {medPick.name}{medPick.aka?` (${medPick.aka.split(' ')[0]})`:''} — what's it prescribed for?</span>
+          <span onClick={()=>{setMedPickRaw(null);setSearch('');}} style={{fontSize:big?12:11,color:C.t4,cursor:'pointer',fontWeight:700,padding:'0 2px'}}>✕</span>
+        </div>
+        <div style={{display:'flex',flexWrap:'wrap',gap:5}}>
+          {medPick.conds.map(id=>{const c=CONDITIONS.find(x=>x.id===id);if(!c)return null;const ti=TIER_INFO[c.tier];const on=selected.includes(id);return(
+            <span key={id} onClick={()=>pickMedCond(id)} style={{background:ti.pill,border:`1px solid ${ti.bd}`,color:ti.dot,borderRadius:6,padding:big?'4px 10px':'3px 8px',cursor:'pointer',fontWeight:600,fontSize:big?12:11,opacity:on?0.55:1}}>{on?'✓':'+'} {c.label.replace('⚠ ','')}</span>
+          );})}
+        </div>
+      </div>
+    );
+    if (!medMatches.length) return null;
+    return (
+      <div style={{marginBottom:big?8:6}}>
+        {medMatches.map((m,i)=>(
+          <div key={m.name} onClick={()=>setMedPick(m)} style={{display:'flex',alignItems:'center',gap:big?10:8,padding:big?'10px 12px':'7px 10px',borderRadius:big?9:8,cursor:'pointer',fontSize:big?14:12.5,marginBottom:4,background:C.bg3,border:`1px dashed ${C.bd2}`,color:C.t1}}>
+            <span style={{fontSize:big?14:12}}>💊</span>
+            <span style={{flex:1,fontWeight:600,minWidth:0,overflow:'hidden',textOverflow:'ellipsis',whiteSpace:'nowrap'}}>{m.name}{m.aka?<span style={{fontWeight:400,color:C.t4}}> · {m.aka.split(' ')[0]}</span>:null}</span>
+            <span style={{fontSize:big?11:10,color:C.t4,flexShrink:0}}>{i===0?'Tab ↹':'medication'}</span>
+          </div>
+        ))}
+      </div>
+    );
+  };
 
   function buildResult(carr, a, male, face, forceTier) {
     if(!carr.enabled) return {...carr,prem:null,face:null,productName:null,reason:'Carrier disabled'};
@@ -3701,10 +3901,11 @@ export default function QuoteMark() {
                 <div style={{position:'relative',marginBottom:10,display:'flex',alignItems:'center',width:'100%',boxSizing:'border-box'}}>
                   <span style={{position:'absolute',left:12,top:'50%',transform:'translateY(-50%)',fontSize:14,color:C.t4,pointerEvents:'none',zIndex:1}}>🔍</span>
                   <input placeholder="Type meds or conditions…"
-                    value={search} onChange={e=>setSearch(e.target.value)}
+                    value={search} onChange={searchChange} onKeyDown={searchKeyDown}
                     style={{...mInp,paddingLeft:36,flex:1,minWidth:0,width:0,fontSize:13}}/>
                 </div>
-                {medHints.length>0&&search.length>=3&&(
+                {renderMedGuess('lg')}
+                {!medPick&&medMatches.length===0&&medHints.length>0&&search.length>=3&&(
                   <div style={{background:C.goldBg,border:`1px solid ${C.goldBd}`,borderRadius:10,padding:'10px 12px',marginBottom:10}}>
                     <div style={{fontSize:12,color:C.gold,fontWeight:600,marginBottom:6}}>💊 "{search}" may indicate:</div>
                     <div style={{display:'flex',flexWrap:'wrap',gap:5}}>
@@ -3713,9 +3914,9 @@ export default function QuoteMark() {
                   </div>
                 )}
                 {/* Smart suggestions — max 5, no accordion */}
-                {search.length>=2 && (
+                {!medPick && search.length>=2 && (
                   <div style={{marginBottom:8}}>
-                    {filteredConds.slice(0,5).map(c=>{
+                    {condSuggests.slice(0,5).map(c=>{
                       const active=selected.includes(c.id),tc=TIER_INFO[c.tier].dot;
                       return(
                         <div key={c.id} onClick={()=>{toggleCond(c.id);setSearch('');}} style={{
@@ -3732,7 +3933,7 @@ export default function QuoteMark() {
                         </div>
                       );
                     })}
-                    {filteredConds.length===0&&<div style={{fontSize:13,color:C.t4,padding:'8px 4px'}}>No matches — try a different term</div>}
+                    {condSuggests.length===0&&medMatches.length===0&&<div style={{fontSize:13,color:C.t4,padding:'8px 4px'}}>No matches — try a different term</div>}
                   </div>
                 )}
                 {/* Active condition chips */}
@@ -3887,10 +4088,11 @@ export default function QuoteMark() {
                       <span>Health Conditions</span>
                       {selected.filter(c=>c!=='none').length>0 && <span style={{color:C.t4,fontWeight:500,fontSize:10}}>{selected.filter(c=>c!=='none').length} active</span>}
                     </div>
-                    <input placeholder="Search conditions or medications…" value={search} onChange={e=>setSearch(e.target.value)} style={{...mInp,fontSize:13,padding:'10px 12px'}}/>
-                    {search.length>=2 && filteredConds.length>0 && (
-                      <div style={{marginTop:6,maxHeight:200,overflowY:'auto',background:C.bg3,border:`1px solid ${C.bd}`,borderRadius:8,padding:6,display:'flex',flexDirection:'column',gap:3}}>
-                        {filteredConds.slice(0,8).map(c=>{
+                    <input placeholder="Search conditions or medications…" value={search} onChange={searchChange} onKeyDown={searchKeyDown} style={{...mInp,fontSize:13,padding:'10px 12px'}}/>
+                    <div style={{marginTop:6}}>{renderMedGuess('lg')}</div>
+                    {!medPick && search.length>=2 && condSuggests.length>0 && (
+                      <div style={{marginTop:0,maxHeight:200,overflowY:'auto',background:C.bg3,border:`1px solid ${C.bd}`,borderRadius:8,padding:6,display:'flex',flexDirection:'column',gap:3}}>
+                        {condSuggests.slice(0,8).map(c=>{
                           const active=selected.includes(c.id);
                           return (
                             <div key={c.id} onClick={()=>{toggleCond(c.id);setSearch('');}} style={{
@@ -4987,10 +5189,11 @@ export default function QuoteMark() {
             <div style={{position:'relative',marginBottom:8,display:'flex',alignItems:'center'}}>
               <span style={{position:'absolute',left:10,top:'50%',transform:'translateY(-50%)',fontSize:12,color:C.t4,pointerEvents:'none',zIndex:1}}>🔍</span>
               <input placeholder="Type meds or conditions…"
-                value={search} onChange={e=>setSearch(e.target.value)}
+                value={search} onChange={searchChange} onKeyDown={searchKeyDown}
                 style={{...inp,paddingLeft:30,fontSize:12,flex:1,minWidth:0,width:0}}/>
             </div>
-            {medHints.length>0&&search.length>=3&&(
+            {renderMedGuess('sm')}
+            {!medPick&&medMatches.length===0&&medHints.length>0&&search.length>=3&&(
               <div style={{background:C.goldBg,border:`1px solid ${C.goldBd}`,borderRadius:8,padding:'8px 10px',marginBottom:8}}>
                 <div style={{fontSize:11,color:C.gold,fontWeight:600,marginBottom:5}}>💊 "{search}" may indicate:</div>
                 <div style={{display:'flex',flexWrap:'wrap',gap:4}}>
@@ -4998,9 +5201,9 @@ export default function QuoteMark() {
                 </div>
               </div>
             )}
-            {search.length>=2&&(
+            {!medPick&&search.length>=2&&(
               <div style={{marginBottom:8}}>
-                {filteredConds.slice(0,6).map(c=>{
+                {condSuggests.slice(0,6).map(c=>{
                   const active=selected.includes(c.id),tc=TIER_INFO[c.tier].dot;
                   return(
                     <div key={c.id} onClick={()=>{toggleCond(c.id);setSearch('');}} style={{
@@ -5160,10 +5363,11 @@ export default function QuoteMark() {
                   <span>Conditions & Meds</span>
                   {selected.filter(c=>c!=='none').length>0 && <span style={{color:C.t4,fontWeight:500,fontSize:10}}>{selected.filter(c=>c!=='none').length} active</span>}
                 </div>
-                <input placeholder="Type meds or conditions…" value={search} onChange={e=>setSearch(e.target.value)} style={{...inp,fontSize:12}}/>
-                {search.length>=2 && filteredConds.length>0 && (
-                  <div style={{marginTop:6,maxHeight:180,overflowY:'auto',background:C.bg3,border:`1px solid ${C.bd}`,borderRadius:8,padding:5,display:'flex',flexDirection:'column',gap:2}}>
-                    {filteredConds.slice(0,8).map(c=>(
+                <input placeholder="Type meds or conditions…" value={search} onChange={searchChange} onKeyDown={searchKeyDown} style={{...inp,fontSize:12}}/>
+                <div style={{marginTop:6}}>{renderMedGuess('sm')}</div>
+                {!medPick && search.length>=2 && condSuggests.length>0 && (
+                  <div style={{marginTop:0,maxHeight:180,overflowY:'auto',background:C.bg3,border:`1px solid ${C.bd}`,borderRadius:8,padding:5,display:'flex',flexDirection:'column',gap:2}}>
+                    {condSuggests.slice(0,8).map(c=>(
                       <div key={c.id} onClick={()=>{toggleCond(c.id);setSearch('');}} style={{
                         display:'flex',alignItems:'center',justifyContent:'space-between',gap:8,
                         padding:'6px 9px',borderRadius:5,cursor:'pointer',
