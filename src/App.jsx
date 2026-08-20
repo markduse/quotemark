@@ -1668,7 +1668,7 @@ const CARRIERS = [
      if(tier==='C') return fexPrem('Aflac (Final Expense)','Standard',age,male,smoker,face);
      return null;
    }},
-  {id:'amr',  name:'Americo',            sub:'Eagle Select', abbr:'AM', enabled:false,
+  {id:'amr',  name:'Americo',            sub:'Eagle Select', abbr:'AM', enabled:true,
    product:{B:'Plan 1',C:'Plan 2',D:'Plan 3',E:null},
    stateCheck:(s)=>(fexStateOK('Americo',s)),
    fn:(age,male,smoker,tier,face)=>{
