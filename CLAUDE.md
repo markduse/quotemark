@@ -113,8 +113,9 @@ from Mark's carrier UW guides (verbatim extractions in `docs/uw-extractions/`).
 `buildResult` applies them per FEX carrier (tier floor / GI-route / decline
 with reason; indigo dot + tooltip on the row); SI term products + IULs decline
 via `SI_TERM_UW` / `IUL_UW` (term shows a "screened out" banner, IUL grays the
-row). Carriers without rules (Senior Life, Liberty Bankers, UHL, Baltimore)
-fall back to the global tier. Condition recency buckets follow real carrier
+row). Carriers without rules (Senior Life, Baltimore)
+fall back to the global tier. UHL + extra NewBridge/LB rules came from the ITK
+live-engine sweep (docs/uw-extractions/itk_uw_matrix_2026-08-20.json). Condition recency buckets follow real carrier
 boundaries (heart 1/2/3 yrs; cancer 2/3/4/5 yrs).
 
 ---
