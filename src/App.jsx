@@ -596,17 +596,17 @@ const CONDITIONS = [
 // `conds` = condition ids the med is commonly prescribed for, most-likely first.
 const MEDICATIONS = [
   // Heart & blood pressure
-  {name:'Lisinopril', aka:'Zestril Prinivil', conds:['htn','chf']},
+  {name:'Lisinopril', aka:'Zestril Prinivil', conds:['htn','chf'], probe:'Rx checks read ACE inhibitors as possible CHF/kidney meds \u2014 AHL & Accendo DECLINE if for CHF; AHL Grades if for kidney disease. Confirm it\u2019s for blood pressure only.'},
   {name:'Amlodipine', aka:'Norvasc', conds:['htn']},
-  {name:'Losartan', aka:'Cozaar', conds:['htn']},
-  {name:'Valsartan', aka:'Diovan', conds:['htn','chf']},
-  {name:'Metoprolol', aka:'Lopressor Toprol', conds:['htn','afib_ctrl','cad','chf']},
-  {name:'Carvedilol', aka:'Coreg', conds:['chf','htn','cad']},
+  {name:'Losartan', aka:'Cozaar', conds:['htn','chf'], probe:'On carrier CHF med lists (Accendo/AHL decline if for CHF). Confirm blood-pressure-only.'},
+  {name:'Valsartan', aka:'Diovan', conds:['htn','chf'], probe:'On carrier CHF med lists \u2014 decline at Accendo/AHL if for CHF. Confirm blood-pressure-only.'},
+  {name:'Metoprolol', aka:'Lopressor Toprol', conds:['htn','afib_ctrl','cad','chf'], probe:'Ask why: BP or AFib is fine \u2014 CHF or post-heart-attack use changes carriers (on the Accendo CHF decline list).'},
+  {name:'Carvedilol', aka:'Coreg', conds:['chf','htn','cad'], probe:'Coreg is treated as a CHF med \u2014 Accendo declines ALL plans including FE Level. Dig hard for heart-failure history.'},
   {name:'Atenolol', aka:'Tenormin', conds:['htn','afib_ctrl']},
   {name:'Hydrochlorothiazide', aka:'HCTZ Microzide', conds:['htn']},
-  {name:'Furosemide', aka:'Lasix', conds:['chf','htn','kidney_disease']},
-  {name:'Spironolactone', aka:'Aldactone', conds:['chf','htn','cirrhosis']},
-  {name:'Hydralazine', aka:'', conds:['htn','chf']},
+  {name:'Furosemide', aka:'Lasix', conds:['chf','htn','kidney_disease'], probe:'Lasix at ANY dose rides CHF/kidney/cirrhosis med lists \u2014 Accendo declines FE Level. Confirm the reason (simple swelling vs heart failure).'},
+  {name:'Spironolactone', aka:'Aldactone', conds:['chf','htn','cirrhosis'], probe:'On the Accendo CHF decline list; also flags cirrhosis. Confirm the indication.'},
+  {name:'Hydralazine', aka:'', conds:['htn','chf'], probe:'BP use is fine; combined with nitrates it reads as CHF treatment (Accendo decline list).'},
   {name:'Clonidine', aka:'Catapres', conds:['htn']},
   {name:'Diltiazem', aka:'Cardizem', conds:['htn','afib_ctrl']},
   {name:'Atorvastatin', aka:'Lipitor', conds:['hcl']},
@@ -617,9 +617,9 @@ const MEDICATIONS = [
   {name:'Ticagrelor', aka:'Brilinta', conds:['mi_1to2','stent_1to2','mi_1yr','stent_1yr','cad']},
   {name:'Apixaban', aka:'Eliquis', conds:['afib_ctrl','stroke_3plus']},
   {name:'Rivaroxaban', aka:'Xarelto', conds:['afib_ctrl','stroke_3plus']},
-  {name:'Warfarin', aka:'Coumadin Jantoven', conds:['afib_ctrl','stroke_3plus']},
+  {name:'Warfarin', aka:'Coumadin Jantoven', conds:['afib_ctrl','stroke_3plus'], probe:'On the Accendo CHF med list \u2014 confirm it\u2019s for AFib/clot prevention, not heart failure.'},
   {name:'Amiodarone', aka:'Pacerone', conds:['afib_ctrl']},
-  {name:'Digoxin', aka:'Lanoxin', conds:['chf','afib_ctrl']},
+  {name:'Digoxin', aka:'Lanoxin', conds:['chf','afib_ctrl'], probe:'Digoxin reads as CHF/AFib \u2014 on the Accendo CHF decline list. Establish which one it is.'},
   {name:'Sacubitril-Valsartan', aka:'Entresto', conds:['chf']},
   {name:'Nitroglycerin', aka:'Nitrostat Nitro', conds:['angina_2plus','angina_1yr','cad']},
   {name:'Isosorbide', aka:'Imdur', conds:['angina_2plus','cad']},
@@ -3162,6 +3162,11 @@ export default function QuoteMark() {
           <span style={{fontSize:big?12.5:11.5,color:C.gold,fontWeight:700}}>💊 {medPick.name}{medPick.aka?` (${medPick.aka.split(' ')[0]})`:''} — what's it prescribed for?</span>
           <span onClick={()=>{setMedPickRaw(null);setSearch('');}} style={{fontSize:big?12:11,color:C.t4,cursor:'pointer',fontWeight:700,padding:'0 2px'}}>✕</span>
         </div>
+        {medPick.probe && (
+          <div style={{fontSize:big?11.5:10.5,color:'#96660f',background:'#fdf3e0',border:'1px solid #f3dfb3',borderRadius:7,padding:big?'7px 9px':'6px 8px',marginBottom:7,lineHeight:1.45,fontWeight:500}}>
+            ⚠️ {medPick.probe}
+          </div>
+        )}
         <div style={{display:'flex',flexWrap:'wrap',gap:5}}>
           {medPick.conds.map(id=>{const c=CONDITIONS.find(x=>x.id===id);if(!c)return null;const ti=TIER_INFO[c.tier];const on=selected.includes(id);return(
             <span key={id} onClick={()=>pickMedCond(id)} style={{background:ti.pill,border:`1px solid ${ti.bd}`,color:ti.dot,borderRadius:6,padding:big?'4px 10px':'3px 8px',cursor:'pointer',fontWeight:600,fontSize:big?12:11,opacity:on?0.55:1}}>{on?'✓':'+'} {c.label.replace('⚠ ','')}</span>
