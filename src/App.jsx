@@ -597,18 +597,18 @@ const CONDITIONS = [
 const MEDICATIONS = [
   // Heart & blood pressure
   {name:'Lisinopril', aka:'Zestril Prinivil', conds:['htn','chf'], probe:'Rx checks read ACE inhibitors as possible CHF/kidney meds \u2014 AHL & Accendo DECLINE if for CHF; AHL Grades if for kidney disease. Confirm it\u2019s for blood pressure only.'},
-  {name:'Amlodipine', aka:'Norvasc', conds:['htn']},
+  {name:'Amlodipine', aka:'Norvasc', conds:['htn'], probe:'Blood-pressure meds show on every Rx check \u2014 confirm it\u2019s for BP only and there\u2019s no heart-failure, heart-attack or kidney history behind it (that\u2019s what flips carriers).'},
   {name:'Losartan', aka:'Cozaar', conds:['htn','chf'], probe:'On carrier CHF med lists (Accendo/AHL decline if for CHF). Confirm blood-pressure-only.'},
   {name:'Valsartan', aka:'Diovan', conds:['htn','chf'], probe:'On carrier CHF med lists \u2014 decline at Accendo/AHL if for CHF. Confirm blood-pressure-only.'},
   {name:'Metoprolol', aka:'Lopressor Toprol', conds:['htn','afib_ctrl','cad','chf'], probe:'Ask why: BP or AFib is fine \u2014 CHF or post-heart-attack use changes carriers (on the Accendo CHF decline list).'},
   {name:'Carvedilol', aka:'Coreg', conds:['chf','htn','cad'], probe:'Coreg is treated as a CHF med \u2014 Accendo declines ALL plans including FE Level. Dig hard for heart-failure history.'},
-  {name:'Atenolol', aka:'Tenormin', conds:['htn','afib_ctrl']},
-  {name:'Hydrochlorothiazide', aka:'HCTZ Microzide', conds:['htn']},
+  {name:'Atenolol', aka:'Tenormin', conds:['htn','afib_ctrl'], probe:'Blood-pressure meds show on every Rx check \u2014 confirm it\u2019s for BP only and there\u2019s no heart-failure, heart-attack or kidney history behind it (that\u2019s what flips carriers).'},
+  {name:'Hydrochlorothiazide', aka:'HCTZ Microzide', conds:['htn'], probe:'Blood-pressure meds show on every Rx check \u2014 confirm it\u2019s for BP only and there\u2019s no heart-failure, heart-attack or kidney history behind it (that\u2019s what flips carriers).'},
   {name:'Furosemide', aka:'Lasix', conds:['chf','htn','kidney_disease'], probe:'Lasix at ANY dose rides CHF/kidney/cirrhosis med lists \u2014 Accendo declines FE Level. Confirm the reason (simple swelling vs heart failure).'},
   {name:'Spironolactone', aka:'Aldactone', conds:['chf','htn','cirrhosis'], probe:'On the Accendo CHF decline list; also flags cirrhosis. Confirm the indication.'},
   {name:'Hydralazine', aka:'', conds:['htn','chf'], probe:'BP use is fine; combined with nitrates it reads as CHF treatment (Accendo decline list).'},
-  {name:'Clonidine', aka:'Catapres', conds:['htn']},
-  {name:'Diltiazem', aka:'Cardizem', conds:['htn','afib_ctrl']},
+  {name:'Clonidine', aka:'Catapres', conds:['htn'], probe:'Blood-pressure meds show on every Rx check \u2014 confirm it\u2019s for BP only and there\u2019s no heart-failure, heart-attack or kidney history behind it (that\u2019s what flips carriers).'},
+  {name:'Diltiazem', aka:'Cardizem', conds:['htn','afib_ctrl'], probe:'Blood-pressure meds show on every Rx check \u2014 confirm it\u2019s for BP only and there\u2019s no heart-failure, heart-attack or kidney history behind it (that\u2019s what flips carriers).'},
   {name:'Atorvastatin', aka:'Lipitor', conds:['hcl']},
   {name:'Simvastatin', aka:'Zocor', conds:['hcl']},
   {name:'Rosuvastatin', aka:'Crestor', conds:['hcl']},
@@ -687,7 +687,7 @@ const MEDICATIONS = [
   {name:'Bupropion', aka:'Wellbutrin Zyban', conds:['anxiety']},
   {name:'Venlafaxine', aka:'Effexor', conds:['anxiety','ptsd']},
   {name:'Mirtazapine', aka:'Remeron', conds:['anxiety']},
-  {name:'Prazosin', aka:'Minipress', conds:['ptsd','htn']},
+  {name:'Prazosin', aka:'Minipress', conds:['ptsd','htn'], probe:'Blood-pressure meds show on every Rx check \u2014 confirm it\u2019s for BP only and there\u2019s no heart-failure, heart-attack or kidney history behind it (that\u2019s what flips carriers).'},
   {name:'Lithium', aka:'Lithobid', conds:['bipolar']},
   {name:'Quetiapine', aka:'Seroquel', conds:['bipolar','schizophrenia','anxiety','alzheimers']},
   {name:'Olanzapine', aka:'Zyprexa', conds:['bipolar','schizophrenia']},
@@ -5950,8 +5950,8 @@ export default function QuoteMark() {
               <div>
                 {/* ── COLUMN HEADERS (design: dummy-proof labels above the row grid) ── */}
                 {!gsbOn&&(
-                  <div style={{display:'grid',gridTemplateColumns:'42px 1fr 104px 28px 150px 96px',gap:16,padding:'2px 21px 8px',fontSize:10.5,fontWeight:600,color:'#a09c94',letterSpacing:'0.08em'}}>
-                    <span>CARRIER</span><span>PRODUCT · COVERAGE</span><span>UW TIER</span><span></span><span style={{textAlign:'right'}}>MONTHLY PREMIUM</span><span></span>
+                  <div style={{display:'grid',gridTemplateColumns:mode==='budget'?'42px 1fr 104px 28px 120px 150px 96px':'42px 1fr 104px 28px 150px 96px',gap:16,padding:'2px 21px 8px',fontSize:10.5,fontWeight:600,color:'#a09c94',letterSpacing:'0.08em'}}>
+                    <span>CARRIER</span><span>{mode==='budget'?'PRODUCT':'PRODUCT · COVERAGE'}</span><span>UW TIER</span><span></span>{mode==='budget'&&<span style={{textAlign:'right'}}>COVERAGE</span>}<span style={{textAlign:'right'}}>MONTHLY PREMIUM</span><span></span>
                   </div>
                 )}
                 {/* ── QUOTE CARDS — active ── */}
@@ -6045,7 +6045,7 @@ export default function QuoteMark() {
                     const covNote = r.capped ? ' · capped' : (!r.capped&&r.roundedTo&&mode==='budget') ? ` · $${r.roundedTo>=1000?r.roundedTo/1000+'k':r.roundedTo} increments` : '';
                     return(
                       <div key={r.id+(r._extraTier||'')} className="qm-row" style={{
-                          display:'grid',gridTemplateColumns:'42px 1fr 104px 28px 150px 96px',
+                          display:'grid',gridTemplateColumns:mode==='budget'?'42px 1fr 104px 28px 120px 150px 96px':'42px 1fr 104px 28px 150px 96px',
                           alignItems:'center',gap:16,padding:'12px 20px',
                           background:'#fff',border:'1px solid #eae9e6',borderRadius:10,
                           opacity:r.capped?0.65:1,cursor:'pointer'
@@ -6054,7 +6054,7 @@ export default function QuoteMark() {
                         <div style={{display:'flex',flexDirection:'column',gap:2,minWidth:0}}>
                           <span style={{fontSize:14.5,fontWeight:600,color:'#191817'}}>{r.name}</span>
                           <span style={{fontSize:12.5,color:'#78746e',whiteSpace:'nowrap',overflow:'hidden',textOverflow:'ellipsis'}}>
-                            {r.sub}{r.productName&&r.productName!==r.sub?` · ${r.productName}`:''} · <span style={mode==='budget'?{fontWeight:600,color:'#4740c8'}:undefined}>{fmtF(r.face)}</span>{covNote}
+                            {r.sub}{r.productName&&r.productName!==r.sub?` · ${r.productName}`:''}{mode==='budget'?'':<> · {fmtF(r.face)}{covNote}</>}
                           </span>
                         </div>
                         <div title={r.uwNotes?r.uwNotes.join('\n'):undefined} style={{display:'flex',alignItems:'center',gap:5}}>
@@ -6066,6 +6066,12 @@ export default function QuoteMark() {
                             <Caution notes={[...(r.uwNotes||[]),...(r.compCut?r.compCut.split('\n'):[])]} size={14}/>
                           )}
                         </div>
+                        {mode==='budget'&&(
+                          <div style={{display:'flex',flexDirection:'column',alignItems:'flex-end',gap:1}}>
+                            <span style={{fontSize:19,fontWeight:650,color:'#4740c8',letterSpacing:'-0.01em',lineHeight:1.25}}>{fmtF(r.face)}</span>
+                            {covNote&&<span style={{fontSize:11,color:'#b5b1a8'}}>{covNote.replace(/^ · /,'')}</span>}
+                          </div>
+                        )}
                         <div style={{display:'flex',flexDirection:'column',alignItems:'flex-end',gap:1}}>
                           <span style={{fontSize:19,fontWeight:650,color:'#191817',letterSpacing:'-0.01em',lineHeight:1.25}}>{fmt$(r.prem)}<span style={{fontSize:12,fontWeight:400,color:'#a09c94'}}> /mo</span></span>
                           <span style={{fontSize:11.5,color:'#b5b1a8'}}>${((r.prem??0)*12).toFixed(0)} /yr</span>
