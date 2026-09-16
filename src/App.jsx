@@ -1579,6 +1579,7 @@ const CARRIERS = [
   {id:'acc',  name:'Accendo / CVS',  sub:'Protection Series FE', abbr:'AC', enabled:true,
    product:{B:'Preferred',C:'Standard',D:'Modified',E:null},
    stateCheck:(s)=>(fexStateOK('CVS (Aetna Accendo)',s)),
+   altPaper:{key:'CVS (Aetna Accendo) (MT)', label:'MT version'},
    fn:(age,male,smoker,tier,face)=>{
      if(tier==='B') return factorCalc('accendo','preferred',age,male,smoker,face);
      if(tier==='C') return factorCalc('accendo','standard',age,male,smoker,face);
@@ -1614,6 +1615,7 @@ const CARRIERS = [
   {id:'cont', name:'Aetna / Continental', sub:'Protection Series FE', abbr:'CL', enabled:true,
    product:{B:'Preferred',C:null,D:null,E:null},
    stateCheck:(s)=>(fexStateOK('Aetna (Protection Series)',s)),
+   altPaper:{key:'Aetna (Protection Series) (MT)', label:'MT version'},
    fn:(age,male,smoker,tier,face)=>{
      if(tier==='B') return factorCalc('aetna_cont','preferred',age,male,smoker,face);
      return null;
@@ -1716,6 +1718,7 @@ const CARRIERS = [
   {id:'amam', name:'American Amicable',  sub:'Senior Choice', abbr:'AA', enabled:true,
    product:{B:'Immediate',C:'Immediate',D:'Graded',E:null},
    stateCheck:(s)=>(fexStateOK('American Amicable (Senior Choice)',s)),
+   altPaper:{key:'Occidental Life (Senior Choice)', label:'Occidental Life paper'},
    fn:(age,male,smoker,tier,face)=>{
      if(tier==='B'||tier==='C') return factorCalc('amam_sc','immediate',age,male,smoker,face);
      if(tier==='D') return fexPrem('American Amicable (Senior Choice)','Senior Choice Graded',age,male,smoker,face);
@@ -1824,6 +1827,7 @@ const CARRIERS = [
   {id:'amam_gs', name:'American Amicable', sub:'Golden Solution', abbr:'AG', enabled:false,
    product:{B:'Immediate',C:'Immediate',D:'Graded',E:null},
    stateCheck:(s)=>(fexStateOK('American Amicable (Golden Solution)',s)),
+   altPaper:{key:'Occidental Life (Golden Solution)', label:'Occidental Life paper'},
    fn:(age,male,smoker,tier,face)=>{
      if(tier==='B'||tier==='C') return factorCalc('amam_gs','immediate',age,male,smoker,face);
      if(tier==='D') return fexPrem('American Amicable (Golden Solution)','Golden Solution Graded',age,male,smoker,face);
@@ -3201,8 +3205,12 @@ export default function QuoteMark() {
     if(!carr.enabled) return {...carr,prem:null,face:null,productName:null,reason:'Carrier disabled'};
     const maxFace=AGE_FACE_BANDS[carr.id]?getFaceCap(carr.id,a):FACE_CAPS[carr.id],stateRule=STATE_RULES[carr.id];
     // State check: new data-driven check (fexStateOK) + legacy STATE_RULES fallback
+    let paperNote = null; // e.g. AmAm product written on Occidental paper in this state
     if(usState) {
-      if(carr.stateCheck && !carr.stateCheck(usState)) return{...carr,prem:null,face:null,productName:null,reason:`Not available in ${STATE_NAMES[usState]||usState}`};
+      if(carr.stateCheck && !carr.stateCheck(usState)) {
+        if(carr.altPaper && fexStateOK(carr.altPaper.key, usState)) paperNote = carr.altPaper.label;
+        else return{...carr,prem:null,face:null,productName:null,reason:`Not available in ${STATE_NAMES[usState]||usState}`};
+      }
       else if(!carr.stateCheck && stateRule?.excludeStates?.includes(usState)) return{...carr,prem:null,face:null,productName:null,reason:`Not licensed in ${STATE_NAMES[usState]||usState}`};
     }
     let compCut = null; // evaluated below once effTier is final
@@ -3261,7 +3269,7 @@ export default function QuoteMark() {
     if(!pName){const reason=effTier==='E'?'No GI product offered':effTier==='D'?'Level plans only':'Not available for this tier';return{...carr,face:null,prem:null,productName:null,reason};}
     // Check age-dependent face cap
     if(maxFace && face > maxFace) return{...carr,face:null,prem:null,productName:pName,activeTier:effTier,reason:`Max coverage ${fmtF(maxFace)}`};
-    let prem=null, effFace=face, pNameEff=pName, subOverride=null, roundedTo=null;
+    let prem=null, effFace=face, pNameEff=pName, subOverride=paperNote?`${carr.sub} · ${paperNote}`:null, roundedTo=null;
     try{
       const res=carr.fn(a,male,smoker,effTier,face);
       if(res && typeof res==='object') {

@@ -69,7 +69,7 @@ Shared concepts across all 4 tabs:
 | `term_rates.json` | ~400 KB | 23k cells, 28 products. 100% match to ITK as of May 2026 scrape. |
 | `iul_rates.json` | ~30 KB | 201 cells, 2 products (MOO IUL Express + 1 other). |
 | `rate_factors.json` | small | Formula-based carriers: `(rate/1000 × units + policyFee) × modalFactor`. Used for Accendo, Lifeshield, Aetna Protection Series. |
-| `restrictions.json` | small | Per-carrier state availability + min/max face caps. |
+| `restrictions.json` | small | Per-carrier state availability + min/max face caps. Availability rebuilt from an ITK 51-state sweep (`scripts/merge_state_sweep.py`, raw in `docs/uw-extractions/itk_state_sweep_*.json`); `iul_state_availability.json` / `term_state_availability.json` same source. AmAm↔Occidental and Aetna/Accendo (MT) paper splits handled via carrier `altPaper`. |
 
 **Rate lookup** (`fexLookup` in App.jsx ~line 1439):
 1. Snap age to exact match in tier table

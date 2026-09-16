@@ -34,8 +34,13 @@ def availability(toolkit):
             co = e.get('co'); seen.add(co)
             reasons = e.get('reason') or []
             if isinstance(reasons, str): reasons = [reasons]
-            if not any('Not offered in' in r for r in reasons):
+            # ITK stopped returning reason text (9/2026) — presence in `quoted`
+            # is the signal. Only honor a textual non-state reason if present.
+            if reasons and not any('Not offered in' in r for r in reasons):
                 avail[co].add(st)
+    # A company quoted NOWHERE at the sweep profile is a profile mismatch
+    # (age/face/term), not a state fact — leave its availability untouched.
+    seen = [co for co in seen if avail[co]]
     return states, sorted(seen), avail
 
 # ── FEX → restrictions.json ──
