@@ -1862,40 +1862,48 @@ const CARRIER_META = {
   ahl:  { img:'/logos/ahl.png',   eapp:'https://ahlpatriotseries.com/',                       brand:'#1D4ED8' }, // AHL
   cont: { img:'/logos/cont.png', eapp:'https://www.aetnaseniorproducts.com/ssi/index.html', brand:'#7C3AED' }, // Continental/Aetna
   rn:   { img:'/logos/rn.png',    eapp:'https://agent.royalneighbors.org/login',              brand:'#16A34A' }, // Royal Neighbors
-  ta:    { img:'/logos/ta.png',       eapp:'https://www.transamerica.com/financial-professionals/', brand:'#b42318' }, // Transamerica Immediate Solution
-  ta_exp:{ img:'/logos/ta.png',       eapp:'https://www.transamerica.com/financial-professionals/', brand:'#b42318' }, // Transamerica Express Solution
+  ta:    { img:'/logos/ta.png',       eapp:'https://secure.transamerica.com/login/sign-in/login.html?TAM_OP=login', brand:'#b42318' }, // Transamerica Immediate Solution
+  ta_exp:{ img:'/logos/ta.png',       eapp:'https://secure.transamerica.com/login/sign-in/login.html?TAM_OP=login', brand:'#b42318' }, // Transamerica Express Solution
   fid:  { img:'/logos/fid.png',   eapp:'https://portal.instabrain.io/App/?redirected=true',   brand:'#1E40AF' }, // Fidelity Life
   cbg:  { img:'/logos/cbg.avif',  eapp:'https://www.connext.corebridgefinancial.com/life/connext-portal/public/login', brand:'#9333EA' }, // Corebridge
   uhl:  { img:'/logos/uhl.png',   eapp:'https://agentportal.unitedhomelife.com/home',          brand:'#B91C1C' }, // UHL
-  moo:  { img:'/logos/moo.jpg',   eapp:'https://www.mutualofomaha.com/agent-login',            brand:'#1D4ED8' }, // Mutual of Omaha
-  laf:  { img:'/logos/laf.png',       eapp:'https://www.lafayettelife.com/agent-resources',        brand:'#8B5CF6' }, // Lafayette
-  for:  { img:'/logos/for.png',   eapp:'https://www.forestersfinancial.com/us/agent-portal',   brand:'#6B21A8' }, // Foresters
-  amr:  { img:'/logos/amr.svg',       eapp:'https://www.americo.com/agent-access',                brand:'#1E40AF' }, // Americo
-  amam: { img:'/logos/amam.png', eapp:'https://www.insuranceapplication.com',                brand:'#3B82F6' }, // American Amicable
+  moo:  { img:'/logos/moo.jpg',   eapp:'https://login.mutualofomaha.com/app/UserHome',            brand:'#1D4ED8' }, // Mutual of Omaha
+  laf:  { img:'/logos/laf.png',       eapp:'https://www.westernsouthern.com/lafayette',        brand:'#8B5CF6' }, // Lafayette
+  for:  { img:'/logos/for.png',   eapp:'https://ezbiz.foresters.com/',   brand:'#6B21A8' }, // Foresters
+  amr:  { img:'/logos/amr.svg',       eapp:'https://account.americoagent.com/?returnUrl=https%3a%2f%2ftools.americoagent.com%2f',                brand:'#1E40AF' }, // Americo
+  amam: { img:'/logos/amam.png', eapp:'https://www.insuranceapplication.com/AppPage/index.html',                brand:'#3B82F6' }, // American Amicable
   // Added May 2026 — branded SVG wordmarks for term carriers without official PNGs
   jhc:        { img:'/logos/jhc.svg',        eapp:'https://www.johnhancock.com/financial-professionals.html', brand:'#000000' }, // John Hancock
-  kcl:        { img:'/logos/kcl.svg',        eapp:'https://www.kclife.com/agents',                            brand:'#15803D' }, // Kansas City Life
-  nlg:        { img:'/logos/nlg.svg',        eapp:'https://www.nationallife.com/agents',                      brand:'#0F766E' }, // National Life Group
-  protective: { img:'/logos/protective.svg', eapp:'https://www.protective.com/financial-professionals',       brand:'#003E7E' }, // Protective Life
-  sbli:       { img:'/logos/sbli.svg',       eapp:'https://www.sbli.com/agents',                              brand:'#1E3A8A' }, // SBLI
+  kcl:        { img:'/logos/kcl.svg',        eapp:'https://www.kclic.net/',                            brand:'#15803D' }, // Kansas City Life
+  nlg:        { img:'/logos/nlg.svg',        eapp:'https://www.nationallife.com/',                      brand:'#0F766E' }, // National Life Group
+  protective: { img:'/logos/protective.svg', eapp:'https://myaccount.protective.com/',       brand:'#003E7E' }, // Protective Life
+  sbli:       { img:'/logos/sbli.svg',       eapp:'https://www.sbliagent.com/agentauth/login.aspx?ReturnUrl=%2fagent%2f',                              brand:'#1E3A8A' }, // SBLI
   bl_sg:{ img:'/logos/balt.png',                     eapp:'https://www.baltlife.com',                       brand:'#1D4ED8' }, // Baltimore Life Silver Guard
-  ts:   { img:'/logos/ts.png',        eapp:'https://www.trustage.com/agents',                brand:'#FDE68A' }, // TruStage
-  ls:   { img:'/logos/ls.jpg',    eapp:'https://www.lifeshield.com/agent',               brand:'#1D4ED8' }, // LifeShield
-  lb:   { img:'/logos/lb.png',    eapp:'https://www.libertybankers.com/agent-portal',    brand:'#1D4ED8' }, // Liberty Bankers
-  bl:   { img:'',                     eapp:'https://www.betterlifeins.com/agents',            brand:'#EAB308' }, // Better Life
-  elco: { img:'',                     eapp:'https://www.elcomutual.com/agent-portal',         brand:'#059669' }, // Elco Mutual
-  balt_sg: { img:'',                  eapp:'https://www.baltlife.com/agent-portal',           brand:'#0369A1' }, // Baltimore Life
-  sl_pp: { img:'/logos/sl.png',   eapp:'https://www.seniorlife.com/agent-portal',         brand:'#7C3AED' }, // Senior Life PP
-  sl:    { img:'/logos/sl.png',   eapp:'https://www.seniorlife.com/agent-portal',         brand:'#7C3AED' }, // Senior Life WL
+  ts:   { img:'/logos/ts.png',        eapp:'https://www.trustage.com/',                brand:'#FDE68A' }, // TruStage
+  ls:   { img:'/logos/ls.jpg',    eapp:'https://lsneapp.com/forms/survivor',               brand:'#1D4ED8' }, // LifeShield
+  lb:   { img:'/logos/lb.png',    eapp:'https://agent.lbig.com/',    brand:'#1D4ED8' }, // Liberty Bankers
+  bl:   { img:'',                     eapp:'https://www.betterlifeins.com/secure-log-ins/',            brand:'#EAB308' }, // Better Life
+  elco: { img:'',                     eapp:'https://info.elcomutual.com/agent-portal',         brand:'#059669' }, // Elco Mutual
+  balt_sg: { img:'',                  eapp:'https://www.baltlife.com/',           brand:'#0369A1' }, // Baltimore Life
+  sl_pp: { img:'/logos/sl.png',   eapp:'https://agent.seniorlifeinsurancecompany.com/#/signin',         brand:'#7C3AED' }, // Senior Life PP
+  sl:    { img:'/logos/sl.png',   eapp:'https://agent.seniorlifeinsurancecompany.com/#/signin',         brand:'#7C3AED' }, // Senior Life WL
   ail:   { img:'/logos/ail.png',                    eapp:'https://www.ailife.com/agent',                    brand:'#1D4ED8' }, // American Income Life
+  newbridge: { img:'',            eapp:'https://www.newbridgelife.com/',                  brand:'#0F4C81' }, // New Bridge (Continental General)
+  pf:      { img:'',              eapp:'https://pfaflight.org/agent',                     brand:'#B91C1C' }, // Polish Falcons e-app
+  ra:      { img:'',              eapp:'https://ralifeapp.com/agent-login',               brand:'#1D4ED8' }, // Royal Arcanum e-app
+  kskj:    { img:'',              eapp:'https://kskjlife.net/wp-login.php',               brand:'#1D4ED8' }, // KSKJ
+  occ_gs:  { img:'',              eapp:'https://www.insuranceapplication.com/AppPage/index.html', brand:'#3B82F6' }, // Occidental (AmAm platform)
+  amam_gs: { img:'/logos/amam.png', eapp:'https://www.insuranceapplication.com/AppPage/index.html', brand:'#3B82F6' }, // AmAm Golden Solution
+  ahl_gs:  { img:'/logos/ahl.png', eapp:'https://ahlpatriotseries.com/',                  brand:'#1D4ED8' }, // AHL GuideStar
+  rna_gi:  { img:'/logos/rn.png',  eapp:'https://agent.royalneighbors.org/login',         brand:'#16A34A' }, // RN GI
   // ── TERM LIFE CARRIERS ──
-  american_amicable: { img:'',        eapp:'https://www.insuranceapplication.com',              brand:'#CBD5E1' }, // American Amicable — Light Gray
+  american_amicable: { img:'',        eapp:'https://www.insuranceapplication.com/AppPage/index.html',              brand:'#CBD5E1' }, // American Amicable — Light Gray
   instabrain: { img:'',              eapp:'https://portal.instabrain.io/App/?redirected=true',  brand:'#38BDF8' }, // Instabrain — Light Blue
-  john_hancock: { img:'',            eapp:'https://www.johnhancock.com/agent-portal',           brand:'#1E40AF' }, // John Hancock — Blue
-  mutual_of_omaha: { img:'',         eapp:'https://www.mutualofomaha.com/agent-login',          brand:'#2563EB' }, // Mutual of Omaha — Royal Blue
+  john_hancock: { img:'',            eapp:'https://www.johnhancock.com/financial-professionals.html',           brand:'#1E40AF' }, // John Hancock — Blue
+  mutual_of_omaha: { img:'',         eapp:'https://login.mutualofomaha.com/app/UserHome',          brand:'#2563EB' }, // Mutual of Omaha — Royal Blue
   // sbli already defined above with /logos/sbli.svg — don't redefine
   royal_neighbors: { img:'',         eapp:'https://agent.royalneighbors.org/login',             brand:'#16A34A' }, // Royal Neighbors — Green
-  transamerica: { img:'',            eapp:'https://www.transamerica.com/financial-professionals/', brand:'#b42318' }, // Transamerica — Red
+  transamerica: { img:'',            eapp:'https://secure.transamerica.com/login/sign-in/login.html?TAM_OP=login', brand:'#b42318' }, // Transamerica — Red
 };
 
 // Commission reductions by issue age. Shown as a caution flag on quote rows
