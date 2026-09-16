@@ -639,7 +639,7 @@ export const FEX_UW = {
   // SIWL Preferred/Standard → GDB (30/70/100) → GI. Cardiac never reaches
   // Preferred: <2y = GDB, >2y = Standard. Sources: extract_rn_ensured_legacy.md.
   rn: {
-    copd_no_o2:    {o:'D',  note:'COPD/emphysema → Graded (GDB) at best'},
+    copd_no_o2:    {o:'C',  note:'COPD/emphysema → Standard (ITK live engine + field-confirmed 9/2026; the printed 2024 guide grid showing GDB is stale)'},
     bronchitis_chr:{o:'C',  note:'Chronic bronchitis → Standard'},
     copd_o2:       {o:'GI', note:'Any oxygen use → GI only'},
     home_o2_24hr:  'GI',
@@ -675,6 +675,24 @@ export const FEX_UW = {
     melanoma_2to4: 'D',
     basal_cell:    {o:'C',  note:'Basal cell → Standard carve-out'},
     chemo_active:  'GI',
+    // ── Added from ITK live-engine matrix 8/20/2026 ──
+    alzheimers:    'GI',
+    dialysis:      'GI',
+    kidney_disease:{o:'GI', note:'Diagnosed within 1 yr → GI; stable 1+ yrs quotes clean (ITK)'},
+    cirrhosis:     'GI',
+    lupus:         {o:'GI', note:'Systemic lupus → GI (ITK)'},
+    als:           'GI',
+    wheelchair:    'GI',
+    ms:            {o:'C',  note:'MS within 10 yrs → Standard (ITK)'},
+    parkinsons:    {o:'C',  note:'Parkinson\u2019s within 10 yrs → Standard (ITK)'},
+    hep_c_active:  {o:'C',  note:'Hep C chronic → Standard (ITK)'},
+    hep_c_curr:    'C',
+    hep_c_cured:   {o:'C',  note:'Cured within 10 yrs → Standard (ITK)'},
+    diabetes_comp: {o:'D',  note:'Diabetic nephropathy within 10 yrs → Graded (ITK)'},
+    diabetes_coma: {o:'D',  note:'Diabetic coma within 10 yrs → Graded (ITK)'},
+    alcohol_2yr:   {o:'D',  note:'Substance treatment within 3 yrs → Graded (ITK)'},
+    alcohol_2plus: {o:'C',  note:'Treatment 3\u201310 yrs ago → Standard (ITK)'},
+    felony:        'GI',
   },
 
   // ── KSKJ — Precision Plan ──
