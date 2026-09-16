@@ -8,6 +8,7 @@ import RESTRICTIONS from "./data/restrictions.json";
 import TERM_RATES from "./data/term_rates.json";
 import IUL_RATES  from "./data/iul_rates.json";
 import IUL_STATE_AVAIL from "./data/iul_state_availability.json";
+import TERM_STATE_AVAIL from "./data/term_state_availability.json";
 import { fexUwRules, SI_TERM_UW, IUL_UW } from "./data/uw_rules.js";
 
 // ── US STATES ──
@@ -3427,7 +3428,9 @@ export default function QuoteMark() {
     };
 
     // Build one result per term carrier (each carrier=one product in TERM_RATES)
-    const results = activeCarriers.filter(c => c.termOnly && !termUwScreen(c)).map(carr => {
+    // Per-product state availability (ITK sweep); no entry => everywhere.
+    const termStateOK = (product) => { const list = TERM_STATE_AVAIL[product]; return !usState || !Array.isArray(list) || !list.length || list.includes(usState); };
+    const results = activeCarriers.filter(c => c.termOnly && !termUwScreen(c) && termStateOK(c.product)).map(carr => {
       let prem = null;
       let effFace = dTermFace;
       let tierUsed = null;
@@ -3460,7 +3463,7 @@ export default function QuoteMark() {
 
     // Sort: budget-mode → largest face first; face-mode → cheapest premium first
     return results.sort((a, b) => termMode === 'budget' ? b.face - a.face : a.prem - b.prem);
-  }, [quoteMode, ageOK, ageNum, termLength, dTermFace, termMode, dTermBudget, gender, smoker, activeCarriers, termHealth, selected]);
+  }, [quoteMode, ageOK, ageNum, termLength, dTermFace, termMode, dTermBudget, gender, smoker, activeCarriers, termHealth, selected, usState]);
 
   // Compatibility map — which term carriers can/can't write at the entered age.
   // Helps explain why a 65yo client only sees 19 of 28 carriers without making
