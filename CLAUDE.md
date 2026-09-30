@@ -103,6 +103,14 @@ overrides returned by carrier `fn()` — used for age-dependent product variants
 **GSB toggle** (Guaranteed Self-Build): when ON, computes modal premium from a
 target face. When OFF, agent picks face directly.
 
+**Carrier prefs (`profiles.carrier_prefs`)**: saved as a `'__v2'` list —
+enabled ids plus `'__disabled_<id>'` markers for FEX carriers the agent turned
+off. A carrier the list doesn't mention uses its code default, so a newly added
+carrier with `enabled:true` reaches every agent automatically. (Legacy lists
+without `'__v2'` treat absent = off — the 9/29/2026 migration converted all of
+them.) `FORCE_DISABLED` overrides everything and hides the toggle — remove a
+carrier from it when you enable one.
+
 **Auto-tier recommendation**: `termRec` / FEX `autoTier` look at age + BMI +
 selected health conditions + family history and pick the most-likely class.
 Agent can override.
