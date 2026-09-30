@@ -71,7 +71,7 @@ const FACE_CAPS = {
   sl_pp:25000, sl:30000, ail:30000,
 };
 // Carriers disabled in code — incomplete data, not ready for agents
-const FORCE_DISABLED = new Set(['sl_pp','amam_gs','cbg','amr','ahl_gs','rna_gi','sl','ail','balt_sg']);
+const FORCE_DISABLED = new Set(['sl_pp','amam_gs','cbg','ahl_gs','rna_gi','sl','ail','balt_sg']);
 
 // AGE_MAX entries can be a number (applies to all tiers) OR an object
 // {B,C,D,E} for tier-specific caps. Aetna/AHL/CVS go up to 89 for
@@ -2995,10 +2995,17 @@ export default function QuoteMark() {
         if(data.carrier_prefs && Array.isArray(data.carrier_prefs)){
           const savedIds = data.carrier_prefs;
           // Use module-scope FORCE_DISABLED — Supabase prefs cannot re-enable these
+          // '__v2' lists record disabled carriers explicitly, so a carrier added
+          // after the agent last saved falls back to its code default instead
+          // of silently staying off. Legacy lists: absent = off.
+          const v2 = savedIds.includes('__v2');
           setCarriers(prev=>prev.map(c=>({
             ...c,
-            enabled: FORCE_DISABLED.has(c.id) ? false :
-              (c.termOnly ? !savedIds.includes('__disabled_'+c.id) : savedIds.includes(c.id))
+            enabled: FORCE_DISABLED.has(c.id) ? false
+              : c.termOnly ? !savedIds.includes('__disabled_'+c.id)
+              : savedIds.includes(c.id) ? true
+              : savedIds.includes('__disabled_'+c.id) ? false
+              : v2 ? c.enabled : false
           })));
         }
       });
@@ -3008,7 +3015,8 @@ export default function QuoteMark() {
     if(!session) return;
     setCarriersSaved(false);
     const enabledIds = carriers.filter(c=>c.enabled).map(c=>c.id);
-    await supabase.from('profiles').update({carrier_prefs:enabledIds}).eq('id',session.user.id);
+    const disabledIds = carriers.filter(c=>!c.enabled && !c.termOnly).map(c=>'__disabled_'+c.id);
+    await supabase.from('profiles').update({carrier_prefs:['__v2',...enabledIds,...disabledIds]}).eq('id',session.user.id);
     setCarriersSaved(true);
     setTimeout(()=>setCarriersSaved(false),2500);
   };
