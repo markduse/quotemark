@@ -257,8 +257,8 @@ export const FEX_UW = {
   // Source: AHL GS+PSFE Disease Guide, **PSFE column** (extract_ahl.md), cross-
   // checked against ITK's live engine 8/20/2026 — identical windows for COPD,
   // stroke/TIA, stent, bypass and pacemaker. Patriot never Grades COPD.
-  // Guide-vs-ITK conflict: cancer 24–36 mos (guide: decline; ITK: Preferred) —
-  // ITK followed, flagged to Mark 10/2/2026.
+  // Cancer 2+ yrs past and clear → Preferred (ITK; Mark field-confirmed
+  // 10/3/2026). The 2023 guide's 37-month decline window is stale.
   ahl: {
     copd_no_o2:    {o:'C',  note:'COPD/emphysema ever → Standard'},
     bronchitis_chr:{o:'C',  note:'Chronic bronchitis → Standard'},
