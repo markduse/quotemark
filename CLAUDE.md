@@ -122,7 +122,8 @@ from Mark's carrier UW guides (verbatim extractions in `docs/uw-extractions/`).
 with reason; indigo dot + tooltip on the row); SI term products + IULs decline
 via `SI_TERM_UW` / `IUL_UW` (term shows a "screened out" banner, IUL grays the
 row). Carriers without rules (Senior Life, Baltimore)
-fall back to the global tier. UHL + extra NewBridge/LB rules came from the ITK
+fall back to the global tier. UHL rules come from UHL's own guide (form 200-920,
+9-26; extract_uhl_2026-09.md); extra NewBridge/LB rules from the ITK
 live-engine sweep (docs/uw-extractions/itk_uw_matrix_2026-08-20.json). Condition recency buckets follow real carrier
 boundaries (heart 1/2/3 yrs; cancer 2/3/4/5 yrs).
 
